@@ -19,7 +19,7 @@ class HomePageResource extends Resource
 
     protected static ?string $navigationLabel = 'Головна сторінка';
 
-    //    protected static ?string $navigationIcon = 'heroicon-o-home';
+    protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-home';
 
     public static function form(Schema $schema): Schema
     {

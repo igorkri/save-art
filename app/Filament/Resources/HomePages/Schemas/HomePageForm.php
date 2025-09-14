@@ -35,7 +35,6 @@ class HomePageForm
                             ->schema([
                                 FileUpload::make('hero_video_poster')
                                     ->label('Постер відео')
-                                    ->image()
                                     ->directory('hero-videos'),
 
                                 TextInput::make('hero_video_url')
