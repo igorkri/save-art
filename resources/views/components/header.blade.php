@@ -26,10 +26,10 @@
                 </button>
             </div>
             <div class="links">
-                <a href="#projects">Проєкти</a>
-                <a href="#reports">Звіти</a>
-                <a href="#special-projects">Спецпроєкти</a>
-                <a href="#about">Про нас</a>
+                <a href="#projects">{{ __('messages.projects') }}</a>
+                <a href="#reports">{{ __('messages.reports') }}</a>
+                <a href="#special-projects">{{ __('messages.special_projects') }}</a>
+                <a href="#about">{{ __('messages.about_us') }}</a>
             </div>
 
             {{-- Social links --}}
@@ -54,8 +54,8 @@
                 </a>
             </div>
             <div class="lang">
-                <a href="#" class="on">UA</a>
-                <a href="#">EN</a>
+                <a href="/ua" class="{{ request()->is('ua*') ? 'on' : '' }}">UA</a>
+                <a href="/" class="{{ !request()->is('ua*') ? 'on' : '' }}">EN</a>
             </div>
             <div class="another">
                 <a href="#" target="_blank">art-ua.com</a>
@@ -64,14 +64,12 @@
 
             @guest
                 {{-- Кнопка входа в мобильном меню --}}
-                <a href="#" class="btn">Підтримати</a>
+                <a href="#" class="btn">{{ __('messages.support') }}</a>
                 <button type="button" class="login" wire:click="$emit('openLoginForm')">
-                    <span>Увійти</span>
+                    <span>{{ __('messages.login') }}</span>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M8 5L14 10L8 15V12H0.199951C0.0688477 11.3538 0 10.6849 0 10C0 9.31506 0.0688477 8.64624 0.199951 8H8V5Z" />
-                        <path
-                            d="M4.21265 18.1561C5.84608 19.3173 7.84331 20 10 20C15.5229 20 20 15.5228 20 10C20 4.47715 15.5229 0 10 0C7.84331 0 5.84608 0.682737 4.21265 1.84387L5.81601 3.18001C7.03331 2.43161 8.46625 2 10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C8.46625 18 7.03331 17.5684 5.81601 16.82L4.21265 18.1561Z" />
+                        <path d="M8 5L14 10L8 15V12H0.199951C0.0688477 11.3538 0 10.6849 0 10C0 9.31506 0.0688477 8.64624 0.199951 8H8V5Z" />
+                        <path d="M4.21265 18.1561C5.84608 19.3173 7.84331 20 10 20C15.5229 20 20 15.5228 20 10C20 4.47715 15.5229 0 10 0C7.84331 0 5.84608 0.682737 4.21265 1.84387L5.81601 3.18001C7.03331 2.43161 8.46625 2 10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C8.46625 18 7.03331 17.5684 5.81601 16.82L4.21265 18.1561Z" />
                     </svg>
                 </button>
             @else
@@ -79,7 +77,7 @@
         </div>
 
         {{-- Кнопки для десктопа --}}
-        <a href="#" class="btn">Підтримати</a>
+        <a href="#" class="btn">{{ __('messages.support') }}</a>
         <button type="button" class="burger">
             <span></span>
         </button>
@@ -105,7 +103,7 @@
                         </svg>
                     </a>
                     <div class="cloud">
-                        <p>Настисніть, щоб створити проєкт</p>
+                        <p>{{ __('messages.create_project_tooltip') }}</p>
                         <div>
                             <img src="{{ asset('img/check_yellow.svg') }}" alt="">
                         </div>
@@ -124,10 +122,10 @@
                         </div>
                     </div>
                     <div class="body">
-                        <a href="#projects">Проєкти</a>
-                        <a href="#patronage">Меценатство</a>
-                        <a href="#settings">Налаштування</a>
-                        <a href="#notifications">Сповіщення</a>
+                        <a href="#projects">{{ __('messages.projects') }}</a>
+                        <a href="#patronage">{{ __('messages.patronage') }}</a>
+                        <a href="#settings">{{ __('messages.settings') }}</a>
+                        <a href="#notifications">{{ __('messages.notifications') }}</a>
                         <a href="#profile" class="user">
                             art-ua.com/{{ Auth::user()->username ?? 'username' }}
                             <span>
@@ -138,7 +136,7 @@
                         </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="logout-link">Вийти</button>
+                            <button type="submit" class="logout-link">{{ __('messages.logout') }}</button>
                         </form>
                     </div>
                     <div class="foot">

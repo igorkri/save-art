@@ -7,13 +7,13 @@ use Livewire\Component;
 class Toast extends Component
 {
     public string $type = 'red';
-    public string $title = 'Помилка';
+    public string $title = '';
     public array|string $messages = [];
     public bool $show = false;
 
     public function mount(
         string $type = 'red',
-        string $title = 'Помилка',
+        string $title = '',
         array|string $messages = [],
         bool $show = false
     ): void {
@@ -23,6 +23,11 @@ class Toast extends Component
             $this->title = __('messages.success');
             $this->messages = session('success');
             $this->show = true;
+        } elseif ($type === 'green') {
+            $this->type = 'green';
+            $this->title = __('messages.success');
+            $this->messages = $messages;
+            $this->show = $show;
         } else {
             $this->type = $type;
             $this->title = __('messages.error');

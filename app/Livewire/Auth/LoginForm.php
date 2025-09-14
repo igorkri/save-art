@@ -48,17 +48,13 @@ class LoginForm extends Component
         $validated = $this->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ], [
-            'email.required' => 'Вкажіть email',
-            'email.email' => 'Вкажіть коректний email',
-            'password.required' => 'Вкажіть пароль',
         ]);
 
         $user = \App\Models\User::where('email', $validated['email'])->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Невірний email або пароль.'],
+                'email' => [__('auth.invalid_credentials')],
             ]);
         }
 
