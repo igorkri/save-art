@@ -72,26 +72,98 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-//! логінація
+//! логінація - обновленная версия для Livewire
 document.addEventListener('DOMContentLoaded', () => {
     const modalFill = document.querySelector('.modal_fill');
     const modalBlur = modalFill?.querySelector('.modal_blur');
 
+    // Функция для открытия формы входа
+    function openLoginForm() {
+        if (window.Livewire) {
+            window.Livewire.dispatch('openLoginForm');
+        }
+    }
+
+    // Делегирование событий для всех кнопок входа
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.login')) {
+            e.preventDefault();
+            openLoginForm();
+        }
+    });
+
+    // Слушаем события Livewire для показа/скрытия модалки
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('modal-fill-toggle', (show) => {
+            if (show) {
+                modalFill?.classList.add('active');
+                modalFill?.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Блокируем скролл
+            } else {
+                modalFill?.classList.remove('active');
+                modalFill?.classList.add('hidden');
+                document.body.style.overflow = ''; // Восстанавливаем скролл
+            }
+        });
+    });
+
     // Закриття по кліку на фон
     modalBlur?.addEventListener('click', () => {
-        modalFill.classList.remove('active');
-        modalFill.classList.add('hidden');
-        // Емитим событие закрытия формы
-        Livewire.dispatch('closeLoginForm');
+        if (window.Livewire) {
+            Livewire.dispatch('closeLoginForm');
+            Livewire.dispatch('closeRegisterForm');
+            Livewire.dispatch('closeResetForm');
+        }
     });
 
     // Закриття по ESC
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && modalFill?.classList.contains('active')) {
-            modalFill.classList.remove('active');
-            modalFill.classList.add('hidden');
-            // Емитим событие закриття форми
+            if (window.Livewire) {
+                Livewire.dispatch('closeLoginForm');
+                Livewire.dispatch('closeRegisterForm');
+                Livewire.dispatch('closeResetForm');
+            }
+        }
+    });
+});
+
+//! Переключение между формами в модальном окне
+document.addEventListener('livewire:init', () => {
+    // Переключение на форму регистрации из формы входа
+    document.addEventListener('click', (e) => {
+        const switchingButtons = e.target.closest('.switching button');
+        if (switchingButtons) {
+            const parentSwitching = switchingButtons.parentElement;
+            const buttons = parentSwitching.querySelectorAll('button');
+            const buttonIndex = Array.from(buttons).indexOf(switchingButtons);
+
+            // Убираем активный класс со всех кнопок
+            buttons.forEach(btn => btn.classList.remove('on'));
+            // Добавляем активный класс к нажатой кнопке
+            switchingButtons.classList.add('on');
+
+            // Переключаем формы
+            if (buttonIndex === 0) {
+                // Кнопка "Вхід до спільноти"
+                Livewire.dispatch('closeRegisterForm');
+                Livewire.dispatch('closeResetForm');
+                Livewire.dispatch('openLoginForm');
+            } else if (buttonIndex === 1) {
+                // Кнопка "Реєстрація"
+                Livewire.dispatch('closeLoginForm');
+                Livewire.dispatch('closeResetForm');
+                Livewire.dispatch('openRegisterForm');
+            }
+        }
+    });
+
+    // Обработка кнопки "Я не пам'ятаю пароль"
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.forgot')) {
+            e.preventDefault();
             Livewire.dispatch('closeLoginForm');
+            Livewire.dispatch('openResetForm');
         }
     });
 });

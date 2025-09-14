@@ -7,14 +7,18 @@ use Livewire\Component;
 class LoginForm extends Component
 {
     public $email = '';
+
     public $password = '';
+
     public $remember = false;
+
     public $show = false;
 
     protected $listeners = ['openLoginForm' => 'open', 'closeLoginForm' => 'close'];
 
     public function open()
     {
+        // Reset form fields
         $this->show = true;
         $this->dispatch('modal-fill-toggle', true);
     }
