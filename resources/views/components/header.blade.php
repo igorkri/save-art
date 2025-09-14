@@ -138,7 +138,7 @@
                             @csrf
                             <button type="submit" class="logout-link">{{ __('messages.logout') }}</button>
                         </form>
-                    </div>
+                        <form method="POST" action="{{ route('logout') }}">
                     <div class="foot">
                         <div class="links">
                             <a href="#" target="_blank">art-ua.com</a>
