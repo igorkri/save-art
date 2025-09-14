@@ -18,7 +18,7 @@ class LoginForm extends Component
 
     public function open()
     {
-        // Reset form fields
+        // Reset form fields and открыть модал
         $this->show = true;
         $this->dispatch('modal-fill-toggle', true);
     }

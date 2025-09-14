@@ -23,10 +23,15 @@
 
 <div class="modal_fill" id="modal_fill">
     <div class="modal_blur"></div>
-    <livewire:auth.login-form/>
-    <livewire:auth.register-form/>
-    <livewire:auth.reset-form/>
+    {{-- Livewire форми перемещены в #modal для рендера прямо в модальном контейнере --}}
 </div>
+<div class="modal" id="modal">
+    {{-- Livewire-компоненты рендерятся внутри этого контейнера. Класс 'on' добавляется/удаляется через JS при событии. --}}
+    <livewire:auth.login-form />
+    <livewire:auth.register-form />
+    <livewire:auth.reset-form />
+</div>
+
 <x-header/>
 @yield('content')
 

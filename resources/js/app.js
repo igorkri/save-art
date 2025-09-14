@@ -5,7 +5,7 @@ import './jquery_min_3.7.1.js';
 import './slick.min.js';
 
 // Подключаем кастомные скрипты
-// import './script.js';
+import './script.js';
 import './sliders.js';
 
 // Подключаем Charts.js если нужно (для графиков)
