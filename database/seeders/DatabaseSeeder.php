@@ -48,5 +48,8 @@ class DatabaseSeeder extends Seeder
 
         // Создаем несколько обычных пользователей
         User::factory(5)->create();
+
+        // Створюємо початковий контент головної сторінки
+        $this->call(HomePageSeeder::class);
     }
 }
