@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\HomeController;
 
 // EN routes (default)
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
 Route::post('/register', [RegisterController::class, 'store']);
@@ -20,8 +20,8 @@ Route::post('/logout', function () {
 
 // UA routes (with /ua prefix)
 Route::prefix('ua')->group(function () {
-    Route::get('/', function () {
-        return view('home');
+    Route::get('/', function (Request $request) {
+        return app(HomeController::class)->index($request->merge(['lang' => 'ua']));
     })->name('home.ua');
 
     Route::get('/register', [RegisterController::class, 'create'])->name('register.ua');

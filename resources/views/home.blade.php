@@ -6,15 +6,15 @@
         <video poster="../../img/main/hero.webp" autoplay muted loop preload="none">
             <source src="../../img/main/hero.webm" type="video/webm">
         </video>
-        <h1>Мистецтво допомоги — найсучасніше з мистецтв</h1>
+        <h1>{{ $homePage->getTranslation('hero_title', $locale) ?: 'Мистецтво допомоги — найсучасніше з мистецтв' }}</h1>
     </section>
 
     <section class="donates">
         <div class="block">
             <div class="title">
-                <h6>ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ ТА РОЗВИТКУ УКРАЇНСЬКОЇ КУЛЬТУРИ</h6>
+                <h6>{{ $homePage->getTranslation('donates_subtitle', $locale) ?: 'ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ ТА РОЗВИТКУ УКРАЇНСЬКОЇ КУЛЬТУРИ' }}</h6>
                 <a href="../../app/saveart/08.html" class="btn_decor">
-                    <p>Підтримати платформу</p>
+                    <p>{{ $homePage->getTranslation('ad_first_button_text', $locale) ?: 'Підтримати платформу' }}</p>
                     <div>
                         <svg width="20" height="18" viewBox="0 0 20 18" fill="" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -23,25 +23,24 @@
                     </div>
                 </a>
             </div>
-            <h2>
-                Твоя підтримка —<br/>
-                натхнення для митця
-            </h2>
+            <h2>{{ $homePage->getTranslation('donates_title', $locale) ?: 'Твоя підтримка — натхнення для митця' }}</h2>
             <div class="offer">
                 <div class="text">
-                    <p>
-                        Ми пропонуємо прозору систему донатів, яка забезпечить майбутній проєкт в будь-якій галузі
-                        мистецтва
-                        стабільною
-                        підтримкою.
-                    </p>
-                    <p>
-                        Донатерами можуть бути як фізичні так і юридичні особи. Навіть 10₴ допоможуть ...
-                    </p>
-                    <p>
-                        Ви побачите результат своєї допомоги у вигляді готового проєкту або навіть виставки робіт
-                        автора.
-                    </p>
+                    @php
+                        $donatesText = $homePage->getTranslation('donates_text', $locale);
+                        if (is_array($donatesText)) {
+                            $donatesTextArray = $donatesText;
+                        } else {
+                            $donatesTextArray = [
+                                'Ми пропонуємо прозору систему донатів, яка забезпечить майбутній проєкт в будь-якій галузі мистецтва стабільною підтримкою.',
+                                'Донатерами можуть бути як фізичні так і юридичні особи. Навіть 10₴ допоможуть ...',
+                                'Ви побачите результат своєї допомоги у вигляді готового проєкту або навіть виставки робіт автора.'
+                            ];
+                        }
+                    @endphp
+                    @foreach($donatesTextArray as $paragraph)
+                        <p>{{ $paragraph }}</p>
+                    @endforeach
                 </div>
                 <div class="don">
                     <a href="01.1-01.2.html" class="btn_decor">
@@ -54,30 +53,12 @@
                         </div>
                     </a>
                     <div class="cards">
-                        <div>
-                            <img src="../../img/main/card1.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card2.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card3.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card4.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card5.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card6.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card7.svg" alt="">
-                        </div>
-                        <div>
-                            <img src="../../img/main/card8.svg" alt="">
-                        </div>
+                        {{-- Payment cards remain static --}}
+                        @for($i = 1; $i <= 8; $i++)
+                            <div>
+                                <img src="../../img/main/card{{ $i }}.svg" alt="">
+                            </div>
+                        @endfor
                     </div>
                     <div class="question">
                         <p>Як працює система донатерства?</p>
@@ -85,6 +66,8 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Project items remain static for now --}}
             <div class="items">
                 <a href="../../app/saveart/02.1.1-02.1.2-02.1.3-02.2.1.html" class="project_item">
                     <div class="head">
@@ -303,7 +286,7 @@
         <div class="block">
             <div class="title">
                 <p>Зібрано за весь час</p>
-                <h2><span>2 325 250</span> ₴</h2>
+                <h2><span>{{ number_format($homePage->total_collected) }}</span> ₴</h2>
             </div>
             <div class="graph">
                 <div class="buttons">
@@ -319,7 +302,7 @@
             </div>
             <div class="text">
                 <p>
-                    Загальна сума зібраних коштів є відкритою інформацією. Модератори платформи пильно контролюють їх
+                    Загальна сума зібраних коштів є відкритою інформацією. Модератори платформи пільно контролюють їх
                     використання
                     та
                     унеможливлюють випадки шахрайства.
@@ -331,19 +314,19 @@
             <div class="total">
                 <div>
                     <p>Оголошених проєктів</p>
-                    <h2>624</h2>
+                    <h2>{{ number_format($homePage->declared_projects) }}</h2>
                 </div>
                 <div>
                     <p>Проєктів в роботі</p>
-                    <h2>387</h2>
+                    <h2>{{ number_format($homePage->active_projects) }}</h2>
                 </div>
                 <div>
                     <p>Завершених проєктів</p>
-                    <h2>1 126</h2>
+                    <h2>{{ number_format($homePage->completed_projects) }}</h2>
                 </div>
                 <div>
                     <p>Проданих проєктів</p>
-                    <h2>107</h2>
+                    <h2>{{ number_format($homePage->sold_projects) }}</h2>
                 </div>
             </div>
         </div>
@@ -351,7 +334,7 @@
 
     <section class="partners" id="partners">
         <div class="block">
-            <h2>Партнери</h2>
+            <h2>{{ $homePage->getTranslation('partners_title', $locale) ?: 'Партнери' }}</h2>
             <div class="cont">
                 <div>
                     <img src="../../img/main/idua.svg" alt="">

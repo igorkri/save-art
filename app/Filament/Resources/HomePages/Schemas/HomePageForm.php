@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\HomePages\Schemas;
 
+use App\Rules\MaxFileSizeRule;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -35,11 +36,15 @@ class HomePageForm
                             ->schema([
                                 FileUpload::make('hero_video_poster')
                                     ->label('Постер відео')
-                                    ->directory('hero-videos'),
+                                    ->acceptedFileTypes(['image/*', 'video/*'])
+                                    ->maxSize(73728) // 72 MB (12 + 60)
+                                    ->rules([new MaxFileSizeRule(73728)])
+                                    ->directory('hero-videos')
+                                    ->disk('public'),
 
                                 TextInput::make('hero_video_url')
                                     ->label('URL відео')
-                                    ->url()
+//                                    ->url()
                                     ->placeholder('https://example.com/video.webm'),
                             ]),
                     ])
@@ -138,7 +143,8 @@ class HomePageForm
                                 FileUpload::make('ad_first_image')
                                     ->label('Зображення')
                                     ->image()
-                                    ->directory('advertising'),
+                                    ->directory('advertising')
+                                    ->disk('public'),
                             ]),
 
                         Section::make('Другий рекламний блок')
@@ -158,7 +164,8 @@ class HomePageForm
                                 FileUpload::make('ad_second_image')
                                     ->label('Зображення')
                                     ->image()
-                                    ->directory('advertising'),
+                                    ->directory('advertising')
+                                    ->disk('public'),
                             ]),
                     ])
                     ->collapsible(),
