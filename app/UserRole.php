@@ -12,17 +12,17 @@ enum UserRole: string
     case User = 'user';
 
     /**
-     * Получить название роли на русском языке
+     * Получить название роли на украинском языке
      */
     public function getLabel(): string
     {
-        return match ($this) {
-            self::Developer => 'Разработчик',
-            self::Admin => 'Администратор',
+        return match($this) {
+            self::Developer => 'Розробник',
+            self::Admin => 'Адміністратор',
             self::Moderator => 'Модератор',
-            self::Owner => 'Владелец',
+            self::Owner => 'Власник',
             self::Mecenat => 'Меценат',
-            self::User => 'Пользователь',
+            self::User => 'Користувач',
         };
     }
 
