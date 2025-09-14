@@ -3,6 +3,9 @@
 namespace App\Livewire\Auth;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class LoginForm extends Component
 {
@@ -27,6 +30,32 @@ class LoginForm extends Component
     {
         $this->show = false;
         $this->dispatch('modal-fill-toggle', false);
+    }
+
+    public function login(): void
+    {
+        $validated = $this->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ], [
+            'email.required' => 'Вкажіть email',
+            'email.email' => 'Вкажіть коректний email',
+            'password.required' => 'Вкажіть пароль',
+        ]);
+
+        $user = \App\Models\User::where('email', $validated['email'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Невірний email або пароль.'],
+            ]);
+        }
+
+        Auth::login($user, $this->remember);
+        $this->reset(['email', 'password', 'remember']);
+        $this->close();
+        session()->flash('success', 'Ласкаво просимо, '.$user->name.'!');
+        $this->redirect('/');
     }
 
     public function render()
