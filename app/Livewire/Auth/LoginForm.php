@@ -17,7 +17,12 @@ class LoginForm extends Component
 
     public $show = false;
 
-    protected $listeners = ['openLoginForm' => 'open', 'closeLoginForm' => 'close'];
+    protected $listeners = [
+        'openLoginForm' => 'open',
+        'closeLoginForm' => 'close',
+        'openRegisterForm' => 'hide',
+        'openResetForm' => 'hide',
+    ];
 
     public function open()
     {
@@ -27,6 +32,12 @@ class LoginForm extends Component
     }
 
     public function close()
+    {
+        $this->show = false;
+        $this->dispatch('modal-fill-toggle', false);
+    }
+
+    public function hide(): void
     {
         $this->show = false;
         $this->dispatch('modal-fill-toggle', false);

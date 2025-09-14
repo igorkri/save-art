@@ -75,11 +75,6 @@
                     </svg>
                 </button>
             @else
-                {{-- Логин для авторизованного пользователя в мобильном меню --}}
-                <div class="user-mobile">
-                    <img src="{{ Auth::user()->avatar ?? asset('img/person.webp') }}" alt="">
-                    <span>{{ Auth::user()->name }}</span>
-                </div>
             @endguest
         </div>
 

@@ -15,7 +15,7 @@
     <div class="body">
         <div>
             <div class="switching">
-                <button type="button">
+                <button type="button" wire:click="$dispatch('openLoginForm')">
                     <h6>Вхід до спільноти</h6>
                 </button>
                 <button type="button" class="on">

@@ -20,7 +20,7 @@
                 <button type="button" class="on">
                     <h6>Вхід до спільноти</h6>
                 </button>
-                <button type="button">
+                <button type="button" wire:click="$dispatch('openRegisterForm')">
                     <h6>Реєстрація</h6>
                 </button>
             </div>
@@ -52,7 +52,7 @@
                 <input type="checkbox" wire:model="remember">
                 <span>Запам'ятати мене</span>
             </label>
-            <button type="button" class="forgot">Я не пам'ятаю пароль</button>
+            <button type="button" class="forgot" wire:click="$dispatch('openResetForm')">Я не пам'ятаю пароль</button>
             <button type="submit" class="btn" wire:loading.attr="disabled">
                 <span wire:loading.remove>Увійти</span>
                 <span wire:loading>Входжу...</span>
