@@ -81,13 +81,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function hideModalLocal() {
+    console.log('[modal] hideModalLocal called');
+    modal?.classList.remove('on');
+    modalFill?.classList.remove('on'); // Удаляем класс on при закрытии
     modalFill?.classList.remove('active');
     modalFill?.classList.add('hidden');
-    modal?.classList.remove('on');
     document.body.style.overflow = '';
   }
 
   function sendLivewireEvent(name) {
+    console.log(`[modal] sendLivewireEvent called with: ${name}`);
     if (!window.Livewire) return false;
     if (typeof Livewire.emit === 'function') {
       Livewire.emit(name);
@@ -116,7 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('livewire:init', () => {
     Livewire.on('modal-fill-toggle', (show) => {
-      if (show) {
+      // Если show — массив, берем первый элемент
+      const value = Array.isArray(show) ? show[0] : show;
+      if (value) {
         showModalLocal();
       } else {
         hideModalLocal();
@@ -124,28 +129,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  modalBlur?.addEventListener('click', () => {
-    const sent = sendLivewireEvent('closeLoginForm') || sendLivewireEvent('closeRegisterForm') || sendLivewireEvent('closeResetForm');
-    if (!sent) hideModalLocal();
-  });
-
   modal?.addEventListener('click', (e) => {
+    console.log('[modal] background or close clicked');
     if (e.target === modal) {
-      const sent = sendLivewireEvent('closeLoginForm');
-      if (!sent) hideModalLocal();
+      hideModalLocal();
       return;
     }
     const closeBtn = e.target.closest('.modal_content .head .title .close, .modal_content .head .title .back, .modal_content .head .title button.close');
     if (closeBtn) {
-      const sent = sendLivewireEvent('closeLoginForm') || sendLivewireEvent('closeRegisterForm') || sendLivewireEvent('closeResetForm');
-      if (!sent) hideModalLocal();
+      sendLivewireEvent('closeLoginForm');
+      sendLivewireEvent('closeRegisterForm');
+      sendLivewireEvent('closeResetForm');
+      hideModalLocal();
     }
   });
 
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape' && modalFill?.classList.contains('active')) {
-      const sent = sendLivewireEvent('closeLoginForm') || sendLivewireEvent('closeRegisterForm') || sendLivewireEvent('closeResetForm');
-      if (!sent) hideModalLocal();
+      console.log('[modal] Escape pressed');
+      sendLivewireEvent('closeLoginForm');
+      sendLivewireEvent('closeRegisterForm');
+      sendLivewireEvent('closeResetForm');
+      hideModalLocal();
     }
   });
 });

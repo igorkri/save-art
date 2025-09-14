@@ -11,7 +11,12 @@ class RegisterForm extends Component
 
     public bool $show = false;
 
-    protected $listeners = ['openRegisterForm' => 'open', 'closeRegisterForm' => 'close'];
+    protected $listeners = [
+        'openRegisterForm' => 'open',
+        'closeRegisterForm' => 'close',
+        'openLoginForm' => 'hide',
+        'openResetForm' => 'hide',
+    ];
 
     public function open(): void
     {
@@ -21,6 +26,12 @@ class RegisterForm extends Component
     }
 
     public function close(): void
+    {
+        $this->show = false;
+        $this->dispatch('modal-fill-toggle', false);
+    }
+
+    public function hide(): void
     {
         $this->show = false;
         $this->dispatch('modal-fill-toggle', false);
