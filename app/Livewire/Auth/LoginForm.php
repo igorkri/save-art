@@ -65,7 +65,7 @@ class LoginForm extends Component
         Auth::login($user, $this->remember);
         $this->reset(['email', 'password', 'remember']);
         $this->close();
-        session()->flash('success', 'Ласкаво просимо, '.$user->name.'!');
+        session()->flash('success', __('messages.welcome', ['name' => $user->name]));
         $this->redirect('/');
     }
 

@@ -45,7 +45,7 @@ class RegisterForm extends Component
             $this->close();
 
             // Показываем уведомление об успешной регистрации
-            session()->flash('success', 'Ласкаво просимо, '.$user->name.'!');
+            session()->flash('success', __('messages.welcome', ['name' => $user->name]));
 
             // Перенаправляем на главную страницу
             $this->redirect('/');

@@ -17,10 +17,18 @@ class Toast extends Component
         array|string $messages = [],
         bool $show = false
     ): void {
-        $this->type = $type;
-        $this->title = $title;
-        $this->messages = $messages;
-        $this->show = $show;
+        // Check for session success flash
+        if (session()->has('success')) {
+            $this->type = 'green';
+            $this->title = __('messages.success');
+            $this->messages = session('success');
+            $this->show = true;
+        } else {
+            $this->type = $type;
+            $this->title = __('messages.error');
+            $this->messages = $messages;
+            $this->show = $show;
+        }
     }
 
     public function close(): void
