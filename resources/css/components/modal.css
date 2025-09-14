@@ -1,0 +1,16 @@
+.modal_fill {
+    @apply fixed inset-0 bg-black/50 hidden items-center justify-center z-50;
+}
+
+.modal_fill.active {
+    @apply flex;
+}
+
+.modal_blur {
+    @apply absolute inset-0 cursor-pointer;
+}
+
+.modal_content {
+    @apply relative bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4;
+    z-index: 1;
+}
