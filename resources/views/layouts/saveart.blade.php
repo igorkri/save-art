@@ -13,7 +13,13 @@
     <title>@yield('title', 'Save-Art')</title>
 </head>
 <body>
-<livewire:notification />
+<livewire:notification 
+    :title="session('notification.title')"
+    :message="session('notification.message')"
+    :show="session()->has('notification')"
+    :class="session('notification.class', 'red')"
+    :auto-close="session('notification.autoClose', true)"
+/>
 <div class="modal_fill" id="modal_fill">
 
     <!-- login -->
@@ -271,9 +277,17 @@
 <livewire:advertising>
 @include('layouts.partials.footer')
 @livewireScripts
+@stack('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ asset('js/charts.js') }}" defer></script>
 <script src="{{ asset('js/script.js') }}" defer></script>
+@if(session('notification'))
+<script>
+    window.addEventListener('livewire:load', function () {
+        console.log('Livewire loaded, emitting notification:', @json(session('notification.title')), @json(session('notification.message')));
+        window.livewire.emit('showNotification', @json(session('notification.title')), @json(session('notification.message')));
+    });
+</script>
+@endif
 </body>
 </html>
-

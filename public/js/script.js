@@ -1,4 +1,4 @@
-//! тоаст 
+//! тоаст
 document.addEventListener("DOMContentLoaded", () => {
   const toast = document.querySelector("#toast");
   const btn = document.querySelector("#toast .head button");
@@ -282,6 +282,7 @@ window.addEventListener('DOMContentLoaded', updateVideoSource);
 // ! додавання опцій
 document.addEventListener("DOMContentLoaded", () => {
   const fields = document.querySelector('#services_new .options .fields');
+  if (!fields) return;
   const cont = fields.querySelector('#services_new .options .cont');
   const addButton = fields.querySelector('#services_new .options .add');
 
@@ -325,11 +326,12 @@ document.addEventListener("DOMContentLoaded", () => {
   updateDeleteButtonVisibility();
 });
 
-// ! пошук
 document.addEventListener("DOMContentLoaded", () => {
   const members = document.querySelector('#services_new .members');
+  if (!members) return;
   const cont = members.querySelector('.cont');
   const search = members.querySelector('.search');
+  if (!cont || !search) return;
 
   // Делегування подій для копіювання .item із .search до .cont
   search.addEventListener('click', (event) => {
@@ -349,11 +351,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ! кнопка вибору виду мистецтва
 document.addEventListener("DOMContentLoaded", () => {
   const button = document.querySelector("#profile_newProject .cont .status button");
   const modal = document.querySelector("#modal");
   const modalFill = document.querySelector("#modal_fill");
+  if (!button || !modal || !modalFill) return;
 
   // Функція для відкриття модального вікна
   const openModal = () => {
@@ -370,7 +372,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Додаємо обробник подій для кожної кнопки
   button.addEventListener("click", openModal);
-
 });
 
 // ! видалення лінії
@@ -459,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Зберігаємо кнопку перед очищенням
     const firstButton = addFileImg.querySelector("button");
-    addFileImg.innerHTML = ""; // Очищаємо контейнер
+    addFileImg.innerHTML = ""; // Очищуємо контейнер
 
     if (firstButton) addFileImg.appendChild(firstButton); // Повертаємо кнопку назад
 
@@ -469,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ! пересування і видалення зображень в галереі зображень
+// ! пересування і видалення зображень в галереї зображень
 document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (event) {
     const button = event.target.closest("button"); // Знаходимо натиснуту кнопку
@@ -550,23 +551,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector('#notifications .messenger form');
   const chat_enter = document.querySelector('#notifications .messenger .head .chat_enter');
   const chat_leave = document.querySelector('#notifications .messenger .head .chat_leave');
-
+  if (!form || !chat_enter || !chat_leave) return;
   chat_enter.addEventListener("click", () => {
     form.classList.add("on");
   });
-
   chat_leave.addEventListener("click", () => {
     form.classList.remove("on");
   });
 });
 
-//! діапазон цін
 document.addEventListener("DOMContentLoaded", () => {
   const minPriceInput = document.getElementById("minPrice");
   const maxPriceInput = document.getElementById("maxPrice");
   const rangeMin = document.getElementById("rangeMin");
   const rangeMax = document.getElementById("rangeMax");
   const track = document.querySelector(".track");
+  if (!minPriceInput || !maxPriceInput || !rangeMin || !rangeMax || !track) return;
 
   function updateSlider() {
     let minVal = parseInt(rangeMin.value);
@@ -611,56 +611,35 @@ document.addEventListener("DOMContentLoaded", () => {
   rangeMax.addEventListener("input", updateSlider);
   minPriceInput.addEventListener("input", updateInputs);
   maxPriceInput.addEventListener("input", updateInputs);
-
   updateSlider();
 });
 
-//! сайд меню дроп
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("#projects .block .side_panel .unit .head").forEach((head) => {
-    head.addEventListener("click", () => {
-      const unit = head.closest(".unit");
-      const box = unit.querySelector(".box");
-
-      unit.classList.toggle("on");
-    });
-  });
-});
-
-//! сайд меню мобільне
 document.addEventListener("DOMContentLoaded", () => {
   const openSide = document.querySelector("#projects .cont .top button");
   const closeSide = document.querySelector("#projects .side_panel .top button");
   const sidePanel = document.querySelector("#projects .side_panel");
-
-
+  if (!openSide || !closeSide || !sidePanel) return;
   openSide.addEventListener("click", (event) => {
-    event.stopPropagation(); // Зупиняємо поширення події
+    event.stopPropagation();
     sidePanel.classList.add("on");
   });
-
   closeSide.addEventListener("click", (event) => {
-    event.stopPropagation(); // Зупиняємо поширення події
+    event.stopPropagation();
     sidePanel.classList.remove("on");
   });
-
-
 });
 
-//! фільтр по імені чи популярності
 document.addEventListener("DOMContentLoaded", () => {
   const sort = document.querySelector("#projects .sort_list");
+  if (!sort) return;
   const button = sort.querySelector(".button");
   const dropMenu = sort.querySelector(".drop");
-
-  // Тогл класів при кліку на кнопку
+  if (!button || !dropMenu) return;
   button.addEventListener("click", (event) => {
-    event.stopPropagation(); // Зупиняємо поширення події
+    event.stopPropagation();
     button.classList.toggle("on");
     dropMenu.classList.toggle("on");
   });
-
-  // Закриття меню при кліку поза межами .logo
   document.addEventListener("click", (event) => {
     if (!sort.contains(event.target)) {
       button.classList.remove("on");
@@ -669,35 +648,25 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
-// ! ==========================
-
-//! закриття window
 document.addEventListener("DOMContentLoaded", function () {
-  const window = document.querySelector(".window");
+  const windowEl = document.querySelector(".window");
   const close = document.querySelectorAll(".window .close");
-
-  // Закриття при натисканні ESC
+  if (!windowEl) return;
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       closeWindow();
     }
   });
-
-  // Закриття при кліку по #window, але не по його вмісту
-  window.addEventListener("click", function (event) {
-    if (event.target === window) {
+  windowEl.addEventListener("click", function (event) {
+    if (event.target === windowEl) {
       closeWindow();
     }
   });
-
-  // Закриття по кнопці
   close.forEach(button => {
     button.addEventListener("click", closeWindow);
   });
-
   function closeWindow() {
-    window.classList.remove("on");
+    windowEl.classList.remove("on");
   }
 });
 
@@ -786,18 +755,4 @@ document.addEventListener("click", (event) => {
     }
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

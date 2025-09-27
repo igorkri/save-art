@@ -10,6 +10,7 @@
         "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "livewire/livewire": "^3.6",
         "pixelpeter/filament-language-tabs": "^3.0",
         "spatie/laravel-translatable": "^6.11"
     },
