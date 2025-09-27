@@ -8,26 +8,23 @@
             </svg>
         </button>
     </div>
-
     <p>{{ $message }}</p>
 </div>
-
-<!-- Auto-close notification -->
-
-
-@if($show && $autoClose)
-    @push('scripts')
-        <script>
-            window.addEventListener('livewire:load', function () {
-                setTimeout(function() {
-                    if (window.livewire && window.livewire.find) {
-                        window.livewire.find(@this.__instance.id).call('closeNotification');
-                        console.log('Livewire notification auto-close triggered');
-                    } else {
-                        console.warn('Livewire not ready for notification auto-close');
-                    }
-                }, 4000);
-            });
-        </script>
-    @endpush
-@endif
+<script>
+    document.addEventListener('livewire:load', function () {
+        function autoCloseToast() {
+            var toast = document.getElementById('toast');
+            if (toast && toast.style.display !== 'none' && {{ $autoClose ? 'true' : 'false' }}) {
+                setTimeout(function () {
+                    window.livewire.emit('closeNotification');
+                }, 400);
+            }
+        }
+        // Автозакрытие при первом показе
+        autoCloseToast();
+        // Автозакрытие при динамическом показе
+        window.livewire.on('showNotification', function () {
+            autoCloseToast();
+        });
+    });
+</script>
