@@ -5,6 +5,35 @@
 
     RewriteEngine On
 
+    AddType video/mp4 .mp4
+    AddType video/webm .webm
+    AddType video/ogg .ogv .ogg
+    AddType video/quicktime .mov
+    AddType video/x-matroska .mkv
+
+    #image types
+    AddType image/jpeg .jpeg .jpg
+    AddType image/png .png
+    AddType image/gif .gif
+    AddType image/webp .webp
+    AddType image/svg+xml .svg
+    AddType image/tiff .tiff .tif
+    AddType image/bmp .bmp
+    AddType image/x-icon .ico
+    AddType image/heif .heif .heic
+    AddType image/avif .avif
+    AddType image/vnd.microsoft.icon .ico
+    AddType image/x-xbitmap .xbm
+    AddType image/x-pcx .pcx
+    AddType image/x-pict .pic .pct
+    AddType image/x-portable-anymap .pnm
+    AddType image/x-portable-bitmap .pbm
+    AddType image/x-portable-graymap .pgm
+    AddType image/x-portable-pixmap .ppm
+    AddType image/x-rgb .rgb
+    AddType image/x-tga .tga
+    AddType image/x-xcf .xcf
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
