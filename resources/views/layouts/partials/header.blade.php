@@ -59,6 +59,7 @@
             <a href="../../app/info/index.html">art-ua.info</a>
         </div>
         <a href="../../app/saveart/08.html" class="btn">Підтримати</a>
+        @guest
         <button type="button" class="login">
             <span>Увійти</span>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
@@ -68,11 +69,14 @@
                     d="M4.21265 18.1561C5.84608 19.3173 7.84331 20 10 20C15.5229 20 20 15.5228 20 10C20 4.47715 15.5229 0 10 0C7.84331 0 5.84608 0.682737 4.21265 1.84387L5.81601 3.18001C7.03331 2.43161 8.46625 2 10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C8.46625 18 7.03331 17.5684 5.81601 16.82L4.21265 18.1561Z"/>
             </svg>
         </button>
+        @endguest
     </div>
+
     <a href="../../app/saveart/08.html" class="btn">Підтримати</a>
     <button type="button" class="burger">
         <span></span>
     </button>
+    @guest
     <button type="button" class="login">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -81,6 +85,8 @@
                 d="M4.21265 18.1561C5.84608 19.3173 7.84331 20 10 20C15.5229 20 20 15.5228 20 10C20 4.47715 15.5229 0 10 0C7.84331 0 5.84608 0.682737 4.21265 1.84387L5.81601 3.18001C7.03331 2.43161 8.46625 2 10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C8.46625 18 7.03331 17.5684 5.81601 16.82L4.21265 18.1561Z"/>
         </svg>
     </button>
+    @endguest
+    @auth
     <div class="logged">
         <div class="new_project">
             <a href="../../app/saveart/03.5.1-03.5.2.html">
@@ -116,12 +122,12 @@
                 <a href="../../app/saveart/03.1.2.html" class="user">
                     art-ua.com/username
                     <span>
-              <svg width="12" height="8" viewBox="0 0 12 8" fill="" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3.43326e-06L6 8L0 0L12 3.43326e-06Z"/>
-              </svg>
-            </span>
+                      <svg width="12" height="8" viewBox="0 0 12 8" fill="" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3.43326e-06L6 8L0 0L12 3.43326e-06Z"/>
+                      </svg>
+                    </span>
                 </a>
-                <a href="#">Вийти</a>
+                <a href="{{ route('logout') }}">Вийти</a>
             </div>
             <div class="foot">
                 <div class="links">
@@ -151,4 +157,5 @@
             </div>
         </div>
     </div>
+    @endauth
 </header>

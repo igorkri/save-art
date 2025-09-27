@@ -21,7 +21,7 @@
             <button type="button" class="on">
               <h6>Вхід до спільноти</h6>
             </button>
-            <button type="button">
+            <button type="button" wire:click="redirectToRegister">
               <h6>Реєстрація</h6>
             </button>
           </div>

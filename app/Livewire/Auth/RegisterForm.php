@@ -4,46 +4,51 @@ namespace App\Livewire\Auth;
 use Livewire\Component;
 use App\Auth;
 
-class LoginForm extends Component
+class RegisterForm extends Component
 {
     public $email = '';
     public $password = '';
+    public $password_confirmation = '';
     public $loading = false;
 
     protected $rules = [
         'email' => 'required|email',
-        'password' => 'required',
+        'password' => 'required|min:6|confirmed',
     ];
 
     protected $messages = [
         'email.required' => 'Поле email обов\'язкове для заповнення.',
         'email.email' => 'Введіть коректний email.',
         'password.required' => 'Поле пароль обов\'язкове для заповнення.',
+        'password.min' => 'Пароль має містити не менше 6 символів.',
+        'password.confirmed' => 'Паролі не співпадають.',
     ];
 
-    public function login()
+    public function register()
     {
         $this->validate();
         $this->loading = true;
-        [$success, $result] = Auth::login($this->email, $this->password);
+        [$success, $result] = Auth::register([
+            'email' => $this->email,
+            'password' => $this->password,
+        ]);
         if (! $success) {
             $this->loading = false;
             $this->dispatch('showNotification', 'Помилка', $result, 'red', true);
             return null;
         }
         $this->loading = false;
-        $this->dispatch('showNotification', 'Успіх', 'Вхід виконано', 'green', true);
+        $this->dispatch('showNotification', 'Успіх', 'Реєстрація виконана', 'green', true);
         return redirect()->intended('/');
     }
 
-    //redirectToRegister
-    public function redirectToRegister()
+    public function redirectToLogin()
     {
-        $this->dispatch('openRegisterModal'); // Відкриваємо модальне вікно реєстрації
+        $this->dispatch('openLoginModal');
     }
 
     public function render()
     {
-        return view('livewire.auth.login-form');
+        return view('livewire.auth.register-form');
     }
 }

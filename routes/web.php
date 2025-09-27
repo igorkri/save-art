@@ -6,4 +6,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
 
+// logout
+Route::get('/logout', function () {
+    auth()->logout();
+    session()->forget('api_token');
+    return redirect('/');
+})->name('logout');
+
 require __DIR__.'/api-auth.php';

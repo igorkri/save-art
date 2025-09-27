@@ -756,3 +756,31 @@ document.addEventListener("click", (event) => {
   }
 });
 
+// Livewire обробники
+if (window.Livewire) {
+  window.Livewire.on('openRegisterModal', function () {
+    const modal = document.querySelector('#modal');
+    const modalFill = document.querySelector('#modal_fill');
+    if (!modal || !modalFill) return;
+    modal.classList.add('on');
+    const modalRegister = modalFill.querySelector('#modal_register');
+    if (modalRegister) {
+      const clonedContent = modalRegister.cloneNode(true);
+      modal.innerHTML = '';
+      modal.appendChild(clonedContent);
+    }
+  });
+
+  window.Livewire.on('openLoginModal', function () {
+    const modal = document.querySelector('#modal');
+    const modalFill = document.querySelector('#modal_fill');
+    if (!modal || !modalFill) return;
+    modal.classList.add('on');
+    const modalLogin = modalFill.querySelector('#modal_login');
+    if (modalLogin) {
+      const clonedContent = modalLogin.cloneNode(true);
+      modal.innerHTML = '';
+      modal.appendChild(clonedContent);
+    }
+  });
+}
