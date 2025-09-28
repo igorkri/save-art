@@ -25,10 +25,10 @@
             </button>
         </div>
         <div class="links">
-            <a href="../../app/saveart/01.1-01.2.html">Проєкти</a>
-            <a href="../../app/saveart/07.1.1-07.1.2.html">Звіти</a>
-            <a href="../../app/saveart/06.html">Спецпроєкти</a>
-            <a href="../../app/saveart/11.html">Про нас</a>
+            <a href="../../app/saveart/01.1-01.2.html">{{ __('header.projects') }}</a>
+            <a href="../../app/saveart/07.1.1-07.1.2.html">{{ __('header.reports') }}</a>
+            <a href="../../app/saveart/06.html">{{ __('header.special_projects') }}</a>
+            <a href="../../app/saveart/11.html">{{ __('header.about_us') }}</a>
         </div>
         <div class="social">
             <a href="#" target="_blank">
@@ -58,10 +58,10 @@
             <a href="../../app/com/index.html">art-ua.com</a>
             <a href="../../app/info/index.html">art-ua.info</a>
         </div>
-        <a href="../../app/saveart/08.html" class="btn">Підтримати</a>
+    <a href="../../app/saveart/08.html" class="btn">{{ __('header.support') }}</a>
         @guest
         <button type="button" class="login" wire:click="switchToLogin">
-            <span>Увійти</span>
+            <span>{{ __('header.login') }}</span>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M8 5L14 10L8 15V12H0.199951C0.0688477 11.3538 0 10.6849 0 10C0 9.31506 0.0688477 8.64624 0.199951 8H8V5Z"/>
@@ -96,7 +96,7 @@
                 </svg>
             </a>
             <div class="cloud">
-                <p>Настисніть, щоб створити проєкт</p>
+                <p>{{ __('header.create_project_hint') }}</p>
                 <div>
                     <img src="../../img/check_yellow.svg" alt="">
                 </div>
@@ -108,17 +108,17 @@
         </div>
         <div class="logged_modal">
             <div class="head">
-                <p>Ім’я прізвище</p>
+                <p>{{ __('header.person_name') }}</p>
                 <div class="person">
                     <img src="../../img/person.webp" alt="">
                     <div class="indicator"></div>
                 </div>
             </div>
             <div class="body">
-                <a href="../../app/saveart/03.1.1-03.2.1-03.2.2.html">Проєкти</a>
-                <a href="../../app/saveart/03.1.3-03.2.3.html">Меценатство</a>
-                <a href="../../app/saveart/03.3.1.html">Налаштування</a>
-                <a href="../../app/saveart/03.2.4.html">Сповіщення</a>
+                <a href="../../app/saveart/03.1.1-03.2.1-03.2.2.html">{{ __('header.projects') }}</a>
+                <a href="../../app/saveart/03.1.3-03.2.3.html">{{ __('header.patronage') }}</a>
+                <a href="../../app/saveart/03.3.1.html">{{ __('header.settings') }}</a>
+                <a href="../../app/saveart/03.2.4.html">{{ __('header.notifications') }}</a>
                 <a href="../../app/saveart/03.1.2.html" class="user">
                     art-ua.com/username
                     <span>
@@ -127,7 +127,7 @@
                       </svg>
                     </span>
                 </a>
-                <a href="{{ route('logout') }}">Вийти</a>
+                <a href="{{ route('logout') }}">{{ __('header.logout') }}</a>
             </div>
             <div class="foot">
                 <div class="links">

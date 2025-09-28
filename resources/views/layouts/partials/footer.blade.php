@@ -5,32 +5,32 @@
                 <a href="index.html">
                     <h5>save-art.in.ua</h5>
                 </a>
-                <h5>Мистецтво допомоги — найсучасніше з мистецтв</h5>
+                <h5>{{ __('footer.slogan') }}</h5>
             </div>
             <div class="cont">
-                <h6>Запрошуємо експертів до співпраці</h6>
-                <p>Благодійний фонд ID_Art UA відкритий до співпраці ...</p>
+                <h6>{{ __('footer.invite_experts') }}</h6>
+                <p>{{ __('footer.fund_open') }}</p>
                 <div>
                     <div>
                         <img src="../../img/footer/footer1.webp" alt="">
                         <p>
-                            Створення сучасного українського мистецтва
+                            {{ __('footer.create_modern_art') }}
                         </p>
                     </div>
                     <div>
                         <img src="../../img/footer/footer2.webp" alt="">
                         <p>
-                            Участь у проведенні виставок та мистецьких заходів
+                            {{ __('footer.participate_exhibitions') }}
                         </p>
                     </div>
                     <div>
                         <img src="../../img/footer/footer3.webp" alt="">
                         <p>
-                            Популяризація українських митців в усьому світі
+                            {{ __('footer.popularize_artists') }}
                         </p>
                     </div>
                 </div>
-                <button type="button" id="send_application">Відправити заявку</button>
+                <button type="button" id="send_application">{{ __('footer.send_application') }}</button>
             </div>
         </div>
         <div class="middle">
@@ -38,43 +38,43 @@
                 <a href="../../app/saveart/index.html">
                     <h6>save-art.in.ua</h6>
                 </a>
-                <a href="../../app/saveart/01.1-01.2.html">Проєкти</a>
-                <a href="../../app/saveart/07.1.1-07.1.2.html">Звіти</a>
-                <a href="../../app/saveart/06.html">Спецпроєкти</a>
-                <a href="../../app/saveart/11.html">Про нас</a>
-                <a href="../../app/saveart/12.html">Часті питання</a>
-                <a href="../../app/saveart/10.html">Умови використання</a>
+                <a href="../../app/saveart/01.1-01.2.html">{{ __('footer.projects') }}</a>
+                <a href="../../app/saveart/07.1.1-07.1.2.html">{{ __('footer.reports') }}</a>
+                <a href="../../app/saveart/06.html">{{ __('footer.special_projects') }}</a>
+                <a href="../../app/saveart/11.html">{{ __('footer.about_us') }}</a>
+                <a href="../../app/saveart/12.html">{{ __('footer.faq') }}</a>
+                <a href="../../app/saveart/10.html">{{ __('footer.terms') }}</a>
             </div>
             <div>
                 <a href="../../app/info/index.html">
                     <h6>art-ua.info</h6>
                 </a>
-                <a href="../../app/info/01.1-01.2-01.2.1-01.3.html">Учасники</a>
-                <a href="../../app/info/03.1.html">Каталоги</a>
-                <a href="../../app/info/all_projects.html">Проєкти</a>
-                <a href="../../app/info/services.html">Послуги</a>
-                <a href="../../app/info/news_events.html">Новини та події</a>
-                <a href="../../app/saveart/12.html">Часті питання</a>
-                <a href="../../app/saveart/10.html">Умови використання</a>
+                <a href="../../app/info/01.1-01.2-01.2.1-01.3.html">{{ __('footer.members') }}</a>
+                <a href="../../app/info/03.1.html">{{ __('footer.catalogs') }}</a>
+                <a href="../../app/info/all_projects.html">{{ __('footer.projects') }}</a>
+                <a href="../../app/info/services.html">{{ __('footer.services') }}</a>
+                <a href="../../app/info/news_events.html">{{ __('footer.news_events') }}</a>
+                <a href="../../app/saveart/12.html">{{ __('footer.faq') }}</a>
+                <a href="../../app/saveart/10.html">{{ __('footer.terms') }}</a>
             </div>
             <div>
                 <a href="../../app/info/index.html">
                     <h6>art-ua.com</h6>
                 </a>
-                <a href="../../app/com/authors.html">Учасники</a>
-                <a href="../../app/info/03.1.html">Каталоги</a>
-                <a href="../../app/com/works.html">Проєкти</a>
-                <a href="../../app/com/work_for_sale.html">Проєкти для продажу</a>
-                <a href="../../app/info/services.html">Послуги</a>
-                <a href="../../app/info/news_events.html">Новини та події</a>
-                <a href="../../app/saveart/12.html">Часті питання</a>
-                <a href="../../app/saveart/10.html">Умови використання</a>
+                <a href="../../app/com/authors.html">{{ __('footer.members') }}</a>
+                <a href="../../app/info/03.1.html">{{ __('footer.catalogs') }}</a>
+                <a href="../../app/com/works.html">{{ __('footer.projects') }}</a>
+                <a href="../../app/com/work_for_sale.html">{{ __('footer.projects_for_sale') }}</a>
+                <a href="../../app/info/services.html">{{ __('footer.services') }}</a>
+                <a href="../../app/info/news_events.html">{{ __('footer.news_events') }}</a>
+                <a href="../../app/saveart/12.html">{{ __('footer.faq') }}</a>
+                <a href="../../app/saveart/10.html">{{ __('footer.terms') }}</a>
             </div>
         </div>
         <div class="bottom">
             <div class="info">
-                <p>БЛАГОДІЙНИЙ ФОНД ID_Art UA</p>
-                <p>м. Івано-Франківськ, Україна</p>
+                <p>{{ __('footer.fund_name') }}</p>
+                <p>{{ __('footer.city_country') }}</p>
                 <a href="mailto:idartua.bo@gmail.com">idartua.bo@gmail.com</a>
                 <a href="tel:+380677345938">+380 67 734 5938</a>
                 <a href="#" target="_blank">

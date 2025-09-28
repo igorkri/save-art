@@ -1,0 +1,22 @@
+<?php
+return [
+    'support_platform' => 'Support the platform',
+    'support_projects' => 'Support projects',
+    'how_donations_work' => 'How does the donation system work?',
+    'learn_more' => 'Learn more',
+    'person_name' => 'Name Surname',
+    'project_title_example' => 'Announced project title. No more than two lines. Dots at the end...',
+    'project_title_example_short' => 'Announced project title.',
+    'visual_arts' => 'Visual arts',
+    'painting' => 'Painting',
+    'project' => 'Project',
+    'declared' => 'Announced',
+    'collection' => 'Collection',
+    'active' => 'Active',
+    'announcement_date' => 'Announcement date',
+    'cinematography' => 'Cinematography',
+    'feature_film' => 'Feature film',
+    'completed' => 'Completed',
+    'completion_date' => 'Completion date',
+    'all_projects' => 'All projects',
+];

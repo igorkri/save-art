@@ -15,7 +15,7 @@
             <div class="title">
                 <h6>{{$homePage->getDonatesSubtitle()}}</h6>
                 <a href="../../app/saveart/08.html" class="btn_decor">
-                    <p>Підтримати платформу</p>
+                    <p>{{ __('home.support_platform') }}</p>
                     <div>
                         <svg width="20" height="18" viewBox="0 0 20 18" fill="" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -30,7 +30,7 @@
                 {{-- TODO: Винести вваріанти оплат в массив або БД--}}
                 <div class="don">
                     <a href="01.1-01.2.html" class="btn_decor">
-                        <p>Підтримати проєкти</p>
+                        <p>{{ __('home.support_projects') }}</p>
                         <div>
                             <svg width="20" height="18" viewBox="0 0 20 18" fill="" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -65,8 +65,8 @@
                         </div>
                     </div>
                     <div class="question">
-                        <p>Як працює система донатерства?</p>
-                        <a href="../../app/saveart/terms.html">Дізнайтесь</a>
+                        <p>{{ __('home.how_donations_work') }}</p>
+                        <a href="../../app/saveart/terms.html">{{ __('home.learn_more') }}</a>
                     </div>
                 </div>
             </div>
@@ -75,13 +75,13 @@
                 <a href="../../app/saveart/02.1.1-02.1.2-02.1.3-02.2.1.html" class="project_item">
                     <div class="head">
                         <img src="../../img/person.webp" alt="">
-                        <p>Ім’я Прізвище</p>
+                        <p>{{ __('home.person_name') }}</p>
                     </div>
                     <div class="img bordered">
                         <img src="../../img/project.webp" alt="">
                     </div>
                     <h6 class="name">
-                        Назва оголошеного проєкту. Не більше ніж на два рядки. Крапки вкінці...
+                        {{ __('home.project_title_example') }}
                     </h6>
                     <div class="amount">
                         <div class="money">
@@ -102,22 +102,22 @@
                     </div>
                     <div class="info">
                         <div>
-                            <p>Образотворче мистецтво</p>
-                            <p>Живопис</p>
+                            <p>{{ __('home.visual_arts') }}</p>
+                            <p>{{ __('home.painting') }}</p>
                         </div>
                         <div>
-                            <p>Проєкт</p>
+                            <p>{{ __('home.project') }}</p>
                             <p>
                                 <img src="../../img/declared.svg" alt="">
-                                Оголошений
+                                {{ __('home.declared') }}
                             </p>
                         </div>
                         <div>
-                            <p>Збір</p>
-                            <p>Активний</p>
+                            <p>{{ __('home.collection') }}</p>
+                            <p>{{ __('home.active') }}</p>
                         </div>
                         <div>
-                            <p>Дата оголошення</p>
+                            <p>{{ __('home.announcement_date') }}</p>
                             <p>02 12 2024</p>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                         <img src="../../img/main/donates_project.webp" alt="">
                     </div>
                     <h6 class="name">
-                        Назва оголошеного проєкту.
+                        {{ __('home.project_title_example_short') }}
                     </h6>
                     <div class="amount">
                         <div class="money">
@@ -152,26 +152,26 @@
                     </div>
                     <div class="info">
                         <div>
-                            <p>Кінематограф</p>
-                            <p>Повнометражний фільм</p>
+                            <p>{{ __('home.cinematography') }}</p>
+                            <p>{{ __('home.feature_film') }}</p>
                         </div>
                         <div>
-                            <p>Проєкт</p>
+                            <p>{{ __('home.project') }}</p>
                             <p style="color: #FECC39;">
                                 <img src="../../img/check_yellow.svg" alt="">
-                                Завершений
+                                {{ __('home.completed') }}
                             </p>
                         </div>
                         <div>
-                            <p>Збір</p>
-                            <p>Завершений</p>
+                            <p>{{ __('home.collection') }}</p>
+                            <p>{{ __('home.completed') }}</p>
                         </div>
                         <div>
-                            <p>Дата оголошення</p>
+                            <p>{{ __('home.announcement_date') }}</p>
                             <p>02 12 2024</p>
                         </div>
                         <div>
-                            <p>Дата завершення</p>
+                            <p>{{ __('home.completion_date') }}</p>
                             <p>01 03 2025</p>
                         </div>
                     </div>
@@ -281,7 +281,7 @@
                     </div>
                 </a>
             </div>
-            <a href="../../app/saveart/01.1-01.2.html" class="btn dark">Всі проєкти</a>
+            <a href="../../app/saveart/01.1-01.2.html" class="btn dark">{{ __('home.all_projects') }}</a>
         </div>
     </section>
 

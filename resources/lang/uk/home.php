@@ -1,0 +1,22 @@
+<?php
+return [
+    'support_platform' => 'Підтримати платформу',
+    'support_projects' => 'Підтримати проєкти',
+    'how_donations_work' => 'Як працює система донатерства?',
+    'learn_more' => 'Дізнайтесь',
+    'person_name' => 'Ім’я Прізвище',
+    'project_title_example' => 'Назва оголошеного проєкту. Не більше ніж на два рядки. Крапки вкінці...',
+    'project_title_example_short' => 'Назва оголошеного проєкту.',
+    'visual_arts' => 'Образотворче мистецтво',
+    'painting' => 'Живопис',
+    'project' => 'Проєкт',
+    'declared' => 'Оголошений',
+    'collection' => 'Збір',
+    'active' => 'Активний',
+    'announcement_date' => 'Дата оголошення',
+    'cinematography' => 'Кінематограф',
+    'feature_film' => 'Повнометражний фільм',
+    'completed' => 'Завершений',
+    'completion_date' => 'Дата завершення',
+    'all_projects' => 'Всі проєкти',
+];

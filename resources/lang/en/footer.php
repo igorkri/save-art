@@ -1,0 +1,23 @@
+<?php
+return [
+    'slogan' => 'The art of help is the most modern of the arts',
+    'invite_experts' => 'We invite experts to cooperate',
+    'fund_open' => 'The ID_Art UA Charitable Foundation is open to cooperation ...',
+    'create_modern_art' => 'Creation of modern Ukrainian art',
+    'participate_exhibitions' => 'Participation in exhibitions and art events',
+    'popularize_artists' => 'Popularization of Ukrainian artists worldwide',
+    'send_application' => 'Send application',
+    'projects' => 'Projects',
+    'reports' => 'Reports',
+    'special_projects' => 'Special projects',
+    'about_us' => 'About us',
+    'faq' => 'FAQ',
+    'terms' => 'Terms of use',
+    'members' => 'Members',
+    'catalogs' => 'Catalogs',
+    'services' => 'Services',
+    'news_events' => 'News and events',
+    'projects_for_sale' => 'Projects for sale',
+    'fund_name' => 'ID_Art UA CHARITABLE FOUNDATION',
+    'city_country' => 'Ivano-Frankivsk, Ukraine',
+];
