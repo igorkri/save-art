@@ -50,6 +50,7 @@ class HomePage extends Model
         'completed_projects',
         'sold_projects',
         'partners_title',
+        'partners',
         'ad_first_title',
         'ad_first_button_text',
         'ad_first_image',
@@ -85,6 +86,7 @@ class HomePage extends Model
             'completed_projects' => 'integer',
             'sold_projects' => 'integer',
             'is_active' => 'boolean',
+            'partners' => 'array',
         ];
     }
 
@@ -190,6 +192,62 @@ class HomePage extends Model
     }
 
 
+    // ----------------- PARTNERS SECTION -----------------
+    /**
+     * Отримання partners_title з автоопеределением мови
+     * 'ua', 'en'
+     * @return string|null
+     *
+     */
+    public function getPartnersTitle(): ?string
+    {
+        $locale = app()->getLocale(); // 'ua', 'en' або інші
+        return $this->getTranslation('partners_title', $locale);
+        // return $this->partners_title[$locale] ?? null;
+    }
 
+    /**
+     * Получить логотип партнера по индексу
+     */
+    public function getPartnerLogo(int $index): ?string
+    {
+        $partner = $this->partners[$index] ?? null;
+        if (!$partner || empty($partner['logo'])) {
+            return null;
+        }
+        // Вернуть абсолютный путь к файлу
+        return asset('storage/' . $partner['logo']);
+    }
 
+    /**
+     * Получить название партнера по индексу с учетом локали
+     */
+    public function getPartnerName(int $index): ?string
+    {
+        $partner = $this->partners[$index] ?? null;
+        if (!$partner || empty($partner['name'])) {
+            return null;
+        }
+        $locale = app()->getLocale();
+        if (is_array($partner['name'])) {
+            return $partner['name'][$locale] ?? reset($partner['name']);
+        }
+        return $partner['name'];
+    }
+
+    /**
+     * Получить описание партнера по индексу с учетом локали
+     */
+    public function getPartnerDescription(int $index): ?string
+    {
+        $partner = $this->partners[$index] ?? null;
+        if (!$partner || empty($partner['description'])) {
+            return null;
+        }
+        $locale = app()->getLocale();
+        if (is_array($partner['description'])) {
+            return $partner['description'][$locale] ?? reset($partner['description']);
+        }
+        return $partner['description'];
+    }
 }

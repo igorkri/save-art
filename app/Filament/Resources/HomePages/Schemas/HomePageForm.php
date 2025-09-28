@@ -155,6 +155,31 @@ class HomePageForm
                                 ->placeholder('Партнери')
                                 ->maxLength(255),
                         ]),
+
+                        \Filament\Forms\Components\Repeater::make('partners')
+                            ->label('Партнери')
+                            ->schema([
+                                FileUpload::make('logo')
+                                    ->label('Логотип')
+                                    ->image()
+                                    ->directory('partners')
+                                    ->disk('public')
+                                    ->deleteUploadedFileUsing(function ($file) {
+                                        Storage::disk('public')->delete($file);
+                                    }),
+                                LanguageTabs::make([
+                                    TextInput::make('name')
+                                        ->label('Назва')
+                                        ->maxLength(255)
+                                        ->required(),
+                                    TextInput::make('description')
+                                        ->label('Короткий опис')
+                                        ->maxLength(255)
+                                        ->required(),
+                                ]),
+                            ])
+                            ->minItems(0)
+                            ->collapsible(),
                     ])
                     ->collapsible()->collapsed(),
 

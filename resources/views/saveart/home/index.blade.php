@@ -27,6 +27,7 @@
             <h2>{!! $homePage->getDonatesTitle() !!}</h2>
             <div class="offer">
                 <div class="text">{!! $homePage->getDonatesText() !!}</div>
+                {{-- TODO: Винести вваріанти оплат в массив або БД--}}
                 <div class="don">
                     <a href="01.1-01.2.html" class="btn_decor">
                         <p>Підтримати проєкти</p>
@@ -69,6 +70,7 @@
                     </div>
                 </div>
             </div>
+            {{-- TODO: Реалізувати список товарів через адмінку, а якщо пусто то вибирать рандомно з БД --}}
             <div class="items">
                 <a href="../../app/saveart/02.1.1-02.1.2-02.1.3-02.2.1.html" class="project_item">
                     <div class="head">
@@ -287,28 +289,19 @@
 
     <section class="partners" id="partners">
         <div class="block">
-            <h2>Партнери</h2>
+            <h2>{{ $homePage->getPartnersTitle() }}</h2>
+
             <div class="cont">
+            @forelse($homePage->partners as $i => $partner)
                 <div>
-                    <img src="../../img/main/idua.svg" alt="">
-                    <h6>ID_Art_UA</h6>
-                    <p>Пара слів хто це</p>
+                    <img src="{{ $homePage->getPartnerLogo($i) ?? '/img/main/idua.svg' }}" alt="">
+                    <h6>{{ $homePage->getPartnerName($i) ?? 'ID_Art_UA' }}</h6>
+                    <p>{{ $homePage->getPartnerDescription($i) ?? 'Пара слів хто це' }}</p>
                 </div>
-                <div>
-                    <img src="../../img/main/ingsot.svg" alt="">
-                    <h6>ingsot.com</h6>
-                    <p>Топ ІТ корпорація</p>
-                </div>
-                <div>
-                    <img src="../../img/main/partner.webp" alt="">
-                    <h6>Костянтин Костянтинопольський</h6>
-                    <p>Пара слів хто це</p>
-                </div>
-                <div>
-                    <img src="../../img/main/ingsot.svg" alt="">
-                    <h6>ingsot.com</h6>
-                    <p>Топ ІТ корпорація</p>
-                </div>
+            @empty
+            {{-- TODO: доробити партнерів --}}
+            {{-- отримуємо зі списку 4-6 партнерів --}}
+            @endforelse
             </div>
         </div>
     </section>
