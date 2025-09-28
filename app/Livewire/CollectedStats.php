@@ -27,6 +27,7 @@ class CollectedStats extends Component
 
     public function updateChartData()
     {
+        #TODO: Замість цього має бути реальний запит до БД або API
         $this->chartData = match ($this->chartPeriod) {
             'day' => [
                 'labels' => ['00:00', '06:00', '12:00', '18:00', '24:00'],
