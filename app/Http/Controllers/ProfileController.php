@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ProfileController extends Controller
+{
+    public function new()
+    {
+        return view('profile.new');
+    }
+
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'art' => 'required|in:' . \App\UserRole::Mecenat->value . ',' . \App\UserRole::Owner->value,
+        ]);
+
+        // Сохранение предпочтений пользователя
+        $user = auth()->user();
+        $user->role = $request->input('art');
+        $user->save();
+
+        // Логика для пользователей, которые хотят создавать и поддерживать искусство
+        // session()->flash('notification', [
+        //     'title' => 'Заголовок',
+        //     'message' => 'Текст уведомления',
+        //     'class' => 'green', // или 'red', 'yellow' и т.д.
+        //     'autoClose' => true, // или false, если не нужно автоскрытие
+        // ]);
+
+
+        return redirect()->route('profile.new')->with('success', __('profile_new.saved'));
+        // return redirect()->back()->with('success', __('profile_new.saved'));
+    }
+}

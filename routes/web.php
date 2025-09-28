@@ -10,6 +10,8 @@ Route::group([
     'prefix' => LaravelLocalization::setLocale(),
 ], function() {
     Route::get('/', [HomeController::class, 'index']);
+    Route::get('/profile/new', [App\Http\Controllers\ProfileController::class, 'new'])->name('profile.new');
+    Route::post('/profile/new', [App\Http\Controllers\ProfileController::class, 'store'])->name('profile.new.store');
 
     // logout
     Route::get('/logout', function () {
