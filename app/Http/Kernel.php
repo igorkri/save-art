@@ -25,6 +25,9 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRoutes::class,
+            \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
+            \Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect::class,
             // ...middleware для web...
         ],
 
@@ -42,5 +45,7 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
         // ...ваши route middleware...
+        'localeSessionRedirect' => \Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect::class,
+        'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
     ];
 }

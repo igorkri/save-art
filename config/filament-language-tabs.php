@@ -9,7 +9,7 @@ return [
     | These are the locales this package will use generate the tabs
     |
     */
-    'default_locales' => ['ua' => 'Українська', 'en' => 'English'],
+    'default_locales' => ['uk', 'en'],
     /*
     |--------------------------------------------------------------------------
     | Required Locales
@@ -19,5 +19,5 @@ return [
     | This can be used if one translation or language is optional
     |
     */
-    'required_locales' => ['ua', 'en'],
+    'required_locales' => ['uk', 'en'],
 ];

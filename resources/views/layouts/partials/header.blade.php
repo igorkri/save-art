@@ -51,8 +51,8 @@
             </a>
         </div>
         <div class="lang">
-            <a href="#" class="on">UA</a>
-            <a href="#">EN</a>
+            <a href="{{ LaravelLocalization::getLocalizedURL('uk', null, [], true) }}" class="{{ app()->getLocale() == 'uk' ? 'on' : '' }}">UA</a>
+            <a href="{{ LaravelLocalization::getLocalizedURL('en', null, [], true) }}" class="{{ app()->getLocale() == 'en' ? 'on' : '' }}">EN</a>
         </div>
         <div class="another">
             <a href="../../app/com/index.html">art-ua.com</a>
