@@ -27,6 +27,7 @@ class Auth
             return [false, 'Email вже використовується'];
         }
         $user = User::create([
+            'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             // додати інші поля за потреби

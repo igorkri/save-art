@@ -25,10 +25,10 @@ if ! command -v php &> /dev/null; then
   echo "❌ PHP не встановлено. Будь ласка, встановіть PHP перед запуском цього скрипту."
   exit 1
 fi
-# Перевіряємо, php 8.3
-if ! php -v | grep -q "PHP 8.3"; then
-  echo "❌ PHP версія 8.3 не знайдена. Будь ласка, встановіть PHP 8.3 перед запуском цього скрипту."
-  echo "~/developer/switch-php.sh 8.3"
+# Перевіряємо, php 8.4
+if ! php -v | grep -q "PHP 8.4"; then
+  echo "❌ PHP версія 8.4 не знайдена. Будь ласка, встановіть PHP 8.4 перед запуском цього скрипту."
+  echo "~/developer/switch-php.sh 8.4"
   php -v
   exit 1
 fi

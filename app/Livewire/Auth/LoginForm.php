@@ -2,13 +2,21 @@
 namespace App\Livewire\Auth;
 
 use Livewire\Component;
-use App\Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 
 class LoginForm extends Component
 {
+    // Для совместимости с Livewire: переключение на форму регистрации
+    public function switchToRegister()
+    {
+        $this->dispatch('switchToRegister');
+    }
     public $email = '';
     public $password = '';
     public $loading = false;
+    public $remember = false;
 
     protected $rules = [
         'email' => 'required|email',
@@ -25,12 +33,23 @@ class LoginForm extends Component
     {
         $this->validate();
         $this->loading = true;
-        [$success, $result] = Auth::login($this->email, $this->password);
-        if (! $success) {
+
+        $throttleKey = strtolower($this->email) . '|' . request()->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
             $this->loading = false;
-            $this->dispatch('showNotification', 'Помилка', $result, 'red', true);
+            $this->dispatch('showNotification', 'Помилка', 'Забагато спроб. Спробуйте через ' . $seconds . ' сек.', 'red', true);
             return null;
         }
+
+        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+            RateLimiter::hit($throttleKey, 60);
+            $this->loading = false;
+            $this->dispatch('showNotification', 'Помилка', 'Невірні дані для входу.', 'red', true);
+            return null;
+        }
+
+        RateLimiter::clear($throttleKey);
         $this->loading = false;
         $this->dispatch('showNotification', 'Успіх', 'Вхід виконано', 'green', true);
         return redirect()->intended('/');

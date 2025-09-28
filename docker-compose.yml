@@ -26,7 +26,7 @@ services:
             PMA_USER: root
             PMA_PASSWORD: root
         ports:
-            - "8888:80"
+            - "8889:80"
         networks:
             - save-art
 

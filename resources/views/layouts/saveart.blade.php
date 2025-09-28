@@ -21,11 +21,6 @@
     :auto-close="session('notification.autoClose', true)"
 />
 <div class="modal_fill" id="modal_fill">
-    <!-- register -->
-    <livewire:auth.register-form />
-    <!-- reset pass -->
-    <livewire:auth.password-reset-form />
-    <!-- footer modal -->
     <div class="modal_content" id="application">
         <div class="head">
             <div class="title">
@@ -87,7 +82,8 @@
 </div>
 
 <div class="modal" id="modal">
-    <livewire:auth.login-form />
+    <livewire:auth.auth-modal />
+    </script>
 </div>
 
 @include('layouts.partials.header')
