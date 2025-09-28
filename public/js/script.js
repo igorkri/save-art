@@ -80,15 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Функція для відкриття модального вікна
   const openModal = () => {
-    if (!modal || !modalFill) return;
+    // if (!modal || !modalFill) return;
 
     modal.classList.add("on"); // Додаємо клас "on"
-    const modalLogin = modalFill.querySelector("#modal_login");
-    if (modalLogin) {
-      const clonedContent = modalLogin.cloneNode(true); // Копіюємо блок
-      modal.innerHTML = ""; // Очищуємо #modal перед вставкою
-      modal.appendChild(clonedContent); // Вставляємо в #modal
-    }
+    // const modalLogin = modalFill.querySelector("#modal_login");
+    // if (modalLogin) {
+    //   const clonedContent = modalLogin.cloneNode(true); // Копіюємо блок
+    //   modal.innerHTML = ""; // Очищуємо #modal перед вставкою
+    //   modal.appendChild(clonedContent); // Вставляємо в #modal
+    // }
   };
 
   // Додаємо обробник подій для кожної кнопки
@@ -100,10 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("click", (event) => {
     if (event.target.closest(".modal_content .head .title .close")) {
       modal.classList.remove("on"); // Знімаємо клас "on"
-      const modalContent = modal.querySelector(".modal_content");
-      if (modalContent) {
-        modalContent.remove(); // Видаляємо .modal_content
-      }
     }
   });
 });
@@ -149,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function closeModal() {
     modal.classList.remove("on");
-    modal.innerHTML = ""; // Видаляє всі внутрішні елементи
   }
 });
 
@@ -183,10 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("click", (event) => {
     if (event.target.closest(".modal_content .head .title .close")) {
       modal.classList.remove("on"); // Знімаємо клас "on"
-      const modalContent = modal.querySelector(".modal_content");
-      if (modalContent) {
-        modalContent.remove(); // Видаляємо .modal_content
-      }
     }
   });
 });
@@ -523,10 +514,6 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("click", (event) => {
     if (event.target.closest(".modal_content .head .title .close")) {
       modal.classList.remove("on"); // Знімаємо клас "on"
-      const modalContent = modal.querySelector(".modal_content");
-      if (modalContent) {
-        modalContent.remove(); // Видаляємо .modal_content
-      }
     }
   });
 });
@@ -760,27 +747,13 @@ document.addEventListener("click", (event) => {
 if (window.Livewire) {
   window.Livewire.on('openRegisterModal', function () {
     const modal = document.querySelector('#modal');
-    const modalFill = document.querySelector('#modal_fill');
-    if (!modal || !modalFill) return;
+    if (!modal) return;
     modal.classList.add('on');
-    const modalRegister = modalFill.querySelector('#modal_register');
-    if (modalRegister) {
-      const clonedContent = modalRegister.cloneNode(true);
-      modal.innerHTML = '';
-      modal.appendChild(clonedContent);
-    }
   });
 
   window.Livewire.on('openLoginModal', function () {
     const modal = document.querySelector('#modal');
-    const modalFill = document.querySelector('#modal_fill');
-    if (!modal || !modalFill) return;
+    if (!modal) return;
     modal.classList.add('on');
-    const modalLogin = modalFill.querySelector('#modal_login');
-    if (modalLogin) {
-      const clonedContent = modalLogin.cloneNode(true);
-      modal.innerHTML = '';
-      modal.appendChild(clonedContent);
-    }
   });
 }

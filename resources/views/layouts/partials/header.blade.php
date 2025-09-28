@@ -60,7 +60,7 @@
         </div>
         <a href="../../app/saveart/08.html" class="btn">Підтримати</a>
         @guest
-        <button type="button" class="login">
+        <button type="button" class="login" wire:click="switchToLogin">
             <span>Увійти</span>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -77,7 +77,7 @@
         <span></span>
     </button>
     @guest
-    <button type="button" class="login">
+    <button type="button" class="login" wire:click="switchToLogin">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M8 5L14 10L8 15V12H0.199951C0.0688477 11.3538 0 10.6849 0 10C0 9.31506 0.0688477 8.64624 0.199951 8H8V5Z"/>
