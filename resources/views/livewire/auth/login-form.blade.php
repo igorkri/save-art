@@ -41,9 +41,9 @@
             @enderror
           </div>
           <div class="input pass">
-            <div>
-              <input type="password" wire:model.lazy="password" placeholder="Пароль">
-              <button type="button" class="eye"></button>
+            <div x-data="{ show: false }">
+              <input :type="show ? 'text' : 'password'" wire:model.lazy="password" placeholder="Пароль">
+              <button type="button" class="eye" @click="show = !show" :aria-label="show ? 'Сховати' : 'Показати'" tabindex="0"></button>
             </div>
             @error('password')
               <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div>

@@ -36,33 +36,33 @@
                 <div>
                     <input type="text" wire:model.lazy="name" placeholder="Ваше ім’я" >
                 </div>
-                @error('name') <span class="error">{{ $message }}</span> @enderror
+                @error('name') <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div> @enderror
             </div>
             <div class="input">
                 <div>
                     <input type="email" wire:model.lazy="email" placeholder="Електронна пошта" >
                 </div>
-                @error('email') <span class="error">{{ $message }}</span> @enderror
+                @error('email') <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div> @enderror
             </div>
             <div class="input pass">
-                <div>
-                    <input type="password" wire:model.lazy="password" placeholder="Пароль" >
-                    <button type="button" class="eye"></button>
+                <div x-data="{ show: false }">
+                    <input :type="show ? 'text' : 'password'" wire:model.lazy="password" placeholder="Пароль" >
+                    <button type="button" :class="show ? 'eye eye--off' : 'eye'" @click="show = !show" :aria-label="show ? 'Сховати' : 'Показати'" tabindex="0"></button>
                 </div>
-                @error('password') <span class="error">{{ $message }}</span> @enderror
+                @error('password') <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div> @enderror
             </div>
             <div class="input pass">
-                <div>
-                    <input type="password" wire:model.lazy="password_confirmation" placeholder="Повторіть пароль" >
-                    <button type="button" class="eye"></button>
+                <div x-data="{ show: false }">
+                    <input :type="show ? 'text' : 'password'" wire:model.lazy="password_confirmation" placeholder="Повторіть пароль" >
+                    <button type="button" :class="show ? 'eye eye--off' : 'eye'" @click="show = !show" :aria-label="show ? 'Сховати' : 'Показати'" tabindex="0"></button>
                 </div>
-                @error('password_confirmation') <span class="error">{{ $message }}</span> @enderror
+                @error('password_confirmation') <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div> @enderror
             </div>
             <label class="checkbox">
                 <input type="checkbox" wire:model="terms" >
                 <span>Я приймаю умови використання платформи</span>
             </label>
-            @error('terms') <span class="error">{{ $message }}</span> @enderror
+            @error('terms') <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div> @enderror
             <button type="submit" class="btn" wire:loading.attr="disabled">Зареєструватися</button>
         </form>
     </div>
