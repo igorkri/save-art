@@ -5,6 +5,7 @@ namespace App\Filament\Resources\HomePages\Schemas;
 use App\Rules\MaxFileSizeRule;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -25,7 +26,7 @@ class HomePageForm
                     ->label('Активна сторінка')
                     ->default(true),
 
-                Section::make('Героїчна секція')
+                Section::make('Секція з відео')
                     ->schema([
                         LanguageTabs::make([
                             TextInput::make('hero_title')
@@ -76,12 +77,13 @@ class HomePageForm
                                     ->deleteUploadedFileUsing(function ($file) {
                                         Storage::disk('public')->delete($file);
                                     })
-                                    ->rules([new MaxFileSizeRule(5120)]),   
-                                
+                                    ->rules([new MaxFileSizeRule(5120)]),
+
 
                             ]),
                     ])
-                    ->collapsible(),
+                    ->collapsible()
+                    ->collapsed(),
 
                 Section::make('Секція донатів')
                     ->schema([
@@ -97,14 +99,13 @@ class HomePageForm
                                 ->maxLength(255)
                                 ->required(),
 
-                            Textarea::make('donates_text')
+                            RichEditor::make('donates_text')
                                 ->label('Опис системи донатів')
-                                ->rows(4)
                                 ->placeholder('Ми пропонуємо прозору систему донатів...')
                                 ->required(),
                         ]),
                     ])
-                    ->collapsible(),
+                    ->collapsible()->collapsed(),
 
                 Section::make('Статистика')
                     ->schema([
@@ -144,7 +145,7 @@ class HomePageForm
                             ->default(0)
                             ->required(),
                     ])
-                    ->collapsible(),
+                    ->collapsible()->collapsed(),
 
                 Section::make('Секція партнерів')
                     ->schema([
@@ -155,7 +156,7 @@ class HomePageForm
                                 ->maxLength(255),
                         ]),
                     ])
-                    ->collapsible(),
+                    ->collapsible()->collapsed(),
 
                 Section::make('Рекламні блоки')
                     ->schema([
@@ -207,7 +208,7 @@ class HomePageForm
                                     }),
                             ]),
                     ])
-                    ->collapsible(),
+                    ->collapsible()->collapsed(),
 
                 Section::make('Футер - Секція для експертів')
                     ->schema([
@@ -234,7 +235,7 @@ class HomePageForm
                                 ->maxLength(100),
                         ]),
                     ])
-                    ->collapsible(),
+                    ->collapsible()->collapsed(),
             ]);
     }
 }

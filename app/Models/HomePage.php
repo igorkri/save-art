@@ -88,10 +88,11 @@ class HomePage extends Model
     }
 
 
-    /** 
-     * Отримання выдео постера з автоопеределением типу пристрою 
+    // ----------------- HERO SECTION -----------------
+    /**
+     * Отримання выдео постера з автоопеределением типу пристрою
      * 'desktop', 'mobile'
-     * 
+     *
      * @return string|null
      */
     public function getHeroPosterVideo(): ?string
@@ -107,10 +108,10 @@ class HomePage extends Model
         return null;
     }
 
-    /** 
-     * Отримання зображення постера з автоопеределением типу пристрою 
+    /**
+     * Отримання зображення постера з автоопеределением типу пристрою
      * 'desktop', 'mobile'
-     * 
+     *
      * @return string|null
      */
     public function getHeroPosterImage(): ?string
@@ -125,11 +126,11 @@ class HomePage extends Model
         return null;
     }
 
-    /** 
-     * Отримання hero_title з автоопеределением мови 
+    /**
+     * Отримання hero_title з автоопеределением мови
      * 'ua', 'en'
      * @return string|null
-     * 
+     *
      */
     public function getHeroTitle(): ?string
     {
@@ -138,6 +139,46 @@ class HomePage extends Model
         // return $this->hero_title[$locale] ?? null;
     }
 
+    // ----------------- DONATES SECTION -----------------
+    /**
+     * Отримання donates_subtitle з автоопеределением мови
+     * 'ua', 'en'
+     * @return string|null
+     *
+     */
+    public function getDonatesSubtitle(): ?string
+    {
+        $locale = app()->getLocale(); // 'ua', 'en' або інші
+        return $this->getTranslation('donates_subtitle', $locale);
+        // return $this->donates_subtitle[$locale] ?? null;
+    }
+
+    /**
+     * Отримання donates_title з автоопеределением мови
+     * 'ua', 'en'
+     * @return string|null
+     *
+     */
+    public function getDonatesTitle(): ?string
+    {
+        $locale = app()->getLocale(); // 'ua', 'en' або інші
+        return $this->getTranslation('donates_title', $locale);
+        // return $this->donates_title[$locale] ?? null;
+    }
+
+
+    /**
+     * Отримання donates_text з автоопеределением мови
+     * 'ua', 'en'
+     * @return string|null
+     *
+     */
+    public function getDonatesText(): ?string
+    {
+        $locale = app()->getLocale(); // 'ua', 'en' або інші
+        return $this->getTranslation('donates_text', $locale);
+        // return $this->donates_text[$locale] ?? null;
+    }
 
 
 
