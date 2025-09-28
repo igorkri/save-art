@@ -37,8 +37,8 @@ class HomePageForm
                         Grid::make(2)
                             ->schema([
                                 FileUpload::make('hero_video_poster')
-                                    ->label('Постер відео')
-                                    ->acceptedFileTypes(['image/*', 'video/*'])
+                                    ->label('Постер відео для десктопів')
+                                    ->acceptedFileTypes(['video/mp4'])
                                     ->maxSize(73728) // 72 MB - настойка для в config/livewire.php - 'temporary_file_upload'
                                     ->directory('hero-videos')
                                     ->disk('public')
@@ -47,11 +47,37 @@ class HomePageForm
                                     }),
 
 
-                                TextInput::make('hero_video_url')
-                                    ->label('URL відео')
-//                                    ->url()
-                                    ->placeholder('https://example.com/video.webm'),
+                                FileUpload::make('hero_video_poster_m')
+                                    ->label('Постер відео для мобільних')
+                                    ->acceptedFileTypes(['video/mp4'])
+                                    ->maxSize(73728) // 72 MB - настойка для в config/livewire.php - 'temporary_file_upload'
+                                    ->directory('hero-videos')
+                                    ->disk('public')
+                                    ->deleteUploadedFileUsing(function ($file) {
+                                        Storage::disk('public')->delete($file);
+                                    }),
 
+                                FileUpload::make('hero_image_poster')
+                                    ->label('Постер зображення для десктопів')
+                                    ->image()
+                                    ->maxSize(5120) // 5 MB
+                                    ->directory('hero-images')
+                                    ->disk('public')
+                                    ->deleteUploadedFileUsing(function ($file) {
+                                        Storage::disk('public')->delete($file);
+                                    })
+                                    ->rules([new MaxFileSizeRule(5120)]),
+                                FileUpload::make('hero_image_poster_m')
+                                    ->label('Постер зображення для мобільних')
+                                    ->image()
+                                    ->maxSize(5120) // 5 MB
+                                    ->directory('hero-images')
+                                    ->disk('public')
+                                    ->deleteUploadedFileUsing(function ($file) {
+                                        Storage::disk('public')->delete($file);
+                                    })
+                                    ->rules([new MaxFileSizeRule(5120)]),   
+                                
 
                             ]),
                     ])

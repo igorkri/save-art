@@ -1789,6 +1789,50 @@ body .slick-track {
   width: 275px;
   margin: 0 auto;
 }
+.window .fill.donate_confirm .head h6 {
+  text-align: left;
+}
+.window .fill.donate_confirm .body {
+  gap: 12px;
+}
+.window .fill.donate_confirm .body .btn_decor {
+  margin: 0;
+}
+.window .fill.donate_confirm .body .btn_decor span {
+  text-align: left;
+}
+.window .fill.donate_confirm .body .btn_decor.score {
+  margin: 12px 0;
+}
+.window .fill.donate_confirm .body .btn_decor.score span {
+  text-align: center;
+}
+.window .fill.donate_confirm .body p {
+  font-size: 14px;
+  line-height: 20px;
+}
+.window .fill.donate_confirm .body .person {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 12px;
+}
+.window .fill.donate_confirm .body .person img {
+  width: 42px;
+  height: 42px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  border-radius: 21px;
+  border: 2px solid #343434;
+}
+.window .fill.donate_confirm .body .person p {
+  color: #fff;
+  font-size: 12px;
+  line-height: 16px;
+}
 
 @media (max-width: 767px) {
   .window .fill {

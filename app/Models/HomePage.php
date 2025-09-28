@@ -29,7 +29,9 @@ class HomePage extends Model
     protected $fillable = [
         'hero_title',
         'hero_video_poster',
-        'hero_video_url',
+        'hero_video_poster_m',
+        'hero_image_poster',
+        'hero_image_poster_m',
         'donates_subtitle',
         'donates_title',
         'donates_text',
@@ -84,4 +86,60 @@ class HomePage extends Model
     {
         return static::where('is_active', true)->first();
     }
+
+
+    /** 
+     * Отримання выдео постера з автоопеределением типу пристрою 
+     * 'desktop', 'mobile'
+     * 
+     * @return string|null
+     */
+    public function getHeroPosterVideo(): ?string
+    {
+        $device = session('device_type', 'desktop'); // 'desktop', 'tablet' або 'mobile'
+
+        if ($device === 'mobile' && $this->hero_video_poster_m) {
+            return asset('storage/' . $this->hero_video_poster_m);
+        }
+        if ($this->hero_video_poster) {
+            return asset('storage/' . $this->hero_video_poster);
+        }
+        return null;
+    }
+
+    /** 
+     * Отримання зображення постера з автоопеределением типу пристрою 
+     * 'desktop', 'mobile'
+     * 
+     * @return string|null
+     */
+    public function getHeroPosterImage(): ?string
+    {
+        $device = session('device_type', 'desktop'); // 'desktop', 'tablet' або 'mobile'
+        if ($device === 'mobile' && $this->hero_image_poster_m) {
+            return asset('storage/' . $this->hero_image_poster_m);
+        }
+        if ($this->hero_image_poster) {
+            return asset('storage/' . $this->hero_image_poster);
+        }
+        return null;
+    }
+
+    /** 
+     * Отримання hero_title з автоопеределением мови 
+     * 'ua', 'en'
+     * @return string|null
+     * 
+     */
+    public function getHeroTitle(): ?string
+    {
+        $locale = app()->getLocale(); // 'ua', 'en' або інші
+        return $this->getTranslation('hero_title', $locale);
+        // return $this->hero_title[$locale] ?? null;
+    }
+
+
+
+
+
 }

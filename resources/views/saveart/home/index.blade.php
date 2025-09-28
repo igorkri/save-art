@@ -4,10 +4,10 @@
 
 
     <section class="hero" id="hero">
-        <video poster="../../img/main/hero.webp" autoplay muted loop preload="none">
-            <source src="../../img/main/hero.webm" type="video/webm">
+        <video poster="{{ $homePage->getHeroPosterImage() }}" autoplay muted loop playsinline preload="none">
+            <source src="{{ $homePage->getHeroPosterVideo() }}" type="video/mp4">
         </video>
-        <h1>Мистецтво допомоги — найсучасніше з мистецтв</h1>
+        <h1>{{ $homePage->getHeroTitle() }}</h1>
     </section>
 
     <section class="donates">
