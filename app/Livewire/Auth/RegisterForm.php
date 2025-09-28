@@ -57,9 +57,10 @@ class RegisterForm extends Component
             $this->dispatch('showNotification', 'Помилка', $result, 'red', true);
             return null;
         }
-        $this->loading = false;
-        $this->dispatch('showNotification', 'Успіх', 'Реєстрація виконана', 'green', true);
-        return redirect()->intended('/');
+    $this->loading = false;
+    $this->dispatch('showNotification', 'Успіх', 'Реєстрація виконана', 'green', true);
+    // Укажите нужный путь ниже:
+    return redirect('/welcome');
     }
 
     public function switchToLogin()
