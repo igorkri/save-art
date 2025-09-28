@@ -83,7 +83,6 @@
 
 <div class="modal" id="modal">
     <livewire:auth.auth-modal />
-    </script>
 </div>
 
 @include('layouts.partials.header')
@@ -93,8 +92,6 @@
 @include('layouts.partials.footer')
 @livewireScripts
 @stack('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/charts.js') }}" defer></script>
 <script src="{{ asset('js/script.js') }}" defer></script>
 @if(session('notification'))
 <script>
