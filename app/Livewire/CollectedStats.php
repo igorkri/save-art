@@ -34,7 +34,7 @@ class CollectedStats extends Component
             ],
             'week' => [
                 'labels' => ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
-                'data' => [7000, 8200, 5400, 11000, 9200, 15000, 12300],
+                'data' => [7000, 8200, 5400, 11000, 9200, 15000, 0],
             ],
             'month' => [
                 'labels' => range(1, 30),
@@ -42,7 +42,7 @@ class CollectedStats extends Component
             ],
             'year' => [
                 'labels' => ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'],
-                'data' => array_map(fn() => rand(10000, 60000), range(1, 12)),
+                'data' => array_map(fn() => rand(10000, 6000000), range(1, 12)),
             ],
             default => ['labels' => [], 'data' => []],
         };
