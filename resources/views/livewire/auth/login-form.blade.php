@@ -49,7 +49,7 @@
               <div class="error" style="color: #e53e3e; font-size: 0.9em; margin-top: 2px;">{{ $message }}</div>
             @enderror
           </div>
-          <button type="button" class="forgot">Я не пам’ятаю пароль</button>
+          <button type="button" class="forgot" wire:click="$dispatch('switchToReset')">Я не пам’ятаю пароль</button>
           <button type="submit" class="btn" wire:loading.attr="disabled">@if($loading) Вхід... @else Увійти @endif</button>
         </form>
       </div>

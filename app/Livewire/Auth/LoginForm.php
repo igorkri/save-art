@@ -52,7 +52,8 @@ class LoginForm extends Component
         RateLimiter::clear($throttleKey);
         $this->loading = false;
         $this->dispatch('showNotification', 'Успіх', 'Вхід виконано', 'green', true);
-        return redirect()->intended('/');
+        // return redirect()->intended('home');
+        return redirect('/');
     }
 
     //redirectToRegister

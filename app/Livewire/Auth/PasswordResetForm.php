@@ -6,6 +6,10 @@ use App\Auth;
 
 class PasswordResetForm extends Component
 {
+    public function switchToLogin()
+    {
+        $this->dispatch('switchToLogin');
+    }
     public $email = '';
     public $new_password = '';
     public $new_password_confirmation = '';
@@ -22,6 +26,9 @@ class PasswordResetForm extends Component
         'new_password.required' => 'Поле пароль обов\'язкове для заповнення.',
         'new_password.min' => 'Пароль має містити не менше 6 символів.',
         'new_password.confirmed' => 'Паролі не співпадають.',
+        'new_password_confirmation.required' => 'Поле пароль обов\'язкове для заповнення.',
+        'new_password_confirmation.min' => 'Пароль має містити не менше 6 символів.',
+        'new_password_confirmation.confirmed' => 'Паролі не співпадають.',
     ];
 
     public function resetPassword()
