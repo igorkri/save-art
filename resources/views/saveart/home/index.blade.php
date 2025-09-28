@@ -283,54 +283,7 @@
         </div>
     </section>
 
-    <section class="collected">
-        <div class="block">
-            <div class="title">
-                <p>Зібрано за весь час</p>
-                <h2><span>2 325 250</span> ₴</h2>
-            </div>
-            <div class="graph">
-                <div class="buttons">
-                    <button onclick="updateChart('day')">Д</button>
-                    <button onclick="updateChart('week')">Т</button>
-                    <button onclick="updateChart('month')" class="active">М</button>
-                    <button onclick="updateChart('year')">Р</button>
-                </div>
-                <p>Оновлено: <span>12.12.2024 13:00</span></p>
-                <div class="chart_container">
-                    <canvas id="incomeChart"></canvas>
-                </div>
-            </div>
-            <div class="text">
-                <p>
-                    Загальна сума зібраних коштів є відкритою інформацією. Модератори платформи пильно контролюють їх використання
-                    та
-                    унеможливлюють випадки шахрайства.
-                </p>
-                <p>
-                    Невикористані кошти із завершених проєктів надходять до фонду платформи.
-                </p>
-            </div>
-            <div class="total">
-                <div>
-                    <p>Оголошених проєктів</p>
-                    <h2>624</h2>
-                </div>
-                <div>
-                    <p>Проєктів в роботі</p>
-                    <h2>387</h2>
-                </div>
-                <div>
-                    <p>Завершених проєктів</p>
-                    <h2>1 126</h2>
-                </div>
-                <div>
-                    <p>Проданих проєктів</p>
-                    <h2>107</h2>
-                </div>
-            </div>
-        </div>
-    </section>
+    @livewire('collected-stats')
 
     <section class="partners" id="partners">
         <div class="block">

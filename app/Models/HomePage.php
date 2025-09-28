@@ -10,6 +10,15 @@ class HomePage extends Model
 {
     use HasFactory, HasTranslations;
 
+    /**
+     * Получить общую сумму собранных средств
+     * @return int|null
+     */
+    public function getTotalCollected(): ?int
+    {
+        return $this->total_collected;
+    }
+
     public $translatable = [
         'hero_title',
         'donates_subtitle',
