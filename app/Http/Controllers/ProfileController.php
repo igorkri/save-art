@@ -43,7 +43,15 @@ class ProfileController extends Controller
         //     'autoClose' => true, // или false, если не нужно автоскрытие
         // ]);
 
-        return redirect()->route('profile.new')->with('success', __('profile_new.saved'));
+        return redirect()->route('profile.legal')->with('success', __('profile_new.saved'));
         // return redirect()->back()->with('success', __('profile_new.saved'));
     }
+
+
+    public function legal()
+    {
+        return view('profile.legal');
+    }
+
+
 }
