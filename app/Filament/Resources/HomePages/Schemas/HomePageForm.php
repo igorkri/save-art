@@ -4,7 +4,6 @@ namespace App\Filament\Resources\HomePages\Schemas;
 
 use App\Rules\MaxFileSizeRule;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
