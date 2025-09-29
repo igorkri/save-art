@@ -39,7 +39,7 @@ start() {
   docker stop $(docker ps -q) 2>/dev/null || true
 
   echo "🚀 Запускаємо docker-compose..."
-  docker compose -f "$DOCKER_COMPOSE_FILE" up -d
+  docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
 
 # Перевіряємо, чи зупинено nginx та чи запущено Apache на локальному сервері (не Docker)
 sudo systemctl stop nginx 2>/dev/null || true
@@ -67,7 +67,7 @@ echo "сайт запущено на http://save-art.local"
 
 down() {
   echo "🛑 Зупиняємо docker-compose контейнери..."
-  docker compose -f "$DOCKER_COMPOSE_FILE" down
+  docker-compose -f "$DOCKER_COMPOSE_FILE" down
 
   echo "🛑 Зупиняємо всі інші контейнери..."
   docker stop $(docker ps -q) 2>/dev/null || true

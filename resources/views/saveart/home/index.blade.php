@@ -2,7 +2,6 @@
 @section('title', 'SaveArt Home')
 @section('content')
 
-
     <section class="hero" id="hero">
         <video poster="{{ $homePage->getHeroPosterImage() }}" autoplay muted loop playsinline preload="none">
             <source src="{{ $homePage->getHeroPosterVideo() }}" type="video/mp4">

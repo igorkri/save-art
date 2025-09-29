@@ -134,7 +134,7 @@ class HomePage extends Model
         if ($this->hero_image_poster) {
             return asset('storage/' . $this->hero_image_poster);
         }
-        return null;
+        return '';
     }
 
     /**

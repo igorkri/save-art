@@ -157,6 +157,7 @@ class HomePageForm
 
                         \Filament\Forms\Components\Repeater::make('partners')
                             ->label('Партнери')
+                            ->addActionLabel('+ Додати партнера')
                             ->schema([
                                 FileUpload::make('logo')
                                     ->label('Логотип')
@@ -178,6 +179,8 @@ class HomePageForm
                                 ]),
                             ])
                             ->minItems(0)
+                            ->maxItems(10)
+                            ->cloneable()
                             ->collapsible(),
                     ])
                     ->collapsible()->collapsed(),
