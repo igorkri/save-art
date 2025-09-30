@@ -53,4 +53,18 @@ class UserResource extends Resource
         return parent::getEloquentQuery()
             ->with(['profileLegal', 'profilePersonal', 'profileSocial']);
     }
+
+    public static function mapRecordDataToFormData(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        $data = $record->toArray();
+
+        // Преобразуем связанные данные в вложенные массивы для формы
+        $data['profilePersonal'] = $record->profilePersonal ? $record->profilePersonal->toArray() : [];
+        $data['profileLegal'] = $record->profileLegal ? $record->profileLegal->toArray() : [];
+        $data['profileSocial'] = $record->profileSocial ? $record->profileSocial->toArray() : [];
+
+        dd(['mapRecordDataToFormData' => $data]);
+
+        return $data;
+    }
 }

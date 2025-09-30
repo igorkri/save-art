@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class UserForm
 {
@@ -46,17 +47,36 @@ class UserForm
                                     ])
                                     ->required()
                                     ->default(UserRole::User->value),
+                                // password field only for create form
+                                TextInput::make('password')
+                                    ->label('Пароль')
+                                    ->password()
+                                    ->required(fn (string $context): bool => $context === 'create')
+                                    ->minLength(8)
+                                    ->maxLength(255)
+                                    ->dehydrated(fn ($state) => filled($state))
+                                    ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null),
+                                DateTimePicker::make('email_verified_at')
+                                    ->label('Email підтверджено')
+                                    ->disabled()
+                                    ->nullable(),
+
                             ])
-                            ->columnSpan('full'),
+                            ->columns(2),
                         Tab::make('Профіль (особистий)')
                             ->columns(2)
                             ->schema([
                                 FileUpload::make('profilePersonal.avatar')
                                     ->label('Аватар')
                                     ->image()
+                                    ->imageCropAspectRatio('1:1')
+                                    ->imageEditor()
                                     ->maxSize(1024) // Максимальный размер файла в килобайтах
                                     ->directory('avatars')
-                                    ->visibility('public')
+                                    ->disk('public')
+                                    ->deleteUploadedFileUsing(function ($file) {
+                                        Storage::disk('public')->delete($file);
+                                    })
                                     ->nullable()
                                 ,
                                 TextInput::make('profilePersonal.full_name')
@@ -85,11 +105,19 @@ class UserForm
                                 FileUpload::make('profileLegal.logo')
                                     ->image()
                                     ->maxSize(2048) // Максимальный размер файла в килобайтах
+                                    // aspect ratio (1:1) - квадрат
+                                    ->imageCropAspectRatio('1:1')
+                                    ->imageEditor()
                                     ->directory('logos')
-                                    ->visibility('public')
+                                    ->disk('public')
                                     ->nullable()
                                     ->label('Логотип'),
-                                TextInput::make('profileLegal.currency')
+                                Select::make('profileLegal.currency')
+                                    ->options([
+                                        'UAH' => 'Гривня (UAH)',
+                                        'USD' => 'Долар (USD)',
+                                        'EUR' => 'Євро (EUR)',
+                                    ])
                                     ->label('Валюта'),
                                 Toggle::make('profileLegal.is_legal')
                                     ->label('Юридична особа (1 - так, 0 - ні)'),

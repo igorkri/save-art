@@ -80,4 +80,33 @@ class EditUser extends EditRecord
 
         return $updatedRecord;
     }
+
+    public function mount($record = null): void
+    {
+        parent::mount($record);
+        // Если $record — строка (id), загружаем модель вручную
+        if (is_string($record) || is_int($record)) {
+            $record = \App\Models\User::find($record);
+        }
+        if ($record && is_object($record)) {
+            $personal = method_exists($record, 'profilePersonal') && $record->profilePersonal ? collect($record->profilePersonal->toArray())->only([
+                'avatar', 'full_name', 'profession', 'tags', 'country', 'region', 'city', 'postal_code', 'role', 'description',
+            ])->toArray() : [];
+            $legal = method_exists($record, 'profileLegal') && $record->profileLegal ? collect($record->profileLegal->toArray())->only([
+                'currency', 'is_legal', 'logo', 'name', 'edrpou', 'authorized_person', 'address', 'phone', 'email',
+            ])->toArray() : [];
+            $social = method_exists($record, 'profileSocial') && $record->profileSocial ? collect($record->profileSocial->toArray())->only([
+                'website', 'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'pinterest', 'github', 'telegram', 'tiktok', 'youtube_channel', 'whatsapp', 'deviantart',
+            ])->toArray() : [];
+            $this->form->fill([
+                'name' => $record->name ?? '',
+                'email' => $record->email ?? '',
+                'role' => $record->role instanceof \BackedEnum ? $record->role->value : $record->role,
+                'email_verified_at' => $record->email_verified_at ?? null,
+                'profilePersonal' => $personal,
+                'profileLegal' => $legal,
+                'profileSocial' => $social,
+            ]);
+        }
+    }
 }
