@@ -20,14 +20,14 @@ class CreateFakeUsersCommand extends Command
     protected $signature = 'user:create-fake {count=1} {--with-profiles}';
 
     /**
-     * The console command description.
+     * Опис команди українською.
      *
      * @var string
      */
-    protected $description = 'Создать фейковых пользователей через UserFactory';
+    protected $description = 'Створити фейкових користувачів через UserFactory';
 
     /**
-     * Execute the console command.
+     * Виконати консольну команду.
      */
     public function handle(): int
     {
@@ -35,7 +35,7 @@ class CreateFakeUsersCommand extends Command
         $withProfiles = $this->option('with-profiles');
 
         if ($count < 1) {
-            $this->error('Количество пользователей должно быть больше нуля.');
+            $this->error('Кількість користувачів має бути більше нуля.');
             return self::FAILURE;
         }
 
@@ -45,9 +45,9 @@ class CreateFakeUsersCommand extends Command
         }
         $users = $factory->count($count)->create();
 
-        $this->info("Создано пользователей: {$users->count()}");
+        $this->info("Створено користувачів: {$users->count()}");
         if ($withProfiles) {
-            $this->info('Для каждого пользователя созданы профили.');
+            $this->info('Для кожного користувача створено профілі.');
         }
         return self::SUCCESS;
     }
