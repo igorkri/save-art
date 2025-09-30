@@ -15,9 +15,13 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('ФІО')
+                    // дозволяємо копіювати значення стовпця
+                    ->copyable()
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Email')
+                    ->copyable()
                     ->searchable(),
                 TextColumn::make('role')
                     ->badge()

@@ -18,6 +18,15 @@ class EditUser extends EditRecord
         ];
     }
 
+
+    // title для сторінки редагування
+    public function getTitle(): string
+    {
+        $name = $this->record->name ?? 'Редагування користувача';
+        return "Редагування користувача: {$name}";
+    }
+
+
     protected function afterSaveRecord(): void
     {
         Log::info('afterSaveRecord called');

@@ -96,7 +96,7 @@ class UserForm
                                     ->columns(2)
                                     ->schema([
                                         Section::make('')
-                                            ->description('Рекомендований розмір аватара: 400x400 пікселів. Максимальний розмір файлу: 1 МБ.')
+                                            ->description('Рекомендоване співвідношення 1:1 Максимальний розмір файлу: 1 МБ.')
                                             ->schema([
                                                 FileUpload::make('profilePersonal.avatar')
                                                     ->label('Аватар')
@@ -112,7 +112,6 @@ class UserForm
                                             ->columns(2),
 
                                         Section::make('')
-                                            ->description('Рекомендований розмір обкладинки: 1200x300 пікселів. Максимальний розмір файлу: 2 МБ.')
                                             ->schema([
                                                 Select::make('profilePersonal.role')
                                                     ->label('Роль/Посада')
@@ -159,6 +158,8 @@ class UserForm
                                             ->imageCropAspectRatio('1:1')
                                             ->imageEditor()
                                             ->maxSize(2048)
+                                            ->hint('Рекомендоване співвідношення 1:1. Максимальний розмір файлу: 2 МБ.')
+                                            ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
                                             ->directory('logos')
                                             ->disk('public')
                                             ->nullable(),
@@ -169,6 +170,7 @@ class UserForm
                                                 'USD' => 'Долар (USD)',
                                                 'EUR' => 'Євро (EUR)',
                                             ])
+                                            ->required()
                                             ->label('Основна валюта'),
                                     ]),
 
