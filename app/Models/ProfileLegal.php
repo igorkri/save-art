@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\Currency;
 
 /**
  * App\Models\ProfileLegal
@@ -58,6 +59,7 @@ class ProfileLegal extends Model
         'name' => 'array',
         'authorized_person' => 'array',
         'address' => 'array',
+        'currency' => Currency::class,
     ];
 
 
@@ -67,5 +69,74 @@ class ProfileLegal extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Получить название валюты (локализованное).
+     */
+    public function getCurrencyNameAttribute(): string
+    {
+        return match ($this->currency) {
+            Currency::UAH => 'Гривня',
+            Currency::USD => 'Долар',
+            Currency::EUR => 'Євро',
+            default => $this->currency->value,
+        };
+    }
 
+    /**
+     * Получить путь к иконке валюты.
+     */
+    public function getCurrencyIconAttribute(): string
+    {
+        return $this->currency?->icon() ?? '';
+    }
+
+    /**
+     * Получить строковый код валюты.
+     */
+    public function getCurrencyCodeAttribute(): string
+    {
+        return $this->currency?->value ?? '';
+    }
+
+    /**
+     * Получить название компании/ФИО на текущем языке.
+     */
+    public function getNameCurrentAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        $name = $this->name;
+        if (is_array($name)) {
+            return $name[$locale] ?? $name[$fallback] ?? null;
+        }
+        return $name;
+    }
+
+    /**
+     * Получить адрес на текущем языке.
+     */
+    public function getAddressCurrentAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        $address = $this->address;
+        if (is_array($address)) {
+            return $address[$locale] ?? $address[$fallback] ?? null;
+        }
+        return $address;
+    }
+
+    /**
+     * Получить уполномоченное лицо на текущем языке.
+     */
+    public function getAuthorizedPersonCurrentAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        $person = $this->authorized_person;
+        if (is_array($person)) {
+            return $person[$locale] ?? $person[$fallback] ?? null;
+        }
+        return $person;
+    }
 }
