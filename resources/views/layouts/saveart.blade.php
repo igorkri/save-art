@@ -93,6 +93,7 @@
 @livewireScripts
 @stack('scripts')
 <script src="{{ asset('js/script.js') }}" defer></script>
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 @if(session('notification'))
 <script>
     window.addEventListener('livewire:load', function () {

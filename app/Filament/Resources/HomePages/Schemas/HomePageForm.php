@@ -46,7 +46,6 @@ class HomePageForm
                                         Storage::disk('public')->delete($file);
                                     }),
 
-
                                 FileUpload::make('hero_video_poster_m')
                                     ->label('Постер відео для мобільних')
                                     ->acceptedFileTypes(['video/mp4'])
