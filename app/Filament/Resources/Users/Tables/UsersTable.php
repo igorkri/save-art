@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -37,9 +38,19 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                ToggleColumn::make('is_blocked')
+                    ->label('Заблокований')
+                    ->sortable(),
+                TextColumn::make('blocked_until')
+                    ->label('Дата закінчення блоку')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
-                //
+                \Filament\Tables\Filters\TernaryFilter::make('is_actually_blocked')
+                    ->label('Заблокований користувач')
+                    ->trueLabel('Тільки заблоковані')
+                    ->falseLabel('Тільки активні'),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -72,9 +72,11 @@ class UserForm
                                             ->password()
                                             ->required(fn (string $context): bool => $context === 'create')
                                             ->disabled(fn (string $context): bool => $context === 'edit')
+                                            ->dehydrated(fn (string $context): bool => $context !== 'edit')
                                             ->minLength(8)
                                             ->maxLength(255)
-                                            ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null),
+                                            ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
+                                           ->helperText(fn (string $context): string => $context === 'edit' ? 'Пароль не можна змінити тут. Використовуйте поле "Новий пароль".' : 'Мінімум 8 символів.'),
 
                                         TextInput::make('password_new')
                                             ->label('Новий пароль')
@@ -157,8 +159,8 @@ class UserForm
                                             ->label('Логотип компанії')
                                             ->imageCropAspectRatio('1:1')
                                             ->imageEditor()
-                                            ->maxSize(2048)
-                                            ->hint('Рекомендоване співвідношення 1:1. Максимальний розмір файлу: 2 МБ.')
+                                            ->maxSize(1024)
+                                            ->hint('Рекомендоване співвідношення 1:1. Максимальний розмір файлу: 1 МБ.')
                                             ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
                                             ->directory('logos')
                                             ->disk('public')
@@ -211,6 +213,23 @@ class UserForm
                                         TextInput::make('profileSocial.pinterest')->label('Pinterest')->url(),
                                         TextInput::make('profileSocial.whatsapp')->label('WhatsApp')->url(),
                                         TextInput::make('profileSocial.deviantart')->label('DeviantArt')->url(),
+                                    ])
+                                    ->collapsible(),
+                            ]),
+
+                        // 🔹 Додаткова інформація
+                        Tab::make('Додаткова інформація')
+                            ->icon('heroicon-o-information-circle')
+                            ->schema([
+                                Section::make('Блокування користувача')
+                                    ->columns(2)
+                                    ->schema([
+                                        Toggle::make('is_blocked')
+                                            ->label('Заблокувати користувача'),
+                                        DateTimePicker::make('blocked_until')
+                                            ->label('Дата закінчення блоку')
+                                            ->seconds(true)
+                                            ->helperText('Якщо вказано дату, блокування автоматично зніметься після її закінчення.'),
                                     ])
                                     ->collapsible(),
                             ]),

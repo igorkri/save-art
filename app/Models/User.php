@@ -23,6 +23,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_blocked',
+        'blocked_until',
     ];
 
     /**
@@ -46,6 +48,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'is_blocked' => 'boolean',
+            'blocked_until' => 'datetime',
         ];
     }
 
@@ -104,5 +108,27 @@ class User extends Authenticatable
     public function profileSocial()
     {
         return $this->hasOne(ProfileSocial::class);
+    }
+
+    /**
+     * Чи реально заблокований користувач (з урахуванням дати закінчення блоку)
+     */
+    public function isActuallyBlocked(): bool
+    {
+        if (!$this->is_blocked) {
+            return false;
+        }
+        if ($this->blocked_until === null) {
+            return true;
+        }
+        return now()->lessThan($this->blocked_until);
+    }
+
+    /**
+     * Accessor для is_actually_blocked
+     */
+    public function getIsActuallyBlockedAttribute(): bool
+    {
+        return $this->isActuallyBlocked();
     }
 }

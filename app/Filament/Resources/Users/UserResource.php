@@ -44,7 +44,6 @@ class UserResource extends Resource
             //
         ];
     }
-
     public static function getPages(): array
     {
         return [
@@ -68,8 +67,6 @@ class UserResource extends Resource
         $data['profilePersonal'] = $record->profilePersonal ? $record->profilePersonal->toArray() : [];
         $data['profileLegal'] = $record->profileLegal ? $record->profileLegal->toArray() : [];
         $data['profileSocial'] = $record->profileSocial ? $record->profileSocial->toArray() : [];
-
-        dd(['mapRecordDataToFormData' => $data]);
 
         return $data;
     }
