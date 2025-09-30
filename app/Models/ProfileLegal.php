@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\Currency;
 
 /**
@@ -41,6 +42,8 @@ use App\Enums\Currency;
  */
 class ProfileLegal extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'currency',

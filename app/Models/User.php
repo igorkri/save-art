@@ -90,4 +90,19 @@ class User extends Authenticatable
     {
         return $this->role->getLabel();
     }
+
+    public function profileLegal()
+    {
+        return $this->hasOne(ProfileLegal::class);
+    }
+
+    public function profilePersonal()
+    {
+        return $this->hasOne(ProfilePersonal::class);
+    }
+
+    public function profileSocial()
+    {
+        return $this->hasOne(ProfileSocial::class);
+    }
 }
