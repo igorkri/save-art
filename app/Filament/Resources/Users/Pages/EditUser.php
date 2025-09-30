@@ -78,6 +78,12 @@ class EditUser extends EditRecord
             $social->save();
         }
 
+        // Смена пароля
+        if (!empty($data['password_new'])) {
+            $record->password = bcrypt($data['password_new']);
+            $record->save();
+        }
+
         return $updatedRecord;
     }
 

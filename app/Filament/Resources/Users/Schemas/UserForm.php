@@ -52,6 +52,7 @@ class UserForm
                                     ->label('Пароль')
                                     ->password()
                                     ->required(fn (string $context): bool => $context === 'create')
+                                    ->disabled(fn (string $context): bool => $context === 'edit')
                                     ->minLength(8)
                                     ->maxLength(255)
                                     ->dehydrated(fn ($state) => filled($state))
@@ -60,7 +61,14 @@ class UserForm
                                     ->label('Email підтверджено')
                                     ->disabled()
                                     ->nullable(),
-
+                                TextInput::make('password_new')
+                                    ->label('Новий пароль')
+                                    ->password()
+                                    ->minLength(8)
+                                    ->maxLength(255)
+                                    ->dehydrated(false)
+                                    ->visible(fn (string $context) => $context === 'edit')
+                                    ->helperText('Залиште порожній, якщо ви не хочете змінювати пароль.'),
                             ])
                             ->columns(2),
                         Tab::make('Профіль (особистий)')
@@ -137,7 +145,9 @@ class UserForm
                         Tab::make('Профіль (соціальні мережі)')
                             ->columns(2)
                             ->schema([
-                                TextInput::make('profileSocial.website')->url(),
+                                TextInput::make('profileSocial.website')
+                                    ->url()
+                                    ->label('Вебсайт'),
                                 TextInput::make('profileSocial.facebook')->url(),
                                 TextInput::make('profileSocial.twitter')->url(),
                                 TextInput::make('profileSocial.instagram')->url(),
