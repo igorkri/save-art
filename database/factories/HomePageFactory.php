@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\HomePage>
+ * 
+ * Factory for HomePage model
+ * 
+ * приклад використання:
+ * HomePage::factory()->create();
+ * HomePage::factory()->count(5)->create();
+ * HomePage::factory()->state(['is_active' => false])->create();
+  HomePage::factory()->count(3)->state(new Sequence(
+      ['is_active' => true],
+      ['is_active' => false],
+  ))->create();    
  */
 class HomePageFactory extends Factory
 {
@@ -18,22 +29,24 @@ class HomePageFactory extends Factory
     {
         return [
             'hero_title' => [
-                'ua' => 'Мистецтво допомоги — найсучасніше з мистецтв',
+                'uk' => 'Мистецтво допомоги — найсучасніше з мистецтв',
                 'en' => 'The Art of Help — the Most Contemporary of Arts'
             ],
             'hero_video_poster' => 'hero-videos/hero.webp',
-            'hero_video_url' => 'videos/hero.webm',
+            'hero_video_poster_m' => 'hero-videos/hero-mobile.webp',
+            'hero_image_poster' => 'hero-images/hero-image.webp',
+            'hero_image_poster_m' => 'hero-images/hero-image-mobile.webp',
 
             'donates_subtitle' => [
-                'ua' => 'ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ ТА РОЗВИТКУ УКРАЇНСЬКОЇ КУЛЬТУРИ',
+                'uk' => 'ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ ТА РОЗВИТКУ УКРАЇНСЬКОЇ КУЛЬТУРИ',
                 'en' => 'JOIN THE REVIVAL AND DEVELOPMENT OF UKRAINIAN CULTURE'
             ],
             'donates_title' => [
-                'ua' => 'Твоя підтримка — натхнення для митця',
+                'uk' => 'Твоя підтримка — натхнення для митця',
                 'en' => 'Your Support — Inspiration for the Artist'
             ],
             'donates_text' => [
-                'ua' => 'Ми пропонуємо прозору систему донатів, яка забезпечить майбутній проєкт в будь-якій галузі мистецтва стабільною підтримкою. Донатерами можуть бути як фізичні так і юридичні особи. Навіть 10₴ допоможуть митцю реалізувати свій творчий потенціал.',
+                'uk' => 'Ми пропонуємо прозору систему донатів, яка забезпечить майбутній проєкт в будь-якій галузі мистецтва стабільною підтримкою. Донатерами можуть бути як фізичні так і юридичні особи. Навіть 10₴ допоможуть митцю реалізувати свій творчий потенціал.',
                 'en' => 'We offer a transparent donation system that will provide future projects in any field of art with stable support. Donors can be both individuals and legal entities. Even ₴10 will help an artist realize their creative potential.'
             ],
 
@@ -44,44 +57,68 @@ class HomePageFactory extends Factory
             'sold_projects' => 107,
 
             'partners_title' => [
-                'ua' => 'Партнери',
+                'uk' => 'Партнери',
                 'en' => 'Partners'
+            ],
+            'partners' => [
+                [
+                    'logo' => 'partners/partner1.webp',
+                    'name' => [
+                        'uk' => 'Партнер 1',
+                        'en' => 'Partner 1'
+                    ],
+                    'description' => [
+                        'uk' => 'Опис партнера 1',
+                        'en' => 'Description of partner 1'
+                    ]
+                ],
+                [
+                    'logo' => 'partners/partner2.webp',
+                    'name' => [
+                        'uk' => 'Партнер 2',
+                        'en' => 'Partner 2'
+                    ],
+                    'description' => [
+                        'uk' => 'Опис партнера 2',
+                        'en' => 'Description of partner 2'
+                    ]
+                ]
             ],
 
             'ad_first_title' => [
-                'ua' => 'Долучайтесь до Мистецтва Перемоги!',
+                'uk' => 'Долучайтесь до Мистецтва Перемоги!',
                 'en' => 'Join the Art of Victory!'
             ],
             'ad_first_button_text' => [
-                'ua' => 'Підтримати платформу',
+                'uk' => 'Підтримати платформу',
                 'en' => 'Support the Platform'
             ],
             'ad_first_image' => 'advertising/advert1.webp',
 
             'ad_second_title' => [
-                'ua' => 'Ваша допомога та підтримка стане світловим імпульсом відбудови сучасного ренесансу!',
+                'uk' => 'Ваша допомога та підтримка стане світловим імпульсом відбудови сучасного ренесансу!',
                 'en' => 'Your help and support will become a light impulse for the reconstruction of a modern renaissance!'
             ],
             'ad_second_button_text' => [
-                'ua' => 'Підтримати митців',
+                'uk' => 'Підтримати митців',
                 'en' => 'Support Artists'
             ],
             'ad_second_image' => 'advertising/advert2.webp',
 
             'footer_expert_title' => [
-                'ua' => 'Запрошуємо експертів до співпраці',
+                'uk' => 'Запрошуємо експертів до співпраці',
                 'en' => 'We Invite Experts to Cooperate'
             ],
             'footer_expert_text' => [
-                'ua' => 'Благодійний фонд ID_Art UA відкритий до співпраці з експертами у галузі мистецтва, кураторами, галереями та колекціонерами.',
+                'uk' => 'Благодійний фонд ID_Art UA відкритий до співпраці з експертами у галузі мистецтва, кураторами, галереями та колекціонерами.',
                 'en' => 'ID_Art UA Charitable Foundation is open for cooperation with art experts, curators, galleries and collectors.'
             ],
             'footer_expert_features' => [
-                'ua' => ['Створення сучасного українського мистецтва', 'Участь у проведенні виставок та мистецьких заходів', 'Популяризація українських митців в усьому світі'],
+                'uk' => ['Створення сучасного українського мистецтва', 'Участь у проведенні виставок та мистецьких заходів', 'Популяризація українських митців в усьому світі'],
                 'en' => ['Creation of contemporary Ukrainian art', 'Participation in exhibitions and artistic events', 'Promotion of Ukrainian artists worldwide']
             ],
             'footer_expert_button_text' => [
-                'ua' => 'Відправити заявку',
+                'uk' => 'Відправити заявку',
                 'en' => 'Send Application'
             ],
 

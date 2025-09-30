@@ -18,6 +18,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -51,6 +52,13 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+            ])
+            ->plugins([
+                FilamentLanguageSwitcherPlugin::make()
+                    ->locales([
+                        ['code' => 'en', 'name' => 'English', 'flag' => 'gb'],
+                        ['code' => 'uk', 'name' => 'Українська', 'flag' => 'ua'],
+                    ]),
             ])
             ->authMiddleware([
                 Authenticate::class,
