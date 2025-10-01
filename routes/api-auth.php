@@ -1,14 +1,13 @@
 
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 // API: Логин
-Route::post('/api/login', function (Request $request) {
+Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
         'password' => 'required',
@@ -20,6 +19,7 @@ Route::post('/api/login', function (Request $request) {
     }
 
     $token = $user->createToken('web')->plainTextToken;
+
     return response()->json([
         'token' => $token,
         'user' => $user,
@@ -27,7 +27,7 @@ Route::post('/api/login', function (Request $request) {
 });
 
 // API: Регистрация
-Route::post('/api/register', function (Request $request) {
+Route::post('/register', function (Request $request) {
     $data = $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
@@ -39,6 +39,7 @@ Route::post('/api/register', function (Request $request) {
         'password' => Hash::make($data['password']),
     ]);
     $token = $user->createToken('web')->plainTextToken;
+
     return response()->json([
         'token' => $token,
         'user' => $user,
@@ -46,12 +47,13 @@ Route::post('/api/register', function (Request $request) {
 });
 
 // API: Logout
-Route::middleware('auth:sanctum')->post('/api/logout', function (Request $request) {
+Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     $request->user()->currentAccessToken()->delete();
+
     return response()->json(['message' => 'Выход выполнен']);
 });
 
 // API: Получить текущего пользователя
-Route::middleware('auth:sanctum')->get('/api/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
