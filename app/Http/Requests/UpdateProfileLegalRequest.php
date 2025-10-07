@@ -6,18 +6,25 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateProfileLegalRequest extends FormRequest
 {
+    /**
+     * Визначає, чи авторизований користувач робити цей запит
+     */
     public function authorize(): bool
     {
         return auth()->check();
     }
 
+    /**
+     * Правила валідації для оновлення юридичного профілю
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
             'currency' => ['nullable', 'in:UAH,USD,EUR'],
             'is_legal' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'string', 'max:255'],
-            // Многоязычные JSON объекты
+            // Багатомовні JSON об'єкти
             'name' => ['nullable', 'array'],
             'name.en' => ['nullable', 'string', 'max:255'],
             'name.uk' => ['nullable', 'string', 'max:255'],

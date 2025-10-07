@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class UpdateProfilePersonalRequest extends FormRequest
 {
     /**
-     * Определяет, авторизован ли пользователь делать этот запрос
+     * Визначає, чи авторизований користувач робити цей запит
      */
     public function authorize(): bool
     {
@@ -15,14 +15,14 @@ class UpdateProfilePersonalRequest extends FormRequest
     }
 
     /**
-     * Правила валидации для обновления личного профиля
+     * Правила валідації для оновлення особистого профілю
      * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
             'avatar' => ['nullable', 'string', 'max:255'],
-            // Многоязычные JSON объекты
+            // Багатомовні JSON об'єкти
             'full_name' => ['nullable', 'array'],
             'full_name.en' => ['nullable', 'string', 'max:255'],
             'full_name.uk' => ['nullable', 'string', 'max:255'],

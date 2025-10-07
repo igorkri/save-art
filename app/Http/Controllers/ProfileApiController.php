@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 class ProfileApiController extends Controller
 {
     /**
-     * Получить профиль текущего пользователя
+     * Отримати профіль поточного користувача
      */
     public function getProfile(Request $request): \Illuminate\Http\JsonResponse
     {
@@ -34,7 +34,7 @@ class ProfileApiController extends Controller
     }
 
     /**
-     * Обновить личный профиль пользователя
+     * Оновити особистий профіль користувача
      */
     public function updatePersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -50,7 +50,7 @@ class ProfileApiController extends Controller
     }
 
     /**
-     * Создать личный профиль пользователя
+     * Створити особистий профіль користувача
      */
     public function createPersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -66,7 +66,7 @@ class ProfileApiController extends Controller
     }
 
     /**
-     * Обновить юридический профиль пользователя
+     * Оновити юридичний профіль користувача
      */
     public function updateLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -82,7 +82,7 @@ class ProfileApiController extends Controller
     }
 
     /**
-     * Создать юридический профиль пользователя
+     * Створити юридичний профіль користувача
      */
     public function createLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -99,7 +99,7 @@ class ProfileApiController extends Controller
     }
 
     /**
-     * Обновить социальный профиль пользователя
+     * Оновити соціальний профіль користувача
      */
     public function updateSocial(UpdateProfileSocialRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -114,7 +114,7 @@ class ProfileApiController extends Controller
     }
 
     /**
-     * Создать социальный профиль пользователя
+     * Створити соціальний профіль користувача
      */
     public function createSocial(UpdateProfileSocialRequest $request): \Illuminate\Http\JsonResponse
     {
