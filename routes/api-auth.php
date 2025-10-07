@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Models\User;
@@ -15,7 +14,7 @@ Route::post('/login', function (Request $request) {
 
     $user = User::where('email', $request->email)->first();
     if (! $user || ! Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Неверные данные'], 401);
+        return response()->json(['message' => __('api.auth.invalid_credentials')], 401);
     }
 
     $token = $user->createToken('web')->plainTextToken;
@@ -50,7 +49,7 @@ Route::post('/register', function (Request $request) {
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     $request->user()->currentAccessToken()->delete();
 
-    return response()->json(['message' => 'Выход выполнен']);
+    return response()->json(['message' => __('api.auth.logout_success')]);
 });
 
 // API: Получить текущего пользователя
