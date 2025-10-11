@@ -76,8 +76,6 @@ class HomePageForm
                                         Storage::disk('public')->delete($file);
                                     })
                                     ->rules([new MaxFileSizeRule(5120)]),
-
-
                             ]),
                     ])
                     ->collapsible()

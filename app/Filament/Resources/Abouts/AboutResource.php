@@ -20,7 +20,15 @@ class AboutResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = null;
+
+    public static function getRecordTitle($record): ?string
+    {
+        if ($record->title && is_array($record->title)) {
+            return $record->title[app()->getLocale()] ?? $record->title['uk'] ?? reset($record->title) ?? 'About';
+        }
+        return 'About';
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -13,21 +13,22 @@ return new class extends Migration
     {
         Schema::create('about', function (Blueprint $table) {
             $table->id();
-            $table->json('title')->comment('Заголовок');
-            $table->json('feats')->comment('особливості');
-            $table->json('description')->comment('Опис');
-            $table->json('goals')->comment('Місія та цілі');
-            $table->json('tasks')->comment('Завдання');
-            $table->json('implementation')->comment('Як ми це реалізуємо');
-            $table->json('results')->comment('Pезультати');
-            $table->json('id_art')->comment('Благодійний фонд ID Art UA');
-            $table->json('events')->comment('Події');
-            $table->json('project')->comment('Проект');
-            $table->json('artists')->comment('Художники');
+            $table->json('title')->nullable()->comment('Заголовок');
+            $table->json('feats')->nullable()->comment('особливості');
+            $table->json('description')->nullable()->comment('Опис');
+            $table->json('goals')->nullable()->comment('Місія та цілі');
+            $table->json('tasks')->nullable()->comment('Завдання');
+            $table->json('implementation')->nullable()->comment('Як ми це реалізуємо');
+            $table->json('results')->nullable()->comment('Pезультати');
+            $table->json('id_art')->nullable()->comment('Благодійний фонд ID Art UA');
+            $table->json('events')->nullable()->comment('Події');
+            $table->json('project')->nullable()->comment('Проект');
+            $table->json('artists')->nullable()->comment('Художники');
             $table->boolean('is_active_artist')
+                ->nullable()
                 ->default(true)
                 ->comment('Активність художників');
-            $table->json('partners')->comment('Партнери');
+            $table->json('partners')->nullable()->comment('Партнери');
             $table->timestamps();
         });
     }
