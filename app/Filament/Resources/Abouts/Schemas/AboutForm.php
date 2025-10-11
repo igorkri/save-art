@@ -472,21 +472,6 @@ class AboutForm
                     ])
                     ->collapsible()
                     ->collapsed(),
-
-//
-//                Section::make('Артисти та партнери')
-//                    ->schema([
-//                        LanguageTabs::make([
-//                            TextInput::make('artists')
-//                                ->label('Артисти')
-//                                ->required(),
-//                            TextInput::make('partners')
-//                                ->label('Партнери')
-//                                ->required(),
-//                        ]),
-//                    ])
-//                    ->collapsible()
-//                    ->collapsed(),
             ]);
     }
 }
