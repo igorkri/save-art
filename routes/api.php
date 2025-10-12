@@ -7,6 +7,7 @@ require __DIR__.'/api-auth.php';
 
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\ArtistBoardController;
+use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\ProfileApiController;
 
 // Public routes for About (не требуют аутентификации)
@@ -21,6 +22,12 @@ Route::prefix('artist-board')->group(function () {
     Route::get('/', [ArtistBoardController::class, 'index']);
     Route::get('/language/{language}', [ArtistBoardController::class, 'getByLanguage']);
     Route::get('/{id}', [ArtistBoardController::class, 'show']);
+});
+
+// Public routes for Content
+Route::prefix('content')->group(function () {
+    Route::get('/', [ContentController::class, 'index']);
+    Route::get('/{slug}/{language}', [ContentController::class, 'showByLanguage']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
