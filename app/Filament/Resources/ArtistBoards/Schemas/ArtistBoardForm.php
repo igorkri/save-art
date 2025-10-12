@@ -39,6 +39,7 @@ class ArtistBoardForm
                                 FileUpload::make('logo_museum')
                                     ->label('Логотип музею')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('artist-boards/logos')
                                     ->preserveFilenames()
                                     ->required(),
@@ -71,6 +72,7 @@ class ArtistBoardForm
                                 FileUpload::make('image')
                                     ->label('Фото артиста')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('artist-boards/artists')
                                     ->preserveFilenames()
                                     ->required(),
@@ -112,6 +114,7 @@ class ArtistBoardForm
                                         FileUpload::make('image')
                                             ->label('Зображення роботи')
                                             ->image()
+                                            ->disk('public')
                                             ->directory('artist-boards/works')
                                             ->preserveFilenames()
                                             ->required(),
