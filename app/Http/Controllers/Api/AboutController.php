@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AboutResource;
+use App\Http\Resources\ArtistBoardResource;
 use App\Models\About;
+use App\Models\ArtistBoard;
 use Illuminate\Http\JsonResponse;
 
 class AboutController extends Controller
@@ -24,10 +26,21 @@ class AboutController extends Controller
             ], 404);
         }
 
+        $resource = new AboutResource($about);
+        $data = $resource->toArray(request());
+
+        // Add ArtistBoard data if is_active_artist is true
+        if ($about->is_active_artist) {
+            $artistBoard = ArtistBoard::first();
+            if ($artistBoard) {
+                $data['artist_board'] = new ArtistBoardResource($artistBoard);
+            }
+        }
+
         return response()->json([
             'result' => true,
             'message' => 'About data retrieved successfully',
-            'data' => new AboutResource($about),
+            'data' => $data,
         ]);
     }
 
@@ -46,10 +59,21 @@ class AboutController extends Controller
             ], 404);
         }
 
+        $resource = new AboutResource($about);
+        $data = $resource->toArray(request());
+
+        // Add ArtistBoard data if is_active_artist is true
+        if ($about->is_active_artist) {
+            $artistBoard = ArtistBoard::first();
+            if ($artistBoard) {
+                $data['artist_board'] = new ArtistBoardResource($artistBoard);
+            }
+        }
+
         return response()->json([
             'result' => true,
             'message' => 'About data retrieved successfully',
-            'data' => new AboutResource($about),
+            'data' => $data,
         ]);
     }
 
@@ -79,6 +103,18 @@ class AboutController extends Controller
 
         // Filter multilingual content by language
         $filteredData = $this->filterByLanguage($data, $language);
+
+        // Add ArtistBoard data if is_active_artist is true
+        if ($about->is_active_artist) {
+            $artistBoard = ArtistBoard::first();
+            if ($artistBoard) {
+                $artistResource = new ArtistBoardResource($artistBoard);
+                $artistData = $artistResource->toArray(request());
+
+                // Filter artist board data by language
+                $filteredData['artist_board'] = $this->filterArtistBoardByLanguage($artistData, $language);
+            }
+        }
 
         return response()->json([
             'result' => true,
@@ -136,5 +172,63 @@ class AboutController extends Controller
         }
 
         return $extracted;
+    }
+
+    /**
+     * Filter ArtistBoard multilingual content by specified language
+     */
+    private function filterArtistBoardByLanguage(array $data, string $language): array
+    {
+        // Filter titles
+        if (isset($data['titles']) && is_array($data['titles'])) {
+            $data['titles'] = $this->extractLanguageContent($data['titles'], $language);
+        }
+
+        // Filter descriptions
+        if (isset($data['descriptions']) && is_array($data['descriptions'])) {
+            $data['descriptions'] = $this->extractLanguageContent($data['descriptions'], $language);
+        }
+
+        // Filter artist data
+        if (isset($data['data']) && is_array($data['data'])) {
+            $data['data'] = array_map(function ($artist) use ($language) {
+                // Filter artist name
+                if (isset($artist['name'])) {
+                    $artist['name'] = $this->extractLanguageContent($artist['name'], $language);
+                }
+
+                // Filter museums
+                if (isset($artist['museums']) && is_array($artist['museums'])) {
+                    $artist['museums'] = array_map(function ($museum) use ($language) {
+                        if (isset($museum['name'])) {
+                            $museum['name'] = $this->extractLanguageContent($museum['name'], $language);
+                        }
+                        if (isset($museum['exhibition_name'])) {
+                            $museum['exhibition_name'] = $this->extractLanguageContent($museum['exhibition_name'], $language);
+                        }
+
+                        return $museum;
+                    }, $artist['museums']);
+                }
+
+                // Filter works
+                if (isset($artist['works']) && is_array($artist['works'])) {
+                    $artist['works'] = array_map(function ($work) use ($language) {
+                        if (isset($work['title'])) {
+                            $work['title'] = $this->extractLanguageContent($work['title'], $language);
+                        }
+                        if (isset($work['description'])) {
+                            $work['description'] = $this->extractLanguageContent($work['description'], $language);
+                        }
+
+                        return $work;
+                    }, $artist['works']);
+                }
+
+                return $artist;
+            }, $data['data']);
+        }
+
+        return $data;
     }
 }
