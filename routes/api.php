@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 require __DIR__.'/api-auth.php';
 
 use App\Http\Controllers\Api\AboutController;
+use App\Http\Controllers\Api\ArtistBoardController;
 use App\Http\Controllers\ProfileApiController;
 
 // Public routes for About (не требуют аутентификации)
@@ -13,6 +14,13 @@ Route::prefix('about')->group(function () {
     Route::get('/', [AboutController::class, 'index']);
     Route::get('/language/{language}', [AboutController::class, 'getByLanguage']);
     Route::get('/{id}', [AboutController::class, 'show']);
+});
+
+// Public routes for ArtistBoard (не требуют аутентификации)
+Route::prefix('artist-board')->group(function () {
+    Route::get('/', [ArtistBoardController::class, 'index']);
+    Route::get('/language/{language}', [ArtistBoardController::class, 'getByLanguage']);
+    Route::get('/{id}', [ArtistBoardController::class, 'show']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
