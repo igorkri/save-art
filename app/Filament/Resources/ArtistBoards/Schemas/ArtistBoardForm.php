@@ -66,6 +66,7 @@ class ArtistBoardForm
                     ->schema([
                         Repeater::make('data')
                             ->label('Дані')
+                            ->createItemButtonLabel('Додати артиста')
                             ->schema([
                                 FileUpload::make('image')
                                     ->label('Фото артиста')
@@ -78,31 +79,35 @@ class ArtistBoardForm
                                 ]),
                                 TextInput::make('exhibition_link')->label('Посилання на виставку')->url(),
                                 TextInput::make('facebook_link')->label('Посилання на Facebook')->url(),
-                                Repeater::make('museums')
-                                    ->label('Музеї')
+
+                                Section::make('Музей')
                                     ->schema([
-                                        //                                        FileUpload::make('logo')
-                                        //                                            ->label('Логотип музею')
-                                        //                                            ->image()
-                                        //                                            ->directory('artist-boards/museums')
-                                        //                                            ->preserveFilenames()
-                                        //                                            ->required(),
-                                        LanguageTabs::make([
-                                            TextInput::make('name')->label('Назва музею')->required(),
-                                            TextInput::make('exhibition_name')->label('Назва виставки')->required(),
-                                        ]),
-                                        TextInput::make('dates')->label('Дати')->required(),
+                                        Repeater::make('museums')
+                                            ->label('Музеї')
+                                                    ->schema([
+                                                        LanguageTabs::make([
+                                                            TextInput::make('name')->label('Назва музею'),
+                                                            TextInput::make('exhibition_name')->label('Назва виставки'),
+                                                        ]),
+                                                        TextInput::make('dates')->label('Дати')->placeholder('01.01.2024 - 01.03.2024'),
+                                            ])
+                                            ->columns(1)
+//                                            ->minItems(0)
+                                            ->maxItems(10)
+                                            ->cloneable(),
+
                                     ])
-                                    ->columns(1)
-                                    ->minItems(1)
-                                    ->maxItems(10)
-                                    ->cloneable(),
+                                ->collapsible()
+                                ->collapsed(),
+
+                                Section::make('Роботи артиста')
+                                    ->schema([
                                 Repeater::make('works')
                                     ->label('Роботи')
                                     ->schema([
                                         LanguageTabs::make([
                                             TextInput::make('title')->label('Назва роботи')->required(),
-                                            RichEditor::make('description')->label('Опис')->required(),
+                                            RichEditor::make('description')->label('Опис'),
                                         ]),
                                         FileUpload::make('image')
                                             ->label('Зображення роботи')
@@ -114,6 +119,9 @@ class ArtistBoardForm
                                     ->columns(1)
                                     ->minItems(1)
                                     ->cloneable(),
+                                        ])
+                                ->collapsible()
+                                ->collapsed(),
                             ])
                             ->columns(1)
                             ->minItems(1)
