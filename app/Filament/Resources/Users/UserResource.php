@@ -56,7 +56,7 @@ class UserResource extends Resource
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()
-            ->with(['profileLegal', 'profilePersonal', 'profileSocial']);
+            ->with(['profileLegal', 'profilePersonal', 'profileSocial', 'profileDocuments']);
     }
 
     public static function mapRecordDataToFormData(\Illuminate\Database\Eloquent\Model $record): array
@@ -67,6 +67,7 @@ class UserResource extends Resource
         $data['profilePersonal'] = $record->profilePersonal ? $record->profilePersonal->toArray() : [];
         $data['profileLegal'] = $record->profileLegal ? $record->profileLegal->toArray() : [];
         $data['profileSocial'] = $record->profileSocial ? $record->profileSocial->toArray() : [];
+        $data['profileDocuments'] = $record->profileDocuments ? $record->profileDocuments->toArray() : [];
 
         return $data;
     }

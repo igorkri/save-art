@@ -110,6 +110,12 @@ class User extends Authenticatable
         return $this->hasOne(ProfileSocial::class);
     }
 
+    //profile_documents
+    public function profileDocuments()
+    {
+        return $this->hasMany(ProfileDocument::class);
+    }
+
     /**
      * Чи реально заблокований користувач (з урахуванням дати закінчення блоку)
      */

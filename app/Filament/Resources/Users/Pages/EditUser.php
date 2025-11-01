@@ -6,6 +6,7 @@ use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class EditUser extends EditRecord
 {
@@ -18,14 +19,13 @@ class EditUser extends EditRecord
         ];
     }
 
-
     // title для сторінки редагування
     public function getTitle(): string
     {
         $name = $this->record->name ?? 'Редагування користувача';
+
         return "Редагування користувача: {$name}";
     }
-
 
     protected function afterSaveRecord(): void
     {
@@ -65,7 +65,7 @@ class EditUser extends EditRecord
 
         // ProfilePersonal
         $personalData = $data['profilePersonal'] ?? [];
-        if (!empty($personalData)) {
+        if (! empty($personalData)) {
             $personal = $record->profilePersonal ?: new \App\Models\ProfilePersonal(['user_id' => $record->id]);
             $personal->fill($personalData);
             $personal->save();
@@ -73,7 +73,7 @@ class EditUser extends EditRecord
 
         // ProfileLegal
         $legalData = $data['profileLegal'] ?? [];
-        if (!empty($legalData)) {
+        if (! empty($legalData)) {
             $legal = $record->profileLegal ?: new \App\Models\ProfileLegal(['user_id' => $record->id]);
             $legal->fill($legalData);
             $legal->save();
@@ -81,16 +81,80 @@ class EditUser extends EditRecord
 
         // ProfileSocial
         $socialData = $data['profileSocial'] ?? [];
-        if (!empty($socialData)) {
+        if (! empty($socialData)) {
             $social = $record->profileSocial ?: new \App\Models\ProfileSocial(['user_id' => $record->id]);
             $social->fill($socialData);
             $social->save();
         }
 
         // Смена пароля
-        if (!empty($data['password_new'])) {
+        if (! empty($data['password_new'])) {
             $record->password = bcrypt($data['password_new']);
             $record->save();
+        }
+
+        // ProfileDocuments - обработка загруженных файлов
+        if (isset($data['profileDocuments'])) {
+            $newDocuments = $data['profileDocuments'] ?? [];
+
+            // Получаем существующие пути к файлам
+            $existingDocuments = $record->profileDocuments->pluck('file_path')->toArray();
+
+            // Удаляем документы, которые были удалены из формы
+            $documentsToDelete = array_diff($existingDocuments, $newDocuments);
+            if (! empty($documentsToDelete)) {
+                $record->profileDocuments()
+                    ->whereIn('file_path', $documentsToDelete)
+                    ->each(function ($doc) {
+                        // Удаляем файл с диска
+                        Storage::disk('public')->delete($doc->file_path);
+                        $doc->delete();
+                    });
+            }
+
+            // Добавляем новые документы
+            $documentsToAdd = array_diff($newDocuments, $existingDocuments);
+            foreach ($documentsToAdd as $filePath) {
+                if (! empty($filePath)) {
+                    $fullPath = storage_path('app/public/'.$filePath);
+                    if (file_exists($fullPath)) {
+                        $fileHash = hash_file('sha256', $fullPath);
+
+                        // Проверяем, существует ли уже документ с таким хешем для этого пользователя
+                        $existingDocument = $record->profileDocuments()
+                            ->where('hash', $fileHash)
+                            ->first();
+
+                        if (! $existingDocument) {
+                            try {
+                                // Создаём новый документ только если его ещё нет
+                                $document = new \App\Models\ProfileDocument([
+                                    'user_id' => $record->id,
+                                    'file_path' => $filePath,
+                                    'hash' => $fileHash,
+                                    'sign_status' => 'pending',
+                                    'service' => 'diia',
+                                ]);
+                                $document->save();
+                            } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                                // Документ с таким хешем уже существует, пропускаем
+                                Log::warning('Документ з таким хешем вже існує', [
+                                    'user_id' => $record->id,
+                                    'file_path' => $filePath,
+                                    'hash' => $fileHash,
+                                ]);
+                            } catch (\Exception $e) {
+                                Log::error('Помилка при збереженні документа', [
+                                    'user_id' => $record->id,
+                                    'file_path' => $filePath,
+                                    'error' => $e->getMessage(),
+                                ]);
+                                throw $e;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return $updatedRecord;
@@ -113,6 +177,12 @@ class EditUser extends EditRecord
             $social = method_exists($record, 'profileSocial') && $record->profileSocial ? collect($record->profileSocial->toArray())->only([
                 'website', 'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'pinterest', 'github', 'telegram', 'tiktok', 'youtube_channel', 'whatsapp', 'deviantart',
             ])->toArray() : [];
+
+            // Загружаем пути к документам
+            $documents = method_exists($record, 'profileDocuments') && $record->profileDocuments
+                ? $record->profileDocuments->pluck('file_path')->toArray()
+                : [];
+
             $this->form->fill([
                 'name' => $record->name ?? '',
                 'email' => $record->email ?? '',
@@ -121,6 +191,7 @@ class EditUser extends EditRecord
                 'profilePersonal' => $personal,
                 'profileLegal' => $legal,
                 'profileSocial' => $social,
+                'profileDocuments' => $documents,
             ]);
         }
     }

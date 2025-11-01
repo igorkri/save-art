@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\UserRole;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -11,8 +10,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
 use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
@@ -24,6 +23,7 @@ class UserForm
         return $schema
             ->components([
                 Tabs::make()
+                    ->persistTabInQueryString()
                     ->tabs([
 
                         // 🔹 Основна інформація про користувача
@@ -76,7 +76,7 @@ class UserForm
                                             ->minLength(8)
                                             ->maxLength(255)
                                             ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
-                                           ->helperText(fn (string $context): string => $context === 'edit' ? 'Пароль не можна змінити тут. Використовуйте поле "Новий пароль".' : 'Мінімум 8 символів.'),
+                                            ->helperText(fn (string $context): string => $context === 'edit' ? 'Пароль не можна змінити тут. Використовуйте поле "Новий пароль".' : 'Мінімум 8 символів.'),
 
                                         TextInput::make('password_new')
                                             ->label('Новий пароль')
@@ -85,7 +85,7 @@ class UserForm
                                             ->maxLength(255)
                                             ->dehydrated(false)
                                             ->visible(fn (string $context) => $context === 'edit')
-                                            ->helperText('Залиште порожнім, якщо не хочете змінювати пароль.')
+                                            ->helperText('Залиште порожнім, якщо не хочете змінювати пароль.'),
 
                                     ]),
                             ]),
@@ -117,12 +117,11 @@ class UserForm
                                             ->schema([
                                                 Select::make('profilePersonal.role')
                                                     ->label('Роль/Посада')
-                                                ->options([
-                                                    UserRole::Owner->value => UserRole::Owner->getLabel(),
-                                                    UserRole::Mecenat->value => UserRole::Mecenat->getLabel(),
-                                                    UserRole::User->value => UserRole::User->getLabel(),
-                                                ])
-                                                ,
+                                                    ->options([
+                                                        UserRole::Owner->value => UserRole::Owner->getLabel(),
+                                                        UserRole::Mecenat->value => UserRole::Mecenat->getLabel(),
+                                                        UserRole::User->value => UserRole::User->getLabel(),
+                                                    ]),
                                                 TextInput::make('profilePersonal.postal_code')->label('Поштовий індекс'),
                                             ])
                                             ->columns(1),
@@ -213,6 +212,24 @@ class UserForm
                                         TextInput::make('profileSocial.pinterest')->label('Pinterest')->url(),
                                         TextInput::make('profileSocial.whatsapp')->label('WhatsApp')->url(),
                                         TextInput::make('profileSocial.deviantart')->label('DeviantArt')->url(),
+                                    ])
+                                    ->collapsible(),
+                            ]),
+
+                        Tab::make('Документи')
+                            ->icon('heroicon-o-document-text')
+                            ->schema([
+                                Section::make('Завантажені документи')
+                                    ->columns(2)
+                                    ->schema([
+                                        FileUpload::make('profileDocuments')
+                                            ->label('Документи користувача')
+                                            ->multiple()
+                                            ->directory('profile_documents')
+                                            ->disk('public')
+                                            ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
+                                            ->helperText('Завантажте документи, пов\'язані з профілем користувача.')
+                                            ->columnSpanFull(),
                                     ])
                                     ->collapsible(),
                             ]),

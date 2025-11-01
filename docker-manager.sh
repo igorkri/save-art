@@ -15,9 +15,9 @@ fi
 #  echo "❌ Docker не встановлено. Будь ласка, встановіть Docker перед запуском цього скрипту."
 #  exit 1
 #fi
-# Перевіряємо, чи встановлений docker-compose
-#if ! command -v docker-compose &> /dev/null; then
-#  echo "❌ docker-compose не встановлено. Будь ласка, встановіть docker-compose перед запуском цього скрипту."
+# Перевіряємо, чи встановлений docker compose
+#if ! command -v docker compose &> /dev/null; then
+#  echo "❌ docker compose не встановлено. Будь ласка, встановіть docker compose перед запуском цього скрипту."
 #  exit 1
 #fi
 # Перевіряємо, чи встановлений PHP
@@ -38,8 +38,8 @@ start() {
   echo "🛑 Зупиняємо всі контейнери..."
   docker stop $(docker ps -q) 2>/dev/null || true
 
-  echo "🚀 Запускаємо docker-compose..."
-  docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
+  echo "🚀 Запускаємо docker compose..."
+  docker compose -f "$DOCKER_COMPOSE_FILE" up -d
 
 # Перевіряємо, чи зупинено nginx та чи запущено Apache на локальному сервері (не Docker)
 sudo systemctl stop nginx 2>/dev/null || true
@@ -66,8 +66,8 @@ echo "сайт запущено на http://save-art.local"
 }
 
 down() {
-  echo "🛑 Зупиняємо docker-compose контейнери..."
-  docker-compose -f "$DOCKER_COMPOSE_FILE" down
+  echo "🛑 Зупиняємо docker compose контейнери..."
+  docker compose -f "$DOCKER_COMPOSE_FILE" down
 
   echo "🛑 Зупиняємо всі інші контейнери..."
   docker stop $(docker ps -q) 2>/dev/null || true
