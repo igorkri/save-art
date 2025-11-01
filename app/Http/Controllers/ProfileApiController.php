@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\ProfilePersonal;
-use App\Models\ProfileLegal;
-use App\Models\ProfileSocial;
-use Illuminate\Http\Request;
-use App\Http\Requests\UpdateProfilePersonalRequest;
 use App\Http\Requests\UpdateProfileLegalRequest;
+use App\Http\Requests\UpdateProfilePersonalRequest;
 use App\Http\Requests\UpdateProfileSocialRequest;
-use App\Http\Resources\ProfilePersonalResource;
+use App\Http\Requests\UploadProfileDocumentRequest;
+use App\Http\Resources\ProfileDocumentResource;
 use App\Http\Resources\ProfileLegalResource;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ProfilePersonalResource;
+use App\Models\ProfileDocument;
+use App\Models\ProfileLegal;
+use App\Models\ProfilePersonal;
+use App\Models\ProfileSocial;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileApiController extends Controller
 {
@@ -23,13 +27,14 @@ class ProfileApiController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        $user->load(['profilePersonal', 'profileLegal', 'profileSocial']);
+        $user->load(['profilePersonal', 'profileLegal', 'profileSocial', 'profileDocuments']);
 
         return response()->json([
             'user' => $user,
             'profilePersonal' => $user->profilePersonal ? new ProfilePersonalResource($user->profilePersonal) : null,
             'profileLegal' => $user->profileLegal ? new ProfileLegalResource($user->profileLegal) : null,
             'profileSocial' => $user->profileSocial,
+            'profileDocuments' => ProfileDocumentResource::collection($user->profileDocuments),
         ]);
     }
 
@@ -40,7 +45,7 @@ class ProfileApiController extends Controller
     {
         $user = $request->user();
         $profile = $user->profilePersonal;
-        if (!$profile) {
+        if (! $profile) {
             $profile = new ProfilePersonal(['user_id' => $user->id]);
         }
         $profile->fill($request->validated());
@@ -72,7 +77,7 @@ class ProfileApiController extends Controller
     {
         $user = $request->user();
         $profile = $user->profileLegal;
-        if (!$profile) {
+        if (! $profile) {
             $profile = new ProfileLegal(['user_id' => $user->id]);
         }
         $profile->fill($request->validated());
@@ -105,11 +110,12 @@ class ProfileApiController extends Controller
     {
         $user = $request->user();
         $profile = $user->profileSocial;
-        if (!$profile) {
+        if (! $profile) {
             $profile = new ProfileSocial(['user_id' => $user->id]);
         }
         $profile->fill($request->validated());
         $profile->save();
+
         return response()->json(['profileSocial' => $profile]);
     }
 
@@ -125,6 +131,182 @@ class ProfileApiController extends Controller
         $profile = new ProfileSocial(['user_id' => $user->id]);
         $profile->fill($request->validated());
         $profile->save();
+
         return response()->json(['profileSocial' => $profile], 201);
+    }
+
+    /**
+     * Отримати всі документи користувача
+     */
+    public function getDocuments(Request $request): \Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $documents = $user->profileDocuments;
+
+        return response()->json([
+            'documents' => ProfileDocumentResource::collection($documents),
+        ]);
+    }
+
+    /**
+     * Завантажити новий документ
+     */
+    public function uploadDocument(UploadProfileDocumentRequest $request): \Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        // Сохраняем файл
+        $file = $request->file('file');
+        $filePath = $file->store('profile_documents', 'public');
+        $fullPath = storage_path('app/public/'.$filePath);
+
+        // Вычисляем хеш
+        $fileHash = hash_file('sha256', $fullPath);
+
+        // Проверяем существование документа с таким хешем
+        $existingDocument = ProfileDocument::where('hash', $fileHash)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existingDocument) {
+            // Удаляем только что загруженный файл, так как он дублируется
+            Storage::disk('public')->delete($filePath);
+
+            return response()->json([
+                'message' => 'Документ з таким вмістом вже існує.',
+                'document' => new ProfileDocumentResource($existingDocument),
+            ], 409);
+        }
+
+        try {
+            // Создаём новый документ
+            $document = new ProfileDocument([
+                'user_id' => $user->id,
+                'file_path' => $filePath,
+                'hash' => $fileHash,
+                'sign_status' => 'pending',
+                'service' => $request->input('service', 'diia'),
+            ]);
+            $document->save();
+
+            return response()->json([
+                'message' => 'Документ успішно завантажено.',
+                'document' => new ProfileDocumentResource($document),
+            ], 201);
+        } catch (\Exception $e) {
+            // Удаляем файл в случае ошибки
+            Storage::disk('public')->delete($filePath);
+
+            Log::error('Помилка при завантаженні документа', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Помилка при завантаженні документа.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Видалити документ
+     */
+    public function deleteDocument(Request $request, int $documentId): \Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $document = ProfileDocument::where('id', $documentId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $document) {
+            return response()->json([
+                'message' => 'Документ не знайдено.',
+            ], 404);
+        }
+
+        try {
+            // Удаляем файл с диска
+            Storage::disk('public')->delete($document->file_path);
+
+            // Удаляем подписанный файл, если есть
+            if ($document->signed_file_path) {
+                Storage::disk('public')->delete($document->signed_file_path);
+            }
+
+            // Удаляем запись из базы
+            $document->delete();
+
+            return response()->json([
+                'message' => 'Документ успішно видалено.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Помилка при видаленні документа', [
+                'user_id' => $user->id,
+                'document_id' => $documentId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Помилка при видаленні документа.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Завантажити документ
+     */
+    public function downloadDocument(Request $request, int $documentId): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $document = ProfileDocument::where('id', $documentId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $document) {
+            return response()->json([
+                'message' => 'Документ не знайдено.',
+            ], 404);
+        }
+
+        $filePath = storage_path('app/public/'.$document->file_path);
+
+        if (! file_exists($filePath)) {
+            return response()->json([
+                'message' => 'Файл документа не знайдено на диску.',
+            ], 404);
+        }
+
+        return response()->download($filePath);
+    }
+
+    /**
+     * Отримати інформацію про конкретний документ
+     */
+    public function getDocument(Request $request, int $documentId): \Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $document = ProfileDocument::where('id', $documentId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $document) {
+            return response()->json([
+                'message' => 'Документ не знайдено.',
+            ], 404);
+        }
+
+        return response()->json([
+            'document' => new ProfileDocumentResource($document),
+        ]);
     }
 }

@@ -38,4 +38,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/legal', [ProfileApiController::class, 'createLegal']);
     Route::put('/profile/social', [ProfileApiController::class, 'updateSocial']);
     Route::post('/profile/social', [ProfileApiController::class, 'createSocial']);
+
+    // Документы профиля
+    Route::prefix('profile/documents')->group(function () {
+        Route::get('/', [ProfileApiController::class, 'getDocuments']);
+        Route::post('/', [ProfileApiController::class, 'uploadDocument']);
+        Route::get('/{documentId}', [ProfileApiController::class, 'getDocument']);
+        Route::delete('/{documentId}', [ProfileApiController::class, 'deleteDocument']);
+        Route::get('/{documentId}/download', [ProfileApiController::class, 'downloadDocument']);
+    });
 });
