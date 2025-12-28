@@ -10,6 +10,8 @@ class EditArtistBoard extends EditRecord
 {
     protected static string $resource = ArtistBoardResource::class;
 
+    protected static ?string $title = 'Редагувати дошку художників';
+
     protected function getHeaderActions(): array
     {
         return [

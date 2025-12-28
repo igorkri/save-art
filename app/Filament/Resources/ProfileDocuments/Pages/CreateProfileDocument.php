@@ -8,4 +8,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateProfileDocument extends CreateRecord
 {
     protected static string $resource = ProfileDocumentResource::class;
+
+    protected static ?string $title = 'Створити документ профілю';
 }

@@ -10,6 +10,8 @@ class ListContents extends ListRecords
 {
     protected static string $resource = ContentResource::class;
 
+    protected static ?string $title = 'Контент';
+
     protected function getHeaderActions(): array
     {
         return [

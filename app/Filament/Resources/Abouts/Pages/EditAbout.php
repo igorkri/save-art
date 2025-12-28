@@ -10,6 +10,8 @@ class EditAbout extends EditRecord
 {
     protected static string $resource = AboutResource::class;
 
+    protected static ?string $title = 'Редагувати "Про нас"';
+
     protected function getHeaderActions(): array
     {
         return [

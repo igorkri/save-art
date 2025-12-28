@@ -10,6 +10,8 @@ class ListHomePages extends ListRecords
 {
     protected static string $resource = HomePageResource::class;
 
+    protected static ?string $title = 'Головна сторінка';
+
     protected function getHeaderActions(): array
     {
         return [

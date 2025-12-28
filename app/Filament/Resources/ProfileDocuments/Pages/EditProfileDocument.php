@@ -10,6 +10,8 @@ class EditProfileDocument extends EditRecord
 {
     protected static string $resource = ProfileDocumentResource::class;
 
+    protected static ?string $title = 'Редагувати документ профілю';
+
     protected function getHeaderActions(): array
     {
         return [

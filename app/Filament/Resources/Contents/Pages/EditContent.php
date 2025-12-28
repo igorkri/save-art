@@ -10,6 +10,8 @@ class EditContent extends EditRecord
 {
     protected static string $resource = ContentResource::class;
 
+    protected static ?string $title = 'Редагувати контент';
+
     protected function getHeaderActions(): array
     {
         return [

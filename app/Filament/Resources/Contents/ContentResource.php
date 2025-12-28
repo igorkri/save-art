@@ -22,6 +22,12 @@ class ContentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title.uk';
 
+    protected static ?string $navigationLabel = 'Контент';
+
+    protected static ?string $pluralModelLabel = 'Контент';
+
+    protected static ?string $modelLabel = 'Контент';
+
     public static function form(Schema $schema): Schema
     {
         return ContentForm::configure($schema);

@@ -8,4 +8,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateContent extends CreateRecord
 {
     protected static string $resource = ContentResource::class;
+
+    protected static ?string $title = 'Створити контент';
 }

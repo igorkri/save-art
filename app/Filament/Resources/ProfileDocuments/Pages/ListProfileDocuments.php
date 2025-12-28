@@ -10,6 +10,8 @@ class ListProfileDocuments extends ListRecords
 {
     protected static string $resource = ProfileDocumentResource::class;
 
+    protected static ?string $title = 'Документи профілю';
+
     protected function getHeaderActions(): array
     {
         return [

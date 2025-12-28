@@ -10,6 +10,8 @@ class ListAbouts extends ListRecords
 {
     protected static string $resource = AboutResource::class;
 
+    protected static ?string $title = 'Про нас';
+
     protected function getHeaderActions(): array
     {
         return [

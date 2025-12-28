@@ -9,7 +9,6 @@ use App\Filament\Resources\HomePages\Schemas\HomePageForm;
 use App\Filament\Resources\HomePages\Tables\HomePagesTable;
 use App\Models\HomePage;
 use BackedEnum;
-use Closure;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -22,6 +21,12 @@ class HomePageResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'hero_title';
+
+    protected static ?string $navigationLabel = 'Головна сторінка';
+
+    protected static ?string $pluralModelLabel = 'Головні сторінки';
+
+    protected static ?string $modelLabel = 'Головна сторінка';
 
     public static function form(Schema $schema): Schema
     {

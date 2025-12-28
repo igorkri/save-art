@@ -22,6 +22,12 @@ class ProfileDocumentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'file_path';
 
+    protected static ?string $navigationLabel = 'Документи профілю';
+
+    protected static ?string $pluralModelLabel = 'Документи профілю';
+
+    protected static ?string $modelLabel = 'Документ профілю';
+
     public static function form(Schema $schema): Schema
     {
         return ProfileDocumentForm::configure($schema);

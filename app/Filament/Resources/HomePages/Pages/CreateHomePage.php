@@ -8,4 +8,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateHomePage extends CreateRecord
 {
     protected static string $resource = HomePageResource::class;
+
+    protected static ?string $title = 'Створити головну сторінку';
 }

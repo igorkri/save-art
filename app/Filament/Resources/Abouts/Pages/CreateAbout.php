@@ -8,4 +8,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAbout extends CreateRecord
 {
     protected static string $resource = AboutResource::class;
+
+    protected static ?string $title = 'Створити "Про нас"';
 }

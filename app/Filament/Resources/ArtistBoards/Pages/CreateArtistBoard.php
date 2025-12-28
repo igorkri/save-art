@@ -8,4 +8,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateArtistBoard extends CreateRecord
 {
     protected static string $resource = ArtistBoardResource::class;
+
+    protected static ?string $title = 'Створити дошку художників';
 }

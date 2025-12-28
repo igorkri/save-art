@@ -10,6 +10,8 @@ class EditHomePage extends EditRecord
 {
     protected static string $resource = HomePageResource::class;
 
+    protected static ?string $title = 'Редагувати головну сторінку';
+
     protected function getHeaderActions(): array
     {
         return [

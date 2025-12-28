@@ -22,11 +22,18 @@ class AboutResource extends Resource
 
     protected static ?string $recordTitleAttribute = null;
 
+    protected static ?string $navigationLabel = 'Про нас';
+
+    protected static ?string $pluralModelLabel = 'Про нас';
+
+    protected static ?string $modelLabel = 'Про нас';
+
     public static function getRecordTitle($record): ?string
     {
         if ($record->title && is_array($record->title)) {
             return $record->title[app()->getLocale()] ?? $record->title['uk'] ?? reset($record->title) ?? 'About';
         }
+
         return 'About';
     }
 

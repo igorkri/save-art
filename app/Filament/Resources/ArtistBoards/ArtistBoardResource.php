@@ -23,6 +23,12 @@ class ArtistBoardResource extends Resource
     //    protected static ?string $recordTitleAttribute = 'titles.uk';
     protected static ?string $recordTitleAttribute = null;
 
+    protected static ?string $navigationLabel = 'Дошка художників';
+
+    protected static ?string $pluralModelLabel = 'Дошки художників';
+
+    protected static ?string $modelLabel = 'Дошка художників';
+
     public static function getRecordTitle($record): ?string
     {
         if ($record->title && is_array($record->title)) {
