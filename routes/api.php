@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\ArtistBoardController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\V1\ArtistController;
+use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MyProjectController;
@@ -16,6 +19,22 @@ use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectStageController;
 use App\Http\Controllers\ProfileApiController;
+
+// ============================================
+// API v1 - Auth routes (public)
+// ============================================
+
+Route::prefix('v1/auth')->group(function () {
+    Route::post('/register', RegisterController::class);
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
+    Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
+});
+
+Route::prefix('v1/auth')->middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout']);
+    Route::get('/me', [LoginController::class, 'me']);
+});
 
 // ============================================
 // API v1 - Public routes
