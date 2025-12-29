@@ -8,7 +8,101 @@ require __DIR__.'/api-auth.php';
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\ArtistBoardController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\V1\ArtistController;
+use App\Http\Controllers\Api\V1\DonationController;
+use App\Http\Controllers\Api\V1\LikeController;
+use App\Http\Controllers\Api\V1\MyProjectController;
+use App\Http\Controllers\Api\V1\ProjectBonusController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectStageController;
 use App\Http\Controllers\ProfileApiController;
+
+// ============================================
+// API v1 - Public routes
+// ============================================
+
+Route::prefix('v1')->group(function () {
+    // Проєкти (публічні)
+    Route::prefix('projects')->group(function () {
+        Route::get('/', [ProjectController::class, 'index']);
+        Route::get('/{slug}', [ProjectController::class, 'show']);
+        Route::get('/{slug}/donors', [ProjectController::class, 'donors']);
+    });
+
+    // Категорії мистецтва
+    Route::get('/categories', function () {
+        return response()->json([
+            'data' => collect(\App\Enums\ArtCategory::cases())->map(fn ($cat) => [
+                'value' => $cat->value,
+                'label' => $cat->getLabel(),
+                'subcategories' => collect($cat->getSubcategories())->map(fn ($label, $value) => [
+                    'value' => $value,
+                    'label' => $label,
+                ])->values(),
+            ]),
+        ]);
+    });
+
+    // Митці (публічний профіль)
+    Route::prefix('artists')->group(function () {
+        Route::get('/', [ArtistController::class, 'index']);
+        Route::get('/{slug}', [ArtistController::class, 'show']);
+        Route::get('/{slug}/projects', [ArtistController::class, 'projects']);
+    });
+
+    // Донати (публічні для ініціалізації)
+    Route::post('/projects/{project}/donate', [DonationController::class, 'store']);
+
+    // Webhook від платіжної системи (без auth)
+    Route::post('/payments/webhook', [DonationController::class, 'webhook']);
+});
+
+// ============================================
+// API v1 - Authenticated routes
+// ============================================
+
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    // Мої проєкти
+    Route::prefix('my/projects')->group(function () {
+        Route::get('/', [MyProjectController::class, 'index']);
+        Route::post('/', [MyProjectController::class, 'store']);
+        Route::get('/{project}', [MyProjectController::class, 'show']);
+        Route::put('/{project}', [MyProjectController::class, 'update']);
+        Route::delete('/{project}', [MyProjectController::class, 'destroy']);
+        Route::post('/{project}/submit', [MyProjectController::class, 'submit']);
+        Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
+    });
+
+    // Лайки
+    Route::post('/projects/{project}/like', [LikeController::class, 'store']);
+    Route::delete('/projects/{project}/like', [LikeController::class, 'destroy']);
+
+    // Мої донати
+    Route::get('/my/donations', [DonationController::class, 'myDonations']);
+    Route::get('/my/donations/{donation}', [DonationController::class, 'show']);
+
+    // Етапи проєкту
+    Route::prefix('my/projects/{project}/stages')->group(function () {
+        Route::get('/', [ProjectStageController::class, 'index']);
+        Route::post('/', [ProjectStageController::class, 'store']);
+        Route::put('/{stage}', [ProjectStageController::class, 'update']);
+        Route::delete('/{stage}', [ProjectStageController::class, 'destroy']);
+        Route::post('/{stage}/start', [ProjectStageController::class, 'start']);
+        Route::post('/{stage}/complete', [ProjectStageController::class, 'complete']);
+    });
+
+    // Бонуси проєкту
+    Route::prefix('my/projects/{project}/bonuses')->group(function () {
+        Route::get('/', [ProjectBonusController::class, 'index']);
+        Route::post('/', [ProjectBonusController::class, 'store']);
+        Route::put('/{bonus}', [ProjectBonusController::class, 'update']);
+        Route::delete('/{bonus}', [ProjectBonusController::class, 'destroy']);
+    });
+});
+
+// ============================================
+// Legacy public routes
+// ============================================
 
 // Public routes for About (не требуют аутентификации)
 Route::prefix('about')->group(function () {
