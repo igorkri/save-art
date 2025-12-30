@@ -1,0 +1,302 @@
+<?php
+
+namespace App\Services;
+
+use App\Enums\ModerationStatus;
+use App\Enums\NotificationType;
+use App\Enums\ProjectStatus;
+use App\Models\Notification;
+use App\Models\Project;
+use Illuminate\Support\Facades\DB;
+
+class ProjectWorkflowService
+{
+    /**
+     * Дозволені переходи статусів
+     *
+     * @var array<string, array<string>>
+     */
+    private array $allowedTransitions = [
+        ProjectStatus::Draft->value => [
+            ProjectStatus::Moderation->value,
+        ],
+        ProjectStatus::Moderation->value => [
+            ProjectStatus::Announced->value,
+            ProjectStatus::Rejected->value,
+            ProjectStatus::Draft->value,
+        ],
+        ProjectStatus::Rejected->value => [
+            ProjectStatus::Draft->value,
+            ProjectStatus::Moderation->value,
+        ],
+        ProjectStatus::Announced->value => [
+            ProjectStatus::InProgress->value,
+            ProjectStatus::Paused->value,
+        ],
+        ProjectStatus::InProgress->value => [
+            ProjectStatus::Completed->value,
+            ProjectStatus::Paused->value,
+            ProjectStatus::Sold->value,
+        ],
+        ProjectStatus::Paused->value => [
+            ProjectStatus::InProgress->value,
+            ProjectStatus::Announced->value,
+        ],
+        ProjectStatus::Completed->value => [
+            ProjectStatus::Sold->value,
+        ],
+        ProjectStatus::Sold->value => [],
+    ];
+
+    /**
+     * Перевірити, чи можливий перехід статусу
+     */
+    public function canTransition(Project $project, ProjectStatus $newStatus): bool
+    {
+        $currentStatus = $project->status->value;
+        $allowed = $this->allowedTransitions[$currentStatus] ?? [];
+
+        return in_array($newStatus->value, $allowed);
+    }
+
+    /**
+     * Отримати дозволені переходи для проєкту
+     *
+     * @return array<ProjectStatus>
+     */
+    public function getAllowedTransitions(Project $project): array
+    {
+        $currentStatus = $project->status->value;
+        $allowed = $this->allowedTransitions[$currentStatus] ?? [];
+
+        return array_map(
+            fn (string $status) => ProjectStatus::from($status),
+            $allowed
+        );
+    }
+
+    /**
+     * Відправити проєкт на модерацію
+     */
+    public function submitForModeration(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Moderation)) {
+            return false;
+        }
+
+        return DB::transaction(function () use ($project) {
+            $project->update([
+                'status' => ProjectStatus::Moderation,
+                'status_moderation' => ModerationStatus::Pending,
+            ]);
+
+            $this->createNotification(
+                $project->user_id,
+                NotificationType::Moderation,
+                'Проєкт на модерації',
+                "Ваш проєкт \"{$project->title}\" відправлено на модерацію."
+            );
+
+            return true;
+        });
+    }
+
+    /**
+     * Схвалити проєкт (модератором)
+     */
+    public function approve(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Announced)) {
+            return false;
+        }
+
+        return DB::transaction(function () use ($project) {
+            $project->update([
+                'status' => ProjectStatus::Announced,
+                'status_moderation' => ModerationStatus::Approved,
+                'announced_at' => now(),
+            ]);
+
+            $this->createNotification(
+                $project->user_id,
+                NotificationType::ProjectApproved,
+                'Проєкт схвалено!',
+                "Вітаємо! Ваш проєкт \"{$project->title}\" пройшов модерацію і опубліковано.",
+                ['project_id' => $project->id]
+            );
+
+            return true;
+        });
+    }
+
+    /**
+     * Відхилити проєкт (модератором)
+     */
+    public function reject(Project $project, ?string $reason = null): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Rejected)) {
+            return false;
+        }
+
+        return DB::transaction(function () use ($project, $reason) {
+            $project->update([
+                'status' => ProjectStatus::Rejected,
+                'status_moderation' => ModerationStatus::Rejected,
+                'rejection_reason' => $reason,
+            ]);
+
+            $message = "На жаль, ваш проєкт \"{$project->title}\" не пройшов модерацію.";
+            if ($reason) {
+                $message .= "\n\nПричина: {$reason}";
+            }
+
+            $this->createNotification(
+                $project->user_id,
+                NotificationType::ProjectRejected,
+                'Проєкт відхилено',
+                $message,
+                ['project_id' => $project->id, 'reason' => $reason]
+            );
+
+            return true;
+        });
+    }
+
+    /**
+     * Повернути проєкт до чернетки
+     */
+    public function returnToDraft(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Draft)) {
+            return false;
+        }
+
+        $project->update([
+            'status' => ProjectStatus::Draft,
+            'status_moderation' => null,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Розпочати роботу над проєктом (збір завершено)
+     */
+    public function startWork(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::InProgress)) {
+            return false;
+        }
+
+        $project->update([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Поставити проєкт на паузу
+     */
+    public function pause(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Paused)) {
+            return false;
+        }
+
+        $project->update([
+            'status' => ProjectStatus::Paused,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Відновити роботу над проєктом
+     */
+    public function resume(Project $project): bool
+    {
+        $currentStatus = $project->status;
+
+        if ($currentStatus === ProjectStatus::Paused) {
+            // Визначаємо, до якого статусу повернутись
+            $hasBudgetGoal = $project->budget_collected >= $project->budget_goal;
+
+            $newStatus = $hasBudgetGoal
+                ? ProjectStatus::InProgress
+                : ProjectStatus::Announced;
+
+            if (! $this->canTransition($project, $newStatus)) {
+                return false;
+            }
+
+            $project->update([
+                'status' => $newStatus,
+            ]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Завершити проєкт
+     */
+    public function complete(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Completed)) {
+            return false;
+        }
+
+        $project->update([
+            'status' => ProjectStatus::Completed,
+            'completed_at' => now(),
+        ]);
+
+        $this->createNotification(
+            $project->user_id,
+            NotificationType::ProjectCompleted,
+            'Проєкт завершено!',
+            "Ваш проєкт \"{$project->title}\" успішно завершено.",
+            ['project_id' => $project->id]
+        );
+
+        return true;
+    }
+
+    /**
+     * Позначити проєкт як проданий
+     */
+    public function markAsSold(Project $project): bool
+    {
+        if (! $this->canTransition($project, ProjectStatus::Sold)) {
+            return false;
+        }
+
+        $project->update([
+            'status' => ProjectStatus::Sold,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Створити сповіщення
+     */
+    private function createNotification(
+        int $userId,
+        NotificationType $type,
+        string $title,
+        string $message,
+        array $data = []
+    ): Notification {
+        return Notification::create([
+            'user_id' => $userId,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'data' => $data ?: null,
+        ]);
+    }
+}
