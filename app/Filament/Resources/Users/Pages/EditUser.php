@@ -3,8 +3,14 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Message;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,6 +21,34 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('sendMessage')
+                ->label('Написати повідомлення')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->color('info')
+                ->form([
+                    TextInput::make('subject')
+                        ->label('Тема')
+                        ->maxLength(255),
+                    Textarea::make('content')
+                        ->label('Повідомлення')
+                        ->required()
+                        ->rows(5)
+                        ->placeholder('Введіть текст повідомлення...'),
+                ])
+                ->action(function (array $data): void {
+                    Message::create([
+                        'user_id' => $this->record->id,
+                        'admin_id' => Auth::id(),
+                        'subject' => $data['subject'],
+                        'content' => $data['content'],
+                        'direction' => 'admin_to_user',
+                    ]);
+
+                    Notification::make()
+                        ->title('Повідомлення надіслано')
+                        ->success()
+                        ->send();
+                }),
             DeleteAction::make(),
         ];
     }

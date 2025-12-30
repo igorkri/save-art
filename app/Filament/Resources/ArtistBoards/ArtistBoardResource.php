@@ -13,12 +13,15 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ArtistBoardResource extends Resource
 {
     protected static ?string $model = ArtistBoard::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+
+    protected static UnitEnum|string|null $navigationGroup = 'Контент';
 
     //    protected static ?string $recordTitleAttribute = 'titles.uk';
     protected static ?string $recordTitleAttribute = null;

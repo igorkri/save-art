@@ -86,12 +86,12 @@ class ArtistBoardForm
                                     ->schema([
                                         Repeater::make('museums')
                                             ->label('Музеї')
-                                                    ->schema([
-                                                        LanguageTabs::make([
-                                                            TextInput::make('name')->label('Назва музею'),
-                                                            TextInput::make('exhibition_name')->label('Назва виставки'),
-                                                        ]),
-                                                        TextInput::make('dates')->label('Дати')->placeholder('01.01.2024 - 01.03.2024'),
+                                            ->schema([
+                                                LanguageTabs::make([
+                                                    TextInput::make('name')->label('Назва музею'),
+                                                    TextInput::make('exhibition_name')->label('Назва виставки'),
+                                                ]),
+                                                TextInput::make('dates')->label('Дати')->placeholder('01.01.2024 - 01.03.2024'),
                                             ])
                                             ->columns(1)
 //                                            ->minItems(0)
@@ -99,32 +99,32 @@ class ArtistBoardForm
                                             ->cloneable(),
 
                                     ])
-                                ->collapsible()
-                                ->collapsed(),
+                                    ->collapsible()
+                                    ->collapsed(),
 
                                 Section::make('Роботи артиста')
                                     ->schema([
-                                Repeater::make('works')
-                                    ->label('Роботи')
-                                    ->schema([
-                                        LanguageTabs::make([
-                                            TextInput::make('title')->label('Назва роботи')->required(),
-                                            RichEditor::make('description')->label('Опис'),
-                                        ]),
-                                        FileUpload::make('image')
-                                            ->label('Зображення роботи')
-                                            ->image()
-                                            ->disk('public')
-                                            ->directory('artist-boards/works')
-                                            ->preserveFilenames()
-                                            ->required(),
+                                        Repeater::make('works')
+                                            ->label('Роботи')
+                                            ->schema([
+                                                LanguageTabs::make([
+                                                    TextInput::make('title')->label('Назва роботи')->required(),
+                                                    RichEditor::make('description')->label('Опис'),
+                                                ]),
+                                                FileUpload::make('image')
+                                                    ->label('Зображення роботи')
+                                                    ->image()
+                                                    ->disk('public')
+                                                    ->directory('artist-boards/works')
+                                                    ->preserveFilenames()
+                                                    ->required(),
+                                            ])
+                                            ->columns(1)
+                                            ->minItems(1)
+                                            ->cloneable(),
                                     ])
-                                    ->columns(1)
-                                    ->minItems(1)
-                                    ->cloneable(),
-                                        ])
-                                ->collapsible()
-                                ->collapsed(),
+                                    ->collapsible()
+                                    ->collapsed(),
                             ])
                             ->columns(1)
                             ->minItems(1)

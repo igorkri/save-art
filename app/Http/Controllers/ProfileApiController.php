@@ -157,13 +157,10 @@ class ProfileApiController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        // Сохраняем файл
         $file = $request->file('file');
-        $filePath = $file->store('profile_documents', 'public');
-        $fullPath = storage_path('app/public/'.$filePath);
 
-        // Вычисляем хеш
-        $fileHash = hash_file('sha256', $fullPath);
+        // Вычисляем хеш ДО сохранения файла (для работы с fake storage)
+        $fileHash = hash('sha256', $file->get());
 
         // Проверяем существование документа с таким хешем
         $existingDocument = ProfileDocument::where('hash', $fileHash)
@@ -171,14 +168,14 @@ class ProfileApiController extends Controller
             ->first();
 
         if ($existingDocument) {
-            // Удаляем только что загруженный файл, так как он дублируется
-            Storage::disk('public')->delete($filePath);
-
             return response()->json([
                 'message' => 'Документ з таким вмістом вже існує.',
                 'document' => new ProfileDocumentResource($existingDocument),
             ], 409);
         }
+
+        // Сохраняем файл ПОСЛЕ проверки хеша
+        $filePath = $file->store('profile_documents', 'public');
 
         try {
             // Создаём новый документ

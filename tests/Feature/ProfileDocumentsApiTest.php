@@ -31,7 +31,7 @@ class ProfileDocumentsApiTest extends TestCase
         ProfileDocument::create([
             'user_id' => $this->user->id,
             'file_path' => $path,
-            'hash' => hash_file('sha256', Storage::disk('public')->path($path)),
+            'hash' => hash('sha256', Storage::disk('public')->get($path)),
             'sign_status' => 'pending',
             'service' => 'diia',
         ]);
@@ -88,9 +88,11 @@ class ProfileDocumentsApiTest extends TestCase
 
     public function test_cannot_upload_duplicate_document(): void
     {
-        $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
+        // Создаём файл с определённым содержимым
+        $content = str_repeat('test content for pdf', 100);
+        $file = UploadedFile::fake()->createWithContent('document.pdf', $content);
         $path = $file->store('profile_documents', 'public');
-        $hash = hash_file('sha256', Storage::disk('public')->path($path));
+        $hash = hash('sha256', $content);
 
         // Создаём документ с таким же хешем
         ProfileDocument::create([
@@ -101,8 +103,8 @@ class ProfileDocumentsApiTest extends TestCase
             'service' => 'diia',
         ]);
 
-        // Пытаемся загрузить такой же файл
-        $duplicateFile = UploadedFile::fake()->create('document_copy.pdf', 100, 'application/pdf');
+        // Пытаемся загрузить файл с таким же содержимым
+        $duplicateFile = UploadedFile::fake()->createWithContent('document_copy.pdf', $content);
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->postJson('/api/profile/documents', [
@@ -123,7 +125,7 @@ class ProfileDocumentsApiTest extends TestCase
         $document = ProfileDocument::create([
             'user_id' => $this->user->id,
             'file_path' => $path,
-            'hash' => hash_file('sha256', Storage::disk('public')->path($path)),
+            'hash' => hash('sha256', Storage::disk('public')->get($path)),
             'sign_status' => 'pending',
             'service' => 'diia',
         ]);
@@ -150,7 +152,7 @@ class ProfileDocumentsApiTest extends TestCase
         $document = ProfileDocument::create([
             'user_id' => $this->user->id,
             'file_path' => $path,
-            'hash' => hash_file('sha256', Storage::disk('public')->path($path)),
+            'hash' => hash('sha256', Storage::disk('public')->get($path)),
             'sign_status' => 'pending',
             'service' => 'diia',
         ]);
@@ -179,7 +181,7 @@ class ProfileDocumentsApiTest extends TestCase
         $document = ProfileDocument::create([
             'user_id' => $otherUser->id,
             'file_path' => $path,
-            'hash' => hash_file('sha256', Storage::disk('public')->path($path)),
+            'hash' => hash('sha256', Storage::disk('public')->get($path)),
             'sign_status' => 'pending',
             'service' => 'diia',
         ]);
@@ -222,7 +224,7 @@ class ProfileDocumentsApiTest extends TestCase
         ProfileDocument::create([
             'user_id' => $this->user->id,
             'file_path' => $path,
-            'hash' => hash_file('sha256', Storage::disk('public')->path($path)),
+            'hash' => hash('sha256', Storage::disk('public')->get($path)),
             'sign_status' => 'pending',
             'service' => 'diia',
         ]);

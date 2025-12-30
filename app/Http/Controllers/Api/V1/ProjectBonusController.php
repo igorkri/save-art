@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CreateBonusRequest;
+use App\Http\Requests\Api\V1\UpdateBonusRequest;
 use App\Http\Resources\Api\V1\ProjectBonusResource;
 use App\Models\Project;
 use App\Models\ProjectBonus;
@@ -25,27 +27,13 @@ class ProjectBonusController extends Controller
     /**
      * Створити новий бонус
      */
-    public function store(Request $request, Project $project): ProjectBonusResource|JsonResponse
+    public function store(CreateBonusRequest $request, Project $project): ProjectBonusResource|JsonResponse
     {
-        // Перевіряємо доступ
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
         if (! $project->isEditable()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
 
-        $data = $request->validate([
-            'title' => ['required', 'array'],
-            'title.uk' => ['required', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.uk' => ['nullable', 'string', 'max:2000'],
-            'description.en' => ['nullable', 'string', 'max:2000'],
-            'min_donation' => ['required', 'numeric', 'min:10'],
-            'quantity' => ['nullable', 'integer', 'min:1'],
-        ]);
+        $data = $request->validated();
 
         $maxOrder = $project->bonuses()->max('order') ?? 0;
 
@@ -61,28 +49,13 @@ class ProjectBonusController extends Controller
     /**
      * Оновити бонус
      */
-    public function update(Request $request, Project $project, ProjectBonus $bonus): ProjectBonusResource|JsonResponse
+    public function update(UpdateBonusRequest $request, Project $project, ProjectBonus $bonus): ProjectBonusResource|JsonResponse
     {
-        // Перевіряємо доступ
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
         if ($bonus->project_id !== $project->id) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
-        $data = $request->validate([
-            'title' => ['sometimes', 'array'],
-            'title.uk' => ['required_with:title', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.uk' => ['nullable', 'string', 'max:2000'],
-            'description.en' => ['nullable', 'string', 'max:2000'],
-            'min_donation' => ['sometimes', 'numeric', 'min:10'],
-            'quantity' => ['nullable', 'integer', 'min:1'],
-            'order' => ['sometimes', 'integer', 'min:0'],
-        ]);
+        $data = $request->validated();
 
         $bonus->update($data);
 

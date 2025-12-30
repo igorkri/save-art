@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\StageStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CreateStageRequest;
+use App\Http\Requests\Api\V1\UpdateStageRequest;
 use App\Http\Resources\Api\V1\ProjectStageResource;
 use App\Models\Project;
 use App\Models\ProjectStage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Validation\Rule;
 
 class ProjectStageController extends Controller
 {
@@ -27,27 +28,13 @@ class ProjectStageController extends Controller
     /**
      * Створити новий етап
      */
-    public function store(Request $request, Project $project): ProjectStageResource|JsonResponse
+    public function store(CreateStageRequest $request, Project $project): ProjectStageResource|JsonResponse
     {
-        // Перевіряємо доступ
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
         if (! $project->isEditable()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
 
-        $data = $request->validate([
-            'title' => ['required', 'array'],
-            'title.uk' => ['required', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.uk' => ['nullable', 'string', 'max:2000'],
-            'description.en' => ['nullable', 'string', 'max:2000'],
-            'days_planned' => ['nullable', 'integer', 'min:1'],
-            'budget_planned' => ['nullable', 'numeric', 'min:0'],
-        ]);
+        $data = $request->validated();
 
         $maxOrder = $project->stages()->max('order') ?? 0;
 
@@ -63,30 +50,13 @@ class ProjectStageController extends Controller
     /**
      * Оновити етап
      */
-    public function update(Request $request, Project $project, ProjectStage $stage): ProjectStageResource|JsonResponse
+    public function update(UpdateStageRequest $request, Project $project, ProjectStage $stage): ProjectStageResource|JsonResponse
     {
-        // Перевіряємо доступ
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
         if ($stage->project_id !== $project->id) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
-        $data = $request->validate([
-            'title' => ['sometimes', 'array'],
-            'title.uk' => ['required_with:title', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.uk' => ['nullable', 'string', 'max:2000'],
-            'description.en' => ['nullable', 'string', 'max:2000'],
-            'status' => ['sometimes', Rule::enum(StageStatus::class)],
-            'days_planned' => ['nullable', 'integer', 'min:1'],
-            'budget_planned' => ['nullable', 'numeric', 'min:0'],
-            'budget_actual' => ['nullable', 'numeric', 'min:0'],
-            'order' => ['sometimes', 'integer', 'min:0'],
-        ]);
+        $data = $request->validated();
 
         $stage->update($data);
 

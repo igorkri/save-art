@@ -99,7 +99,7 @@ class UserResourceDocumentsTest extends TestCase
         $document = ProfileDocument::create([
             'user_id' => $user->id,
             'file_path' => $path,
-            'hash' => hash_file('sha256', Storage::disk('public')->path($path)),
+            'hash' => hash('sha256', Storage::disk('public')->get($path)),
             'sign_status' => 'unsigned',
             'service' => 'manual_upload',
         ]);

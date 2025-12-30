@@ -12,12 +12,15 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class DonationResource extends Resource
 {
     protected static ?string $model = Donation::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHeart;
+
+    protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
 
     protected static ?string $navigationLabel = 'Донати';
 

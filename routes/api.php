@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\LikeController;
+use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\MyProjectController;
 use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -117,6 +118,18 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('/{bonus}', [ProjectBonusController::class, 'update']);
         Route::delete('/{bonus}', [ProjectBonusController::class, 'destroy']);
     });
+
+    // Повідомлення (чат з адміністрацією)
+    Route::prefix('messages')->group(function () {
+        Route::get('/', [MessageController::class, 'index']);
+        Route::post('/', [MessageController::class, 'store']);
+        Route::get('/unread-count', [MessageController::class, 'unreadCount']);
+        Route::post('/mark-all-read', [MessageController::class, 'markAllAsRead']);
+        Route::get('/{message}', [MessageController::class, 'show']);
+    });
+
+    // Написати автору проєкту (через адміністрацію)
+    Route::post('/projects/{project}/contact-author', [MessageController::class, 'contactProjectAuthor']);
 });
 
 // ============================================

@@ -61,6 +61,8 @@ class Project extends Model
         'slug',
         'status',
         'status_moderation',
+        'rejection_reason',
+        'moderation_comment',
         'title',
         'short_description',
         'cover',

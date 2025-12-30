@@ -13,12 +13,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use GuzzleHttp\Psr7\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
-
 
 class AboutForm
 {
@@ -52,7 +48,7 @@ class AboutForm
                             ])
                             ->directory('about')
                             ->disk('public')
-                            ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                            ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                             ->deleteUploadedFileUsing(function ($file) {
                                 Storage::disk('public')->delete($file);
                             })
@@ -67,9 +63,10 @@ class AboutForm
                                         'disk' => 'public',
                                     ]);
                                 }
+
                                 return $state;
                             })
-                        ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 1440х600 пікселів або співвідношення 12:5.'),
+                            ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 1440х600 пікселів або співвідношення 12:5.'),
 
                         LanguageTabs::make([
                             Repeater::make('feats')
@@ -107,7 +104,7 @@ class AboutForm
                                         '1:1',
                                     ])
                                     ->disk('public')
-                                    ->rules(['nullable', new MaxFileSizeRule(2*1024)]) // 2 МБ
+                                    ->rules(['nullable', new MaxFileSizeRule(2 * 1024)]) // 2 МБ
                                     ->deleteUploadedFileUsing(function ($file) {
                                         Storage::disk('public')->delete($file);
                                     })
@@ -122,6 +119,7 @@ class AboutForm
                                                 'disk' => 'public',
                                             ]);
                                         }
+
                                         return $state;
                                     })->columns(1),
 
@@ -133,7 +131,7 @@ class AboutForm
                                         '16:9',
                                     ])
                                     ->disk('public')
-                                    ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                                    ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                                     ->deleteUploadedFileUsing(function ($file) {
                                         Storage::disk('public')->delete($file);
                                     })
@@ -148,6 +146,7 @@ class AboutForm
                                                 'disk' => 'public',
                                             ]);
                                         }
+
                                         return $state;
                                     })
                                     ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 16:9 або розмір 1600x862 пікселів.'),
@@ -164,7 +163,7 @@ class AboutForm
 
                             RichEditor::make('description.text')
                                 ->label('Опис')
-                                ->required()
+                                ->required(),
                         ]),
                     ])
                     ->collapsible()
@@ -180,7 +179,7 @@ class AboutForm
                                 '16:9',
                             ])
                             ->disk('public')
-                            ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                            ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                             ->deleteUploadedFileUsing(function ($file) {
                                 Storage::disk('public')->delete($file);
                             })
@@ -195,6 +194,7 @@ class AboutForm
                                         'disk' => 'public',
                                     ]);
                                 }
+
                                 return $state;
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 16:9 або розмір 1600x900 пікселів.'),
@@ -208,13 +208,13 @@ class AboutForm
                                 ->required(),
                             RichEditor::make('goals.description')
                                 ->label('Опис')
-                                ->required()
+                                ->required(),
                         ]),
                     ])
                     ->collapsible()
                     ->collapsed(),
 
-                    Section::make('Завдання')
+                Section::make('Завдання')
                     ->schema([
                         LanguageTabs::make([
                             TextInput::make('title')
@@ -250,7 +250,7 @@ class AboutForm
                                 '800:507',
                             ])
                             ->disk('public')
-                            ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                            ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                             ->deleteUploadedFileUsing(function ($file) {
                                 Storage::disk('public')->delete($file);
                             })
@@ -265,6 +265,7 @@ class AboutForm
                                         'disk' => 'public',
                                     ]);
                                 }
+
                                 return $state;
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 800:507 або розмір 1600x1014 пікселів.'),
@@ -303,7 +304,7 @@ class AboutForm
                                 '47:20',
                             ])
                             ->disk('public')
-                            ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                            ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                             ->deleteUploadedFileUsing(function ($file) {
                                 Storage::disk('public')->delete($file);
                             })
@@ -318,6 +319,7 @@ class AboutForm
                                         'disk' => 'public',
                                     ]);
                                 }
+
                                 return $state;
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 47:20 або розмір 940х400 пікселів.'),
@@ -344,7 +346,7 @@ class AboutForm
                                 '16:9',
                             ])
                             ->disk('public')
-                            ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                            ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                             ->deleteUploadedFileUsing(function ($file) {
                                 Storage::disk('public')->delete($file);
                             })
@@ -359,6 +361,7 @@ class AboutForm
                                         'disk' => 'public',
                                     ]);
                                 }
+
                                 return $state;
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 16:9 або розмір 1600x900 пікселів.'),
@@ -401,7 +404,7 @@ class AboutForm
                                         '160:790',
                                     ])
                                     ->disk('public')
-                                    ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 2 МБ
+                                    ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 2 МБ
                                     ->deleteUploadedFileUsing(function ($file) {
                                         Storage::disk('public')->delete($file);
                                     })
@@ -416,9 +419,10 @@ class AboutForm
                                                 'disk' => 'public',
                                             ]);
                                         }
+
                                         return $state;
                                     })
-                                    ->helperText("Максимальний розмір файлу: 5 МБ. Рекомендований формат: 160x790 пікселів або співвідношення 160:790."),
+                                    ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 160x790 пікселів або співвідношення 160:790.'),
 
                                 FileUpload::make('project.image')
                                     ->label('Зображення (прямокутне)')
@@ -428,7 +432,7 @@ class AboutForm
                                         '11:15',
                                     ])
                                     ->disk('public')
-                                    ->rules(['nullable', new MaxFileSizeRule(5*1024)]) // 5 МБ
+                                    ->rules(['nullable', new MaxFileSizeRule(5 * 1024)]) // 5 МБ
                                     ->deleteUploadedFileUsing(function ($file) {
                                         Storage::disk('public')->delete($file);
                                     })
@@ -443,6 +447,7 @@ class AboutForm
                                                 'disk' => 'public',
                                             ]);
                                         }
+
                                         return $state;
                                     })
                                     ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 440x600 пікселів або співвідношення 11:15.'),
@@ -457,8 +462,7 @@ class AboutForm
                     ->collapsible()
                     ->collapsed(),
 
-
-                   Section::make('10 художників в 10 національних музеях')
+                Section::make('10 художників в 10 національних музеях')
                     ->schema([
                         Toggle::make('is_active_artist')
                             ->label('Активність художників')

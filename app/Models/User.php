@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use \Laravel\Sanctum\HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, \Laravel\Sanctum\HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -110,10 +110,42 @@ class User extends Authenticatable
         return $this->hasOne(ProfileSocial::class);
     }
 
-    //profile_documents
+    // profile_documents
     public function profileDocuments()
     {
         return $this->hasMany(ProfileDocument::class);
+    }
+
+    /**
+     * Проєкти користувача
+     */
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    /**
+     * Повідомлення користувача (чат з адміном)
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Непрочитані повідомлення від адміністрації
+     */
+    public function unreadMessages()
+    {
+        return $this->messages()->fromAdmin()->unread();
+    }
+
+    /**
+     * Сповіщення користувача
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 
     /**
@@ -121,12 +153,13 @@ class User extends Authenticatable
      */
     public function isActuallyBlocked(): bool
     {
-        if (!$this->is_blocked) {
+        if (! $this->is_blocked) {
             return false;
         }
         if ($this->blocked_until === null) {
             return true;
         }
+
         return now()->lessThan($this->blocked_until);
     }
 

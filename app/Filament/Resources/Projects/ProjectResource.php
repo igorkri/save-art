@@ -15,12 +15,15 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
+
+    protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
 
     protected static ?string $navigationLabel = 'Проєкти';
 

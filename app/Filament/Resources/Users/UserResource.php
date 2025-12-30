@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class UserResource extends Resource
 {
@@ -21,11 +22,16 @@ class UserResource extends Resource
     // icon: heroicon-o-users
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
+    protected static UnitEnum|string|null $navigationGroup = 'Користувачі';
 
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Користувачі';
+
     protected static ?string $pluralModelLabel = 'Користувачі';
+
     protected static ?string $modelLabel = 'Користувач';
 
     public static function form(Schema $schema): Schema
@@ -44,6 +50,7 @@ class UserResource extends Resource
             //
         ];
     }
+
     public static function getPages(): array
     {
         return [
