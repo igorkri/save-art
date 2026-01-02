@@ -25,6 +25,7 @@ class User extends Authenticatable
         'role',
         'is_blocked',
         'blocked_until',
+        'deletion_requested_at',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_blocked' => 'boolean',
             'blocked_until' => 'datetime',
+            'deletion_requested_at' => 'datetime',
         ];
     }
 

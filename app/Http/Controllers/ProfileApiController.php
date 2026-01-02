@@ -15,8 +15,10 @@ use App\Models\ProfilePersonal;
 use App\Models\ProfileSocial;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileApiController extends Controller
 {
@@ -304,6 +306,79 @@ class ProfileApiController extends Controller
 
         return response()->json([
             'document' => new ProfileDocumentResource($document),
+        ]);
+    }
+
+    /**
+     * Оновити пароль користувача
+     */
+    public function updatePassword(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers(), 'confirmed'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        // Перевіряємо поточний пароль
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'Поточний пароль невірний.',
+                'errors' => [
+                    'current_password' => ['Поточний пароль невірний.'],
+                ],
+            ], 422);
+        }
+
+        // Оновлюємо пароль
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return response()->json([
+            'message' => 'Пароль успішно оновлено.',
+        ]);
+    }
+
+    /**
+     * Завантажити аватар користувача
+     */
+    public function uploadAvatar(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // 5MB max
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        $file = $request->file('avatar');
+
+        // Видаляємо старий аватар, якщо є
+        $profile = $user->profilePersonal;
+        if ($profile && $profile->avatar) {
+            Storage::disk('public')->delete($profile->avatar);
+        }
+
+        // Зберігаємо новий аватар
+        $path = $file->store('avatars', 'public');
+
+        // Оновлюємо або створюємо профіль
+        if (! $profile) {
+            $profile = new ProfilePersonal([
+                'user_id' => $user->id,
+                'full_name' => $user->name,
+            ]);
+        }
+        $profile->avatar = $path;
+        $profile->save();
+
+        return response()->json([
+            'message' => 'Аватар успішно оновлено.',
+            'avatar_url' => Storage::disk('public')->url($path),
+            'avatar_path' => $path,
         ]);
     }
 

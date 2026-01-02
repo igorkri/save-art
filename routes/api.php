@@ -224,6 +224,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/legal', [ProfileApiController::class, 'createLegal']);
     Route::put('/profile/social', [ProfileApiController::class, 'updateSocial']);
     Route::post('/profile/social', [ProfileApiController::class, 'createSocial']);
+    Route::put('/profile/password', [ProfileApiController::class, 'updatePassword']);
+    Route::post('/profile/avatar', [ProfileApiController::class, 'uploadAvatar']);
     Route::delete('/profile', [ProfileApiController::class, 'requestDeletion']);
 
     // Документы профиля

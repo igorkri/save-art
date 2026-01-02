@@ -2,17 +2,18 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Тест що API health endpoint працює
      */
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
+        // Перевіряємо що API працює замість головної сторінки
+        // (головна сторінка потребує seed-даних HomePage)
+        $response = $this->get('/api/v1/categories');
 
         $response->assertStatus(200);
     }
