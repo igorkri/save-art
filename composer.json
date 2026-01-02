@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.4",
         "craft-forge/filament-language-switcher": "^1.0",
+        "darkaonline/l5-swagger": "^9.0",
         "filament/filament": "^4.0",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",

@@ -1,0 +1,662 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SaveArt API",
+        "description": "API для платформи SaveArt - краудфандингової платформи для підтримки українського мистецтва",
+        "version": "1.0.0",
+        "contact": {
+            "name": "SaveArt Support",
+            "email": "support@save-art.in.ua"
+        }
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "API Server"
+        }
+    ],
+    "tags": [
+        {"name": "Auth", "description": "Аутентифікація та реєстрація"},
+        {"name": "Profile", "description": "Управління профілем користувача"},
+        {"name": "Projects", "description": "Публічні проекти"},
+        {"name": "My Projects", "description": "Управління власними проектами"},
+        {"name": "Donations", "description": "Донати та меценатство"},
+        {"name": "Artists", "description": "Митці платформи"},
+        {"name": "Statistics", "description": "Статистика платформи"},
+        {"name": "FAQ", "description": "Часті питання"},
+        {"name": "Reports", "description": "Звіти проектів"},
+        {"name": "Messages", "description": "Повідомлення"},
+        {"name": "Content", "description": "Контент сторінок"},
+        {"name": "Categories", "description": "Категорії та довідники"}
+    ],
+    "paths": {
+        "/v1/auth/register": {
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Реєстрація нового користувача",
+                "operationId": "register",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["name", "email", "password", "password_confirmation"],
+                                "properties": {
+                                    "name": {"type": "string", "example": "Іван Петренко"},
+                                    "email": {"type": "string", "format": "email", "example": "ivan@example.com"},
+                                    "password": {"type": "string", "format": "password", "minLength": 8},
+                                    "password_confirmation": {"type": "string", "format": "password"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Успішна реєстрація",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {"type": "string"},
+                                        "user": {"$ref": "#/components/schemas/User"},
+                                        "token": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {"description": "Помилка валідації"}
+                }
+            }
+        },
+        "/v1/auth/login": {
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Авторизація користувача",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["email", "password"],
+                                "properties": {
+                                    "email": {"type": "string", "format": "email"},
+                                    "password": {"type": "string", "format": "password"},
+                                    "device_name": {"type": "string", "example": "iPhone 15"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успішна авторизація",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {"type": "string"},
+                                        "user": {"$ref": "#/components/schemas/User"},
+                                        "token": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {"description": "Невірні дані авторизації"}
+                }
+            }
+        },
+        "/v1/auth/logout": {
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Вихід з системи",
+                "operationId": "logout",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {"description": "Успішний вихід"},
+                    "401": {"description": "Не авторизовано"}
+                }
+            }
+        },
+        "/v1/auth/me": {
+            "get": {
+                "tags": ["Auth"],
+                "summary": "Поточний користувач",
+                "operationId": "me",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {
+                        "description": "Дані користувача",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "user": {"$ref": "#/components/schemas/User"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {"description": "Не авторизовано"}
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "tags": ["Profile"],
+                "summary": "Отримати профіль",
+                "operationId": "getProfile",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {"description": "Профіль користувача"},
+                    "401": {"description": "Не авторизовано"}
+                }
+            },
+            "delete": {
+                "tags": ["Profile"],
+                "summary": "Запит на видалення профілю",
+                "operationId": "deleteProfile",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {"description": "Запит прийнято"},
+                    "401": {"description": "Не авторизовано"}
+                }
+            }
+        },
+        "/profile/personal": {
+            "post": {
+                "tags": ["Profile"],
+                "summary": "Створити особистий профіль",
+                "operationId": "createPersonalProfile",
+                "security": [{"sanctum": []}],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ProfilePersonal"}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {"description": "Профіль створено"},
+                    "409": {"description": "Профіль вже існує"}
+                }
+            },
+            "put": {
+                "tags": ["Profile"],
+                "summary": "Оновити особистий профіль",
+                "operationId": "updatePersonalProfile",
+                "security": [{"sanctum": []}],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ProfilePersonal"}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {"description": "Профіль оновлено"}
+                }
+            }
+        },
+        "/profile/password": {
+            "put": {
+                "tags": ["Profile"],
+                "summary": "Змінити пароль",
+                "operationId": "updatePassword",
+                "security": [{"sanctum": []}],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["current_password", "password", "password_confirmation"],
+                                "properties": {
+                                    "current_password": {"type": "string"},
+                                    "password": {"type": "string", "minLength": 8},
+                                    "password_confirmation": {"type": "string"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {"description": "Пароль змінено"},
+                    "422": {"description": "Невірний поточний пароль"}
+                }
+            }
+        },
+        "/profile/avatar": {
+            "post": {
+                "tags": ["Profile"],
+                "summary": "Завантажити аватар",
+                "operationId": "uploadAvatar",
+                "security": [{"sanctum": []}],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "avatar": {"type": "string", "format": "binary"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {"description": "Аватар завантажено"}
+                }
+            }
+        },
+        "/v1/projects": {
+            "get": {
+                "tags": ["Projects"],
+                "summary": "Список публічних проектів",
+                "operationId": "getProjects",
+                "parameters": [
+                    {"name": "art_category", "in": "query", "schema": {"type": "string"}},
+                    {"name": "art_subcategory", "in": "query", "schema": {"type": "string"}},
+                    {"name": "status", "in": "query", "schema": {"type": "string", "enum": ["announced", "in_progress", "completed", "sold"]}},
+                    {"name": "budget_min", "in": "query", "schema": {"type": "number"}},
+                    {"name": "budget_max", "in": "query", "schema": {"type": "number"}},
+                    {"name": "search", "in": "query", "schema": {"type": "string"}},
+                    {"name": "sort_by", "in": "query", "schema": {"type": "string", "enum": ["announced_at", "budget_goal", "budget_collected", "likes_count"]}},
+                    {"name": "sort_dir", "in": "query", "schema": {"type": "string", "enum": ["asc", "desc"]}},
+                    {"name": "per_page", "in": "query", "schema": {"type": "integer", "default": 15, "maximum": 50}},
+                    {"name": "page", "in": "query", "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список проектів",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/PaginatedProjects"}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/{slug}": {
+            "get": {
+                "tags": ["Projects"],
+                "summary": "Деталі проекту",
+                "operationId": "getProject",
+                "parameters": [
+                    {"name": "slug", "in": "path", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Деталі проекту",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {"$ref": "#/components/schemas/Project"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {"description": "Проект не знайдено"}
+                }
+            }
+        },
+        "/v1/projects/{slug}/donors": {
+            "get": {
+                "tags": ["Projects"],
+                "summary": "Меценати проекту",
+                "operationId": "getProjectDonors",
+                "parameters": [
+                    {"name": "slug", "in": "path", "required": true, "schema": {"type": "string"}},
+                    {"name": "per_page", "in": "query", "schema": {"type": "integer", "default": 20}}
+                ],
+                "responses": {
+                    "200": {"description": "Список меценатів"}
+                }
+            }
+        },
+        "/v1/projects/{project}/donate": {
+            "post": {
+                "tags": ["Donations"],
+                "summary": "Зробити донат",
+                "operationId": "donate",
+                "parameters": [
+                    {"name": "project", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["amount"],
+                                "properties": {
+                                    "amount": {"type": "number", "minimum": 1},
+                                    "currency": {"type": "string", "enum": ["UAH", "USD", "EUR"], "default": "UAH"},
+                                    "is_anonymous": {"type": "boolean", "default": false},
+                                    "project_bonus_id": {"type": "integer", "nullable": true},
+                                    "donor_name": {"type": "string"},
+                                    "donor_email": {"type": "string", "format": "email"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {"description": "Донат створено"},
+                    "422": {"description": "Помилка валідації"}
+                }
+            }
+        },
+        "/v1/my/projects": {
+            "get": {
+                "tags": ["My Projects"],
+                "summary": "Мої проекти",
+                "operationId": "getMyProjects",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {"description": "Список проектів користувача"}
+                }
+            },
+            "post": {
+                "tags": ["My Projects"],
+                "summary": "Створити проект",
+                "operationId": "createProject",
+                "security": [{"sanctum": []}],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/CreateProject"}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {"description": "Проект створено"}
+                }
+            }
+        },
+        "/v1/my/projects/{project}": {
+            "get": {
+                "tags": ["My Projects"],
+                "summary": "Деталі мого проекту",
+                "operationId": "getMyProject",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "project", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {"description": "Деталі проекту"}
+                }
+            },
+            "put": {
+                "tags": ["My Projects"],
+                "summary": "Оновити проект",
+                "operationId": "updateProject",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "project", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {"description": "Проект оновлено"}
+                }
+            },
+            "delete": {
+                "tags": ["My Projects"],
+                "summary": "Видалити проект",
+                "operationId": "deleteProject",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "project", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {"description": "Проект видалено"},
+                    "403": {"description": "Видалення заборонено"}
+                }
+            }
+        },
+        "/v1/my/projects/{project}/submit": {
+            "post": {
+                "tags": ["My Projects"],
+                "summary": "Відправити на модерацію",
+                "operationId": "submitProject",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "project", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {"description": "Проект відправлено на модерацію"}
+                }
+            }
+        },
+        "/v1/my/donations": {
+            "get": {
+                "tags": ["Donations"],
+                "summary": "Мої донати",
+                "operationId": "getMyDonations",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {"description": "Список моїх донатів"}
+                }
+            }
+        },
+        "/v1/artists": {
+            "get": {
+                "tags": ["Artists"],
+                "summary": "Список митців",
+                "operationId": "getArtists",
+                "parameters": [
+                    {"name": "per_page", "in": "query", "schema": {"type": "integer", "default": 15}}
+                ],
+                "responses": {
+                    "200": {"description": "Список митців"}
+                }
+            }
+        },
+        "/v1/artists/{slug}": {
+            "get": {
+                "tags": ["Artists"],
+                "summary": "Профіль митця",
+                "operationId": "getArtist",
+                "parameters": [
+                    {"name": "slug", "in": "path", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {
+                    "200": {"description": "Профіль митця"},
+                    "404": {"description": "Митця не знайдено"}
+                }
+            }
+        },
+        "/v1/statistics": {
+            "get": {
+                "tags": ["Statistics"],
+                "summary": "Статистика платформи",
+                "operationId": "getStatistics",
+                "responses": {
+                    "200": {
+                        "description": "Статистика",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "total_projects": {"type": "integer"},
+                                        "total_donations": {"type": "number"},
+                                        "total_artists": {"type": "integer"},
+                                        "total_donors": {"type": "integer"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/faq": {
+            "get": {
+                "tags": ["FAQ"],
+                "summary": "Список FAQ",
+                "operationId": "getFaq",
+                "responses": {
+                    "200": {"description": "Список питань та відповідей"}
+                }
+            }
+        },
+        "/v1/categories": {
+            "get": {
+                "tags": ["Categories"],
+                "summary": "Категорії мистецтва",
+                "operationId": "getCategories",
+                "responses": {
+                    "200": {"description": "Список категорій"}
+                }
+            }
+        },
+        "/v1/regions": {
+            "get": {
+                "tags": ["Categories"],
+                "summary": "Регіони",
+                "operationId": "getRegions",
+                "responses": {
+                    "200": {"description": "Список регіонів"}
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Laravel Sanctum Bearer Token"
+            }
+        },
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer", "example": 1},
+                    "name": {"type": "string", "example": "Іван Петренко"},
+                    "email": {"type": "string", "format": "email", "example": "ivan@example.com"},
+                    "slug": {"type": "string", "example": "ivan-petrenko"},
+                    "role": {"type": "string", "example": "user"},
+                    "created_at": {"type": "string", "format": "date-time"}
+                }
+            },
+            "Project": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer"},
+                    "slug": {"type": "string", "example": "kartina-prolisok"},
+                    "code": {"type": "string", "example": "ABC12345"},
+                    "status": {"type": "string", "enum": ["draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"]},
+                    "title": {
+                        "type": "object",
+                        "properties": {
+                            "uk": {"type": "string"},
+                            "en": {"type": "string"}
+                        }
+                    },
+                    "short_description": {
+                        "type": "object",
+                        "properties": {
+                            "uk": {"type": "string"},
+                            "en": {"type": "string"}
+                        }
+                    },
+                    "cover": {"type": "string"},
+                    "art_category": {"type": "string"},
+                    "currency": {"type": "string", "enum": ["UAH", "USD", "EUR"]},
+                    "budget_goal": {"type": "number"},
+                    "budget_collected": {"type": "number"},
+                    "likes_count": {"type": "integer"},
+                    "donors_count": {"type": "integer"},
+                    "announced_at": {"type": "string", "format": "date-time"},
+                    "created_at": {"type": "string", "format": "date-time"}
+                }
+            },
+            "ProfilePersonal": {
+                "type": "object",
+                "properties": {
+                    "full_name": {"type": "string"},
+                    "bio": {"type": "string"},
+                    "profession": {"type": "string"},
+                    "country": {"type": "string"},
+                    "city": {"type": "string"},
+                    "phone": {"type": "string"},
+                    "currency": {"type": "string", "enum": ["UAH", "USD", "EUR"]}
+                }
+            },
+            "CreateProject": {
+                "type": "object",
+                "required": ["title", "art_category", "budget_goal", "currency"],
+                "properties": {
+                    "title": {
+                        "type": "object",
+                        "properties": {
+                            "uk": {"type": "string"},
+                            "en": {"type": "string"}
+                        }
+                    },
+                    "short_description": {
+                        "type": "object",
+                        "properties": {
+                            "uk": {"type": "string"},
+                            "en": {"type": "string"}
+                        }
+                    },
+                    "art_category": {"type": "string"},
+                    "art_subcategory": {"type": "string"},
+                    "budget_goal": {"type": "number"},
+                    "currency": {"type": "string", "enum": ["UAH", "USD", "EUR"]},
+                    "estimated_days": {"type": "integer"}
+                }
+            },
+            "PaginatedProjects": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {"$ref": "#/components/schemas/Project"}
+                    },
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "first": {"type": "string"},
+                            "last": {"type": "string"},
+                            "prev": {"type": "string", "nullable": true},
+                            "next": {"type": "string", "nullable": true}
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "properties": {
+                            "current_page": {"type": "integer"},
+                            "from": {"type": "integer"},
+                            "last_page": {"type": "integer"},
+                            "per_page": {"type": "integer"},
+                            "to": {"type": "integer"},
+                            "total": {"type": "integer"}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

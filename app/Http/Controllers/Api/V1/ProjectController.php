@@ -9,11 +9,43 @@ use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use OpenApi\Annotations as OA;
 
 class ProjectController extends Controller
 {
     /**
      * Отримати список публічних проєктів з фільтрацією та пагінацією
+     *
+     * @OA\Get(
+     *     path="/v1/projects",
+     *     operationId="getProjects",
+     *     tags={"Projects"},
+     *     summary="Список публічних проектів",
+     *     description="Повертає список публічних проектів з можливістю фільтрації та пагінації",
+     *
+     *     @OA\Parameter(name="art_category", in="query", description="Фільтр по категорії", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="art_subcategory", in="query", description="Фільтр по підкатегорії", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="status", in="query", description="Фільтр по статусу", @OA\Schema(type="string", enum={"announced", "in_progress", "completed", "sold"})),
+     *     @OA\Parameter(name="budget_min", in="query", description="Мінімальний бюджет", @OA\Schema(type="number")),
+     *     @OA\Parameter(name="budget_max", in="query", description="Максимальний бюджет", @OA\Schema(type="number")),
+     *     @OA\Parameter(name="search", in="query", description="Пошук по назві", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="sort_by", in="query", description="Сортування", @OA\Schema(type="string", enum={"announced_at", "budget_goal", "budget_collected", "likes_count", "donors_count"})),
+     *     @OA\Parameter(name="sort_dir", in="query", description="Напрямок сортування", @OA\Schema(type="string", enum={"asc", "desc"})),
+     *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=15)),
+     *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список проектів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -73,6 +105,28 @@ class ProjectController extends Controller
 
     /**
      * Отримати деталі проєкту за slug
+     *
+     * @OA\Get(
+     *     path="/v1/projects/{slug}",
+     *     operationId="getProject",
+     *     tags={"Projects"},
+     *     summary="Деталі проекту",
+     *     description="Повертає повну інформацію про проект за його slug",
+     *
+     *     @OA\Parameter(name="slug", in="path", required=true, description="Slug проекту", @OA\Schema(type="string")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Деталі проекту",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Проект не знайдено")
+     * )
      */
     public function show(string $slug): ProjectResource
     {
