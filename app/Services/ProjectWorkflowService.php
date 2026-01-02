@@ -94,7 +94,7 @@ class ProjectWorkflowService
                 $project->user_id,
                 NotificationType::Moderation,
                 'Проєкт на модерації',
-                "Ваш проєкт \"{$project->title}\" відправлено на модерацію."
+                "Ваш проєкт \"{$this->getProjectTitle($project)}\" відправлено на модерацію."
             );
 
             return true;
@@ -121,7 +121,7 @@ class ProjectWorkflowService
                 $project->user_id,
                 NotificationType::ProjectApproved,
                 'Проєкт схвалено!',
-                "Вітаємо! Ваш проєкт \"{$project->title}\" пройшов модерацію і опубліковано.",
+                "Вітаємо! Ваш проєкт \"{$this->getProjectTitle($project)}\" пройшов модерацію і опубліковано.",
                 ['project_id' => $project->id]
             );
 
@@ -145,7 +145,7 @@ class ProjectWorkflowService
                 'rejection_reason' => $reason,
             ]);
 
-            $message = "На жаль, ваш проєкт \"{$project->title}\" не пройшов модерацію.";
+            $message = "На жаль, ваш проєкт \"{$this->getProjectTitle($project)}\" не пройшов модерацію.";
             if ($reason) {
                 $message .= "\n\nПричина: {$reason}";
             }
@@ -298,5 +298,19 @@ class ProjectWorkflowService
             'message' => $message,
             'data' => $data ?: null,
         ]);
+    }
+
+    /**
+     * Get project title as string (from multilingual array).
+     */
+    private function getProjectTitle(Project $project): string
+    {
+        $title = $project->title;
+
+        if (is_array($title)) {
+            return $title['uk'] ?? $title['en'] ?? 'Проєкт';
+        }
+
+        return (string) $title;
     }
 }

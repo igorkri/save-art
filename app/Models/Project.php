@@ -199,6 +199,14 @@ class Project extends Model
     }
 
     /**
+     * Звіти по проєкту
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    /**
      * Прогрес збору коштів у відсотках
      */
     public function getProgressPercentage(): float

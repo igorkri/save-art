@@ -51,7 +51,7 @@ class DonationService
             }
 
             // Якщо є бонус — резервуємо
-            if ($donation->bonus_id && $donation->bonus) {
+            if ($donation->project_bonus_id && $donation->bonus) {
                 $donation->bonus->increment('quantity_claimed');
             }
 

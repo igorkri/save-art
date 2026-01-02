@@ -9,6 +9,7 @@ use App\Models\Donation;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Services\DonationService;
+use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,7 +18,8 @@ use Illuminate\Support\Facades\Log;
 class DonationController extends Controller
 {
     public function __construct(
-        private DonationService $donationService
+        private DonationService $donationService,
+        private PaymentService $paymentService,
     ) {}
 
     /**
@@ -95,58 +97,43 @@ class DonationController extends Controller
             'message' => $data['message'] ?? null,
         ]);
 
-        // TODO: Інтеграція з платіжною системою (LiqPay/Fondy/Stripe)
-        // Тут повинен бути виклик до платіжного провайдера для ініціалізації платежу
-        // $paymentUrl = PaymentService::initiate($donation);
+        // Ініціалізуємо платіж через PaymentService
+        $paymentData = null;
+        if ($this->paymentService->isConfigured()) {
+            $callbackUrl = route('api.v1.payments.webhook');
+            $resultUrl = config('app.frontend_url', config('app.url')).'/payment/result';
+
+            $paymentData = $this->paymentService->createPayment($donation, $callbackUrl, $resultUrl);
+        }
 
         return response()->json([
             'message' => 'Донат створено. Очікуємо на оплату.',
             'data' => new DonationResource($donation->load(['project', 'bonus'])),
-            // 'payment_url' => $paymentUrl,
+            'payment' => $paymentData,
         ], 201);
     }
 
     /**
-     * Webhook від платіжної системи (LiqPay/Fondy/Stripe)
+     * Webhook від платіжної системи (LiqPay)
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Логуємо вхідний запит
         Log::info('Payment webhook received', [
-            'data' => $request->all(),
+            'data' => $request->except(['data', 'signature']),
         ]);
 
-        // Отримуємо дані з запиту
-        // Формат залежить від платіжної системи
-        $paymentId = $request->input('payment_id') ?? $request->input('order_id');
-        $status = $request->input('status');
+        $data = $request->input('data');
         $signature = $request->input('signature');
 
-        // TODO: Валідація підпису від платіжної системи
-        // if (! $this->validateSignature($request)) {
-        //     return response()->json(['error' => 'Invalid signature'], 400);
-        // }
-
-        if (! $paymentId) {
-            return response()->json(['error' => 'Missing payment_id'], 400);
+        if (! $data || ! $signature) {
+            return response()->json(['error' => 'Missing data or signature'], 400);
         }
 
-        // Знаходимо донат
-        $donation = Donation::where('payment_id', $paymentId)->first();
+        $result = $this->paymentService->processWebhook($data, $signature);
 
-        if (! $donation) {
-            Log::warning('Donation not found for payment', ['payment_id' => $paymentId]);
-
-            return response()->json(['error' => 'Donation not found'], 404);
+        if (! $result) {
+            return response()->json(['error' => 'Webhook processing failed'], 400);
         }
-
-        // Обробляємо статус
-        match ($status) {
-            'success', 'paid', 'approved' => $this->donationService->processPaidDonation($donation),
-            'failure', 'failed', 'declined' => $this->donationService->processFailedDonation($donation),
-            'reversed', 'refunded' => $this->donationService->processRefund($donation),
-            default => Log::info('Unknown payment status', ['status' => $status, 'donation_id' => $donation->id]),
-        };
 
         return response()->json(['status' => 'ok']);
     }

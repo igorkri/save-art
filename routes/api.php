@@ -12,24 +12,34 @@ use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
 use App\Http\Controllers\Api\V1\DonationController;
+use App\Http\Controllers\Api\V1\DraftController;
+use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\MyProjectController;
 use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectStageController;
+use App\Http\Controllers\Api\V1\PublicUserController;
+use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\StatisticsController;
 use App\Http\Controllers\ProfileApiController;
 
 // ============================================
 // API v1 - Auth routes (public)
 // ============================================
 
-Route::prefix('v1/auth')->group(function () {
+Route::prefix('v1/auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
     Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
+
+    // Google OAuth
+    Route::get('/google/redirect', [SocialAuthController::class, 'googleRedirect']);
+    Route::post('/google/callback', [SocialAuthController::class, 'googleCallback']);
 });
 
 Route::prefix('v1/auth')->middleware('auth:sanctum')->group(function () {
@@ -63,6 +73,39 @@ Route::prefix('v1')->group(function () {
         ]);
     });
 
+    // Регіони
+    Route::get('/regions', function () {
+        return response()->json([
+            'data' => collect(\App\Enums\Region::cases())->map(fn ($region) => [
+                'value' => $region->value,
+                'label' => $region->getLabel(),
+            ]),
+        ]);
+    });
+
+    // Статистика платформи
+    Route::prefix('statistics')->group(function () {
+        Route::get('/', [StatisticsController::class, 'index']);
+        Route::get('/projects', [StatisticsController::class, 'projects']);
+        Route::get('/donations', [StatisticsController::class, 'donations']);
+    });
+
+    // Звіти (публічні)
+    Route::prefix('reports')->group(function () {
+        Route::get('/', [ReportController::class, 'index']);
+        Route::get('/{id}', [ReportController::class, 'show'])->where('id', '[0-9]+');
+    });
+
+    // Звіти по проєкту
+    Route::get('/projects/{slug}/reports', [ReportController::class, 'byProject']);
+
+    // FAQ (публічний)
+    Route::prefix('faq')->group(function () {
+        Route::get('/', [FaqController::class, 'index']);
+        Route::get('/language/{language}', [FaqController::class, 'byLanguage']);
+        Route::get('/category/{slug}', [FaqController::class, 'category']);
+    });
+
     // Митці (публічний профіль)
     Route::prefix('artists')->group(function () {
         Route::get('/', [ArtistController::class, 'index']);
@@ -70,11 +113,18 @@ Route::prefix('v1')->group(function () {
         Route::get('/{slug}/projects', [ArtistController::class, 'projects']);
     });
 
+    // Публічні профілі користувачів
+    Route::prefix('users')->group(function () {
+        Route::get('/{id}', [PublicUserController::class, 'show'])->where('id', '[0-9]+');
+        Route::get('/{id}/projects', [PublicUserController::class, 'projects'])->where('id', '[0-9]+');
+    });
+
     // Донати (публічні для ініціалізації)
-    Route::post('/projects/{project}/donate', [DonationController::class, 'store']);
+    Route::post('/projects/{project}/donate', [DonationController::class, 'store'])
+        ->middleware('throttle:donations');
 
     // Webhook від платіжної системи (без auth)
-    Route::post('/payments/webhook', [DonationController::class, 'webhook']);
+    Route::post('/payments/webhook', [DonationController::class, 'webhook'])->name('api.v1.payments.webhook');
 });
 
 // ============================================
@@ -100,6 +150,16 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Мої донати
     Route::get('/my/donations', [DonationController::class, 'myDonations']);
     Route::get('/my/donations/{donation}', [DonationController::class, 'show']);
+
+    // Чернетки проєктів
+    Route::prefix('my/drafts')->group(function () {
+        Route::get('/', [DraftController::class, 'index']);
+        Route::post('/', [DraftController::class, 'store']);
+        Route::get('/{id}', [DraftController::class, 'show']);
+        Route::put('/{id}', [DraftController::class, 'update']);
+        Route::delete('/{id}', [DraftController::class, 'destroy']);
+        Route::post('/sync', [DraftController::class, 'sync']);
+    });
 
     // Етапи проєкту
     Route::prefix('my/projects/{project}/stages')->group(function () {
@@ -164,6 +224,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/legal', [ProfileApiController::class, 'createLegal']);
     Route::put('/profile/social', [ProfileApiController::class, 'updateSocial']);
     Route::post('/profile/social', [ProfileApiController::class, 'createSocial']);
+    Route::delete('/profile', [ProfileApiController::class, 'requestDeletion']);
 
     // Документы профиля
     Route::prefix('profile/documents')->group(function () {

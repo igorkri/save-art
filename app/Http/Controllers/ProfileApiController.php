@@ -306,4 +306,68 @@ class ProfileApiController extends Controller
             'document' => new ProfileDocumentResource($document),
         ]);
     }
+
+    /**
+     * Відправити запит на видалення профілю
+     *
+     * Якщо в профілі є незакриті фінансові операції,
+     * він пройде перевірку модераторами перед видаленням.
+     */
+    public function requestDeletion(Request $request): \Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        // Перевіряємо, чи є незакриті фінансові операції
+        $hasPendingDonations = $user->donations()
+            ->whereIn('status', ['pending'])
+            ->exists();
+
+        $hasActiveProjects = $user->projects()
+            ->whereIn('status', ['moderation', 'announced', 'in_progress'])
+            ->exists();
+
+        if ($hasPendingDonations || $hasActiveProjects) {
+            // Створюємо запит на модерацію
+            $user->update([
+                'deletion_requested_at' => now(),
+            ]);
+
+            // Повідомляємо адміністраторів
+            \App\Models\Notification::create([
+                'user_id' => $user->id,
+                'type' => 'system',
+                'title' => 'Запит на видалення профілю',
+                'message' => 'Ваш запит на видалення профілю отримано. Оскільки у вас є незакриті операції, він буде розглянутий модераторами.',
+            ]);
+
+            return response()->json([
+                'message' => 'Запит на видалення профілю відправлено на модерацію.',
+                'has_pending_operations' => true,
+            ]);
+        }
+
+        // Якщо немає незакритих операцій - видаляємо одразу
+        // Спочатку видаляємо пов'язані дані
+        $user->profilePersonal?->delete();
+        $user->profileLegal?->delete();
+        $user->profileSocial?->delete();
+        $user->profileDocuments()->delete();
+
+        // Анонімізуємо донати
+        $user->donations()->update([
+            'user_id' => null,
+            'is_anonymous' => true,
+        ]);
+
+        // Видаляємо токени
+        $user->tokens()->delete();
+
+        // Видаляємо користувача
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Ваш профіль успішно видалено.',
+        ]);
+    }
 }
