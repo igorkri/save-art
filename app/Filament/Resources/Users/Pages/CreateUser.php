@@ -19,14 +19,49 @@ class CreateUser extends CreateRecord
 
         // ProfilePersonal
         $personalData = $data['profilePersonal'] ?? [];
-        $personal = new \App\Models\ProfilePersonal(['user_id' => $user->id]);
-        $personal->fill($personalData);
+        $personal = new \App\Models\ProfilePersonal;
+        $personal->user_id = $user->id;
+
+        // Заполняем обычные поля
+        foreach ($personalData as $key => $value) {
+            if (! in_array($key, ['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'])) {
+                $personal->$key = $value;
+            }
+        }
+
+        // Для полей с array cast используем setAttribute, который автоматически применит cast
+        foreach (['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'] as $field) {
+            if (isset($personalData[$field])) {
+                $personal->setAttribute($field, $personalData[$field]);
+            }
+        }
+
         $personal->save();
 
         // ProfileLegal
         $legalData = $data['profileLegal'] ?? [];
-        $legal = new \App\Models\ProfileLegal(['user_id' => $user->id]);
-        $legal->fill($legalData);
+        $legal = new \App\Models\ProfileLegal;
+        $legal->user_id = $user->id;
+
+        // Заполняем обычные поля
+        foreach ($legalData as $key => $value) {
+            if (! in_array($key, ['name', 'authorized_person', 'address'])) {
+                $legal->$key = $value;
+            }
+        }
+
+        // Встановлюємо значення за замовчуванням для currency, якщо воно null
+        if (empty($legal->currency)) {
+            $legal->currency = 'UAH';
+        }
+
+        // Для полей с array cast используем setAttribute, который автоматически применит cast
+        foreach (['name', 'authorized_person', 'address'] as $field) {
+            if (isset($legalData[$field])) {
+                $legal->setAttribute($field, $legalData[$field]);
+            }
+        }
+
         $legal->save();
 
         // ProfileSocial

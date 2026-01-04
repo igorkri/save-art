@@ -171,8 +171,9 @@ class UserForm
                                                 'USD' => 'Долар (USD)',
                                                 'EUR' => 'Євро (EUR)',
                                             ])
-                                            ->required()
-                                            ->label('Основна валюта'),
+                                            ->label('Основна валюта')
+                                            ->default('UAH')
+                                            ->required(),
                                     ]),
 
                                 Toggle::make('profileLegal.is_legal')
@@ -185,10 +186,10 @@ class UserForm
                                             TextInput::make('profileLegal.name')->label('Назва компанії'),
                                             TextInput::make('profileLegal.authorized_person')->label('Уповноважена особа'),
                                             TextInput::make('profileLegal.address')->label('Адреса'),
-                                            TextInput::make('profileLegal.phone')->label('Телефон'),
-                                            TextInput::make('profileLegal.email')->label('Email'),
-                                            TextInput::make('profileLegal.edrpou')->label('ЄДРПОУ'),
                                         ]),
+                                        TextInput::make('profileLegal.phone')->label('Телефон'),
+                                        TextInput::make('profileLegal.email')->label('Email')->email(),
+                                        TextInput::make('profileLegal.edrpou')->label('ЄДРПОУ'),
                                     ])
                                     ->collapsible(),
                             ]),
