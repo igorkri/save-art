@@ -23,27 +23,28 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-            return [
-                'name' => fake()->name(),
-                'email' => fake()->unique()->safeEmail(),
-                'email_verified_at' => now(),
-                'password' => static::$password ??= Hash::make('password'),
-                'remember_token' => Str::random(10),
-                'role' => fake()->randomElement([\App\UserRole::User->value, \App\UserRole::Owner->value, \App\UserRole::Mecenat->value]),
-            ];
+        return [
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'remember_token' => Str::random(10),
+            'role' => fake()->randomElement([\App\UserRole::User->value, \App\UserRole::Owner->value, \App\UserRole::Mecenat->value]),
+        ];
     }
 
-        /**
-         * Создать пользователя с профилями.
-         */
-        public function withProfiles(): static
-        {
-            return $this->afterCreating(function ($user) {
-                \App\Models\ProfilePersonal::factory()->create(['user_id' => $user->id]);
-                \App\Models\ProfileLegal::factory()->create(['user_id' => $user->id]);
-                \App\Models\ProfileSocial::factory()->create(['user_id' => $user->id]);
-            });
-        }
+    /**
+     * Создать пользователя с профилями.
+     */
+    public function withProfiles(): static
+    {
+        return $this->afterCreating(function ($user) {
+            \App\Models\ProfilePersonal::factory()->create(['user_id' => $user->id]);
+            \App\Models\ProfileLegal::factory()->create(['user_id' => $user->id]);
+            \App\Models\ProfileSocial::factory()->create(['user_id' => $user->id]);
+        });
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */
@@ -51,6 +52,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Створити адміністратора.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => \App\UserRole::Admin->value,
         ]);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\About;
+use Illuminate\Database\Seeder;
 
 class AboutSeeder extends Seeder
 {
@@ -12,6 +12,11 @@ class AboutSeeder extends Seeder
      */
     public function run(): void
     {
+        // Пропускаємо якщо вже є запис
+        if (About::exists()) {
+            return;
+        }
+
         About::create([
             'title' => [
                 'en' => 'Project Tasks',

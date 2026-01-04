@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Content;
+use Illuminate\Database\Seeder;
 
 class ContentSeeder extends Seeder
 {
@@ -13,6 +12,11 @@ class ContentSeeder extends Seeder
      */
     public function run(): void
     {
+        // Пропускаємо якщо контент вже є
+        if (Content::exists()) {
+            return;
+        }
+
         // Создаем 10 тестовых записей для контента
         Content::factory()->count(10)->create();
     }
