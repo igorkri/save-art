@@ -119,6 +119,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Контракти користувача
+     */
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
+    }
+
+    /**
+     * Активний (підписаний) контракт користувача
+     */
+    public function activeContract()
+    {
+        return $this->hasOne(Contract::class)->signed()->latest();
+    }
+
+    /**
+     * Перевірити, чи є у користувача підписаний контракт
+     */
+    public function hasSignedContract(): bool
+    {
+        return $this->contracts()->signed()->exists();
+    }
+
+    /**
      * Проєкти користувача
      */
     public function projects()

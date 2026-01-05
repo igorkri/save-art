@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
+use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\DraftController;
 use App\Http\Controllers\Api\V1\FaqController;
@@ -190,6 +191,17 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Написати автору проєкту (через адміністрацію)
     Route::post('/projects/{project}/contact-author', [MessageController::class, 'contactProjectAuthor']);
+
+    // Контракти (03.7.5, 03.7.5.1)
+    Route::prefix('contracts')->group(function () {
+        Route::get('/template', [ContractController::class, 'template']);
+        Route::get('/active', [ContractController::class, 'active']);
+        Route::get('/', [ContractController::class, 'index']);
+        Route::post('/', [ContractController::class, 'store']);
+        Route::get('/{contract}', [ContractController::class, 'show']);
+        Route::post('/{contract}/sign', [ContractController::class, 'sign']);
+        Route::get('/{contract}/download', [ContractController::class, 'download']);
+    });
 });
 
 // ============================================

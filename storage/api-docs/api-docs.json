@@ -18,6 +18,7 @@
     "tags": [
         {"name": "Auth", "description": "Аутентифікація та реєстрація"},
         {"name": "Profile", "description": "Управління профілем користувача"},
+        {"name": "Contracts", "description": "Контракти митця (03.7.5, 03.7.5.1)"},
         {"name": "Projects", "description": "Публічні проекти"},
         {"name": "My Projects", "description": "Управління власними проектами"},
         {"name": "Donations", "description": "Донати та меценатство"},
@@ -257,6 +258,214 @@
                 },
                 "responses": {
                     "200": {"description": "Аватар завантажено"}
+                }
+            }
+        },
+        "/v1/contracts/template": {
+            "get": {
+                "tags": ["Contracts"],
+                "summary": "Отримати шаблон контракту",
+                "operationId": "getContractTemplate",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {
+                        "description": "Інформація про шаблон контракту",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "version": {"type": "string"},
+                                                "file_url": {"type": "string", "nullable": true},
+                                                "expires_days": {"type": "integer"}
+                                            }
+                                        },
+                                        "sign_services": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "value": {"type": "string"},
+                                                    "label": {"type": "string"},
+                                                    "enabled": {"type": "boolean"}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/contracts": {
+            "get": {
+                "tags": ["Contracts"],
+                "summary": "Список контрактів користувача",
+                "operationId": "getContracts",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {
+                        "description": "Список контрактів",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {"$ref": "#/components/schemas/Contract"}
+                                        },
+                                        "has_signed_contract": {"type": "boolean"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Contracts"],
+                "summary": "Створити контракт для підписання",
+                "operationId": "createContract",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "201": {
+                        "description": "Контракт створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {"$ref": "#/components/schemas/Contract"},
+                                        "message": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "200": {"description": "Контракт вже існує"}
+                }
+            }
+        },
+        "/v1/contracts/active": {
+            "get": {
+                "tags": ["Contracts"],
+                "summary": "Отримати активний підписаний контракт",
+                "operationId": "getActiveContract",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {
+                        "description": "Активний контракт",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {"$ref": "#/components/schemas/Contract"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {"description": "Немає активного контракту"}
+                }
+            }
+        },
+        "/v1/contracts/{contract}": {
+            "get": {
+                "tags": ["Contracts"],
+                "summary": "Отримати контракт за ID",
+                "operationId": "getContract",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "contract", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Деталі контракту",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {"$ref": "#/components/schemas/Contract"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {"description": "Доступ заборонено"},
+                    "404": {"description": "Контракт не знайдено"}
+                }
+            }
+        },
+        "/v1/contracts/{contract}/sign": {
+            "post": {
+                "tags": ["Contracts"],
+                "summary": "Підписати контракт",
+                "operationId": "signContract",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "contract", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["sign_service", "signature_base64"],
+                                "properties": {
+                                    "sign_service": {"type": "string", "enum": ["diia", "vchasno", "iit", "manual"]},
+                                    "signature_base64": {"type": "string"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Контракт підписано",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {"$ref": "#/components/schemas/Contract"},
+                                        "message": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {"description": "Контракт не можна підписати (вже підписано або прострочено)"}
+                }
+            }
+        },
+        "/v1/contracts/{contract}/download": {
+            "get": {
+                "tags": ["Contracts"],
+                "summary": "Завантажити файл контракту",
+                "operationId": "downloadContract",
+                "security": [{"sanctum": []}],
+                "parameters": [
+                    {"name": "contract", "in": "path", "required": true, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF файл контракту",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {"type": "string", "format": "binary"}
+                            }
+                        }
+                    },
+                    "404": {"description": "Файл не знайдено"}
                 }
             }
         },
@@ -654,6 +863,27 @@
                             "total": {"type": "integer"}
                         }
                     }
+                }
+            },
+            "Contract": {
+                "type": "object",
+                "description": "Контракт митця з платформою (03.7.5, 03.7.5.1)",
+                "properties": {
+                    "id": {"type": "integer", "example": 1},
+                    "template_version": {"type": "string", "example": "1.0"},
+                    "status": {"type": "string", "enum": ["pending", "signed", "rejected", "expired"]},
+                    "status_label": {"type": "string", "example": "Очікує підписання"},
+                    "sign_service": {"type": "string", "enum": ["diia", "vchasno", "iit", "manual"], "nullable": true},
+                    "sign_service_label": {"type": "string", "nullable": true},
+                    "is_pending": {"type": "boolean"},
+                    "is_signed": {"type": "boolean"},
+                    "is_expired": {"type": "boolean"},
+                    "signed_at": {"type": "string", "format": "date-time", "nullable": true},
+                    "expires_at": {"type": "string", "format": "date-time", "nullable": true},
+                    "file_url": {"type": "string", "nullable": true},
+                    "signed_file_url": {"type": "string", "nullable": true},
+                    "created_at": {"type": "string", "format": "date-time"},
+                    "updated_at": {"type": "string", "format": "date-time"}
                 }
             }
         }
