@@ -163,9 +163,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
         Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
         Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
-        Route::get('/{id}', [NotificationController::class, 'show'])->where('id', '[0-9]+');
-        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->where('id', '[0-9]+');
-        Route::delete('/{id}', [NotificationController::class, 'destroy'])->where('id', '[0-9]+');
+        Route::get('/{source}/{id}', [NotificationController::class, 'show'])
+            ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
+        Route::post('/{source}/{id}/read', [NotificationController::class, 'markAsRead'])
+            ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
+        Route::delete('/{source}/{id}', [NotificationController::class, 'destroy'])
+            ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
     });
 
     // Чернетки проєктів

@@ -2033,7 +2033,7 @@
                     "Notifications"
                 ],
                 "summary": "Мої сповіщення (03.2.4)",
-                "description": "Повертає список сповіщень авторизованого користувача з пагінацією",
+                "description": "Повертає об'єднаний список сповіщень (app_notifications) та повідомлень від адміністрації (messages) з пагінацією",
                 "operationId": "getMyNotifications",
                 "parameters": [
                     {
@@ -2062,6 +2062,20 @@
                             "type": "boolean",
                             "default": false
                         }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Фільтр за типом (notification, message, all)",
+                        "schema": {
+                            "type": "string",
+                            "default": "all",
+                            "enum": [
+                                "notification",
+                                "message",
+                                "all"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -2081,6 +2095,16 @@
                                             "description": "Кількість непрочитаних",
                                             "type": "integer",
                                             "example": 5
+                                        },
+                                        "unread_notifications": {
+                                            "description": "Непрочитаних сповіщень",
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "unread_messages": {
+                                            "description": "Непрочитаних повідомлень",
+                                            "type": "integer",
+                                            "example": 2
                                         },
                                         "links": {
                                             "$ref": "#/components/schemas/PaginationLinks"
@@ -2111,7 +2135,7 @@
                     "Notifications"
                 ],
                 "summary": "Кількість непрочитаних сповіщень",
-                "description": "Повертає кількість непрочитаних сповіщень для відображення в badge",
+                "description": "Повертає кількість непрочитаних сповіщень та повідомлень для відображення в badge",
                 "operationId": "getUnreadNotificationsCount",
                 "responses": {
                     "200": {
@@ -2121,8 +2145,19 @@
                                 "schema": {
                                     "properties": {
                                         "unread_count": {
+                                            "description": "Загальна кількість непрочитаних",
                                             "type": "integer",
                                             "example": 5
+                                        },
+                                        "unread_notifications": {
+                                            "description": "Непрочитаних сповіщень",
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "unread_messages": {
+                                            "description": "Непрочитаних повідомлень",
+                                            "type": "integer",
+                                            "example": 2
                                         }
                                     },
                                     "type": "object"
@@ -2141,19 +2176,32 @@
                 ]
             }
         },
-        "/v1/my/notifications/{id}": {
+        "/v1/my/notifications/{source}/{id}": {
             "get": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Переглянути сповіщення",
-                "description": "Повертає деталі сповіщення та позначає його як прочитане",
+                "description": "Повертає деталі сповіщення або повідомлення та позначає як прочитане",
                 "operationId": "getNotification",
                 "parameters": [
                     {
+                        "name": "source",
+                        "in": "path",
+                        "description": "Джерело (notification або message)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "notification",
+                                "message"
+                            ]
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
-                        "description": "ID сповіщення",
+                        "description": "ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -2194,13 +2242,26 @@
                     "Notifications"
                 ],
                 "summary": "Видалити сповіщення",
-                "description": "Видаляє конкретне сповіщення",
+                "description": "Видаляє сповіщення або повідомлення",
                 "operationId": "deleteNotification",
                 "parameters": [
                     {
+                        "name": "source",
+                        "in": "path",
+                        "description": "Джерело (notification або message)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "notification",
+                                "message"
+                            ]
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
-                        "description": "ID сповіщення",
+                        "description": "ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -2209,7 +2270,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Сповіщення видалено",
+                        "description": "Видалено",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2228,7 +2289,7 @@
                         "description": "Не авторизовано"
                     },
                     "404": {
-                        "description": "Сповіщення не знайдено"
+                        "description": "Не знайдено"
                     }
                 },
                 "security": [
@@ -2238,19 +2299,32 @@
                 ]
             }
         },
-        "/v1/my/notifications/{id}/read": {
+        "/v1/my/notifications/{source}/{id}/read": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Позначити як прочитане",
-                "description": "Позначає конкретне сповіщення як прочитане",
+                "description": "Позначає сповіщення або повідомлення як прочитане",
                 "operationId": "markNotificationAsRead",
                 "parameters": [
                     {
+                        "name": "source",
+                        "in": "path",
+                        "description": "Джерело (notification або message)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "notification",
+                                "message"
+                            ]
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
-                        "description": "ID сповіщення",
+                        "description": "ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -2259,7 +2333,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Сповіщення позначено як прочитане",
+                        "description": "Позначено як прочитане",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2267,9 +2341,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Сповіщення позначено як прочитане."
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/Notification"
                                         }
                                     },
                                     "type": "object"
@@ -2281,7 +2352,7 @@
                         "description": "Не авторизовано"
                     },
                     "404": {
-                        "description": "Сповіщення не знайдено"
+                        "description": "Не знайдено"
                     }
                 },
                 "security": [
@@ -2297,7 +2368,7 @@
                     "Notifications"
                 ],
                 "summary": "Позначити всі як прочитані",
-                "description": "Позначає всі сповіщення користувача як прочитані",
+                "description": "Позначає всі сповіщення та повідомлення користувача як прочитані",
                 "operationId": "markAllNotificationsAsRead",
                 "responses": {
                     "200": {
@@ -2310,9 +2381,17 @@
                                             "type": "string",
                                             "example": "Всі сповіщення позначено як прочитані."
                                         },
-                                        "updated_count": {
+                                        "updated_notifications": {
                                             "type": "integer",
-                                            "example": 10
+                                            "example": 5
+                                        },
+                                        "updated_messages": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "updated_total": {
+                                            "type": "integer",
+                                            "example": 8
                                         }
                                     },
                                     "type": "object"

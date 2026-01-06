@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\NotificationResource;
+use App\Models\Message;
 use App\Models\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,12 +26,13 @@ class NotificationController extends Controller
      *     operationId="getMyNotifications",
      *     tags={"Notifications"},
      *     summary="Мої сповіщення (03.2.4)",
-     *     description="Повертає список сповіщень авторизованого користувача з пагінацією",
+     *     description="Повертає об'єднаний список сповіщень (app_notifications) та повідомлень від адміністрації (messages) з пагінацією",
      *     security={{"sanctum":{}}},
      *
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer", default=1)),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінці", @OA\Schema(type="integer", default=15)),
      *     @OA\Parameter(name="unread_only", in="query", description="Тільки непрочитані", @OA\Schema(type="boolean", default=false)),
+     *     @OA\Parameter(name="type", in="query", description="Фільтр за типом (notification, message, all)", @OA\Schema(type="string", enum={"notification", "message", "all"}, default="all")),
      *
      *     @OA\Response(
      *         response=200,
@@ -40,6 +42,8 @@ class NotificationController extends Controller
      *
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Notification")),
      *             @OA\Property(property="unread_count", type="integer", example=5, description="Кількість непрочитаних"),
+     *             @OA\Property(property="unread_notifications", type="integer", example=3, description="Непрочитаних сповіщень"),
+     *             @OA\Property(property="unread_messages", type="integer", example=2, description="Непрочитаних повідомлень"),
      *             @OA\Property(property="links", ref="#/components/schemas/PaginationLinks"),
      *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
      *         )
@@ -50,37 +54,110 @@ class NotificationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Notification::query()
-            ->where('user_id', $request->user()->id)
-            ->orderBy('created_at', 'desc');
+        $userId = $request->user()->id;
+        $perPage = min($request->integer('per_page', 15), 50);
+        $page = $request->integer('page', 1);
+        $unreadOnly = $request->boolean('unread_only');
+        $typeFilter = $request->string('type', 'all')->toString();
 
-        if ($request->boolean('unread_only')) {
-            $query->whereNull('read_at');
+        // Збираємо всі елементи
+        $items = collect();
+
+        // Додаємо сповіщення з app_notifications
+        if ($typeFilter === 'all' || $typeFilter === 'notification') {
+            $notificationsQuery = Notification::where('user_id', $userId);
+            if ($unreadOnly) {
+                $notificationsQuery->whereNull('read_at');
+            }
+            $notifications = $notificationsQuery->get()->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'source' => 'notification',
+                    'type' => $notification->type instanceof \App\Enums\NotificationType
+                        ? $notification->type->value
+                        : $notification->type,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'data' => $notification->data,
+                    'read_at' => $notification->read_at,
+                    'created_at' => $notification->created_at,
+                    'updated_at' => $notification->updated_at,
+                ];
+            });
+            $items = $items->merge($notifications);
         }
 
-        $perPage = min($request->integer('per_page', 15), 50);
-        $notifications = $query->paginate($perPage);
+        // Додаємо повідомлення з messages (тільки від адміна до користувача)
+        if ($typeFilter === 'all' || $typeFilter === 'message') {
+            $messagesQuery = Message::where('user_id', $userId)
+                ->where('direction', 'admin_to_user');
+            if ($unreadOnly) {
+                $messagesQuery->whereNull('read_at');
+            }
+            $messages = $messagesQuery->get()->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'source' => 'message',
+                    'type' => 'admin_message',
+                    'title' => [
+                        'uk' => $message->subject ?? 'Повідомлення від адміністрації',
+                        'en' => $message->subject ?? 'Message from administration',
+                    ],
+                    'message' => [
+                        'uk' => $message->content,
+                        'en' => $message->content,
+                    ],
+                    'data' => [
+                        'project_id' => $message->project_id,
+                        'admin_id' => $message->admin_id,
+                    ],
+                    'read_at' => $message->read_at,
+                    'created_at' => $message->created_at,
+                    'updated_at' => $message->updated_at,
+                ];
+            });
+            $items = $items->merge($messages);
+        }
 
-        $unreadCount = Notification::where('user_id', $request->user()->id)
+        // Сортуємо за датою створення (нові перші)
+        $items = $items->sortByDesc('created_at')->values();
+
+        // Пагінація
+        $total = $items->count();
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $offset = ($page - 1) * $perPage;
+        $paginatedItems = $items->slice($offset, $perPage)->values();
+
+        // Рахуємо непрочитані
+        $unreadNotifications = Notification::where('user_id', $userId)
             ->whereNull('read_at')
             ->count();
 
+        $unreadMessages = Message::where('user_id', $userId)
+            ->where('direction', 'admin_to_user')
+            ->whereNull('read_at')
+            ->count();
+
+        $baseUrl = url('/api/v1/my/notifications');
+
         return response()->json([
-            'data' => NotificationResource::collection($notifications->items()),
-            'unread_count' => $unreadCount,
+            'data' => $paginatedItems,
+            'unread_count' => $unreadNotifications + $unreadMessages,
+            'unread_notifications' => $unreadNotifications,
+            'unread_messages' => $unreadMessages,
             'links' => [
-                'first' => $notifications->url(1),
-                'last' => $notifications->url($notifications->lastPage()),
-                'prev' => $notifications->previousPageUrl(),
-                'next' => $notifications->nextPageUrl(),
+                'first' => $baseUrl.'?page=1',
+                'last' => $baseUrl.'?page='.$lastPage,
+                'prev' => $page > 1 ? $baseUrl.'?page='.($page - 1) : null,
+                'next' => $page < $lastPage ? $baseUrl.'?page='.($page + 1) : null,
             ],
             'meta' => [
-                'current_page' => $notifications->currentPage(),
-                'from' => $notifications->firstItem(),
-                'last_page' => $notifications->lastPage(),
-                'per_page' => $notifications->perPage(),
-                'to' => $notifications->lastItem(),
-                'total' => $notifications->total(),
+                'current_page' => $page,
+                'from' => $total > 0 ? $offset + 1 : null,
+                'last_page' => $lastPage,
+                'per_page' => $perPage,
+                'to' => $total > 0 ? min($offset + $perPage, $total) : null,
+                'total' => $total,
             ],
         ]);
     }
@@ -93,7 +170,7 @@ class NotificationController extends Controller
      *     operationId="getUnreadNotificationsCount",
      *     tags={"Notifications"},
      *     summary="Кількість непрочитаних сповіщень",
-     *     description="Повертає кількість непрочитаних сповіщень для відображення в badge",
+     *     description="Повертає кількість непрочитаних сповіщень та повідомлень для відображення в badge",
      *     security={{"sanctum":{}}},
      *
      *     @OA\Response(
@@ -102,7 +179,9 @@ class NotificationController extends Controller
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="unread_count", type="integer", example=5)
+     *             @OA\Property(property="unread_count", type="integer", example=5, description="Загальна кількість непрочитаних"),
+     *             @OA\Property(property="unread_notifications", type="integer", example=3, description="Непрочитаних сповіщень"),
+     *             @OA\Property(property="unread_messages", type="integer", example=2, description="Непрочитаних повідомлень")
      *         )
      *     ),
      *
@@ -111,12 +190,21 @@ class NotificationController extends Controller
      */
     public function unreadCount(Request $request): JsonResponse
     {
-        $count = Notification::where('user_id', $request->user()->id)
+        $userId = $request->user()->id;
+
+        $unreadNotifications = Notification::where('user_id', $userId)
+            ->whereNull('read_at')
+            ->count();
+
+        $unreadMessages = Message::where('user_id', $userId)
+            ->where('direction', 'admin_to_user')
             ->whereNull('read_at')
             ->count();
 
         return response()->json([
-            'unread_count' => $count,
+            'unread_count' => $unreadNotifications + $unreadMessages,
+            'unread_notifications' => $unreadNotifications,
+            'unread_messages' => $unreadMessages,
         ]);
     }
 
@@ -124,14 +212,15 @@ class NotificationController extends Controller
      * Отримати конкретне сповіщення
      *
      * @OA\Get(
-     *     path="/v1/my/notifications/{id}",
+     *     path="/v1/my/notifications/{source}/{id}",
      *     operationId="getNotification",
      *     tags={"Notifications"},
      *     summary="Переглянути сповіщення",
-     *     description="Повертає деталі сповіщення та позначає його як прочитане",
+     *     description="Повертає деталі сповіщення або повідомлення та позначає як прочитане",
      *     security={{"sanctum":{}}},
      *
-     *     @OA\Parameter(name="id", in="path", required=true, description="ID сповіщення", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="source", in="path", required=true, description="Джерело (notification або message)", @OA\Schema(type="string", enum={"notification", "message"})),
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID", @OA\Schema(type="integer")),
      *
      *     @OA\Response(
      *         response=200,
@@ -147,19 +236,47 @@ class NotificationController extends Controller
      *     @OA\Response(response=404, description="Сповіщення не знайдено")
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(Request $request, string $source, int $id): JsonResponse
     {
+        $userId = $request->user()->id;
+
+        if ($source === 'message') {
+            $message = Message::where('id', $id)
+                ->where('user_id', $userId)
+                ->where('direction', 'admin_to_user')
+                ->first();
+
+            if (! $message) {
+                return response()->json(['message' => 'Повідомлення не знайдено.'], 404);
+            }
+
+            if (! $message->read_at) {
+                $message->update(['read_at' => now()]);
+            }
+
+            return response()->json([
+                'data' => [
+                    'id' => $message->id,
+                    'source' => 'message',
+                    'type' => 'admin_message',
+                    'title' => ['uk' => $message->subject, 'en' => $message->subject],
+                    'message' => ['uk' => $message->content, 'en' => $message->content],
+                    'data' => ['project_id' => $message->project_id, 'admin_id' => $message->admin_id],
+                    'read_at' => $message->read_at,
+                    'created_at' => $message->created_at,
+                    'updated_at' => $message->updated_at,
+                ],
+            ]);
+        }
+
         $notification = Notification::where('id', $id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $userId)
             ->first();
 
         if (! $notification) {
-            return response()->json([
-                'message' => 'Сповіщення не знайдено.',
-            ], 404);
+            return response()->json(['message' => 'Сповіщення не знайдено.'], 404);
         }
 
-        // Автоматично позначаємо як прочитане
         $notification->markAsRead();
 
         return response()->json([
@@ -171,48 +288,60 @@ class NotificationController extends Controller
      * Позначити сповіщення як прочитане
      *
      * @OA\Post(
-     *     path="/v1/my/notifications/{id}/read",
+     *     path="/v1/my/notifications/{source}/{id}/read",
      *     operationId="markNotificationAsRead",
      *     tags={"Notifications"},
      *     summary="Позначити як прочитане",
-     *     description="Позначає конкретне сповіщення як прочитане",
+     *     description="Позначає сповіщення або повідомлення як прочитане",
      *     security={{"sanctum":{}}},
      *
-     *     @OA\Parameter(name="id", in="path", required=true, description="ID сповіщення", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="source", in="path", required=true, description="Джерело (notification або message)", @OA\Schema(type="string", enum={"notification", "message"})),
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID", @OA\Schema(type="integer")),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Сповіщення позначено як прочитане",
+     *         description="Позначено як прочитане",
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="message", type="string", example="Сповіщення позначено як прочитане."),
-     *             @OA\Property(property="data", ref="#/components/schemas/Notification")
+     *             @OA\Property(property="message", type="string", example="Сповіщення позначено як прочитане.")
      *         )
      *     ),
      *
      *     @OA\Response(response=401, description="Не авторизовано"),
-     *     @OA\Response(response=404, description="Сповіщення не знайдено")
+     *     @OA\Response(response=404, description="Не знайдено")
      * )
      */
-    public function markAsRead(Request $request, int $id): JsonResponse
+    public function markAsRead(Request $request, string $source, int $id): JsonResponse
     {
+        $userId = $request->user()->id;
+
+        if ($source === 'message') {
+            $message = Message::where('id', $id)
+                ->where('user_id', $userId)
+                ->where('direction', 'admin_to_user')
+                ->first();
+
+            if (! $message) {
+                return response()->json(['message' => 'Повідомлення не знайдено.'], 404);
+            }
+
+            $message->update(['read_at' => now()]);
+
+            return response()->json(['message' => 'Повідомлення позначено як прочитане.']);
+        }
+
         $notification = Notification::where('id', $id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $userId)
             ->first();
 
         if (! $notification) {
-            return response()->json([
-                'message' => 'Сповіщення не знайдено.',
-            ], 404);
+            return response()->json(['message' => 'Сповіщення не знайдено.'], 404);
         }
 
         $notification->markAsRead();
 
-        return response()->json([
-            'message' => 'Сповіщення позначено як прочитане.',
-            'data' => new NotificationResource($notification),
-        ]);
+        return response()->json(['message' => 'Сповіщення позначено як прочитане.']);
     }
 
     /**
@@ -223,7 +352,7 @@ class NotificationController extends Controller
      *     operationId="markAllNotificationsAsRead",
      *     tags={"Notifications"},
      *     summary="Позначити всі як прочитані",
-     *     description="Позначає всі сповіщення користувача як прочитані",
+     *     description="Позначає всі сповіщення та повідомлення користувача як прочитані",
      *     security={{"sanctum":{}}},
      *
      *     @OA\Response(
@@ -233,7 +362,9 @@ class NotificationController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="message", type="string", example="Всі сповіщення позначено як прочитані."),
-     *             @OA\Property(property="updated_count", type="integer", example=10)
+     *             @OA\Property(property="updated_notifications", type="integer", example=5),
+     *             @OA\Property(property="updated_messages", type="integer", example=3),
+     *             @OA\Property(property="updated_total", type="integer", example=8)
      *         )
      *     ),
      *
@@ -242,13 +373,22 @@ class NotificationController extends Controller
      */
     public function markAllAsRead(Request $request): JsonResponse
     {
-        $updatedCount = Notification::where('user_id', $request->user()->id)
+        $userId = $request->user()->id;
+
+        $updatedNotifications = Notification::where('user_id', $userId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        $updatedMessages = Message::where('user_id', $userId)
+            ->where('direction', 'admin_to_user')
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
         return response()->json([
             'message' => 'Всі сповіщення позначено як прочитані.',
-            'updated_count' => $updatedCount,
+            'updated_notifications' => $updatedNotifications,
+            'updated_messages' => $updatedMessages,
+            'updated_total' => $updatedNotifications + $updatedMessages,
         ]);
     }
 
@@ -256,18 +396,19 @@ class NotificationController extends Controller
      * Видалити сповіщення
      *
      * @OA\Delete(
-     *     path="/v1/my/notifications/{id}",
+     *     path="/v1/my/notifications/{source}/{id}",
      *     operationId="deleteNotification",
      *     tags={"Notifications"},
      *     summary="Видалити сповіщення",
-     *     description="Видаляє конкретне сповіщення",
+     *     description="Видаляє сповіщення або повідомлення",
      *     security={{"sanctum":{}}},
      *
-     *     @OA\Parameter(name="id", in="path", required=true, description="ID сповіщення", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="source", in="path", required=true, description="Джерело (notification або message)", @OA\Schema(type="string", enum={"notification", "message"})),
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID", @OA\Schema(type="integer")),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Сповіщення видалено",
+     *         description="Видалено",
      *
      *         @OA\JsonContent(
      *
@@ -276,25 +417,38 @@ class NotificationController extends Controller
      *     ),
      *
      *     @OA\Response(response=401, description="Не авторизовано"),
-     *     @OA\Response(response=404, description="Сповіщення не знайдено")
+     *     @OA\Response(response=404, description="Не знайдено")
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(Request $request, string $source, int $id): JsonResponse
     {
+        $userId = $request->user()->id;
+
+        if ($source === 'message') {
+            $message = Message::where('id', $id)
+                ->where('user_id', $userId)
+                ->where('direction', 'admin_to_user')
+                ->first();
+
+            if (! $message) {
+                return response()->json(['message' => 'Повідомлення не знайдено.'], 404);
+            }
+
+            $message->delete();
+
+            return response()->json(['message' => 'Повідомлення видалено.']);
+        }
+
         $notification = Notification::where('id', $id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $userId)
             ->first();
 
         if (! $notification) {
-            return response()->json([
-                'message' => 'Сповіщення не знайдено.',
-            ], 404);
+            return response()->json(['message' => 'Сповіщення не знайдено.'], 404);
         }
 
         $notification->delete();
 
-        return response()->json([
-            'message' => 'Сповіщення видалено.',
-        ]);
+        return response()->json(['message' => 'Сповіщення видалено.']);
     }
 }
