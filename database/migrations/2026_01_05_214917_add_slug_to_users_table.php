@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('slug')->nullable()->unique()->after('name')->comment('URL-адреса профілю митця');
-            $table->string('avatar')->nullable()->after('slug')->comment('Шлях до аватара');
         });
 
         // Генеруємо slug для існуючих користувачів
@@ -30,7 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['slug', 'avatar']);
+            $table->dropColumn(['slug']);
         });
     }
 };

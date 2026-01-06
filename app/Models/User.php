@@ -24,7 +24,6 @@ class User extends Authenticatable
         'password',
         'role',
         'slug',
-        'avatar',
         'is_blocked',
         'blocked_until',
         'deletion_requested_at',
