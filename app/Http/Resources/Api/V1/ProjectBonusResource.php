@@ -4,9 +4,29 @@ namespace App\Http\Resources\Api\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use OpenApi\Annotations as OA;
 
 /**
  * @mixin \App\Models\ProjectBonus
+ *
+ * @OA\Schema(
+ *     schema="ProjectBonus",
+ *     title="ProjectBonus",
+ *     description="Бонус від автора за донат",
+ *     type="object",
+ *     required={"id", "order", "title", "min_donation"},
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="order", type="integer", example=1),
+ *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="min_donation", type="number", format="float", example=500.00),
+ *     @OA\Property(property="quantity", type="integer", nullable=true, example=10),
+ *     @OA\Property(property="quantity_claimed", type="integer", example=3),
+ *     @OA\Property(property="remaining", type="integer", nullable=true, example=7),
+ *     @OA\Property(property="is_available", type="boolean", example=true),
+ *     @OA\Property(property="is_unlimited", type="boolean", example=false)
+ * )
  */
 class ProjectBonusResource extends JsonResource
 {

@@ -5,9 +5,59 @@ namespace App\Http\Resources\Api\V1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
+use OpenApi\Annotations as OA;
 
 /**
  * @mixin \App\Models\Project
+ *
+ * @OA\Schema(
+ *     schema="Project",
+ *     title="Project",
+ *     description="Проєкт митця (повна інформація)",
+ *     type="object",
+ *     required={"id", "slug", "status", "title", "currency", "budget_goal"},
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="slug", type="string", example="miy-noviy-proekt-abc123"),
+ *     @OA\Property(property="code", type="string", example="ABC12345"),
+ *     @OA\Property(property="status", type="string", enum={"draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"}, example="announced"),
+ *     @OA\Property(property="status_label", type="string", example="Оголошений"),
+ *     @OA\Property(property="status_moderation", type="string", enum={"pending", "approved", "rejected"}, example="approved"),
+ *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="cover_url", type="string", nullable=true, example="http://save-art.local/storage/projects/covers/1.jpg"),
+ *     @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="visual"),
+ *     @OA\Property(property="art_category_label", type="string", example="Візуальне мистецтво"),
+ *     @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
+ *     @OA\Property(property="art_subcategory_label", type="string", nullable=true, example="Живопис"),
+ *     @OA\Property(property="tags", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
+ *     @OA\Property(property="budget_goal", type="number", format="float", example=50000.00),
+ *     @OA\Property(property="budget_collected", type="number", format="float", example=12500.00),
+ *     @OA\Property(property="progress_percentage", type="number", format="float", example=25.00),
+ *     @OA\Property(property="estimated_days", type="integer", nullable=true, example=90),
+ *     @OA\Property(property="likes_count", type="integer", example=42),
+ *     @OA\Property(property="donors_count", type="integer", example=15),
+ *     @OA\Property(property="is_liked", type="boolean", example=false),
+ *     @OA\Property(property="announced_at", type="string", format="date-time", nullable=true),
+ *     @OA\Property(property="planned_completion_at", type="string", format="date-time", nullable=true),
+ *     @OA\Property(property="completed_at", type="string", format="date-time", nullable=true),
+ *     @OA\Property(property="author", ref="#/components/schemas/Author"),
+ *     @OA\Property(property="characteristics", type="array", nullable=true, @OA\Items(type="object",
+ *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
+ *         @OA\Property(property="value", ref="#/components/schemas/LocalizedString")
+ *     )),
+ *     @OA\Property(property="budget_items", type="array", nullable=true, @OA\Items(type="object",
+ *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
+ *         @OA\Property(property="amount", type="number", example=15000)
+ *     )),
+ *     @OA\Property(property="stages", type="array", @OA\Items(ref="#/components/schemas/ProjectStage")),
+ *     @OA\Property(property="bonuses", type="array", @OA\Items(ref="#/components/schemas/ProjectBonus")),
+ *     @OA\Property(property="can_edit", type="boolean", example=false),
+ *     @OA\Property(property="can_donate", type="boolean", example=true),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
  */
 class ProjectResource extends JsonResource
 {

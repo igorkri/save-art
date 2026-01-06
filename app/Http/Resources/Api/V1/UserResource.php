@@ -7,9 +7,39 @@ use App\Http\Resources\ProfilePersonalResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
+use OpenApi\Annotations as OA;
 
 /**
  * @mixin \App\Models\User
+ *
+ * @OA\Schema(
+ *     schema="User",
+ *     title="User",
+ *     description="Користувач",
+ *     type="object",
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Іван Франко"),
+ *     @OA\Property(property="email", type="string", format="email", example="ivan@example.com"),
+ *     @OA\Property(property="slug", type="string", nullable=true, example="ivan-franko"),
+ *     @OA\Property(property="role", type="string", enum={"user", "mecenat", "owner", "moderator", "admin", "developer"}, example="user"),
+ *     @OA\Property(property="avatar_url", type="string", nullable=true),
+ *     @OA\Property(property="email_verified_at", type="string", format="date-time", nullable=true),
+ *     @OA\Property(property="profile_personal", ref="#/components/schemas/ProfilePersonal", nullable=true),
+ *     @OA\Property(property="profile_legal", ref="#/components/schemas/ProfileLegal", nullable=true),
+ *     @OA\Property(property="profile_social", type="object", nullable=true,
+ *         @OA\Property(property="website", type="string", nullable=true),
+ *         @OA\Property(property="facebook", type="string", nullable=true),
+ *         @OA\Property(property="instagram", type="string", nullable=true),
+ *         @OA\Property(property="youtube", type="string", nullable=true),
+ *         @OA\Property(property="tiktok", type="string", nullable=true),
+ *         @OA\Property(property="twitter", type="string", nullable=true),
+ *         @OA\Property(property="linkedin", type="string", nullable=true)
+ *     ),
+ *     @OA\Property(property="projects_count", type="integer", example=5),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
  */
 class UserResource extends JsonResource
 {

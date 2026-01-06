@@ -4,9 +4,37 @@ namespace App\Http\Resources\Api\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use OpenApi\Annotations as OA;
 
 /**
  * @mixin \App\Models\Donation
+ *
+ * @OA\Schema(
+ *     schema="Donation",
+ *     title="Donation",
+ *     description="Донат на проєкт",
+ *     type="object",
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="project", type="object",
+ *         @OA\Property(property="id", type="integer", example=1),
+ *         @OA\Property(property="slug", type="string", example="miy-proekt"),
+ *         @OA\Property(property="title", ref="#/components/schemas/LocalizedString")
+ *     ),
+ *     @OA\Property(property="amount", type="number", format="float", example=1000.00),
+ *     @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
+ *     @OA\Property(property="status", type="string", enum={"pending", "paid", "failed", "refunded"}, example="paid"),
+ *     @OA\Property(property="status_label", type="string", example="Оплачено"),
+ *     @OA\Property(property="is_anonymous", type="boolean", example=false),
+ *     @OA\Property(property="donor_name", type="string", nullable=true, example="Іван Петренко"),
+ *     @OA\Property(property="bonus", type="object", nullable=true,
+ *         @OA\Property(property="id", type="integer", example=1),
+ *         @OA\Property(property="title", ref="#/components/schemas/LocalizedString")
+ *     ),
+ *     @OA\Property(property="message", type="string", nullable=true, example="Успіхів!"),
+ *     @OA\Property(property="paid_at", type="string", format="date-time", nullable=true),
+ *     @OA\Property(property="created_at", type="string", format="date-time")
+ * )
  */
 class DonationResource extends JsonResource
 {

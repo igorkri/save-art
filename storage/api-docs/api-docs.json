@@ -2353,10 +2353,1620 @@
                     }
                 }
             }
+        },
+        "/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Отримати повний профіль",
+                "description": "Повертає всі дані профілю: персональні, юридичні, соціальні та документи",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "Дані профілю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Іван Петренко"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "profilePersonal": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/ProfilePersonal"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        },
+                                        "profileLegal": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/ProfileLegal"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        },
+                                        "profileSocial": {
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "profileDocuments": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProfileDocument"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile/personal": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Оновити персональні дані (03.7.2)",
+                "description": "Оновлює персональні дані профілю",
+                "operationId": "updateProfilePersonal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Шлях до аватара",
+                                        "type": "string",
+                                        "example": "avatars/user1.jpg",
+                                        "nullable": true
+                                    },
+                                    "full_name": {
+                                        "description": "Повне ім'я (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "profession": {
+                                        "description": "Професія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Художник"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Artist"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "description": "Теги/спеціалізації (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "живопис, графіка"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "painting, graphics"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "country": {
+                                        "description": "Країна (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Україна"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukraine"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "region": {
+                                        "description": "Регіон/область (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київська область"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv region"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "city": {
+                                        "description": "Місто (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київ"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "postal_code": {
+                                        "description": "Поштовий індекс",
+                                        "type": "string",
+                                        "example": "01001",
+                                        "nullable": true
+                                    },
+                                    "role": {
+                                        "description": "Роль користувача",
+                                        "type": "string",
+                                        "example": "artist",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "description": "Опис/біографія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Український художник, працюю в жанрі абстракції"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukrainian artist, working in abstract genre"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Профіль оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profilePersonal": {
+                                            "$ref": "#/components/schemas/ProfilePersonal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Створити персональні дані (03.7.2)",
+                "description": "Створює персональні дані профілю",
+                "operationId": "createProfilePersonal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Шлях до аватара",
+                                        "type": "string",
+                                        "example": "avatars/user1.jpg",
+                                        "nullable": true
+                                    },
+                                    "full_name": {
+                                        "description": "Повне ім'я (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "profession": {
+                                        "description": "Професія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Художник"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Artist"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "description": "Теги/спеціалізації (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "живопис, графіка"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "painting, graphics"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "country": {
+                                        "description": "Країна (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Україна"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukraine"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "region": {
+                                        "description": "Регіон/область (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київська область"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv region"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "city": {
+                                        "description": "Місто (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київ"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "postal_code": {
+                                        "description": "Поштовий індекс",
+                                        "type": "string",
+                                        "example": "01001",
+                                        "nullable": true
+                                    },
+                                    "role": {
+                                        "description": "Роль користувача",
+                                        "type": "string",
+                                        "example": "artist",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "description": "Опис/біографія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Український художник, працюю в жанрі абстракції"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukrainian artist, working in abstract genre"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Профіль створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profilePersonal": {
+                                            "$ref": "#/components/schemas/ProfilePersonal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "409": {
+                        "description": "Профіль вже існує"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile/legal": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Оновити юридичні дані (03.7.1)",
+                "description": "Оновлює юридичні дані профілю (опціонально)",
+                "operationId": "updateProfileLegal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "company_name": {
+                                        "type": "string",
+                                        "example": "ТОВ Мистецтво"
+                                    },
+                                    "edrpou": {
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "legal_address": {
+                                        "type": "string",
+                                        "example": "м. Київ, вул. Хрещатик, 1"
+                                    },
+                                    "bank_name": {
+                                        "type": "string",
+                                        "example": "ПриватБанк"
+                                    },
+                                    "iban": {
+                                        "type": "string",
+                                        "example": "UA123456789012345678901234567"
+                                    },
+                                    "is_fop": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Профіль оновлено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Створити юридичні дані (03.7.1)",
+                "description": "Створює юридичні дані профілю",
+                "operationId": "createProfileLegal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "company_name": {
+                                        "type": "string",
+                                        "example": "ТОВ Мистецтво"
+                                    },
+                                    "edrpou": {
+                                        "type": "string",
+                                        "example": "12345678"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Профіль створено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "409": {
+                        "description": "Профіль вже існує"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile/social": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Оновити соцмережі (03.7.3)",
+                "description": "Оновлює посилання на соціальні мережі",
+                "operationId": "updateProfileSocial",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://myart.com"
+                                    },
+                                    "instagram": {
+                                        "type": "string",
+                                        "example": "https://instagram.com/myart"
+                                    },
+                                    "facebook": {
+                                        "type": "string",
+                                        "example": "https://facebook.com/myart"
+                                    },
+                                    "youtube": {
+                                        "type": "string",
+                                        "example": "https://youtube.com/@myart"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Профіль оновлено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Створити соцмережі (03.7.3)",
+                "description": "Створює посилання на соціальні мережі",
+                "operationId": "createProfileSocial",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://myart.com"
+                                    },
+                                    "instagram": {
+                                        "type": "string",
+                                        "example": "https://instagram.com/myart"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Профіль створено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "409": {
+                        "description": "Профіль вже існує"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile/password": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Змінити пароль (03.7.4)",
+                "description": "Змінює пароль користувача. Екран 03.7.4 Safety.",
+                "operationId": "updateProfilePassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "oldPassword123"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword456"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Пароль змінено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Невірний поточний пароль або помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
         "schemas": {
+            "LocalizedString": {
+                "title": "LocalizedString",
+                "description": "Мультимовний текст (uk/en)",
+                "properties": {
+                    "uk": {
+                        "type": "string",
+                        "example": "Український текст"
+                    },
+                    "en": {
+                        "type": "string",
+                        "example": "English text",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationMeta": {
+                "title": "PaginationMeta",
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "from": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "to": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 150
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationLinks": {
+                "title": "PaginationLinks",
+                "properties": {
+                    "first": {
+                        "type": "string"
+                    },
+                    "last": {
+                        "type": "string"
+                    },
+                    "prev": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationError": {
+                "title": "ValidationError",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Валідацію не пройдено."
+                    },
+                    "errors": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "title": "ErrorResponse",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Ресурс не знайдено."
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": "Not Found"
+                    }
+                },
+                "type": "object"
+            },
+            "Author": {
+                "title": "Author",
+                "description": "Автор проєкту",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Іван Франко"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "ivan-franko",
+                        "nullable": true
+                    },
+                    "avatar_url": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Statistics": {
+                "title": "Statistics",
+                "description": "Статистика платформи",
+                "properties": {
+                    "total_projects": {
+                        "type": "integer",
+                        "example": 150
+                    },
+                    "active_projects": {
+                        "type": "integer",
+                        "example": 45
+                    },
+                    "completed_projects": {
+                        "type": "integer",
+                        "example": 80
+                    },
+                    "total_artists": {
+                        "type": "integer",
+                        "example": 120
+                    },
+                    "total_donations": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500000
+                    },
+                    "total_donors": {
+                        "type": "integer",
+                        "example": 3500
+                    }
+                },
+                "type": "object"
+            },
+            "Artist": {
+                "title": "Artist",
+                "description": "Публічний профіль митця",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Іван Франко"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "ivan-franko"
+                    },
+                    "avatar_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "profession": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "bio": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "city": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "country": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "social": {
+                        "properties": {
+                            "website": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "facebook": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "instagram": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "youtube": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "linkedin": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "projects_count": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "completed_projects_count": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Donation": {
+                "title": "Donation",
+                "description": "Донат на проєкт",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "project": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "slug": {
+                                "type": "string",
+                                "example": "miy-proekt"
+                            },
+                            "title": {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000
+                    },
+                    "currency": {
+                        "type": "string",
+                        "enum": [
+                            "UAH",
+                            "USD",
+                            "EUR"
+                        ],
+                        "example": "UAH"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "paid",
+                            "failed",
+                            "refunded"
+                        ],
+                        "example": "paid"
+                    },
+                    "status_label": {
+                        "type": "string",
+                        "example": "Оплачено"
+                    },
+                    "is_anonymous": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "donor_name": {
+                        "type": "string",
+                        "example": "Іван Петренко",
+                        "nullable": true
+                    },
+                    "bonus": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "title": {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Успіхів!",
+                        "nullable": true
+                    },
+                    "paid_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Message": {
+                "title": "Message",
+                "description": "Повідомлення в чаті з адміністрацією",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "Доброго дня! Хотів би уточнити..."
+                    },
+                    "subject": {
+                        "type": "string",
+                        "example": "Питання щодо проєкту",
+                        "nullable": true
+                    },
+                    "direction": {
+                        "type": "string",
+                        "enum": [
+                            "incoming",
+                            "outgoing"
+                        ],
+                        "example": "outgoing"
+                    },
+                    "is_from_admin": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "is_read": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "read_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "admin": {
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "project": {
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "title": {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            },
+                            "slug": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectBonus": {
+                "title": "ProjectBonus",
+                "description": "Бонус від автора за донат",
+                "required": [
+                    "id",
+                    "order",
+                    "title",
+                    "min_donation"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "description": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "min_donation": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "example": 10,
+                        "nullable": true
+                    },
+                    "quantity_claimed": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "remaining": {
+                        "type": "integer",
+                        "example": 7,
+                        "nullable": true
+                    },
+                    "is_available": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "is_unlimited": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectList": {
+                "title": "ProjectList",
+                "description": "Проєкт у списку (скорочена інформація)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "miy-noviy-proekt-abc123"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "announced"
+                    },
+                    "status_label": {
+                        "type": "string",
+                        "example": "Оголошений"
+                    },
+                    "title": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "short_description": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "cover_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "art_category": {
+                        "type": "string",
+                        "example": "visual"
+                    },
+                    "art_category_label": {
+                        "type": "string",
+                        "example": "Візуальне мистецтво"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "UAH"
+                    },
+                    "budget_goal": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50000
+                    },
+                    "budget_collected": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 12500
+                    },
+                    "progress_percentage": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 25
+                    },
+                    "likes_count": {
+                        "type": "integer",
+                        "example": 42
+                    },
+                    "donors_count": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/Author"
+                    },
+                    "announced_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Project": {
+                "title": "Project",
+                "description": "Проєкт митця (повна інформація)",
+                "required": [
+                    "id",
+                    "slug",
+                    "status",
+                    "title",
+                    "currency",
+                    "budget_goal"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "miy-noviy-proekt-abc123"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "ABC12345"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "draft",
+                            "moderation",
+                            "announced",
+                            "in_progress",
+                            "paused",
+                            "completed",
+                            "sold",
+                            "rejected"
+                        ],
+                        "example": "announced"
+                    },
+                    "status_label": {
+                        "type": "string",
+                        "example": "Оголошений"
+                    },
+                    "status_moderation": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "rejected"
+                        ],
+                        "example": "approved"
+                    },
+                    "title": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "short_description": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "cover_url": {
+                        "type": "string",
+                        "example": "http://save-art.local/storage/projects/covers/1.jpg",
+                        "nullable": true
+                    },
+                    "art_category": {
+                        "type": "string",
+                        "enum": [
+                            "scenic",
+                            "visual",
+                            "fine_art",
+                            "literature",
+                            "music",
+                            "other"
+                        ],
+                        "example": "visual"
+                    },
+                    "art_category_label": {
+                        "type": "string",
+                        "example": "Візуальне мистецтво"
+                    },
+                    "art_subcategory": {
+                        "type": "string",
+                        "example": "painting",
+                        "nullable": true
+                    },
+                    "art_subcategory_label": {
+                        "type": "string",
+                        "example": "Живопис",
+                        "nullable": true
+                    },
+                    "tags": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "enum": [
+                            "UAH",
+                            "USD",
+                            "EUR"
+                        ],
+                        "example": "UAH"
+                    },
+                    "budget_goal": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50000
+                    },
+                    "budget_collected": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 12500
+                    },
+                    "progress_percentage": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 25
+                    },
+                    "estimated_days": {
+                        "type": "integer",
+                        "example": 90,
+                        "nullable": true
+                    },
+                    "likes_count": {
+                        "type": "integer",
+                        "example": 42
+                    },
+                    "donors_count": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "is_liked": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "announced_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "planned_completion_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/Author"
+                    },
+                    "characteristics": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "$ref": "#/components/schemas/LocalizedString"
+                                },
+                                "value": {
+                                    "$ref": "#/components/schemas/LocalizedString"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "budget_items": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "$ref": "#/components/schemas/LocalizedString"
+                                },
+                                "amount": {
+                                    "type": "number",
+                                    "example": 15000
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "stages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProjectStage"
+                        }
+                    },
+                    "bonuses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProjectBonus"
+                        }
+                    },
+                    "can_edit": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "can_donate": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectStage": {
+                "title": "ProjectStage",
+                "description": "Етап проєкту",
+                "required": [
+                    "id",
+                    "order",
+                    "status",
+                    "title"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "in_progress",
+                            "completed"
+                        ],
+                        "example": "pending"
+                    },
+                    "status_label": {
+                        "type": "string",
+                        "example": "Очікує"
+                    },
+                    "title": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "description": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "days_planned": {
+                        "type": "integer",
+                        "example": 30,
+                        "nullable": true
+                    },
+                    "budget_planned": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5000,
+                        "nullable": true
+                    },
+                    "budget_actual": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4800,
+                        "nullable": true
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "is_completed": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "is_in_progress": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "Користувач",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Іван Франко"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "ivan@example.com"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "ivan-franko",
+                        "nullable": true
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "user",
+                            "mecenat",
+                            "owner",
+                            "moderator",
+                            "admin",
+                            "developer"
+                        ],
+                        "example": "user"
+                    },
+                    "avatar_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "profile_personal": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProfilePersonal"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "profile_legal": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProfileLegal"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "profile_social": {
+                        "properties": {
+                            "website": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "facebook": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "instagram": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "youtube": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "tiktok": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "twitter": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "linkedin": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "projects_count": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "Contract": {
                 "title": "Contract",
                 "description": "Контракт митця з платформою (03.7.5 Profile Authorized - New - Contract)",
@@ -2461,959 +4071,304 @@
                 },
                 "type": "object"
             },
-            "LocalizedString": {
-                "title": "LocalizedString",
-                "description": "Мультимовний текст (uk/en)",
-                "properties": {
-                    "uk": {
-                        "description": "Українська версія",
-                        "type": "string",
-                        "example": "Український текст"
-                    },
-                    "en": {
-                        "description": "Англійська версія",
-                        "type": "string",
-                        "example": "English text",
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "PaginationMeta": {
-                "title": "PaginationMeta",
-                "description": "Метадані пагінації",
-                "properties": {
-                    "current_page": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "from": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "last_page": {
-                        "type": "integer",
-                        "example": 10
-                    },
-                    "per_page": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "to": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "total": {
-                        "type": "integer",
-                        "example": 150
-                    }
-                },
-                "type": "object"
-            },
-            "PaginationLinks": {
-                "title": "PaginationLinks",
-                "description": "Посилання пагінації",
-                "properties": {
-                    "first": {
-                        "type": "string",
-                        "example": "http://save-art.local/api/v1/projects?page=1"
-                    },
-                    "last": {
-                        "type": "string",
-                        "example": "http://save-art.local/api/v1/projects?page=10"
-                    },
-                    "prev": {
-                        "type": "string",
-                        "example": null,
-                        "nullable": true
-                    },
-                    "next": {
-                        "type": "string",
-                        "example": "http://save-art.local/api/v1/projects?page=2",
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "ValidationError": {
-                "title": "ValidationError",
-                "description": "Помилка валідації (422)",
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Валідацію не пройдено."
-                    },
-                    "errors": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "example": "The title.uk field is required."
-                            }
-                        }
-                    }
-                },
-                "type": "object"
-            },
-            "ErrorResponse": {
-                "title": "ErrorResponse",
-                "description": "Загальна помилка API",
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Ресурс не знайдено."
-                    },
-                    "error": {
-                        "type": "string",
-                        "example": "Not Found"
-                    }
-                },
-                "type": "object"
-            },
-            "Author": {
-                "title": "Author",
-                "description": "Автор проєкту (скорочена інформація)",
+            "ProfileDocument": {
+                "title": "ProfileDocument",
+                "description": "Документ профілю",
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-                    "name": {
+                    "file_path": {
                         "type": "string",
-                        "example": "Іван Франко"
+                        "example": "profile_documents/doc1.pdf"
                     },
-                    "slug": {
+                    "file_url": {
                         "type": "string",
-                        "example": "ivan-franko",
+                        "example": "http://save-art.local/storage/profile_documents/doc1.pdf"
+                    },
+                    "hash": {
+                        "description": "Хеш файлу",
+                        "type": "string",
+                        "example": "sha256hash..."
+                    },
+                    "signed_file_path": {
+                        "type": "string",
+                        "example": "profile_documents/doc1_signed.pdf",
                         "nullable": true
                     },
-                    "avatar_url": {
+                    "signed_file_url": {
                         "type": "string",
-                        "example": "http://save-art.local/storage/avatars/1.jpg",
                         "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "ProjectStage": {
-                "title": "ProjectStage",
-                "description": "Етап проєкту",
-                "required": [
-                    "id",
-                    "order",
-                    "status",
-                    "title"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
                     },
-                    "order": {
-                        "description": "Порядковий номер етапу",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "status": {
+                    "sign_status": {
                         "type": "string",
                         "enum": [
                             "pending",
-                            "in_progress",
-                            "completed"
+                            "signed",
+                            "rejected"
                         ],
                         "example": "pending"
                     },
-                    "status_label": {
-                        "type": "string",
-                        "example": "Очікує"
-                    },
-                    "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "description": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "days_planned": {
-                        "type": "integer",
-                        "example": 30,
-                        "nullable": true
-                    },
-                    "budget_planned": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 5000,
-                        "nullable": true
-                    },
-                    "budget_actual": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 4800,
-                        "nullable": true
-                    },
-                    "started_at": {
+                    "signed_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-02-01T10:00:00.000Z",
                         "nullable": true
                     },
-                    "completed_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": null,
-                        "nullable": true
-                    },
-                    "is_completed": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "is_in_progress": {
-                        "type": "boolean",
-                        "example": false
-                    }
-                },
-                "type": "object"
-            },
-            "ProjectBonus": {
-                "title": "ProjectBonus",
-                "description": "Бонус від автора за донат",
-                "required": [
-                    "id",
-                    "order",
-                    "title",
-                    "min_donation"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "order": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "description": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "min_donation": {
-                        "description": "Мінімальна сума для отримання бонусу",
-                        "type": "number",
-                        "format": "float",
-                        "example": 500
-                    },
-                    "quantity": {
-                        "description": "Загальна кількість (null = безліміт)",
-                        "type": "integer",
-                        "example": 10,
-                        "nullable": true
-                    },
-                    "quantity_claimed": {
-                        "description": "Скільки вже роздано",
-                        "type": "integer",
-                        "example": 3
-                    },
-                    "remaining": {
-                        "description": "Скільки залишилось",
-                        "type": "integer",
-                        "example": 7,
-                        "nullable": true
-                    },
-                    "is_available": {
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "is_unlimited": {
-                        "type": "boolean",
-                        "example": false
-                    }
-                },
-                "type": "object"
-            },
-            "Project": {
-                "title": "Project",
-                "description": "Проєкт митця (повна інформація)",
-                "required": [
-                    "id",
-                    "slug",
-                    "status",
-                    "title",
-                    "currency",
-                    "budget_goal"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "slug": {
-                        "type": "string",
-                        "example": "miy-noviy-proekt-abc123"
-                    },
-                    "code": {
-                        "description": "Унікальний код проєкту",
-                        "type": "string",
-                        "example": "ABC12345"
-                    },
-                    "status": {
+                    "service": {
                         "type": "string",
                         "enum": [
-                            "draft",
-                            "moderation",
-                            "announced",
-                            "in_progress",
-                            "paused",
-                            "completed",
-                            "sold",
-                            "rejected"
+                            "diia",
+                            "vchasno",
+                            "iit",
+                            "manual"
                         ],
-                        "example": "announced"
-                    },
-                    "status_label": {
-                        "type": "string",
-                        "example": "Оголошений"
-                    },
-                    "status_moderation": {
-                        "type": "string",
-                        "enum": [
-                            "pending",
-                            "approved",
-                            "rejected"
-                        ],
-                        "example": "approved"
-                    },
-                    "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "short_description": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "cover_url": {
-                        "type": "string",
-                        "example": "http://save-art.local/storage/projects/covers/1.jpg",
-                        "nullable": true
-                    },
-                    "art_category": {
-                        "type": "string",
-                        "enum": [
-                            "scenic",
-                            "visual",
-                            "fine_art",
-                            "literature",
-                            "music",
-                            "other"
-                        ],
-                        "example": "visual"
-                    },
-                    "art_category_label": {
-                        "type": "string",
-                        "example": "Візуальне мистецтво"
-                    },
-                    "art_subcategory": {
-                        "type": "string",
-                        "example": "painting",
-                        "nullable": true
-                    },
-                    "art_subcategory_label": {
-                        "type": "string",
-                        "example": "Живопис",
-                        "nullable": true
-                    },
-                    "tags": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "currency": {
-                        "type": "string",
-                        "enum": [
-                            "UAH",
-                            "USD",
-                            "EUR"
-                        ],
-                        "example": "UAH"
-                    },
-                    "budget_goal": {
-                        "description": "Ціль збору",
-                        "type": "number",
-                        "format": "float",
-                        "example": 50000
-                    },
-                    "budget_collected": {
-                        "description": "Зібрано коштів",
-                        "type": "number",
-                        "format": "float",
-                        "example": 12500
-                    },
-                    "progress_percentage": {
-                        "description": "Відсоток від цілі",
-                        "type": "number",
-                        "format": "float",
-                        "example": 25
-                    },
-                    "estimated_days": {
-                        "description": "Орієнтовний термін виконання (днів)",
-                        "type": "integer",
-                        "example": 90,
-                        "nullable": true
-                    },
-                    "likes_count": {
-                        "type": "integer",
-                        "example": 42
-                    },
-                    "donors_count": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "is_liked": {
-                        "description": "Чи вподобав поточний користувач",
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "announced_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-15T12:00:00.000Z",
-                        "nullable": true
-                    },
-                    "planned_completion_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-04-15T12:00:00.000Z",
-                        "nullable": true
-                    },
-                    "completed_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": null,
-                        "nullable": true
-                    },
-                    "author": {
-                        "$ref": "#/components/schemas/Author"
-                    },
-                    "characteristics": {
-                        "description": "Характеристики проєкту (розміри, матеріали тощо)",
-                        "type": "array",
-                        "items": {
-                            "properties": {
-                                "name": {
-                                    "description": "Назва характеристики",
-                                    "properties": {
-                                        "uk": {
-                                            "type": "string",
-                                            "example": "Розмір"
-                                        },
-                                        "en": {
-                                            "type": "string",
-                                            "example": "Size"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "value": {
-                                    "description": "Значення характеристики",
-                                    "properties": {
-                                        "uk": {
-                                            "type": "string",
-                                            "example": "100x150 см"
-                                        },
-                                        "en": {
-                                            "type": "string",
-                                            "example": "100x150 cm"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        "nullable": true
-                    },
-                    "budget_items": {
-                        "description": "Статті бюджету",
-                        "type": "array",
-                        "items": {
-                            "properties": {
-                                "name": {
-                                    "description": "Назва статті бюджету",
-                                    "properties": {
-                                        "uk": {
-                                            "type": "string",
-                                            "example": "Матеріали"
-                                        },
-                                        "en": {
-                                            "type": "string",
-                                            "example": "Materials"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "amount": {
-                                    "description": "Сума у валюті проєкту",
-                                    "type": "number",
-                                    "example": 15000
-                                }
-                            },
-                            "type": "object"
-                        },
-                        "nullable": true
-                    },
-                    "additional_info": {
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "final_result": {
-                        "description": "Фінальний результат (для завершених)",
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "stages": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ProjectStage"
-                        }
-                    },
-                    "bonuses": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ProjectBonus"
-                        }
-                    },
-                    "can_edit": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "can_donate": {
-                        "type": "boolean",
-                        "example": true
+                        "example": "diia"
                     },
                     "created_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-10T08:30:00.000Z"
+                        "format": "date-time"
                     },
                     "updated_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-15T14:20:00.000Z"
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
             },
-            "ProjectList": {
-                "title": "ProjectList",
-                "description": "Проєкт у списку (скорочена інформація)",
+            "ProfileLegal": {
+                "title": "ProfileLegal",
+                "description": "Юридичні дані профілю (03.7.1)",
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-                    "slug": {
-                        "type": "string",
-                        "example": "miy-noviy-proekt-abc123"
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "announced"
-                    },
-                    "status_label": {
-                        "type": "string",
-                        "example": "Оголошений"
-                    },
-                    "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "short_description": {
-                        "$ref": "#/components/schemas/LocalizedString"
-                    },
-                    "cover_url": {
-                        "type": "string",
-                        "example": "http://save-art.local/storage/projects/covers/1.jpg",
-                        "nullable": true
-                    },
-                    "art_category": {
-                        "type": "string",
-                        "example": "visual"
-                    },
-                    "art_category_label": {
-                        "type": "string",
-                        "example": "Візуальне мистецтво"
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
                     },
                     "currency": {
+                        "description": "Валюта",
                         "type": "string",
-                        "example": "UAH"
-                    },
-                    "budget_goal": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 50000
-                    },
-                    "budget_collected": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 12500
-                    },
-                    "progress_percentage": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 25
-                    },
-                    "likes_count": {
-                        "type": "integer",
-                        "example": 42
-                    },
-                    "donors_count": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "author": {
-                        "$ref": "#/components/schemas/Author"
-                    },
-                    "announced_at": {
-                        "type": "string",
-                        "format": "date-time",
+                        "example": "UAH",
                         "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "User": {
-                "title": "User",
-                "description": "Користувач",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
+                    },
+                    "is_legal": {
+                        "description": "Чи є юридичною особою",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "logo": {
+                        "description": "Логотип",
+                        "type": "string",
+                        "example": "logos/company.jpg",
+                        "nullable": true
                     },
                     "name": {
+                        "description": "Назва компанії (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "ТОВ Мистецтво"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "Art LLC"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "edrpou": {
+                        "description": "Код ЄДРПОУ (8 цифр)",
                         "type": "string",
-                        "example": "Іван Франко"
+                        "example": "12345678",
+                        "nullable": true
+                    },
+                    "authorized_person": {
+                        "description": "Уповноважена особа (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "Іван Петренко"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "Ivan Petrenko"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "address": {
+                        "description": "Адреса (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "м. Київ, вул. Хрещатик, 1"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "Kyiv, Khreshchatyk str., 1"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "description": "Телефон",
+                        "type": "string",
+                        "example": "+380501234567",
+                        "nullable": true
                     },
                     "email": {
+                        "description": "Email",
                         "type": "string",
-                        "format": "email",
-                        "example": "ivan@example.com"
-                    },
-                    "slug": {
-                        "type": "string",
-                        "example": "ivan-franko",
+                        "example": "company@example.com",
                         "nullable": true
-                    },
-                    "role": {
-                        "type": "string",
-                        "enum": [
-                            "user",
-                            "mecenat",
-                            "owner",
-                            "moderator",
-                            "admin",
-                            "developer"
-                        ],
-                        "example": "user"
-                    },
-                    "avatar_url": {
-                        "type": "string",
-                        "example": "http://save-art.local/storage/avatars/1.jpg",
-                        "nullable": true
-                    },
-                    "email_verified_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-01T12:00:00.000Z",
-                        "nullable": true
-                    },
-                    "profile_personal": {
-                        "properties": {
-                            "first_name": {
-                                "type": "string",
-                                "example": "Іван"
-                            },
-                            "last_name": {
-                                "type": "string",
-                                "example": "Франко"
-                            },
-                            "phone": {
-                                "type": "string",
-                                "example": "+380501234567"
-                            },
-                            "profession": {
-                                "type": "string",
-                                "example": "Художник"
-                            },
-                            "bio": {
-                                "type": "string",
-                                "example": "Відомий український митець..."
-                            },
-                            "city": {
-                                "type": "string",
-                                "example": "Київ"
-                            },
-                            "country": {
-                                "type": "string",
-                                "example": "Україна"
-                            }
-                        },
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "profile_social": {
-                        "properties": {
-                            "website": {
-                                "type": "string",
-                                "example": "https://example.com"
-                            },
-                            "facebook": {
-                                "type": "string",
-                                "example": "https://facebook.com/ivanfranko"
-                            },
-                            "instagram": {
-                                "type": "string",
-                                "example": "@ivanfranko"
-                            },
-                            "youtube": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "tiktok": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "twitter": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "linkedin": {
-                                "type": "string",
-                                "nullable": true
-                            }
-                        },
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "projects_count": {
-                        "type": "integer",
-                        "example": 5
                     },
                     "created_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2024-06-15T10:00:00.000Z"
+                        "format": "date-time"
                     },
                     "updated_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-05T14:30:00.000Z"
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
             },
-            "Artist": {
-                "title": "Artist",
-                "description": "Публічний профіль митця",
+            "ProfilePersonal": {
+                "title": "ProfilePersonal",
+                "description": "Персональні дані профілю (03.7.2)",
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-                    "name": {
-                        "type": "string",
-                        "example": "Іван Франко"
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
                     },
-                    "slug": {
+                    "avatar": {
+                        "description": "Шлях до аватара",
                         "type": "string",
-                        "example": "ivan-franko"
+                        "example": "avatars/user1.jpg",
+                        "nullable": true
                     },
-                    "avatar_url": {
-                        "type": "string",
-                        "example": "http://save-art.local/storage/avatars/1.jpg",
+                    "full_name": {
+                        "description": "Повне ім'я (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "Іван Петренко"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "Ivan Petrenko"
+                            }
+                        },
+                        "type": "object",
                         "nullable": true
                     },
                     "profession": {
-                        "type": "string",
-                        "example": "Художник",
+                        "description": "Професія (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "Художник"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "Artist"
+                            }
+                        },
+                        "type": "object",
                         "nullable": true
                     },
-                    "bio": {
-                        "type": "string",
-                        "example": "Відомий український митець...",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "example": "Київ",
+                    "tags": {
+                        "description": "Теги/спеціалізації (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "живопис, графіка"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "painting, graphics"
+                            }
+                        },
+                        "type": "object",
                         "nullable": true
                     },
                     "country": {
-                        "type": "string",
-                        "example": "Україна",
-                        "nullable": true
-                    },
-                    "social": {
+                        "description": "Країна (мультимовне)",
                         "properties": {
-                            "website": {
+                            "uk": {
                                 "type": "string",
-                                "nullable": true
+                                "example": "Україна"
                             },
-                            "facebook": {
+                            "en": {
                                 "type": "string",
-                                "nullable": true
-                            },
-                            "instagram": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "youtube": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "linkedin": {
-                                "type": "string",
-                                "nullable": true
+                                "example": "Ukraine"
                             }
                         },
                         "type": "object",
                         "nullable": true
                     },
-                    "projects_count": {
-                        "type": "integer",
-                        "example": 5
-                    },
-                    "completed_projects_count": {
-                        "type": "integer",
-                        "example": 2
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-06-15T10:00:00.000Z"
-                    }
-                },
-                "type": "object"
-            },
-            "Donation": {
-                "title": "Donation",
-                "description": "Донат на проєкт",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "project": {
+                    "region": {
+                        "description": "Регіон/область (мультимовне)",
                         "properties": {
-                            "id": {
-                                "type": "integer",
-                                "example": 1
-                            },
-                            "slug": {
+                            "uk": {
                                 "type": "string",
-                                "example": "miy-proekt"
+                                "example": "Київська область"
                             },
-                            "title": {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        },
-                        "type": "object"
-                    },
-                    "amount": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 1000
-                    },
-                    "currency": {
-                        "type": "string",
-                        "enum": [
-                            "UAH",
-                            "USD",
-                            "EUR"
-                        ],
-                        "example": "UAH"
-                    },
-                    "status": {
-                        "type": "string",
-                        "enum": [
-                            "pending",
-                            "paid",
-                            "failed",
-                            "refunded"
-                        ],
-                        "example": "paid"
-                    },
-                    "status_label": {
-                        "type": "string",
-                        "example": "Оплачено"
-                    },
-                    "is_anonymous": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "donor_name": {
-                        "type": "string",
-                        "example": "Іван Петренко",
-                        "nullable": true
-                    },
-                    "bonus": {
-                        "properties": {
-                            "id": {
-                                "type": "integer",
-                                "example": 1
-                            },
-                            "title": {
-                                "$ref": "#/components/schemas/LocalizedString"
+                            "en": {
+                                "type": "string",
+                                "example": "Kyiv region"
                             }
                         },
                         "type": "object",
                         "nullable": true
                     },
-                    "message": {
-                        "type": "string",
-                        "example": "Успіхів у творчості!",
-                        "nullable": true
-                    },
-                    "paid_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-05T15:30:00.000Z",
-                        "nullable": true
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-05T15:25:00.000Z"
-                    }
-                },
-                "type": "object"
-            },
-            "Message": {
-                "title": "Message",
-                "description": "Повідомлення в чаті з адміністрацією",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "subject": {
-                        "type": "string",
-                        "example": "Питання щодо проєкту"
-                    },
-                    "body": {
-                        "type": "string",
-                        "example": "Доброго дня! Хотів би уточнити..."
-                    },
-                    "is_from_admin": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "is_read": {
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "project": {
+                    "city": {
+                        "description": "Місто (мультимовне)",
                         "properties": {
-                            "id": {
-                                "type": "integer"
+                            "uk": {
+                                "type": "string",
+                                "example": "Київ"
                             },
-                            "title": {
-                                "type": "string"
+                            "en": {
+                                "type": "string",
+                                "example": "Kyiv"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "postal_code": {
+                        "description": "Поштовий індекс",
+                        "type": "string",
+                        "example": "01001",
+                        "nullable": true
+                    },
+                    "role": {
+                        "description": "Роль користувача",
+                        "type": "string",
+                        "example": "artist",
+                        "nullable": true
+                    },
+                    "description": {
+                        "description": "Опис/біографія (мультимовне)",
+                        "properties": {
+                            "uk": {
+                                "type": "string",
+                                "example": "Український художник"
+                            },
+                            "en": {
+                                "type": "string",
+                                "example": "Ukrainian artist"
                             }
                         },
                         "type": "object",
@@ -3421,40 +4376,11 @@
                     },
                     "created_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-05T10:00:00.000Z"
-                    }
-                },
-                "type": "object"
-            },
-            "Statistics": {
-                "title": "Statistics",
-                "description": "Статистика платформи",
-                "properties": {
-                    "total_projects": {
-                        "type": "integer",
-                        "example": 150
+                        "format": "date-time"
                     },
-                    "active_projects": {
-                        "type": "integer",
-                        "example": 45
-                    },
-                    "completed_projects": {
-                        "type": "integer",
-                        "example": 80
-                    },
-                    "total_artists": {
-                        "type": "integer",
-                        "example": 120
-                    },
-                    "total_donations": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 1500000
-                    },
-                    "total_donors": {
-                        "type": "integer",
-                        "example": 3500
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
@@ -3489,6 +4415,10 @@
         {
             "name": "Statistics",
             "description": "API для отримання статистики платформи"
+        },
+        {
+            "name": "Profile",
+            "description": "API для роботи з профілем користувача (03.7.1-03.7.4 Profile screens)"
         },
         {
             "name": "Auth",

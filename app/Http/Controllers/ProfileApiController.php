@@ -19,11 +19,53 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
+use OpenApi\Annotations as OA;
 
+/**
+ * Profile API Controller.
+ * Implements screens 03.7.1-03.7.4 from Figma specification.
+ *
+ * @OA\Tag(
+ *     name="Profile",
+ *     description="API для роботи з профілем користувача (03.7.1-03.7.4 Profile screens)"
+ * )
+ */
 class ProfileApiController extends Controller
 {
     /**
      * Отримати профіль поточного користувача
+     *
+     * @OA\Get(
+     *     path="/profile",
+     *     operationId="getProfile",
+     *     tags={"Profile"},
+     *     summary="Отримати повний профіль",
+     *     description="Повертає всі дані профілю: персональні, юридичні, соціальні та документи",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Дані профілю",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Іван Петренко"),
+     *                 @OA\Property(property="email", type="string", example="user@example.com")
+     *             ),
+     *             @OA\Property(property="profilePersonal", ref="#/components/schemas/ProfilePersonal", nullable=true),
+     *             @OA\Property(property="profileLegal", ref="#/components/schemas/ProfileLegal", nullable=true),
+     *             @OA\Property(property="profileSocial", type="object", nullable=true),
+     *             @OA\Property(property="profileDocuments", type="array",
+     *
+     *                 @OA\Items(ref="#/components/schemas/ProfileDocument")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ")
+     * )
      */
     public function getProfile(Request $request): \Illuminate\Http\JsonResponse
     {
@@ -42,6 +84,62 @@ class ProfileApiController extends Controller
 
     /**
      * Оновити особистий профіль користувача
+     *
+     * @OA\Put(
+     *     path="/profile/personal",
+     *     operationId="updateProfilePersonal",
+     *     tags={"Profile"},
+     *     summary="Оновити персональні дані (03.7.2)",
+     *     description="Оновлює персональні дані профілю",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="avatar", type="string", nullable=true, example="avatars/user1.jpg", description="Шлях до аватара"),
+     *             @OA\Property(property="full_name", type="object", description="Повне ім'я (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Іван Петренко"),
+     *                 @OA\Property(property="en", type="string", example="Ivan Petrenko")
+     *             ),
+     *             @OA\Property(property="profession", type="object", description="Професія (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Художник"),
+     *                 @OA\Property(property="en", type="string", example="Artist")
+     *             ),
+     *             @OA\Property(property="tags", type="object", description="Теги/спеціалізації (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="живопис, графіка"),
+     *                 @OA\Property(property="en", type="string", example="painting, graphics")
+     *             ),
+     *             @OA\Property(property="country", type="object", description="Країна (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Україна"),
+     *                 @OA\Property(property="en", type="string", example="Ukraine")
+     *             ),
+     *             @OA\Property(property="region", type="object", description="Регіон/область (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Київська область"),
+     *                 @OA\Property(property="en", type="string", example="Kyiv region")
+     *             ),
+     *             @OA\Property(property="city", type="object", description="Місто (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Київ"),
+     *                 @OA\Property(property="en", type="string", example="Kyiv")
+     *             ),
+     *             @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
+     *             @OA\Property(property="role", type="string", nullable=true, example="artist", description="Роль користувача"),
+     *             @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
+     *                 @OA\Property(property="en", type="string", example="Ukrainian artist, working in abstract genre")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=200, description="Профіль оновлено",
+     *
+     *         @OA\JsonContent(@OA\Property(property="profilePersonal", ref="#/components/schemas/ProfilePersonal"))
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=422, description="Помилка валідації")
+     * )
      */
     public function updatePersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -58,6 +156,63 @@ class ProfileApiController extends Controller
 
     /**
      * Створити особистий профіль користувача
+     *
+     * @OA\Post(
+     *     path="/profile/personal",
+     *     operationId="createProfilePersonal",
+     *     tags={"Profile"},
+     *     summary="Створити персональні дані (03.7.2)",
+     *     description="Створює персональні дані профілю",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="avatar", type="string", nullable=true, example="avatars/user1.jpg", description="Шлях до аватара"),
+     *             @OA\Property(property="full_name", type="object", description="Повне ім'я (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Іван Петренко"),
+     *                 @OA\Property(property="en", type="string", example="Ivan Petrenko")
+     *             ),
+     *             @OA\Property(property="profession", type="object", description="Професія (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Художник"),
+     *                 @OA\Property(property="en", type="string", example="Artist")
+     *             ),
+     *             @OA\Property(property="tags", type="object", description="Теги/спеціалізації (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="живопис, графіка"),
+     *                 @OA\Property(property="en", type="string", example="painting, graphics")
+     *             ),
+     *             @OA\Property(property="country", type="object", description="Країна (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Україна"),
+     *                 @OA\Property(property="en", type="string", example="Ukraine")
+     *             ),
+     *             @OA\Property(property="region", type="object", description="Регіон/область (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Київська область"),
+     *                 @OA\Property(property="en", type="string", example="Kyiv region")
+     *             ),
+     *             @OA\Property(property="city", type="object", description="Місто (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Київ"),
+     *                 @OA\Property(property="en", type="string", example="Kyiv")
+     *             ),
+     *             @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
+     *             @OA\Property(property="role", type="string", nullable=true, example="artist", description="Роль користувача"),
+     *             @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
+     *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
+     *                 @OA\Property(property="en", type="string", example="Ukrainian artist, working in abstract genre")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=201, description="Профіль створено",
+     *
+     *         @OA\JsonContent(@OA\Property(property="profilePersonal", ref="#/components/schemas/ProfilePersonal"))
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=409, description="Профіль вже існує"),
+     *     @OA\Response(response=422, description="Помилка валідації")
+     * )
      */
     public function createPersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -74,6 +229,29 @@ class ProfileApiController extends Controller
 
     /**
      * Оновити юридичний профіль користувача
+     *
+     * @OA\Put(
+     *     path="/profile/legal",
+     *     operationId="updateProfileLegal",
+     *     tags={"Profile"},
+     *     summary="Оновити юридичні дані (03.7.1)",
+     *     description="Оновлює юридичні дані профілю (опціонально)",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(
+     *
+     *         @OA\Property(property="company_name", type="string", example="ТОВ Мистецтво"),
+     *         @OA\Property(property="edrpou", type="string", example="12345678"),
+     *         @OA\Property(property="legal_address", type="string", example="м. Київ, вул. Хрещатик, 1"),
+     *         @OA\Property(property="bank_name", type="string", example="ПриватБанк"),
+     *         @OA\Property(property="iban", type="string", example="UA123456789012345678901234567"),
+     *         @OA\Property(property="is_fop", type="boolean", example=true)
+     *     )),
+     *
+     *     @OA\Response(response=200, description="Профіль оновлено"),
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=422, description="Помилка валідації")
+     * )
      */
     public function updateLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -90,6 +268,26 @@ class ProfileApiController extends Controller
 
     /**
      * Створити юридичний профіль користувача
+     *
+     * @OA\Post(
+     *     path="/profile/legal",
+     *     operationId="createProfileLegal",
+     *     tags={"Profile"},
+     *     summary="Створити юридичні дані (03.7.1)",
+     *     description="Створює юридичні дані профілю",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(
+     *
+     *         @OA\Property(property="company_name", type="string", example="ТОВ Мистецтво"),
+     *         @OA\Property(property="edrpou", type="string", example="12345678")
+     *     )),
+     *
+     *     @OA\Response(response=201, description="Профіль створено"),
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=409, description="Профіль вже існує"),
+     *     @OA\Response(response=422, description="Помилка валідації")
+     * )
      */
     public function createLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -107,6 +305,27 @@ class ProfileApiController extends Controller
 
     /**
      * Оновити соціальний профіль користувача
+     *
+     * @OA\Put(
+     *     path="/profile/social",
+     *     operationId="updateProfileSocial",
+     *     tags={"Profile"},
+     *     summary="Оновити соцмережі (03.7.3)",
+     *     description="Оновлює посилання на соціальні мережі",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(
+     *
+     *         @OA\Property(property="website", type="string", example="https://myart.com"),
+     *         @OA\Property(property="instagram", type="string", example="https://instagram.com/myart"),
+     *         @OA\Property(property="facebook", type="string", example="https://facebook.com/myart"),
+     *         @OA\Property(property="youtube", type="string", example="https://youtube.com/@myart")
+     *     )),
+     *
+     *     @OA\Response(response=200, description="Профіль оновлено"),
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=422, description="Помилка валідації")
+     * )
      */
     public function updateSocial(UpdateProfileSocialRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -123,6 +342,26 @@ class ProfileApiController extends Controller
 
     /**
      * Створити соціальний профіль користувача
+     *
+     * @OA\Post(
+     *     path="/profile/social",
+     *     operationId="createProfileSocial",
+     *     tags={"Profile"},
+     *     summary="Створити соцмережі (03.7.3)",
+     *     description="Створює посилання на соціальні мережі",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(
+     *
+     *         @OA\Property(property="website", type="string", example="https://myart.com"),
+     *         @OA\Property(property="instagram", type="string", example="https://instagram.com/myart")
+     *     )),
+     *
+     *     @OA\Response(response=201, description="Профіль створено"),
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=409, description="Профіль вже існує"),
+     *     @OA\Response(response=422, description="Помилка валідації")
+     * )
      */
     public function createSocial(UpdateProfileSocialRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -311,6 +550,27 @@ class ProfileApiController extends Controller
 
     /**
      * Оновити пароль користувача
+     *
+     * @OA\Put(
+     *     path="/profile/password",
+     *     operationId="updateProfilePassword",
+     *     tags={"Profile"},
+     *     summary="Змінити пароль (03.7.4)",
+     *     description="Змінює пароль користувача. Екран 03.7.4 Safety.",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(
+     *         required={"current_password", "password", "password_confirmation"},
+     *
+     *         @OA\Property(property="current_password", type="string", format="password", example="oldPassword123"),
+     *         @OA\Property(property="password", type="string", format="password", example="newPassword456"),
+     *         @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword456")
+     *     )),
+     *
+     *     @OA\Response(response=200, description="Пароль змінено"),
+     *     @OA\Response(response=401, description="Неавторизовано"),
+     *     @OA\Response(response=422, description="Невірний поточний пароль або помилка валідації")
+     * )
      */
     public function updatePassword(Request $request): \Illuminate\Http\JsonResponse
     {

@@ -4,7 +4,39 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(
+ *     schema="ProfileLegal",
+ *     title="ProfileLegal",
+ *     description="Юридичні дані профілю (03.7.1)",
+ *     type="object",
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="currency", type="string", nullable=true, example="UAH", description="Валюта"),
+ *     @OA\Property(property="is_legal", type="boolean", example=true, description="Чи є юридичною особою"),
+ *     @OA\Property(property="logo", type="string", nullable=true, example="logos/company.jpg", description="Логотип"),
+ *     @OA\Property(property="name", type="object", nullable=true, description="Назва компанії (мультимовне)",
+ *         @OA\Property(property="uk", type="string", example="ТОВ Мистецтво"),
+ *         @OA\Property(property="en", type="string", example="Art LLC")
+ *     ),
+ *     @OA\Property(property="edrpou", type="string", nullable=true, example="12345678", description="Код ЄДРПОУ (8 цифр)"),
+ *     @OA\Property(property="authorized_person", type="object", nullable=true, description="Уповноважена особа (мультимовне)",
+ *         @OA\Property(property="uk", type="string", example="Іван Петренко"),
+ *         @OA\Property(property="en", type="string", example="Ivan Petrenko")
+ *     ),
+ *     @OA\Property(property="address", type="object", nullable=true, description="Адреса (мультимовне)",
+ *         @OA\Property(property="uk", type="string", example="м. Київ, вул. Хрещатик, 1"),
+ *         @OA\Property(property="en", type="string", example="Kyiv, Khreshchatyk str., 1")
+ *     ),
+ *     @OA\Property(property="phone", type="string", nullable=true, example="+380501234567", description="Телефон"),
+ *     @OA\Property(property="email", type="string", nullable=true, example="company@example.com", description="Email"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class ProfileLegalResource extends JsonResource
 {
     /**
