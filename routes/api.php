@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\MyProjectController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectStageController;
@@ -156,6 +157,16 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Мої донати
     Route::get('/my/donations', [DonationController::class, 'myDonations']);
     Route::get('/my/donations/{donation}', [DonationController::class, 'show']);
+
+    // Мої сповіщення (03.2.4)
+    Route::prefix('my/notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::get('/{id}', [NotificationController::class, 'show'])->where('id', '[0-9]+');
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->where('id', '[0-9]+');
+        Route::delete('/{id}', [NotificationController::class, 'destroy'])->where('id', '[0-9]+');
+    });
 
     // Чернетки проєктів
     Route::prefix('my/drafts')->group(function () {

@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $user_id
  * @property NotificationType $type
- * @property string $title
- * @property string|null $message
+ * @property array{uk: string, en: string} $title
+ * @property array{uk: string|null, en: string|null}|null $message
  * @property array|null $data
  * @property \Carbon\Carbon|null $read_at
  * @property \Carbon\Carbon $created_at
@@ -39,6 +39,8 @@ class Notification extends Model
     {
         return [
             'type' => NotificationType::class,
+            'title' => 'array',
+            'message' => 'array',
             'data' => 'array',
             'read_at' => 'datetime',
         ];

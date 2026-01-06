@@ -2027,6 +2027,310 @@
                 ]
             }
         },
+        "/v1/my/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Мої сповіщення (03.2.4)",
+                "description": "Повертає список сповіщень авторизованого користувача з пагінацією",
+                "operationId": "getMyNotifications",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Номер сторінки",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Кількість на сторінці",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "unread_only",
+                        "in": "query",
+                        "description": "Тільки непрочитані",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список сповіщень",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Notification"
+                                            }
+                                        },
+                                        "unread_count": {
+                                            "description": "Кількість непрочитаних",
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginationLinks"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/notifications/unread-count": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Кількість непрочитаних сповіщень",
+                "description": "Повертає кількість непрочитаних сповіщень для відображення в badge",
+                "operationId": "getUnreadNotificationsCount",
+                "responses": {
+                    "200": {
+                        "description": "Кількість непрочитаних",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "unread_count": {
+                                            "type": "integer",
+                                            "example": 5
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/notifications/{id}": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Переглянути сповіщення",
+                "description": "Повертає деталі сповіщення та позначає його як прочитане",
+                "operationId": "getNotification",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID сповіщення",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Деталі сповіщення",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Notification"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "404": {
+                        "description": "Сповіщення не знайдено"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Видалити сповіщення",
+                "description": "Видаляє конкретне сповіщення",
+                "operationId": "deleteNotification",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID сповіщення",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Сповіщення видалено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Сповіщення видалено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "404": {
+                        "description": "Сповіщення не знайдено"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/notifications/{id}/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Позначити як прочитане",
+                "description": "Позначає конкретне сповіщення як прочитане",
+                "operationId": "markNotificationAsRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID сповіщення",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Сповіщення позначено як прочитане",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Сповіщення позначено як прочитане."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Notification"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "404": {
+                        "description": "Сповіщення не знайдено"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/notifications/read-all": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Позначити всі як прочитані",
+                "description": "Позначає всі сповіщення користувача як прочитані",
+                "operationId": "markAllNotificationsAsRead",
+                "responses": {
+                    "200": {
+                        "description": "Всі сповіщення позначено як прочитані",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Всі сповіщення позначено як прочитані."
+                                        },
+                                        "updated_count": {
+                                            "type": "integer",
+                                            "example": 10
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/v1/projects": {
             "get": {
                 "tags": [
@@ -3792,6 +4096,88 @@
                 },
                 "type": "object"
             },
+            "Notification": {
+                "title": "Notification",
+                "description": "Сповіщення користувача (03.2.4)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "type": {
+                        "description": "Тип сповіщення",
+                        "type": "string",
+                        "enum": [
+                            "donation",
+                            "moderation",
+                            "message",
+                            "system",
+                            "project_approved",
+                            "project_rejected",
+                            "project_completed",
+                            "bonus_claimed"
+                        ],
+                        "example": "donation"
+                    },
+                    "type_label": {
+                        "description": "Назва типу українською",
+                        "type": "string",
+                        "example": "Донат"
+                    },
+                    "title": {
+                        "$ref": "#/components/schemas/LocalizedString"
+                    },
+                    "message": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Текст повідомлення (мультимовне)"
+                    },
+                    "data": {
+                        "description": "Додаткові дані (посилання, ID проекту тощо)",
+                        "properties": {
+                            "project_id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "project_slug": {
+                                "type": "string",
+                                "example": "miy-proekt"
+                            },
+                            "donation_id": {
+                                "type": "integer",
+                                "example": 5
+                            },
+                            "amount": {
+                                "type": "number",
+                                "example": 500
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "is_read": {
+                        "description": "Чи прочитане",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "read_at": {
+                        "description": "Дата прочитання",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Дата створення",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "ProjectBonus": {
                 "title": "ProjectBonus",
                 "description": "Бонус від автора за донат",
@@ -4761,6 +5147,10 @@
         {
             "name": "My Projects",
             "description": "API для управління власними проєктами (кабінет митця)"
+        },
+        {
+            "name": "Notifications",
+            "description": "API для роботи зі сповіщеннями (03.2.4)"
         },
         {
             "name": "Statistics",
