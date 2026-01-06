@@ -8,26 +8,50 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentService
 {
-    private string $publicKey;
+    private ?string $publicKey;
 
-    private string $privateKey;
+    private ?string $privateKey;
 
     private string $apiUrl = 'https://www.liqpay.ua/api/3/checkout';
 
     public function __construct(
         private DonationService $donationService,
     ) {
-        $this->publicKey = config('services.liqpay.public_key', '');
-        $this->privateKey = config('services.liqpay.private_key', '');
+        $this->publicKey = config('services.liqpay.public_key');
+        $this->privateKey = config('services.liqpay.private_key');
+    }
+
+    /**
+     * Check if LiqPay keys are configured.
+     */
+    public function isConfigured(): bool
+    {
+        return ! empty($this->publicKey) && ! empty($this->privateKey);
+    }
+
+    /**
+     * Ensure LiqPay keys are configured.
+     *
+     * @throws \RuntimeException
+     */
+    protected function ensureKeysConfigured(): void
+    {
+        if (! $this->isConfigured()) {
+            throw new \RuntimeException('LiqPay ключі не налаштовані. Встановіть LIQPAY_PUBLIC_KEY та LIQPAY_PRIVATE_KEY в .env файлі.');
+        }
     }
 
     /**
      * Create a payment for donation.
      *
      * @return array{checkout_url: string, payment_id: string, data: string, signature: string}
+     *
+     * @throws \RuntimeException якщо LiqPay ключі не налаштовані
      */
     public function createPayment(Donation $donation, string $callbackUrl, string $resultUrl): array
     {
+        $this->ensureKeysConfigured();
+
         $orderId = $this->generateOrderId($donation);
 
         $params = [
@@ -180,6 +204,10 @@ class PaymentService
      */
     public function verifySignature(string $data, string $signature): bool
     {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
         $expectedSignature = $this->generateSignature($data);
 
         return hash_equals($expectedSignature, $signature);
@@ -212,13 +240,5 @@ class PaymentService
             'Донат для проєкту "%s" на save-art.in.ua',
             $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт'
         );
-    }
-
-    /**
-     * Check if service is configured.
-     */
-    public function isConfigured(): bool
-    {
-        return ! empty($this->publicKey) && ! empty($this->privateKey);
     }
 }

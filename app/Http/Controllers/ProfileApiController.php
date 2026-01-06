@@ -240,15 +240,31 @@ class ProfileApiController extends Controller
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *
-     *         @OA\Property(property="company_name", type="string", example="ТОВ Мистецтво"),
-     *         @OA\Property(property="edrpou", type="string", example="12345678"),
-     *         @OA\Property(property="legal_address", type="string", example="м. Київ, вул. Хрещатик, 1"),
-     *         @OA\Property(property="bank_name", type="string", example="ПриватБанк"),
-     *         @OA\Property(property="iban", type="string", example="UA123456789012345678901234567"),
-     *         @OA\Property(property="is_fop", type="boolean", example=true)
+     *         @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH", description="Валюта"),
+     *         @OA\Property(property="is_legal", type="boolean", example=true, description="Чи є юридичною особою"),
+     *         @OA\Property(property="logo", type="string", nullable=true, example="logos/company.jpg", description="Логотип"),
+     *         @OA\Property(property="name", type="object", description="Назва компанії (мультимовне)",
+     *             @OA\Property(property="uk", type="string", example="ТОВ Мистецтво"),
+     *             @OA\Property(property="en", type="string", example="Art LLC")
+     *         ),
+     *         @OA\Property(property="edrpou", type="string", example="12345678", description="Код ЄДРПОУ"),
+     *         @OA\Property(property="authorized_person", type="object", description="Уповноважена особа (мультимовне)",
+     *             @OA\Property(property="uk", type="string", example="Іван Петренко"),
+     *             @OA\Property(property="en", type="string", example="Ivan Petrenko")
+     *         ),
+     *         @OA\Property(property="address", type="object", description="Адреса (мультимовне)",
+     *             @OA\Property(property="uk", type="string", example="м. Київ, вул. Хрещатик, 1"),
+     *             @OA\Property(property="en", type="string", example="Kyiv, Khreshchatyk str., 1")
+     *         ),
+     *         @OA\Property(property="phone", type="string", example="+380501234567", description="Телефон"),
+     *         @OA\Property(property="email", type="string", format="email", example="company@example.com", description="Email")
      *     )),
      *
-     *     @OA\Response(response=200, description="Профіль оновлено"),
+     *     @OA\Response(response=200, description="Профіль оновлено",
+     *
+     *         @OA\JsonContent(@OA\Property(property="profileLegal", ref="#/components/schemas/ProfileLegal"))
+     *     ),
+     *
      *     @OA\Response(response=401, description="Неавторизовано"),
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
@@ -279,11 +295,31 @@ class ProfileApiController extends Controller
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *
-     *         @OA\Property(property="company_name", type="string", example="ТОВ Мистецтво"),
-     *         @OA\Property(property="edrpou", type="string", example="12345678")
+     *         @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH", description="Валюта"),
+     *         @OA\Property(property="is_legal", type="boolean", example=true, description="Чи є юридичною особою"),
+     *         @OA\Property(property="logo", type="string", nullable=true, example="logos/company.jpg", description="Логотип"),
+     *         @OA\Property(property="name", type="object", description="Назва компанії (мультимовне)",
+     *             @OA\Property(property="uk", type="string", example="ТОВ Мистецтво"),
+     *             @OA\Property(property="en", type="string", example="Art LLC")
+     *         ),
+     *         @OA\Property(property="edrpou", type="string", example="12345678", description="Код ЄДРПОУ"),
+     *         @OA\Property(property="authorized_person", type="object", description="Уповноважена особа (мультимовне)",
+     *             @OA\Property(property="uk", type="string", example="Іван Петренко"),
+     *             @OA\Property(property="en", type="string", example="Ivan Petrenko")
+     *         ),
+     *         @OA\Property(property="address", type="object", description="Адреса (мультимовне)",
+     *             @OA\Property(property="uk", type="string", example="м. Київ, вул. Хрещатик, 1"),
+     *             @OA\Property(property="en", type="string", example="Kyiv, Khreshchatyk str., 1")
+     *         ),
+     *         @OA\Property(property="phone", type="string", example="+380501234567", description="Телефон"),
+     *         @OA\Property(property="email", type="string", format="email", example="company@example.com", description="Email")
      *     )),
      *
-     *     @OA\Response(response=201, description="Профіль створено"),
+     *     @OA\Response(response=201, description="Профіль створено",
+     *
+     *         @OA\JsonContent(@OA\Property(property="profileLegal", ref="#/components/schemas/ProfileLegal"))
+     *     ),
+     *
      *     @OA\Response(response=401, description="Неавторизовано"),
      *     @OA\Response(response=409, description="Профіль вже існує"),
      *     @OA\Response(response=422, description="Помилка валідації")
@@ -560,27 +596,43 @@ class ProfileApiController extends Controller
      *     security={{"sanctum":{}}},
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
-     *         required={"current_password", "password", "password_confirmation"},
+     *         required={"email", "current_password", "password", "password_confirmation"},
      *
-     *         @OA\Property(property="current_password", type="string", format="password", example="oldPassword123"),
-     *         @OA\Property(property="password", type="string", format="password", example="newPassword456"),
-     *         @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword456")
+     *         @OA\Property(property="email", type="string", format="email", example="user@example.com", description="Email користувача для підтвердження"),
+     *         @OA\Property(property="current_password", type="string", format="password", example="oldPassword123", description="Поточний пароль"),
+     *         @OA\Property(property="password", type="string", format="password", example="newPassword456", description="Новий пароль (мін. 8 символів, великі/малі літери, цифри)"),
+     *         @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword456", description="Підтвердження нового пароля")
      *     )),
      *
-     *     @OA\Response(response=200, description="Пароль змінено"),
+     *     @OA\Response(response=200, description="Пароль змінено",
+     *
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Пароль успішно оновлено."))
+     *     ),
+     *
      *     @OA\Response(response=401, description="Неавторизовано"),
-     *     @OA\Response(response=422, description="Невірний поточний пароль або помилка валідації")
+     *     @OA\Response(response=422, description="Невірний email, поточний пароль або помилка валідації")
      * )
      */
     public function updatePassword(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
             'current_password' => ['required', 'string'],
             'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers(), 'confirmed'],
         ]);
 
         /** @var User $user */
         $user = $request->user();
+
+        // Перевіряємо email
+        if ($validated['email'] !== $user->email) {
+            return response()->json([
+                'message' => 'Email не співпадає з вашим обліковим записом.',
+                'errors' => [
+                    'email' => ['Email не співпадає з вашим обліковим записом.'],
+                ],
+            ], 422);
+        }
 
         // Перевіряємо поточний пароль
         if (! Hash::check($validated['current_password'], $user->password)) {

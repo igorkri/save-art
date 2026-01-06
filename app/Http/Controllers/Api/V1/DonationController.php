@@ -172,7 +172,8 @@ class DonationController extends Controller
         $donation = Donation::create([
             'project_id' => $project->id,
             'user_id' => $request->user()?->id,
-            'bonus_id' => $bonus?->id,
+            'project_bonus_id' => $bonus?->id,
+            'donation_type' => Donation::TYPE_PROJECT,
 
             'amount' => $data['amount'],
             'currency' => $data['currency'],
@@ -182,11 +183,6 @@ class DonationController extends Controller
             'donor_type' => $data['donor_type'],
             'donor_name' => $data['donor_name'] ?? $request->user()?->name,
             'donor_email' => $data['donor_email'] ?? $request->user()?->email,
-            'donor_phone' => $data['donor_phone'] ?? null,
-            'donor_company_name' => $data['donor_company_name'] ?? null,
-            'donor_edrpou' => $data['donor_edrpou'] ?? null,
-
-            'message' => $data['message'] ?? null,
         ]);
 
         // Ініціалізуємо платіж через PaymentService
@@ -201,6 +197,98 @@ class DonationController extends Controller
         return response()->json([
             'message' => 'Донат створено. Очікуємо на оплату.',
             'data' => new DonationResource($donation->load(['project', 'bonus'])),
+            'payment' => $paymentData,
+        ], 201);
+    }
+
+    /**
+     * Ініціювати донат на платформу
+     *
+     * @OA\Post(
+     *     path="/v1/donations/platform",
+     *     operationId="createPlatformDonation",
+     *     tags={"Donations"},
+     *     summary="Зробити донат на платформу",
+     *     description="Ініціює донат на платформу Save-Art (не прив'язаний до конкретного проекту). Повертає дані для переходу на платіжну систему.",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *             required={"amount", "currency", "donor_type"},
+     *             @OA\Property(property="amount", type="number", format="float", minimum=10, example=500.00, description="Сума донату"),
+     *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
+     *             @OA\Property(property="donor_type", type="string", enum={"personal", "legal"}, example="personal", description="Тип донатера"),
+     *             @OA\Property(property="donor_name", type="string", example="Іван Петренко", description="Ім'я донатера"),
+     *             @OA\Property(property="donor_email", type="string", format="email", example="ivan@example.com"),
+     *             @OA\Property(property="donor_phone", type="string", example="+380501234567"),
+     *             @OA\Property(property="donor_company_name", type="string", example="ТОВ 'Компанія'", description="Для юр. осіб"),
+     *             @OA\Property(property="donor_edrpou", type="string", example="12345678", description="ЄДРПОУ для юр. осіб"),
+     *             @OA\Property(property="is_anonymous", type="boolean", example=false, description="Анонімний донат"),
+     *             @OA\Property(property="message", type="string", nullable=true, example="Дякую за вашу роботу!", description="Повідомлення платформі")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Донат створено",
+     *
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Донат на платформу створено. Очікуємо на оплату."),
+     *             @OA\Property(property="data", ref="#/components/schemas/Donation"),
+     *             @OA\Property(property="payment", type="object", nullable=true,
+     *                 @OA\Property(property="payment_url", type="string", example="https://www.liqpay.ua/checkout/..."),
+     *                 @OA\Property(property="payment_id", type="string", example="abc123")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
+     */
+    public function storePlatformDonation(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'amount' => ['required', 'numeric', 'min:10'],
+            'currency' => ['required', 'string', 'in:UAH,USD,EUR'],
+            'donor_type' => ['required', 'string', 'in:personal,legal'],
+            'donor_name' => ['nullable', 'string', 'max:255'],
+            'donor_email' => ['nullable', 'email', 'max:255'],
+            'donor_phone' => ['nullable', 'string', 'max:20'],
+            'donor_company_name' => ['nullable', 'string', 'max:255'],
+            'donor_edrpou' => ['nullable', 'string', 'max:10'],
+            'is_anonymous' => ['nullable', 'boolean'],
+            'message' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        // Створюємо донат на платформу
+        $donation = Donation::create([
+            'project_id' => null,
+            'user_id' => $request->user()?->id,
+            'donation_type' => Donation::TYPE_PLATFORM,
+
+            'amount' => $data['amount'],
+            'currency' => $data['currency'],
+            'status' => 'pending',
+
+            'is_anonymous' => $data['is_anonymous'] ?? false,
+            'donor_type' => $data['donor_type'],
+            'donor_name' => $data['donor_name'] ?? $request->user()?->name,
+            'donor_email' => $data['donor_email'] ?? $request->user()?->email,
+        ]);
+
+        // Ініціалізуємо платіж через PaymentService
+        $paymentData = null;
+        if ($this->paymentService->isConfigured()) {
+            $callbackUrl = route('api.v1.payments.webhook');
+            $resultUrl = config('app.frontend_url', config('app.url')).'/payment/result';
+
+            $paymentData = $this->paymentService->createPayment($donation, $callbackUrl, $resultUrl);
+        }
+
+        return response()->json([
+            'message' => 'Донат на платформу створено. Очікуємо на оплату.',
+            'data' => new DonationResource($donation),
             'payment' => $paymentData,
         ], 201);
     }

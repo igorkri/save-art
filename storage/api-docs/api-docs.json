@@ -705,6 +705,40 @@
                 ]
             }
         },
+        "/v1/contracts/template/download": {
+            "get": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "Завантажити шаблон контракту",
+                "description": "Завантажує PDF файл шаблону контракту для попереднього перегляду",
+                "operationId": "downloadContractTemplate",
+                "responses": {
+                    "200": {
+                        "description": "PDF файл шаблону",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    },
+                    "404": {
+                        "description": "Шаблон не знайдено"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/v1/contracts": {
             "get": {
                 "tags": [
@@ -1242,6 +1276,138 @@
                     },
                     "404": {
                         "description": "Проєкт не знайдено"
+                    }
+                }
+            }
+        },
+        "/v1/donations/platform": {
+            "post": {
+                "tags": [
+                    "Donations"
+                ],
+                "summary": "Зробити донат на платформу",
+                "description": "Ініціює донат на платформу Save-Art (не прив'язаний до конкретного проекту). Повертає дані для переходу на платіжну систему.",
+                "operationId": "createPlatformDonation",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "amount",
+                                    "currency",
+                                    "donor_type"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "description": "Сума донату",
+                                        "type": "number",
+                                        "format": "float",
+                                        "minimum": 10,
+                                        "example": 500
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ],
+                                        "example": "UAH"
+                                    },
+                                    "donor_type": {
+                                        "description": "Тип донатера",
+                                        "type": "string",
+                                        "enum": [
+                                            "personal",
+                                            "legal"
+                                        ],
+                                        "example": "personal"
+                                    },
+                                    "donor_name": {
+                                        "description": "Ім'я донатера",
+                                        "type": "string",
+                                        "example": "Іван Петренко"
+                                    },
+                                    "donor_email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ivan@example.com"
+                                    },
+                                    "donor_phone": {
+                                        "type": "string",
+                                        "example": "+380501234567"
+                                    },
+                                    "donor_company_name": {
+                                        "description": "Для юр. осіб",
+                                        "type": "string",
+                                        "example": "ТОВ 'Компанія'"
+                                    },
+                                    "donor_edrpou": {
+                                        "description": "ЄДРПОУ для юр. осіб",
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "is_anonymous": {
+                                        "description": "Анонімний донат",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "description": "Повідомлення платформі",
+                                        "type": "string",
+                                        "example": "Дякую за вашу роботу!",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Донат створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Донат на платформу створено. Очікуємо на оплату."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Donation"
+                                        },
+                                        "payment": {
+                                            "properties": {
+                                                "payment_url": {
+                                                    "type": "string",
+                                                    "example": "https://www.liqpay.ua/checkout/..."
+                                                },
+                                                "payment_id": {
+                                                    "type": "string",
+                                                    "example": "abc123"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Помилка валідації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2776,29 +2942,84 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "company_name": {
+                                    "currency": {
+                                        "description": "Валюта",
                                         "type": "string",
-                                        "example": "ТОВ Мистецтво"
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ],
+                                        "example": "UAH"
+                                    },
+                                    "is_legal": {
+                                        "description": "Чи є юридичною особою",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "logo": {
+                                        "description": "Логотип",
+                                        "type": "string",
+                                        "example": "logos/company.jpg",
+                                        "nullable": true
+                                    },
+                                    "name": {
+                                        "description": "Назва компанії (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "ТОВ Мистецтво"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Art LLC"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
                                     "edrpou": {
+                                        "description": "Код ЄДРПОУ",
                                         "type": "string",
                                         "example": "12345678"
                                     },
-                                    "legal_address": {
-                                        "type": "string",
-                                        "example": "м. Київ, вул. Хрещатик, 1"
+                                    "authorized_person": {
+                                        "description": "Уповноважена особа (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
-                                    "bank_name": {
-                                        "type": "string",
-                                        "example": "ПриватБанк"
+                                    "address": {
+                                        "description": "Адреса (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "м. Київ, вул. Хрещатик, 1"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv, Khreshchatyk str., 1"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
-                                    "iban": {
+                                    "phone": {
+                                        "description": "Телефон",
                                         "type": "string",
-                                        "example": "UA123456789012345678901234567"
+                                        "example": "+380501234567"
                                     },
-                                    "is_fop": {
-                                        "type": "boolean",
-                                        "example": true
+                                    "email": {
+                                        "description": "Email",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "company@example.com"
                                     }
                                 },
                                 "type": "object"
@@ -2808,7 +3029,19 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Профіль оновлено"
+                        "description": "Профіль оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profileLegal": {
+                                            "$ref": "#/components/schemas/ProfileLegal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Неавторизовано"
@@ -2836,13 +3069,84 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "company_name": {
+                                    "currency": {
+                                        "description": "Валюта",
                                         "type": "string",
-                                        "example": "ТОВ Мистецтво"
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ],
+                                        "example": "UAH"
+                                    },
+                                    "is_legal": {
+                                        "description": "Чи є юридичною особою",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "logo": {
+                                        "description": "Логотип",
+                                        "type": "string",
+                                        "example": "logos/company.jpg",
+                                        "nullable": true
+                                    },
+                                    "name": {
+                                        "description": "Назва компанії (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "ТОВ Мистецтво"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Art LLC"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
                                     "edrpou": {
+                                        "description": "Код ЄДРПОУ",
                                         "type": "string",
                                         "example": "12345678"
+                                    },
+                                    "authorized_person": {
+                                        "description": "Уповноважена особа (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "address": {
+                                        "description": "Адреса (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "м. Київ, вул. Хрещатик, 1"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv, Khreshchatyk str., 1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "phone": {
+                                        "description": "Телефон",
+                                        "type": "string",
+                                        "example": "+380501234567"
+                                    },
+                                    "email": {
+                                        "description": "Email",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "company@example.com"
                                     }
                                 },
                                 "type": "object"
@@ -2852,7 +3156,19 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Профіль створено"
+                        "description": "Профіль створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profileLegal": {
+                                            "$ref": "#/components/schemas/ProfileLegal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Неавторизовано"
@@ -2986,22 +3302,32 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "email",
                                     "current_password",
                                     "password",
                                     "password_confirmation"
                                 ],
                                 "properties": {
+                                    "email": {
+                                        "description": "Email користувача для підтвердження",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
                                     "current_password": {
+                                        "description": "Поточний пароль",
                                         "type": "string",
                                         "format": "password",
                                         "example": "oldPassword123"
                                     },
                                     "password": {
+                                        "description": "Новий пароль (мін. 8 символів, великі/малі літери, цифри)",
                                         "type": "string",
                                         "format": "password",
                                         "example": "newPassword456"
                                     },
                                     "password_confirmation": {
+                                        "description": "Підтвердження нового пароля",
                                         "type": "string",
                                         "format": "password",
                                         "example": "newPassword456"
@@ -3014,13 +3340,26 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Пароль змінено"
+                        "description": "Пароль змінено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Пароль успішно оновлено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Неавторизовано"
                     },
                     "422": {
-                        "description": "Невірний поточний пароль або помилка валідації"
+                        "description": "Невірний email, поточний пароль або помилка валідації"
                     }
                 },
                 "security": [
@@ -3277,13 +3616,23 @@
             },
             "Donation": {
                 "title": "Donation",
-                "description": "Донат на проєкт",
+                "description": "Донат на проєкт або платформу",
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
+                    "donation_type": {
+                        "description": "Тип донату: project - на проект, platform - на платформу",
+                        "type": "string",
+                        "enum": [
+                            "project",
+                            "platform"
+                        ],
+                        "example": "project"
+                    },
                     "project": {
+                        "description": "Проект (null для донатів на платформу)",
                         "properties": {
                             "id": {
                                 "type": "integer",
@@ -3297,7 +3646,8 @@
                                 "$ref": "#/components/schemas/LocalizedString"
                             }
                         },
-                        "type": "object"
+                        "type": "object",
+                        "nullable": true
                     },
                     "amount": {
                         "type": "number",

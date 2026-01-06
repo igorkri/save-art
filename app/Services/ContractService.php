@@ -71,8 +71,10 @@ class ContractService
         $templatePath = $this->getTemplatePath();
         $fileName = 'contracts/'.$user->id.'_'.now()->format('Y-m-d_His').'.pdf';
 
-        if (Storage::exists($templatePath)) {
-            Storage::copy($templatePath, $fileName);
+        // Template is stored on public disk, contracts on local (private) disk
+        if (Storage::disk('public')->exists($templatePath)) {
+            $templateContent = Storage::disk('public')->get($templatePath);
+            Storage::put($fileName, $templateContent);
         } else {
             // Create a placeholder file if template doesn't exist
             Storage::put($fileName, $this->generatePlaceholderPdf($user));
@@ -183,9 +185,12 @@ class ContractService
     {
         $templatePath = $this->getTemplatePath();
 
+        // Template is stored in public disk for user preview
+        $exists = Storage::disk('public')->exists($templatePath);
+
         return [
             'version' => $this->getCurrentTemplateVersion(),
-            'file_url' => Storage::exists($templatePath) ? Storage::url($templatePath) : null,
+            'file_url' => $exists ? Storage::disk('public')->url($templatePath) : null,
             'expires_days' => config('contracts.expires_days', 30),
         ];
     }

@@ -79,6 +79,47 @@ class ContractController extends Controller
     }
 
     /**
+     * Download contract template file.
+     *
+     * GET /api/v1/contracts/template/download
+     *
+     * @OA\Get(
+     *     path="/v1/contracts/template/download",
+     *     operationId="downloadContractTemplate",
+     *     tags={"Contracts"},
+     *     summary="Завантажити шаблон контракту",
+     *     description="Завантажує PDF файл шаблону контракту для попереднього перегляду",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="PDF файл шаблону",
+     *
+     *         @OA\MediaType(
+     *             mediaType="application/pdf",
+     *
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ"),
+     *     @OA\Response(response=404, description="Шаблон не знайдено")
+     * )
+     */
+    public function downloadTemplate(): StreamedResponse|JsonResponse
+    {
+        $templatePath = $this->contractService->getTemplatePath();
+
+        if (! Storage::disk('public')->exists($templatePath)) {
+            return response()->json([
+                'message' => __('contracts.errors.template_not_found'),
+            ], 404);
+        }
+
+        return Storage::disk('public')->download($templatePath, 'contract_template.pdf');
+    }
+
+    /**
      * Get list of user's contracts.
      *
      * GET /api/v1/contracts

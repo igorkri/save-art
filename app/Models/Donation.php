@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
- * @property int $project_id
+ * @property int|null $project_id
  * @property int|null $user_id
  * @property int|null $project_bonus_id
+ * @property string $donation_type
  * @property float $amount
  * @property string $currency
  * @property float|null $amount_usd
@@ -25,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon|null $paid_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property-read \App\Models\Project $project
+ * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\User|null $user
  * @property-read \App\Models\ProjectBonus|null $bonus
  */
@@ -33,10 +34,15 @@ class Donation extends Model
 {
     use HasFactory;
 
+    public const TYPE_PROJECT = 'project';
+
+    public const TYPE_PLATFORM = 'platform';
+
     protected $fillable = [
         'project_id',
         'user_id',
         'project_bonus_id',
+        'donation_type',
         'amount',
         'currency',
         'amount_usd',
@@ -118,5 +124,21 @@ class Donation extends Model
         }
 
         return $this->donor_name ?? 'Невідомий';
+    }
+
+    /**
+     * Чи це донат на платформу
+     */
+    public function isPlatformDonation(): bool
+    {
+        return $this->donation_type === self::TYPE_PLATFORM;
+    }
+
+    /**
+     * Чи це донат на проект
+     */
+    public function isProjectDonation(): bool
+    {
+        return $this->donation_type === self::TYPE_PROJECT;
     }
 }

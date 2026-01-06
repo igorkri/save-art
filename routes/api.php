@@ -125,6 +125,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/projects/{project}/donate', [DonationController::class, 'store'])
         ->middleware('throttle:donations');
 
+    // Донат на платформу (без прив'язки до проекту)
+    Route::post('/donations/platform', [DonationController::class, 'storePlatformDonation'])
+        ->middleware('throttle:donations');
+
     // Webhook від платіжної системи (без auth)
     Route::post('/payments/webhook', [DonationController::class, 'webhook'])->name('api.v1.payments.webhook');
 });
@@ -196,6 +200,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Контракти (03.7.5, 03.7.5.1)
     Route::prefix('contracts')->group(function () {
         Route::get('/template', [ContractController::class, 'template']);
+        Route::get('/template/download', [ContractController::class, 'downloadTemplate']);
         Route::get('/active', [ContractController::class, 'active']);
         Route::get('/', [ContractController::class, 'index']);
         Route::post('/', [ContractController::class, 'store']);

@@ -53,8 +53,8 @@ class ContractResource extends JsonResource
             'is_expired' => $this->isExpired(),
             'signed_at' => $this->signed_at?->toIso8601String(),
             'expires_at' => $this->expires_at?->toIso8601String(),
-            'file_url' => $this->file_path ? Storage::url($this->file_path) : null,
-            'signed_file_url' => $this->signed_file_path ? Storage::url($this->signed_file_path) : null,
+            'file_url' => $this->file_path ? url(Storage::url($this->file_path)) : null,
+            'signed_file_url' => $this->signed_file_path ? url(Storage::url($this->signed_file_path)) : null,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

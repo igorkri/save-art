@@ -12,11 +12,12 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="Donation",
  *     title="Donation",
- *     description="Донат на проєкт",
+ *     description="Донат на проєкт або платформу",
  *     type="object",
  *
  *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="project", type="object",
+ *     @OA\Property(property="donation_type", type="string", enum={"project", "platform"}, example="project", description="Тип донату: project - на проект, platform - на платформу"),
+ *     @OA\Property(property="project", type="object", nullable=true, description="Проект (null для донатів на платформу)",
  *         @OA\Property(property="id", type="integer", example=1),
  *         @OA\Property(property="slug", type="string", example="miy-proekt"),
  *         @OA\Property(property="title", ref="#/components/schemas/LocalizedString")
@@ -47,15 +48,18 @@ class DonationResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'donation_type' => $this->donation_type ?? 'project',
 
-            'project' => [
+            'project' => $this->project ? [
                 'id' => $this->project->id,
                 'slug' => $this->project->slug,
                 'title' => $this->project->title,
-            ],
+            ] : null,
 
             'amount' => (float) $this->amount,
-            'currency' => $this->currency->value,
+            'currency' => $this->currency instanceof \App\Enums\Currency
+                ? $this->currency->value
+                : (string) $this->currency,
 
             'status' => $this->status,
             'status_label' => match ($this->status) {
