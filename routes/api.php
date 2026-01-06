@@ -46,6 +46,7 @@ Route::prefix('v1/auth')->middleware('throttle:auth')->group(function () {
 Route::prefix('v1/auth')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::get('/me', [LoginController::class, 'me']);
+    Route::put('/change-password', \App\Http\Controllers\Api\V1\Auth\ChangePasswordController::class);
 });
 
 // ============================================
