@@ -42,8 +42,8 @@ class ArtistResource extends JsonResource
             }),
 
             // Статистика
-            'projects_count' => $this->projects_count ?? $this->projects()->publicStatuses()->count(),
-            'completed_projects_count' => $this->completed_projects_count ?? $this->projects()->completed()->count(),
+            'projects_count' => $this->projects_count ?? $this->projects()->whereIn('status', \App\Enums\ProjectStatus::publicStatuses())->count(),
+            'completed_projects_count' => $this->completed_projects_count ?? $this->projects()->where('status', \App\Enums\ProjectStatus::Completed)->count(),
 
             'created_at' => $this->created_at->toISOString(),
         ];

@@ -111,9 +111,17 @@ class ProjectController extends Controller
      *     operationId="getProject",
      *     tags={"Projects"},
      *     summary="Деталі проекту",
-     *     description="Повертає повну інформацію про проект за його slug",
+     *     description="Повертає повну інформацію про проект за його slug, включаючи етапи та бонуси",
      *
-     *     @OA\Parameter(name="slug", in="path", required=true, description="Slug проекту", @OA\Schema(type="string")),
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         description="Унікальний slug проекту",
+     *
+     *         @OA\Schema(type="string"),
+     *         example="miy-noviy-proekt-abc123"
+     *     ),
      *
      *     @OA\Response(
      *         response=200,
@@ -121,11 +129,16 @@ class ProjectController extends Controller
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="data", type="object")
+     *             @OA\Property(property="data", ref="#/components/schemas/Project")
      *         )
      *     ),
      *
-     *     @OA\Response(response=404, description="Проект не знайдено")
+     *     @OA\Response(
+     *         response=404,
+     *         description="Проект не знайдено",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
      * )
      */
     public function show(string $slug): ProjectResource
@@ -141,6 +154,57 @@ class ProjectController extends Controller
 
     /**
      * Отримати список меценатів проєкту
+     *
+     * @OA\Get(
+     *     path="/v1/projects/{slug}/donors",
+     *     operationId="getProjectDonors",
+     *     tags={"Projects"},
+     *     summary="Список меценатів проекту",
+     *     description="Повертає список користувачів, які зробили донати на проект (відсортовано за сумою)",
+     *
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         description="Slug проекту",
+     *
+     *         @OA\Schema(type="string"),
+     *         example="miy-noviy-proekt-abc123"
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Кількість на сторінку (макс. 50)",
+     *
+     *         @OA\Schema(type="integer", default=20, maximum=50),
+     *         example=20
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список меценатів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="array",
+     *
+     *                 @OA\Items(type="object",
+     *
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Іван П.", description="Ім'я або 'Анонім'"),
+     *                     @OA\Property(property="amount", type="number", format="float", example=1000.00),
+     *                     @OA\Property(property="currency", type="string", example="UAH"),
+     *                     @OA\Property(property="is_anonymous", type="boolean", example=false),
+     *                     @OA\Property(property="donated_at", type="string", format="date-time", example="2025-01-05T15:30:00.000Z")
+     *                 )
+     *             ),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Проект не знайдено")
+     * )
      */
     public function donors(string $slug, Request $request): \Illuminate\Http\JsonResponse
     {

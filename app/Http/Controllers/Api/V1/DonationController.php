@@ -14,7 +14,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Log;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Tag(
+ *     name="Donations",
+ *     description="API для роботи з донатами"
+ * )
+ */
 class DonationController extends Controller
 {
     public function __construct(
@@ -24,6 +31,29 @@ class DonationController extends Controller
 
     /**
      * Отримати мої донати (авторизовані)
+     *
+     * @OA\Get(
+     *     path="/v1/my/donations",
+     *     operationId="getMyDonations",
+     *     tags={"Donations"},
+     *     summary="Мої донати",
+     *     description="Повертає список донатів авторизованого користувача",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список донатів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Donation")),
+     *             @OA\Property(property="links", ref="#/components/schemas/PaginationLinks"),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Не авторизовано")
+     * )
      */
     public function myDonations(Request $request): AnonymousResourceCollection
     {
@@ -38,6 +68,68 @@ class DonationController extends Controller
 
     /**
      * Ініціювати донат на проєкт
+     *
+     * @OA\Post(
+     *     path="/v1/projects/{project}/donate",
+     *     operationId="createDonation",
+     *     tags={"Donations"},
+     *     summary="Зробити донат",
+     *     description="Ініціює донат на проєкт. Повертає дані для переходу на платіжну систему.",
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *         description="ID проєкту",
+     *
+     *         @OA\Schema(type="integer"),
+     *         example=1
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *             required={"amount", "currency", "donor_type"},
+     *
+     *             @OA\Property(property="amount", type="number", format="float", minimum=10, example=500.00, description="Сума донату"),
+     *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
+     *             @OA\Property(property="donor_type", type="string", enum={"personal", "legal"}, example="personal", description="Тип донатера"),
+     *             @OA\Property(property="donor_name", type="string", example="Іван Петренко", description="Ім'я донатера"),
+     *             @OA\Property(property="donor_email", type="string", format="email", example="ivan@example.com"),
+     *             @OA\Property(property="donor_phone", type="string", example="+380501234567"),
+     *             @OA\Property(property="donor_company_name", type="string", example="ТОВ 'Компанія'", description="Для юр. осіб"),
+     *             @OA\Property(property="donor_edrpou", type="string", example="12345678", description="ЄДРПОУ для юр. осіб"),
+     *             @OA\Property(property="is_anonymous", type="boolean", example=false, description="Анонімний донат"),
+     *             @OA\Property(property="bonus_id", type="integer", nullable=true, example=1, description="ID бонусу від автора"),
+     *             @OA\Property(property="message", type="string", nullable=true, example="Успіхів у творчості!", description="Повідомлення автору")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Донат створено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Донат створено. Очікуємо на оплату."),
+     *             @OA\Property(property="data", ref="#/components/schemas/Donation"),
+     *             @OA\Property(property="payment", type="object", nullable=true,
+     *                 @OA\Property(property="payment_url", type="string", example="https://www.liqpay.ua/checkout/..."),
+     *                 @OA\Property(property="payment_id", type="string", example="abc123")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Помилка валідації або проєкт не приймає донати",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Проєкт не знайдено")
+     * )
      */
     public function store(CreateDonationRequest $request, Project $project): JsonResponse
     {

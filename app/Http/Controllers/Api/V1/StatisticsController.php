@@ -11,11 +11,67 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Tag(
+ *     name="Statistics",
+ *     description="API для отримання статистики платформи"
+ * )
+ */
 class StatisticsController extends Controller
 {
     /**
      * Отримати загальну статистику платформи
+     *
+     * @OA\Get(
+     *     path="/v1/statistics",
+     *     operationId="getPlatformStatistics",
+     *     tags={"Statistics"},
+     *     summary="Загальна статистика",
+     *     description="Повертає загальну статистику платформи: збори, проєкти, митці, меценати",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Статистика платформи",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="platform", type="object",
+     *                     @OA\Property(property="total_collected", type="number", format="float", example=1500000.00, description="Загальна сума зборів (UAH)"),
+     *                     @OA\Property(property="total_projects", type="integer", example=150, description="Всього проєктів"),
+     *                     @OA\Property(property="active_projects", type="integer", example=45, description="Активних проєктів"),
+     *                     @OA\Property(property="completed_projects", type="integer", example=80, description="Завершених проєктів"),
+     *                     @OA\Property(property="sold_projects", type="integer", example=25, description="Проданих проєктів"),
+     *                     @OA\Property(property="total_supporters", type="integer", example=3500, description="Унікальних меценатів"),
+     *                     @OA\Property(property="total_artists", type="integer", example=120, description="Митців з проєктами")
+     *                 ),
+     *                 @OA\Property(property="monthly", type="array", description="Помісячна статистика за рік",
+     *
+     *                     @OA\Items(type="object",
+     *
+     *                         @OA\Property(property="month", type="string", example="2025-01"),
+     *                         @OA\Property(property="collected", type="number", example=125000),
+     *                         @OA\Property(property="donors", type="integer", example=85),
+     *                         @OA\Property(property="projects_created", type="integer", example=12)
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="by_art_form", type="array", description="Статистика по категоріях",
+     *
+     *                     @OA\Items(type="object",
+     *
+     *                         @OA\Property(property="category", type="string", example="visual"),
+     *                         @OA\Property(property="label", type="string", example="Візуальне мистецтво"),
+     *                         @OA\Property(property="projects_count", type="integer", example=45),
+     *                         @OA\Property(property="total_collected", type="number", example=450000)
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function index(): JsonResponse
     {
@@ -31,6 +87,34 @@ class StatisticsController extends Controller
 
     /**
      * Отримати статистику по проєктах
+     *
+     * @OA\Get(
+     *     path="/v1/statistics/projects",
+     *     operationId="getProjectStatistics",
+     *     tags={"Statistics"},
+     *     summary="Статистика проєктів",
+     *     description="Повертає детальну статистику по проєктах за період",
+     *
+     *     @OA\Parameter(
+     *         name="period",
+     *         in="query",
+     *         description="Період статистики",
+     *
+     *         @OA\Schema(type="string", enum={"all", "year", "month"}, default="all"),
+     *         example="year"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Статистика проєктів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function projects(Request $request): JsonResponse
     {
@@ -49,6 +133,34 @@ class StatisticsController extends Controller
 
     /**
      * Отримати статистику по донатах
+     *
+     * @OA\Get(
+     *     path="/v1/statistics/donations",
+     *     operationId="getDonationStatistics",
+     *     tags={"Statistics"},
+     *     summary="Статистика донатів",
+     *     description="Повертає детальну статистику по донатах за період",
+     *
+     *     @OA\Parameter(
+     *         name="period",
+     *         in="query",
+     *         description="Період статистики",
+     *
+     *         @OA\Schema(type="string", enum={"year", "month", "week"}, default="year"),
+     *         example="month"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Статистика донатів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function donations(Request $request): JsonResponse
     {

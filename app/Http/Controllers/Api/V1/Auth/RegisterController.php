@@ -9,11 +9,58 @@ use App\UserRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
 class RegisterController extends Controller
 {
     /**
      * Реєстрація нового користувача
+     *
+     * @OA\Post(
+     *     path="/v1/auth/register",
+     *     operationId="register",
+     *     tags={"Auth"},
+     *     summary="Реєстрація нового користувача",
+     *     description="Створює новий обліковий запис користувача та повертає токен авторизації",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *             required={"name", "email", "password", "password_confirmation"},
+     *
+     *             @OA\Property(property="name", type="string", minLength=2, maxLength=255, example="Іван Петренко", description="Повне ім'я користувача"),
+     *             @OA\Property(property="email", type="string", format="email", example="ivan@example.com", description="Email (унікальний)"),
+     *             @OA\Property(property="password", type="string", format="password", minLength=8, example="SecurePass123", description="Пароль (мін. 8 символів)"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="SecurePass123", description="Підтвердження пароля"),
+     *             @OA\Property(property="device_name", type="string", example="iPhone 15 Pro", description="Назва пристрою для токена")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Успішна реєстрація",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Реєстрація успішна"),
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Іван Петренко"),
+     *                 @OA\Property(property="email", type="string", example="ivan@example.com"),
+     *                 @OA\Property(property="slug", type="string", example="ivan-petrenko-abc123")
+     *             ),
+     *             @OA\Property(property="token", type="string", example="1|abc123xyz...")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Помилка валідації",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     )
+     * )
      */
     public function __invoke(RegisterRequest $request): JsonResponse
     {
