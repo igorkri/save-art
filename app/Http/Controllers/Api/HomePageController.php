@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Donation;
 use App\Models\HomePage;
 use App\Models\Project;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 
 /**
@@ -152,13 +156,8 @@ class HomePageController extends Controller
                     'title' => $homePage->donates_title,
                     'text' => $homePage->donates_text,
                 ],
-                'statistics' => [
-                    'total_collected' => $homePage->total_collected ?? 0,
-                    'declared_projects' => $homePage->declared_projects ?? 0,
-                    'active_projects' => $homePage->active_projects ?? 0,
-                    'completed_projects' => $homePage->completed_projects ?? 0,
-                    'sold_projects' => $homePage->sold_projects ?? 0,
-                ],
+                'featured_projects' => $featuredProjects,
+                'statistics' => $this->getStatisticsData(),
                 'partners' => [
                     'title' => $homePage->partners_title,
                     'items' => $partners,
@@ -185,7 +184,6 @@ class HomePageController extends Controller
                     'features' => $homePage->footer_expert_features,
                     'button_text' => $homePage->footer_expert_button_text,
                 ],
-                'featured_projects' => $featuredProjects,
             ],
         ]);
     }
@@ -219,23 +217,204 @@ class HomePageController extends Controller
      */
     public function statistics(): JsonResponse
     {
-        // Обчислюємо статистику з бази даних
+        return response()->json([
+            'data' => $this->getStatisticsData(),
+        ]);
+    }
+
+    /**
+     * Отримати дані статистики з бази даних
+     *
+     * @return array<string, int|float>
+     */
+    private function getStatisticsData(): array
+    {
         $totalCollected = Project::whereIn('status', ProjectStatus::publicStatuses())
             ->sum('budget_collected');
 
-        $declaredProjects = Project::where('status', ProjectStatus::Announced)->count();
-        $activeProjects = Project::where('status', ProjectStatus::InProgress)->count();
-        $completedProjects = Project::where('status', ProjectStatus::Completed)->count();
-        $soldProjects = Project::where('status', ProjectStatus::Sold)->count();
+        return [
+            'total_collected' => (float) $totalCollected,
+            'declared_projects' => Project::where('status', ProjectStatus::Announced)->count(),
+            'active_projects' => Project::where('status', ProjectStatus::InProgress)->count(),
+            'completed_projects' => Project::where('status', ProjectStatus::Completed)->count(),
+            'sold_projects' => Project::where('status', ProjectStatus::Sold)->count(),
+        ];
+    }
+
+    /**
+     * Отримати дані для графіка зборів
+     *
+     * @OA\Get(
+     *     path="/home/chart",
+     *     operationId="getHomeChart",
+     *     tags={"HomePage"},
+     *     summary="Дані для графіка зборів",
+     *     description="Повертає дані для графіка зборів за обраний період (день, тиждень, місяць, рік, все)",
+     *
+     *     @OA\Parameter(
+     *         name="period",
+     *         in="query",
+     *         description="Період для графіка: day (день), week (тиждень), month (місяць), year (рік), all (все)",
+     *
+     *         @OA\Schema(type="string", enum={"day", "week", "month", "year", "all"}, default="month")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Дані для графіка",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="period", type="string", example="month"),
+     *                 @OA\Property(property="total", type="number", example=2325250),
+     *                 @OA\Property(property="labels", type="array", @OA\Items(type="string")),
+     *                 @OA\Property(property="values", type="array", @OA\Items(type="number"))
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function chart(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+
+        $data = match ($period) {
+            'day' => $this->getChartDataByHours(),
+            'week' => $this->getChartDataByDays(7),
+            'month' => $this->getChartDataByDays(31),
+            'year' => $this->getChartDataByMonths(12),
+            'all' => $this->getChartDataAllTime(),
+            default => $this->getChartDataByDays(31),
+        };
 
         return response()->json([
             'data' => [
-                'total_collected' => (float) $totalCollected,
-                'declared_projects' => $declaredProjects,
-                'active_projects' => $activeProjects,
-                'completed_projects' => $completedProjects,
-                'sold_projects' => $soldProjects,
+                'period' => $period,
+                'total' => $data['total'],
+                'labels' => $data['labels'],
+                'values' => $data['values'],
             ],
         ]);
+    }
+
+    /**
+     * Дані графіка по годинах (за сьогодні)
+     *
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getChartDataByHours(): array
+    {
+        $today = Carbon::today();
+        $labels = [];
+        $values = [];
+
+        for ($hour = 0; $hour < 24; $hour++) {
+            $labels[] = sprintf('%02d:00', $hour);
+
+            $amount = Donation::where('status', 'completed')
+                ->whereDate('paid_at', $today)
+                ->whereRaw('HOUR(paid_at) = ?', [$hour])
+                ->sum('amount');
+
+            $values[] = (float) $amount;
+        }
+
+        return [
+            'total' => array_sum($values),
+            'labels' => $labels,
+            'values' => $values,
+        ];
+    }
+
+    /**
+     * Дані графіка по днях
+     *
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getChartDataByDays(int $days): array
+    {
+        $startDate = Carbon::now()->subDays($days - 1)->startOfDay();
+        $endDate = Carbon::now()->endOfDay();
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        $labels = [];
+        $values = [];
+
+        $donations = Donation::where('status', 'completed')
+            ->whereBetween('paid_at', [$startDate, $endDate])
+            ->selectRaw('DATE(paid_at) as date, SUM(amount) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date')
+            ->toArray();
+
+        foreach ($period as $date) {
+            $dateKey = $date->format('Y-m-d');
+            $labels[] = $date->format('j'); // день місяця (1-31)
+            $values[] = (float) ($donations[$dateKey] ?? 0);
+        }
+
+        return [
+            'total' => array_sum($values),
+            'labels' => $labels,
+            'values' => $values,
+        ];
+    }
+
+    /**
+     * Дані графіка по місяцях
+     *
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getChartDataByMonths(int $months): array
+    {
+        $labels = [];
+        $values = [];
+
+        $donations = Donation::where('status', 'completed')
+            ->where('paid_at', '>=', Carbon::now()->subMonths($months)->startOfMonth())
+            ->selectRaw('YEAR(paid_at) as year, MONTH(paid_at) as month, SUM(amount) as total')
+            ->groupBy('year', 'month')
+            ->get()
+            ->keyBy(fn ($item) => $item->year.'-'.str_pad($item->month, 2, '0', STR_PAD_LEFT))
+            ->map(fn ($item) => (float) $item->total)
+            ->toArray();
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $key = $date->format('Y-m');
+            $labels[] = $date->translatedFormat('M'); // Скорочена назва місяця
+            $values[] = $donations[$key] ?? 0;
+        }
+
+        return [
+            'total' => array_sum($values),
+            'labels' => $labels,
+            'values' => $values,
+        ];
+    }
+
+    /**
+     * Дані графіка за весь час (по роках)
+     *
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getChartDataAllTime(): array
+    {
+        $donations = Donation::where('status', 'completed')
+            ->selectRaw('YEAR(paid_at) as year, SUM(amount) as total')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->pluck('total', 'year')
+            ->toArray();
+
+        $labels = array_map('strval', array_keys($donations));
+        $values = array_map('floatval', array_values($donations));
+
+        return [
+            'total' => array_sum($values),
+            'labels' => $labels,
+            'values' => $values,
+        ];
     }
 }

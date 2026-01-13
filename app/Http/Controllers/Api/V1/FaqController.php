@@ -7,11 +7,36 @@ use App\Models\FaqCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use OpenApi\Annotations as OA;
 
 class FaqController extends Controller
 {
     /**
      * Отримати всі FAQ категорії з питаннями
+     *
+     * @OA\Get(
+     *     path="/v1/faq",
+     *     operationId="getFaq",
+     *     tags={"FAQ"},
+     *     summary="Список FAQ",
+     *     description="Повертає всі FAQ категорії з питаннями та відповідями",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="language", in="query", description="Мова (uk, en)", @OA\Schema(type="string", default="uk")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список FAQ",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="categories", type="array", @OA\Items(type="object"))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request): JsonResponse
     {
@@ -30,6 +55,28 @@ class FaqController extends Controller
 
     /**
      * Отримати FAQ по мові (альтернативний endpoint)
+     *
+     * @OA\Get(
+     *     path="/v1/faq/{language}",
+     *     operationId="getFaqByLanguage",
+     *     tags={"FAQ"},
+     *     summary="FAQ по мові",
+     *     description="Повертає FAQ для вказаної мови",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="language", in="path", required=true, description="Код мови (uk, en)", @OA\Schema(type="string")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список FAQ",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function byLanguage(string $language): JsonResponse
     {
@@ -46,6 +93,32 @@ class FaqController extends Controller
 
     /**
      * Отримати FAQ конкретної категорії
+     *
+     * @OA\Get(
+     *     path="/v1/faq/category/{slug}",
+     *     operationId="getFaqCategory",
+     *     tags={"FAQ"},
+     *     summary="FAQ категорії",
+     *     description="Повертає питання конкретної FAQ категорії",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="slug", in="path", required=true, description="Slug категорії", @OA\Schema(type="string")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ категорії",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="category", type="object")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Категорію не знайдено")
+     * )
      */
     public function category(string $slug): JsonResponse
     {

@@ -11,11 +11,35 @@ use App\Models\ProjectBonus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use OpenApi\Annotations as OA;
 
 class ProjectBonusController extends Controller
 {
     /**
      * Отримати список бонусів проєкту
+     *
+     * @OA\Get(
+     *     path="/v1/my/projects/{project}/bonuses",
+     *     operationId="getProjectBonuses",
+     *     tags={"Project Bonuses"},
+     *     summary="Список бонусів проекту",
+     *     description="Повертає всі бонуси для проекту",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список бонусів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function index(Project $project): AnonymousResourceCollection
     {
@@ -26,6 +50,43 @@ class ProjectBonusController extends Controller
 
     /**
      * Створити новий бонус
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/bonuses",
+     *     operationId="createProjectBonus",
+     *     tags={"Project Bonuses"},
+     *     summary="Створити бонус",
+     *     description="Створює новий бонус для проекту",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="title", type="object",
+     *                 @OA\Property(property="uk", type="string"),
+     *                 @OA\Property(property="en", type="string")
+     *             ),
+     *             @OA\Property(property="description", type="object"),
+     *             @OA\Property(property="min_amount", type="number"),
+     *             @OA\Property(property="max_amount", type="number"),
+     *             @OA\Property(property="quantity", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Бонус створено",
+     *
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error або проект не можна редагувати")
+     * )
      */
     public function store(CreateBonusRequest $request, Project $project): ProjectBonusResource|JsonResponse
     {
@@ -48,6 +109,41 @@ class ProjectBonusController extends Controller
 
     /**
      * Оновити бонус
+     *
+     * @OA\Put(
+     *     path="/v1/my/projects/{project}/bonuses/{bonus}",
+     *     operationId="updateProjectBonus",
+     *     tags={"Project Bonuses"},
+     *     summary="Оновити бонус",
+     *     description="Оновлює існуючий бонус проекту",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="bonus", in="path", required=true, description="ID бонуса", @OA\Schema(type="integer")),
+     *
+     *     @OA\RequestBody(
+     *         required=false,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="title", type="object"),
+     *             @OA\Property(property="description", type="object"),
+     *             @OA\Property(property="min_amount", type="number"),
+     *             @OA\Property(property="max_amount", type="number"),
+     *             @OA\Property(property="quantity", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Бонус оновлено",
+     *
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function update(UpdateBonusRequest $request, Project $project, ProjectBonus $bonus): ProjectBonusResource|JsonResponse
     {
@@ -64,6 +160,33 @@ class ProjectBonusController extends Controller
 
     /**
      * Видалити бонус
+     *
+     * @OA\Delete(
+     *     path="/v1/my/projects/{project}/bonuses/{bonus}",
+     *     operationId="deleteProjectBonus",
+     *     tags={"Project Bonuses"},
+     *     summary="Видалити бонус",
+     *     description="Видаляє бонус проекту. Не можна видалити бонус, який вже обрали донатери.",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="bonus", in="path", required=true, description="ID бонуса", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Бонус видалено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Бонус вже використаний")
+     * )
      */
     public function destroy(Request $request, Project $project, ProjectBonus $bonus): JsonResponse
     {

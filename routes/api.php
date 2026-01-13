@@ -34,7 +34,7 @@ use App\Http\Controllers\ProfileApiController;
 // API v1 - Auth routes (public)
 // ============================================
 
-Route::prefix('v1/auth')->middleware('throttle:auth')->group(function () {
+Route::prefix('v1/auth')->middleware(['api.key', 'throttle:auth'])->group(function () {
     Route::post('/register', RegisterController::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
@@ -45,7 +45,7 @@ Route::prefix('v1/auth')->middleware('throttle:auth')->group(function () {
     Route::post('/google/callback', [SocialAuthController::class, 'googleCallback']);
 });
 
-Route::prefix('v1/auth')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1/auth')->middleware(['api.key', 'auth:sanctum'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::get('/me', [LoginController::class, 'me']);
     Route::put('/change-password', \App\Http\Controllers\Api\V1\Auth\ChangePasswordController::class);
@@ -55,7 +55,7 @@ Route::prefix('v1/auth')->middleware('auth:sanctum')->group(function () {
 // API v1 - Public routes
 // ============================================
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('api.key')->group(function () {
     // Проєкти (публічні)
     Route::prefix('projects')->group(function () {
         Route::get('/', [ProjectController::class, 'index']);
@@ -130,8 +130,10 @@ Route::prefix('v1')->group(function () {
     // Донат на платформу (без прив'язки до проекту)
     Route::post('/donations/platform', [DonationController::class, 'storePlatformDonation'])
         ->middleware('throttle:donations');
+});
 
-    // Webhook від платіжної системи (без auth)
+// Webhook від платіжної системи (без API key - зовнішній сервіс)
+Route::prefix('v1')->group(function () {
     Route::post('/payments/webhook', [DonationController::class, 'webhook'])->name('api.v1.payments.webhook');
 });
 
@@ -139,7 +141,7 @@ Route::prefix('v1')->group(function () {
 // API v1 - Authenticated routes
 // ============================================
 
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () {
     // Мої проєкти
     Route::prefix('my/projects')->group(function () {
         Route::get('/', [MyProjectController::class, 'index']);
@@ -234,32 +236,33 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 // ============================================
 
 // Home page data (главная страница для React фронтенда)
-Route::prefix('home')->group(function () {
+Route::prefix('home')->middleware('api.key')->group(function () {
     Route::get('/', [HomePageController::class, 'index']);
     Route::get('/statistics', [HomePageController::class, 'statistics']);
+    Route::get('/chart', [HomePageController::class, 'chart']);
 });
 
 // Public routes for About (не требуют аутентификации)
-Route::prefix('about')->group(function () {
+Route::prefix('about')->middleware('api.key')->group(function () {
     Route::get('/', [AboutController::class, 'index']);
     Route::get('/language/{language}', [AboutController::class, 'getByLanguage']);
     Route::get('/{id}', [AboutController::class, 'show']);
 });
 
 // Public routes for ArtistBoard (не требуют аутентификации)
-Route::prefix('artist-board')->group(function () {
+Route::prefix('artist-board')->middleware('api.key')->group(function () {
     Route::get('/', [ArtistBoardController::class, 'index']);
     Route::get('/language/{language}', [ArtistBoardController::class, 'getByLanguage']);
     Route::get('/{id}', [ArtistBoardController::class, 'show']);
 });
 
 // Public routes for Content
-Route::prefix('content')->group(function () {
+Route::prefix('content')->middleware('api.key')->group(function () {
     Route::get('/', [ContentController::class, 'index']);
     Route::get('/{slug}/{language}', [ContentController::class, 'showByLanguage']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['api.key', 'auth:sanctum'])->group(function () {
     Route::get('/profile', [ProfileApiController::class, 'getProfile']);
     Route::put('/profile/personal', [ProfileApiController::class, 'updatePersonal']);
     Route::post('/profile/personal', [ProfileApiController::class, 'createPersonal']);

@@ -8,11 +8,43 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OpenApi\Annotations as OA;
 
 class PublicUserController extends Controller
 {
     /**
      * Отримати публічний профіль користувача
+     *
+     * @OA\Get(
+     *     path="/v1/users/{id}",
+     *     operationId="getPublicUser",
+     *     tags={"Users"},
+     *     summary="Публічний профіль користувача",
+     *     description="Повертає публічну інформацію про користувача та статистику",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID користувача", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Профіль користувача",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user", type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="name", type="string"),
+     *                     @OA\Property(property="avatar", type="string"),
+     *                     @OA\Property(property="statistics", type="object")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Користувача не знайдено")
+     * )
      */
     public function show(int $id): JsonResponse
     {
@@ -68,6 +100,35 @@ class PublicUserController extends Controller
 
     /**
      * Отримати публічні проєкти користувача
+     *
+     * @OA\Get(
+     *     path="/v1/users/{id}/projects",
+     *     operationId="getUserProjects",
+     *     tags={"Users"},
+     *     summary="Проекти користувача",
+     *     description="Повертає публічні проекти користувача з пагінацією",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID користувача", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=10)),
+     *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список проектів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="projects", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="pagination", type="object")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Користувача не знайдено")
+     * )
      */
     public function projects(Request $request, int $id): JsonResponse
     {

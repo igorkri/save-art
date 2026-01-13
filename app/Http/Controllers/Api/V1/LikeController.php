@@ -7,11 +7,38 @@ use App\Models\Project;
 use App\Models\ProjectLike;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OpenApi\Annotations as OA;
 
 class LikeController extends Controller
 {
     /**
      * Поставити лайк проєкту
+     *
+     * @OA\Post(
+     *     path="/v1/projects/{project}/like",
+     *     operationId="likeProject",
+     *     tags={"Likes"},
+     *     summary="Поставити лайк",
+     *     description="Додає лайк до проекту від поточного користувача",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Лайк додано",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="is_liked", type="boolean", example=true),
+     *             @OA\Property(property="likes_count", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Вже лайкнуто")
+     * )
      */
     public function store(Request $request, Project $project): JsonResponse
     {
@@ -48,6 +75,32 @@ class LikeController extends Controller
 
     /**
      * Прибрати лайк з проєкту
+     *
+     * @OA\Delete(
+     *     path="/v1/projects/{project}/like",
+     *     operationId="unlikeProject",
+     *     tags={"Likes"},
+     *     summary="Прибрати лайк",
+     *     description="Видаляє лайк з проекту",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Лайк прибрано",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="is_liked", type="boolean", example=false),
+     *             @OA\Property(property="likes_count", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Не було лайка")
+     * )
      */
     public function destroy(Request $request, Project $project): JsonResponse
     {

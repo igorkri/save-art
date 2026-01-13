@@ -1,0 +1,59 @@
+# SaveArt Laravel - Cursor Rules
+
+## Про проект
+SaveArt — краудфандингова платформа для підтримки мистецтва та митців України.
+
+## Технології
+- PHP 8.4, Laravel 12, Filament 4, Livewire 3
+- MySQL, Tailwind CSS, Alpine.js
+- Laravel Sanctum для API автентифікації
+- L5-Swagger для API документації (OpenAPI 3.0)
+
+## Архітектура
+- Цей репо — ТІЛЬКИ Backend/API
+- Фронтенд — окремий репозиторій
+- Swagger UI: /api/documentation
+
+## Структура
+- `app/Models/` - Eloquent моделі
+- `app/Enums/` - PHP Enums (ProjectStatus, DonationStatus, etc.)
+- `app/Filament/Resources/` - Адмін-панель ресурси
+- `app/Http/Controllers/Api/` - API контролери
+- `app/Services/` - Бізнес-логіка
+
+## Ключові моделі
+- User → ProfilePersonal, ProfileLegal, ProfileSocial, Project, Donation
+- Project → ProjectStage, ProjectBonus, ProjectLike, Report
+
+## Мультимовність
+- Мови: uk, en
+- Пакет: spatie/laravel-translatable
+- JSON поля = translatable
+
+## Правила коду
+1. Завжди використовуй типізацію (return types, type hints)
+2. Використовуй PHP 8 constructor property promotion
+3. Використовуй Eloquent relationships замість raw queries
+4. Уникай N+1 проблем - використовуй eager loading
+5. Валідація через Form Requests
+6. API відповіді через Resources
+
+## Filament
+- Версія 4.x
+- Мультимовність: LanguageTabs
+- Створення ресурсу: `php artisan make:filament-resource Model --generate --no-interaction`
+
+## Тестування
+- PHPUnit (не Pest)
+- Тести в tests/Feature/ та tests/Unit/
+- Кожна фіча повинна мати тест
+
+## Команди
+```bash
+php artisan test                    # Тести
+vendor/bin/pint                     # Форматування
+php artisan make:model Name -mfs    # Модель + міграція + factory + seeder
+```
+
+## Детальна документація
+Див. файл AGENTS.md в корені проекту

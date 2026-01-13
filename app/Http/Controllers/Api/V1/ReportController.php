@@ -7,11 +7,41 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OpenApi\Annotations as OA;
 
 class ReportController extends Controller
 {
     /**
      * Отримати список публічних звітів з пагінацією
+     *
+     * @OA\Get(
+     *     path="/v1/reports",
+     *     operationId="getReports",
+     *     tags={"Reports"},
+     *     summary="Список звітів",
+     *     description="Повертає публічні звіти з можливістю фільтрації та пагінації",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="project_id", in="query", description="Фільтр по ID проекту", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="user_id", in="query", description="Фільтр по ID користувача", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="search", in="query", description="Пошук по назві", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=12)),
+     *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список звітів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="reports", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="pagination", type="object")
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request): JsonResponse
     {
@@ -60,6 +90,32 @@ class ReportController extends Controller
 
     /**
      * Отримати деталі конкретного звіту
+     *
+     * @OA\Get(
+     *     path="/v1/reports/{id}",
+     *     operationId="getReport",
+     *     tags={"Reports"},
+     *     summary="Деталі звіту",
+     *     description="Повертає детальну інформацію про конкретний звіт",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID звіту", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Дані звіту",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="report", type="object")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Звіт не знайдено")
+     * )
      */
     public function show(int $id): JsonResponse
     {
@@ -81,6 +137,36 @@ class ReportController extends Controller
 
     /**
      * Отримати звіти конкретного проєкту
+     *
+     * @OA\Get(
+     *     path="/v1/projects/{slug}/reports",
+     *     operationId="getProjectReports",
+     *     tags={"Reports"},
+     *     summary="Звіти проекту",
+     *     description="Повертає всі публічні звіти для конкретного проекту",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="slug", in="path", required=true, description="Slug проекту", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=10)),
+     *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Звіти проекту",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="project", type="object"),
+     *                 @OA\Property(property="reports", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="pagination", type="object")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Проект не знайдено")
+     * )
      */
     public function byProject(string $slug, Request $request): JsonResponse
     {

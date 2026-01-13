@@ -8,11 +8,37 @@ use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Annotations as OA;
 
 class DraftController extends Controller
 {
     /**
      * Отримати список чернеток користувача
+     *
+     * @OA\Get(
+     *     path="/v1/my/drafts",
+     *     operationId="getDrafts",
+     *     tags={"Drafts"},
+     *     summary="Список чернеток користувача",
+     *     description="Повертає список всіх чернеток (проектів зі статусом Draft) поточного користувача",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список чернеток",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="drafts", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="count", type="integer", example=5)
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function index(Request $request): JsonResponse
     {
@@ -36,6 +62,53 @@ class DraftController extends Controller
 
     /**
      * Зберегти або оновити чернетку
+     *
+     * @OA\Post(
+     *     path="/v1/my/drafts",
+     *     operationId="storeDraft",
+     *     tags={"Drafts"},
+     *     summary="Створити або оновити чернетку",
+     *     description="Створює нову чернетку або оновлює існуючу за local_id",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\RequestBody(
+     *         required=false,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="local_id", type="string", description="Локальний ID для синхронізації"),
+     *             @OA\Property(property="title", type="object",
+     *                 @OA\Property(property="uk", type="string"),
+     *                 @OA\Property(property="en", type="string")
+     *             ),
+     *             @OA\Property(property="short_description", type="object"),
+     *             @OA\Property(property="cover", type="string"),
+     *             @OA\Property(property="art_category", type="string"),
+     *             @OA\Property(property="art_subcategory", type="string"),
+     *             @OA\Property(property="budget_goal", type="number"),
+     *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}),
+     *             @OA\Property(property="budget_items", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="characteristics", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="stages", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="bonuses", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Чернетку створено/оновлено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function store(Request $request): JsonResponse
     {
@@ -145,6 +218,31 @@ class DraftController extends Controller
 
     /**
      * Отримати одну чернетку
+     *
+     * @OA\Get(
+     *     path="/v1/my/drafts/{id}",
+     *     operationId="showDraft",
+     *     tags={"Drafts"},
+     *     summary="Отримати чернетку",
+     *     description="Повертає детальну інформацію про чернетку",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID чернетки", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Дані чернетки",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function show(int $id): JsonResponse
     {
@@ -166,6 +264,46 @@ class DraftController extends Controller
 
     /**
      * Оновити чернетку
+     *
+     * @OA\Put(
+     *     path="/v1/my/drafts/{id}",
+     *     operationId="updateDraft",
+     *     tags={"Drafts"},
+     *     summary="Оновити чернетку",
+     *     description="Оновлює існуючу чернетку",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID чернетки", @OA\Schema(type="integer")),
+     *
+     *     @OA\RequestBody(
+     *         required=false,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="title", type="object"),
+     *             @OA\Property(property="short_description", type="object"),
+     *             @OA\Property(property="cover", type="string"),
+     *             @OA\Property(property="art_category", type="string"),
+     *             @OA\Property(property="budget_goal", type="number"),
+     *             @OA\Property(property="stages", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="bonuses", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Чернетку оновлено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function update(Request $request, int $id): JsonResponse
     {
@@ -213,6 +351,31 @@ class DraftController extends Controller
 
     /**
      * Видалити чернетку
+     *
+     * @OA\Delete(
+     *     path="/v1/my/drafts/{id}",
+     *     operationId="deleteDraft",
+     *     tags={"Drafts"},
+     *     summary="Видалити чернетку",
+     *     description="Видаляє чернетку користувача",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID чернетки", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Чернетку видалено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function destroy(int $id): JsonResponse
     {
@@ -233,6 +396,49 @@ class DraftController extends Controller
 
     /**
      * Синхронізувати чернетки з локального сховища
+     *
+     * @OA\Post(
+     *     path="/v1/my/drafts/sync",
+     *     operationId="syncDrafts",
+     *     tags={"Drafts"},
+     *     summary="Синхронізувати чернетки",
+     *     description="Синхронізує локальні чернетки з сервером",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="drafts", type="array",
+     *
+     *                 @OA\Items(type="object",
+     *
+     *                     @OA\Property(property="local_id", type="string"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time"),
+     *                     @OA\Property(property="data", type="object")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Результат синхронізації",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="synced", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="conflicts", type="array", @OA\Items(type="object"))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function sync(Request $request): JsonResponse
     {

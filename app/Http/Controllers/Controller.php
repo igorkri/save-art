@@ -34,12 +34,20 @@ use OpenApi\Annotations as OA;
  *     bearerFormat="JWT",
  *     description="Laravel Sanctum Token"
  * )
+ * @OA\SecurityScheme(
+ *     securityScheme="apiKey",
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-Api-Key",
+ *     description="API ключ для доступу до API. Передається у заголовку X-Api-Key."
+ * )
  *
  * @OA\Schema(
  *     schema="LocalizedString",
  *     title="LocalizedString",
  *     description="Мультимовний текст (uk/en)",
  *     type="object",
+ *
  *     @OA\Property(property="uk", type="string", example="Український текст"),
  *     @OA\Property(property="en", type="string", nullable=true, example="English text")
  * )
@@ -48,6 +56,7 @@ use OpenApi\Annotations as OA;
  *     schema="PaginationMeta",
  *     title="PaginationMeta",
  *     type="object",
+ *
  *     @OA\Property(property="current_page", type="integer", example=1),
  *     @OA\Property(property="from", type="integer", example=1),
  *     @OA\Property(property="last_page", type="integer", example=10),
@@ -60,6 +69,7 @@ use OpenApi\Annotations as OA;
  *     schema="PaginationLinks",
  *     title="PaginationLinks",
  *     type="object",
+ *
  *     @OA\Property(property="first", type="string"),
  *     @OA\Property(property="last", type="string"),
  *     @OA\Property(property="prev", type="string", nullable=true),
@@ -70,6 +80,7 @@ use OpenApi\Annotations as OA;
  *     schema="ValidationError",
  *     title="ValidationError",
  *     type="object",
+ *
  *     @OA\Property(property="message", type="string", example="Валідацію не пройдено."),
  *     @OA\Property(property="errors", type="object")
  * )
@@ -78,6 +89,7 @@ use OpenApi\Annotations as OA;
  *     schema="ErrorResponse",
  *     title="ErrorResponse",
  *     type="object",
+ *
  *     @OA\Property(property="message", type="string", example="Ресурс не знайдено."),
  *     @OA\Property(property="error", type="string", example="Not Found")
  * )
@@ -87,6 +99,7 @@ use OpenApi\Annotations as OA;
  *     title="Author",
  *     description="Автор проєкту",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Іван Франко"),
  *     @OA\Property(property="slug", type="string", nullable=true, example="ivan-franko"),
@@ -98,6 +111,7 @@ use OpenApi\Annotations as OA;
  *     title="Statistics",
  *     description="Статистика платформи",
  *     type="object",
+ *
  *     @OA\Property(property="total_projects", type="integer", example=150),
  *     @OA\Property(property="active_projects", type="integer", example=45),
  *     @OA\Property(property="completed_projects", type="integer", example=80),

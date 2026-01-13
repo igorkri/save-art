@@ -10,6 +10,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use OpenApi\Annotations as OA;
 
 class MessageController extends Controller
 {
@@ -19,6 +20,29 @@ class MessageController extends Controller
 
     /**
      * Отримати всі мої повідомлення (чат з адміністрацією)
+     *
+     * @OA\Get(
+     *     path="/v1/messages",
+     *     operationId="getMessages",
+     *     tags={"Messages"},
+     *     summary="Список повідомлень",
+     *     description="Повертає всі повідомлення користувача з адміністрацією",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список повідомлень",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -32,6 +56,40 @@ class MessageController extends Controller
 
     /**
      * Відправити повідомлення адміністрації
+     *
+     * @OA\Post(
+     *     path="/v1/messages",
+     *     operationId="sendMessage",
+     *     tags={"Messages"},
+     *     summary="Надіслати повідомлення",
+     *     description="Надсилає повідомлення адміністрації платформи",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="content", type="string", description="Текст повідомлення"),
+     *             @OA\Property(property="subject", type="string", description="Тема повідомлення"),
+     *             @OA\Property(property="project_id", type="integer", description="ID проекту (опціонально)")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Повідомлення надіслано",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function store(SendMessageRequest $request): JsonResponse
     {
@@ -51,6 +109,28 @@ class MessageController extends Controller
 
     /**
      * Отримати одне повідомлення
+     *
+     * @OA\Get(
+     *     path="/v1/messages/{message}",
+     *     operationId="getMessage",
+     *     tags={"Messages"},
+     *     summary="Отримати повідомлення",
+     *     description="Повертає деталі конкретного повідомлення",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(name="message", in="path", required=true, description="ID повідомлення", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Дані повідомлення",
+     *
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function show(Request $request, Message $message): MessageResource|JsonResponse
     {
@@ -69,6 +149,28 @@ class MessageController extends Controller
 
     /**
      * Позначити всі повідомлення як прочитані
+     *
+     * @OA\Post(
+     *     path="/v1/messages/read-all",
+     *     operationId="markAllMessagesAsRead",
+     *     tags={"Messages"},
+     *     summary="Позначити всі як прочитані",
+     *     description="Позначає всі вхідні повідомлення від адміністрації як прочитані",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Успішно",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="count", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function markAllAsRead(Request $request): JsonResponse
     {
@@ -85,6 +187,27 @@ class MessageController extends Controller
 
     /**
      * Отримати кількість непрочитаних повідомлень
+     *
+     * @OA\Get(
+     *     path="/v1/messages/unread-count",
+     *     operationId="getUnreadMessagesCount",
+     *     tags={"Messages"},
+     *     summary="Кількість непрочитаних",
+     *     description="Повертає кількість непрочитаних повідомлень від адміністрації",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Кількість непрочитаних",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="unread_count", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function unreadCount(Request $request): JsonResponse
     {
@@ -101,6 +224,40 @@ class MessageController extends Controller
     /**
      * Надіслати повідомлення автору проєкту (через адміністрацію)
      * Це створює запит до адміністрації, який вони передадуть автору
+     *
+     * @OA\Post(
+     *     path="/v1/messages/contact-author",
+     *     operationId="contactProjectAuthor",
+     *     tags={"Messages"},
+     *     summary="Зв'язатися з автором проекту",
+     *     description="Надсилає повідомлення автору проекту через адміністрацію",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="project_id", type="integer", description="ID проекту"),
+     *             @OA\Property(property="content", type="string", description="Текст повідомлення"),
+     *             @OA\Property(property="subject", type="string", description="Тема повідомлення")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Повідомлення надіслано",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function contactProjectAuthor(SendMessageRequest $request): JsonResponse
     {

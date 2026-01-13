@@ -10,11 +10,41 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Annotations as OA;
 
 class ForgotPasswordController extends Controller
 {
     /**
      * Відправити email для скидання пароля
+     *
+     * @OA\Post(
+     *     path="/v1/auth/forgot-password",
+     *     operationId="forgotPassword",
+     *     tags={"Auth"},
+     *     summary="Запит на скидання пароля",
+     *     description="Надсилає email з посиланням для скидання пароля",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Посилання надіслано",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function sendResetLink(Request $request): JsonResponse
     {
@@ -39,6 +69,38 @@ class ForgotPasswordController extends Controller
 
     /**
      * Скинути пароль
+     *
+     * @OA\Post(
+     *     path="/v1/auth/reset-password",
+     *     operationId="resetPassword",
+     *     tags={"Auth"},
+     *     summary="Скидання пароля",
+     *     description="Скидає пароль за допомогою токена з email",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="token", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", minLength=8),
+     *             @OA\Property(property="password_confirmation", type="string")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Пароль змінено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=422, description="Validation error або невалідний токен")
+     * )
      */
     public function reset(Request $request): JsonResponse
     {

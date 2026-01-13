@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn (Request $request) => route('filament.admin.auth.login'));
+
+        // Реєстрація middleware alias для API ключа
+        $middleware->alias([
+            'api.key' => \App\Http\Middleware\VerifyApiKey::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Перевірка, чи це API запит
