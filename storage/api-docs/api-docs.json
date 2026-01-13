@@ -555,7 +555,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -800,7 +801,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -865,7 +867,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1147,7 +1150,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1181,7 +1185,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1224,7 +1229,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -1280,7 +1286,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1332,7 +1339,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1423,7 +1431,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1471,7 +1480,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1525,7 +1535,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -1569,7 +1580,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -2943,7 +2955,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -3219,7 +3232,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3271,7 +3285,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -3401,7 +3416,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -3452,7 +3468,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -3574,7 +3591,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3630,7 +3648,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3726,7 +3745,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3782,7 +3802,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3884,7 +3905,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3931,7 +3953,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3993,7 +4016,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -4054,7 +4078,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -4117,7 +4142,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -4165,7 +4191,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -5913,7 +5940,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -6079,7 +6107,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -6246,7 +6275,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -6375,7 +6405,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -6505,7 +6536,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -6559,7 +6591,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -6606,7 +6639,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -6687,7 +6721,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }

@@ -35,7 +35,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Список моїх проєктів",
      *     description="Повертає список проєктів авторизованого користувача (всі статуси)",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(
      *         name="status",
@@ -91,7 +91,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Створити проєкт",
      *     description="Створює новий проєкт у статусі чернетки. Підтримує завантаження обкладинки через multipart/form-data.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -211,7 +211,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Деталі мого проєкту",
      *     description="Повертає повну інформацію про власний проєкт",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *
@@ -245,7 +245,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Оновити проєкт (повне оновлення)",
      *     description="Оновлює дані проєкту. Доступно тільки для чернеток та відхилених. Підтримує завантаження обкладинки через multipart/form-data.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *
@@ -315,7 +315,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Часткове оновлення опублікованого проєкту (03.4.2.2)",
      *     description="Дозволяє редагувати назву, опис, теги та обкладинку опублікованого проєкту. Бюджет та категорію змінити не можна. Підтримує завантаження обкладинки через multipart/form-data.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *
@@ -390,7 +390,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Видалити проєкт",
      *     description="Видаляє проєкт. Доступно тільки для чернеток.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *
@@ -437,7 +437,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Відправити на модерацію",
      *     description="Відправляє проєкт на розгляд модераторам. Доступно для чернеток та відхилених.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *
@@ -508,7 +508,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Завантажити файли фінального результату (03.4.4)",
      *     description="Завантажує файли фінального результату: зображення, галерею, відео або документ. Доступно для проєктів в роботі або завершених.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *
@@ -643,7 +643,7 @@ class MyProjectController extends Controller
      *     tags={"My Projects"},
      *     summary="Завершити проєкт (03.4.5)",
      *     description="Позначає проєкт як завершений. Перед викликом потрібно завантажити фінальний результат через /final-result/upload.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
      *

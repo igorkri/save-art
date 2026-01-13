@@ -27,7 +27,7 @@ class NotificationController extends Controller
      *     tags={"Notifications"},
      *     summary="Мої сповіщення (03.2.4)",
      *     description="Повертає об'єднаний список сповіщень (app_notifications) та повідомлень від адміністрації (messages) з пагінацією",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer", default=1)),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінці", @OA\Schema(type="integer", default=15)),
@@ -171,7 +171,7 @@ class NotificationController extends Controller
      *     tags={"Notifications"},
      *     summary="Кількість непрочитаних сповіщень",
      *     description="Повертає кількість непрочитаних сповіщень та повідомлень для відображення в badge",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -217,7 +217,7 @@ class NotificationController extends Controller
      *     tags={"Notifications"},
      *     summary="Переглянути сповіщення",
      *     description="Повертає деталі сповіщення або повідомлення та позначає як прочитане",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="source", in="path", required=true, description="Джерело (notification або message)", @OA\Schema(type="string", enum={"notification", "message"})),
      *     @OA\Parameter(name="id", in="path", required=true, description="ID", @OA\Schema(type="integer")),
@@ -293,7 +293,7 @@ class NotificationController extends Controller
      *     tags={"Notifications"},
      *     summary="Позначити як прочитане",
      *     description="Позначає сповіщення або повідомлення як прочитане",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="source", in="path", required=true, description="Джерело (notification або message)", @OA\Schema(type="string", enum={"notification", "message"})),
      *     @OA\Parameter(name="id", in="path", required=true, description="ID", @OA\Schema(type="integer")),
@@ -353,7 +353,7 @@ class NotificationController extends Controller
      *     tags={"Notifications"},
      *     summary="Позначити всі як прочитані",
      *     description="Позначає всі сповіщення та повідомлення користувача як прочитані",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -401,7 +401,7 @@ class NotificationController extends Controller
      *     tags={"Notifications"},
      *     summary="Видалити сповіщення",
      *     description="Видаляє сповіщення або повідомлення",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="source", in="path", required=true, description="Джерело (notification або message)", @OA\Schema(type="string", enum={"notification", "message"})),
      *     @OA\Parameter(name="id", in="path", required=true, description="ID", @OA\Schema(type="integer")),

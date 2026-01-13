@@ -38,7 +38,7 @@ class DonationController extends Controller
      *     tags={"Donations"},
      *     summary="Мої донати",
      *     description="Повертає список донатів авторизованого користувача",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,

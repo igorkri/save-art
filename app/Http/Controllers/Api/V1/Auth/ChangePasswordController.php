@@ -20,7 +20,7 @@ class ChangePasswordController extends Controller
      *     tags={"Auth"},
      *     summary="Зміна пароля",
      *     description="Зміна пароля авторизованого користувача. Потрібно вказати поточний пароль та новий пароль з підтвердженням.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,

@@ -103,7 +103,7 @@ class LoginController extends Controller
      *     tags={"Auth"},
      *     summary="Вихід з системи",
      *     description="Видаляє поточний токен авторизації",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -136,7 +136,7 @@ class LoginController extends Controller
      *     tags={"Auth"},
      *     summary="Поточний користувач",
      *     description="Повертає дані авторизованого користувача",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,

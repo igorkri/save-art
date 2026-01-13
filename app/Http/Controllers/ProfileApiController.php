@@ -41,7 +41,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Отримати повний профіль",
      *     description="Повертає всі дані профілю: персональні, юридичні, соціальні та документи",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -91,7 +91,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Оновити персональні дані (03.7.2)",
      *     description="Оновлює персональні дані профілю",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -163,7 +163,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Створити персональні дані (03.7.2)",
      *     description="Створює персональні дані профілю",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -236,7 +236,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Оновити юридичні дані (03.7.1)",
      *     description="Оновлює юридичні дані профілю (опціонально)",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *
@@ -291,7 +291,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Створити юридичні дані (03.7.1)",
      *     description="Створює юридичні дані профілю",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *
@@ -348,7 +348,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Оновити соцмережі (03.7.3)",
      *     description="Оновлює посилання на соціальні мережі",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *
@@ -385,7 +385,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Створити соцмережі (03.7.3)",
      *     description="Створює посилання на соціальні мережі",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *
@@ -593,7 +593,7 @@ class ProfileApiController extends Controller
      *     tags={"Profile"},
      *     summary="Змінити пароль (03.7.4)",
      *     description="Змінює пароль користувача. Екран 03.7.4 Safety.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(required=true, @OA\JsonContent(
      *         required={"email", "current_password", "password", "password_confirmation"},

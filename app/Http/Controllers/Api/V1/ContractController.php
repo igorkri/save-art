@@ -40,7 +40,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Отримати шаблон контракту",
      *     description="Повертає інформацію про поточний шаблон контракту та доступні сервіси підписання. Екран 03.7.5 Profile Authorized - New - Contract.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -89,7 +89,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Завантажити шаблон контракту",
      *     description="Завантажує PDF файл шаблону контракту для попереднього перегляду",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -130,7 +130,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Список контрактів користувача",
      *     description="Повертає список всіх контрактів авторизованого користувача",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -174,7 +174,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Створити новий контракт",
      *     description="Створює новий контракт для підписання. Якщо вже існує pending контракт поточної версії - повертає його. Екран 03.7.5 Profile Authorized - New - Contract.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=201,
@@ -237,7 +237,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Отримати контракт",
      *     description="Повертає інформацію про конкретний контракт користувача",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="contract", in="path", required=true, description="ID контракту", @OA\Schema(type="integer")),
      *
@@ -276,7 +276,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Підписати контракт",
      *     description="Підписує контракт електронним підписом. Екран 03.7.5.1 Profile Authorized - New - Contract - Added.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="contract", in="path", required=true, description="ID контракту", @OA\Schema(type="integer")),
      *
@@ -354,7 +354,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Завантажити контракт",
      *     description="Завантажує PDF файл контракту. Якщо контракт підписано - повертає підписану версію.",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="contract", in="path", required=true, description="ID контракту", @OA\Schema(type="integer")),
      *
@@ -406,7 +406,7 @@ class ContractController extends Controller
      *     tags={"Contracts"},
      *     summary="Отримати активний контракт",
      *     description="Повертає поточний підписаний контракт користувача",
-     *     security={{"sanctum":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
