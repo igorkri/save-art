@@ -6,14 +6,10 @@ use App\Enums\ProjectStatus;
 use App\Models\Donation;
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use Tests\TestCase;
 
-class StatisticsApiTest extends TestCase
+class StatisticsApiTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,7 +34,7 @@ class StatisticsApiTest extends TestCase
             'status' => 'completed',
         ]);
 
-        $response = $this->getJson('/api/v1/statistics');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -74,7 +70,7 @@ class StatisticsApiTest extends TestCase
             'status' => ProjectStatus::Completed->value,
         ]);
 
-        $response = $this->getJson('/api/v1/statistics/projects');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics/projects');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -96,7 +92,7 @@ class StatisticsApiTest extends TestCase
 
     public function test_can_filter_project_statistics_by_period(): void
     {
-        $response = $this->getJson('/api/v1/statistics/projects?period=year');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics/projects?period=year');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -106,7 +102,7 @@ class StatisticsApiTest extends TestCase
                 ],
             ]);
 
-        $response = $this->getJson('/api/v1/statistics/projects?period=month');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics/projects?period=month');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -132,7 +128,7 @@ class StatisticsApiTest extends TestCase
             'status' => 'completed',
         ]);
 
-        $response = $this->getJson('/api/v1/statistics/donations');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics/donations');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -158,7 +154,7 @@ class StatisticsApiTest extends TestCase
 
     public function test_can_filter_donation_statistics_by_period(): void
     {
-        $response = $this->getJson('/api/v1/statistics/donations?period=week');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics/donations?period=week');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -168,7 +164,7 @@ class StatisticsApiTest extends TestCase
                 ],
             ]);
 
-        $response = $this->getJson('/api/v1/statistics/donations?period=month');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics/donations?period=month');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -182,7 +178,7 @@ class StatisticsApiTest extends TestCase
     public function test_statistics_are_cached(): void
     {
         // Перший запит - дані кешуються
-        $this->getJson('/api/v1/statistics')->assertStatus(200);
+        $this->withHeaders($this->apiHeaders())->getJson('/api/v1/statistics')->assertStatus(200);
 
         $this->assertTrue(Cache::has('platform_statistics'));
     }

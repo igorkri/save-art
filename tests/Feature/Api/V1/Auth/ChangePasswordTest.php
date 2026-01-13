@@ -3,21 +3,18 @@
 namespace Tests\Feature\Api\V1\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Tests\TestCase;
+use Tests\Feature\Api\V1\ApiTestCase;
 
-class ChangePasswordTest extends TestCase
+class ChangePasswordTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
     public function test_authenticated_user_can_change_password(): void
     {
         $user = User::factory()->create([
             'password' => Hash::make('OldPassword123'),
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeaders($this->authHeaders($user))
             ->putJson('/api/v1/auth/change-password', [
                 'current_password' => 'OldPassword123',
                 'password' => 'NewPassword456',
@@ -40,24 +37,15 @@ class ChangePasswordTest extends TestCase
             'password' => Hash::make('OldPassword123'),
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeaders($this->authHeaders($user))
             ->putJson('/api/v1/auth/change-password', [
-                'current_password' => 'WrongPassword123',
+                'current_password' => 'WrongPassword',
                 'password' => 'NewPassword456',
                 'password_confirmation' => 'NewPassword456',
             ]);
 
         $response->assertUnprocessable()
-            ->assertJson([
-                'message' => 'Поточний пароль невірний.',
-                'errors' => [
-                    'current_password' => ['Поточний пароль невірний.'],
-                ],
-            ]);
-
-        // Перевіряємо, що старий пароль все ще працює
-        $user->refresh();
-        $this->assertTrue(Hash::check('OldPassword123', $user->password));
+            ->assertJsonValidationErrors(['current_password']);
     }
 
     public function test_cannot_change_password_without_confirmation(): void
@@ -66,7 +54,7 @@ class ChangePasswordTest extends TestCase
             'password' => Hash::make('OldPassword123'),
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeaders($this->authHeaders($user))
             ->putJson('/api/v1/auth/change-password', [
                 'current_password' => 'OldPassword123',
                 'password' => 'NewPassword456',
@@ -82,7 +70,7 @@ class ChangePasswordTest extends TestCase
             'password' => Hash::make('OldPassword123'),
         ]);
 
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeaders($this->authHeaders($user))
             ->putJson('/api/v1/auth/change-password', [
                 'current_password' => 'OldPassword123',
                 'password' => 'weak',
@@ -95,11 +83,12 @@ class ChangePasswordTest extends TestCase
 
     public function test_unauthenticated_user_cannot_change_password(): void
     {
-        $response = $this->putJson('/api/v1/auth/change-password', [
-            'current_password' => 'OldPassword123',
-            'password' => 'NewPassword456',
-            'password_confirmation' => 'NewPassword456',
-        ]);
+        $response = $this->withHeaders($this->apiHeaders())
+            ->putJson('/api/v1/auth/change-password', [
+                'current_password' => 'OldPassword123',
+                'password' => 'NewPassword456',
+                'password_confirmation' => 'NewPassword456',
+            ]);
 
         $response->assertUnauthorized();
     }

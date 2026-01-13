@@ -6,19 +6,11 @@ use App\Enums\StageStatus;
 use App\Models\Project;
 use App\Models\ProjectStage;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;
 
-class ProjectStageDocumentsTest extends TestCase
+class ProjectStageDocumentsTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
-    private User $user;
-
-    private Project $project;
-
     private ProjectStage $stage;
 
     protected function setUp(): void
@@ -41,7 +33,7 @@ class ProjectStageDocumentsTest extends TestCase
             UploadedFile::fake()->image('photo2.png'),
         ];
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$this->stage->id}/documents", [
                 'documents' => $files,
                 'descriptions' => [
@@ -60,7 +52,7 @@ class ProjectStageDocumentsTest extends TestCase
     {
         $file = UploadedFile::fake()->create('document.pdf', 1024, 'application/pdf');
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$this->stage->id}/documents", [
                 'documents' => [$file],
             ]);
@@ -74,7 +66,7 @@ class ProjectStageDocumentsTest extends TestCase
         $otherUser = User::factory()->create();
         $file = UploadedFile::fake()->image('photo.jpg');
 
-        $response = $this->actingAs($otherUser)
+        $response = $this->withHeaders($this->authHeaders($otherUser))
             ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$this->stage->id}/documents", [
                 'documents' => [$file],
             ]);
@@ -98,7 +90,7 @@ class ProjectStageDocumentsTest extends TestCase
             ],
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->deleteJson("/api/v1/my/projects/{$this->project->id}/stages/{$this->stage->id}/documents/0");
 
         $response->assertOk();
@@ -109,7 +101,7 @@ class ProjectStageDocumentsTest extends TestCase
     {
         $file = UploadedFile::fake()->create('document.exe', 1024, 'application/octet-stream');
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$this->stage->id}/documents", [
                 'documents' => [$file],
             ]);
@@ -121,7 +113,7 @@ class ProjectStageDocumentsTest extends TestCase
     {
         $file = UploadedFile::fake()->create('large.jpg', 6000, 'image/jpeg');
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$this->stage->id}/documents", [
                 'documents' => [$file],
             ]);
@@ -144,7 +136,7 @@ class ProjectStageDocumentsTest extends TestCase
             ],
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->getJson("/api/v1/my/projects/{$this->project->id}/stages");
 
         $response->assertOk();

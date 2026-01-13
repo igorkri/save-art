@@ -5,15 +5,9 @@ namespace Tests\Feature\Api\V1;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class UpdatePublishedProjectTest extends TestCase
+class UpdatePublishedProjectTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
-    private User $user;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,7 +21,7 @@ class UpdatePublishedProjectTest extends TestCase
             'title' => ['uk' => 'Стара назва', 'en' => 'Old title'],
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
             ]);
@@ -43,7 +37,7 @@ class UpdatePublishedProjectTest extends TestCase
             'status' => ProjectStatus::InProgress,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'short_description' => ['uk' => 'Новий опис', 'en' => 'New description'],
             ]);
@@ -58,7 +52,7 @@ class UpdatePublishedProjectTest extends TestCase
             'status' => ProjectStatus::Paused,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'tags' => ['uk' => 'живопис, арт', 'en' => 'painting, art'],
             ]);
@@ -74,7 +68,7 @@ class UpdatePublishedProjectTest extends TestCase
             'budget_goal' => 50000,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'budget_goal' => 100000,
             ]);
@@ -94,7 +88,7 @@ class UpdatePublishedProjectTest extends TestCase
             'art_category' => 'visual',
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'art_category' => 'music',
             ]);
@@ -112,7 +106,7 @@ class UpdatePublishedProjectTest extends TestCase
             'status' => ProjectStatus::Completed,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
             ]);
@@ -127,7 +121,7 @@ class UpdatePublishedProjectTest extends TestCase
             'status' => ProjectStatus::Announced,
         ]);
 
-        $response = $this->actingAs($otherUser)
+        $response = $this->withHeaders($this->authHeaders($otherUser))
             ->patchJson("/api/v1/my/projects/{$project->id}", [
                 'title' => ['uk' => 'Хак', 'en' => 'Hack'],
             ]);
@@ -142,7 +136,7 @@ class UpdatePublishedProjectTest extends TestCase
             'budget_goal' => 50000,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->putJson("/api/v1/my/projects/{$project->id}", [
                 'budget_goal' => 100000,
             ]);
@@ -160,7 +154,7 @@ class UpdatePublishedProjectTest extends TestCase
             'status' => ProjectStatus::Announced,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->withHeaders($this->authHeaders())
             ->putJson("/api/v1/my/projects/{$project->id}", [
                 'budget_goal' => 100000,
             ]);

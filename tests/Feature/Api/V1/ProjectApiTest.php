@@ -9,13 +9,9 @@ use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class ProjectApiTest extends TestCase
+class ProjectApiTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
     // ==========================================
     // Публічні endpoints
     // ==========================================
@@ -28,7 +24,7 @@ class ProjectApiTest extends TestCase
         // Створюємо чернетку (не повинна бути в списку)
         Project::factory()->create(['status' => ProjectStatus::Draft]);
 
-        $response = $this->getJson('/api/v1/projects');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/projects');
 
         $response->assertOk()
             ->assertJsonCount(3, 'data')
@@ -52,7 +48,7 @@ class ProjectApiTest extends TestCase
         Project::factory()->announced()->create(['art_category' => ArtCategory::FineArt]);
         Project::factory()->announced()->create(['art_category' => ArtCategory::Music]);
 
-        $response = $this->getJson('/api/v1/projects?art_category=fine_art');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/projects?art_category=fine_art');
 
         $response->assertOk()
             ->assertJsonCount(1, 'data');
@@ -62,7 +58,7 @@ class ProjectApiTest extends TestCase
     {
         $project = Project::factory()->announced()->create();
 
-        $response = $this->getJson("/api/v1/projects/{$project->slug}");
+        $response = $this->withHeaders($this->apiHeaders())->getJson("/api/v1/projects/{$project->slug}");
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -86,7 +82,7 @@ class ProjectApiTest extends TestCase
     {
         $project = Project::factory()->create(['status' => ProjectStatus::Draft]);
 
-        $response = $this->getJson("/api/v1/projects/{$project->slug}");
+        $response = $this->withHeaders($this->apiHeaders())->getJson("/api/v1/projects/{$project->slug}");
 
         $response->assertNotFound();
     }
@@ -97,7 +93,7 @@ class ProjectApiTest extends TestCase
 
     public function test_unauthorized_cannot_access_my_projects(): void
     {
-        $response = $this->getJson('/api/v1/my/projects');
+        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/my/projects');
 
         $response->assertUnauthorized();
     }
@@ -110,7 +106,7 @@ class ProjectApiTest extends TestCase
         // Проєкт іншого користувача
         Project::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/v1/my/projects');
+        $response = $this->withHeaders($this->authHeaders($user))->getJson('/api/v1/my/projects');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');
@@ -131,7 +127,7 @@ class ProjectApiTest extends TestCase
             'budget_goal' => 10000,
         ];
 
-        $response = $this->actingAs($user)->postJson('/api/v1/my/projects', $data);
+        $response = $this->withHeaders($this->authHeaders($user))->postJson('/api/v1/my/projects', $data);
 
         $response->assertCreated()
             ->assertJsonPath('data.title.uk', 'Тестовий проєкт')
@@ -151,7 +147,7 @@ class ProjectApiTest extends TestCase
             'status' => ProjectStatus::Draft,
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/v1/my/projects/{$project->id}", [
+        $response = $this->withHeaders($this->authHeaders($user))->putJson("/api/v1/my/projects/{$project->id}", [
             'title' => ['uk' => 'Оновлена назва'],
         ]);
 
@@ -168,7 +164,7 @@ class ProjectApiTest extends TestCase
             'status' => ProjectStatus::Draft,
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/v1/my/projects/{$project->id}", [
+        $response = $this->withHeaders($this->authHeaders($user))->putJson("/api/v1/my/projects/{$project->id}", [
             'title' => ['uk' => 'Оновлена назва'],
         ]);
 
@@ -186,7 +182,7 @@ class ProjectApiTest extends TestCase
             'budget_goal' => 10000,
         ]);
 
-        $response = $this->actingAs($user)->postJson("/api/v1/my/projects/{$project->id}/submit");
+        $response = $this->withHeaders($this->authHeaders($user))->postJson("/api/v1/my/projects/{$project->id}/submit");
 
         $response->assertOk();
 
@@ -203,7 +199,7 @@ class ProjectApiTest extends TestCase
             'status' => ProjectStatus::Draft,
         ]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/v1/my/projects/{$project->id}");
+        $response = $this->withHeaders($this->authHeaders($user))->deleteJson("/api/v1/my/projects/{$project->id}");
 
         $response->assertOk();
         $this->assertSoftDeleted('projects', ['id' => $project->id]);
@@ -216,7 +212,7 @@ class ProjectApiTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/v1/my/projects/{$project->id}");
+        $response = $this->withHeaders($this->authHeaders($user))->deleteJson("/api/v1/my/projects/{$project->id}");
 
         $response->assertUnprocessable();
         $this->assertDatabaseHas('projects', ['id' => $project->id]);
@@ -231,7 +227,7 @@ class ProjectApiTest extends TestCase
         $user = User::factory()->create();
         $project = Project::factory()->announced()->create(['likes_count' => 0]);
 
-        $response = $this->actingAs($user)->postJson("/api/v1/projects/{$project->id}/like");
+        $response = $this->withHeaders($this->authHeaders($user))->postJson("/api/v1/projects/{$project->id}/like");
 
         $response->assertOk()
             ->assertJsonPath('is_liked', true)
@@ -251,7 +247,7 @@ class ProjectApiTest extends TestCase
         // Спочатку лайкаємо
         $project->likes()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/v1/projects/{$project->id}/like");
+        $response = $this->withHeaders($this->authHeaders($user))->deleteJson("/api/v1/projects/{$project->id}/like");
 
         $response->assertOk()
             ->assertJsonPath('is_liked', false)
@@ -269,7 +265,7 @@ class ProjectApiTest extends TestCase
         $project = Project::factory()->announced()->create(['likes_count' => 1]);
         $project->likes()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->postJson("/api/v1/projects/{$project->id}/like");
+        $response = $this->withHeaders($this->authHeaders($user))->postJson("/api/v1/projects/{$project->id}/like");
 
         $response->assertUnprocessable();
     }

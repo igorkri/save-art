@@ -76,8 +76,8 @@ class ArtistController extends Controller
             ->withCount([
                 'projects' => fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()),
             ])
-            ->having('projects_count', '>', 0)
-            ->orderBy('projects_count', 'desc');
+            ->whereHas('projects', fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()))
+            ->orderByDesc('projects_count');
 
         // Пошук по імені
         if ($request->filled('search')) {
