@@ -20,6 +20,190 @@
         }
     ],
     "paths": {
+        "/home": {
+            "get": {
+                "tags": [
+                    "HomePage"
+                ],
+                "summary": "Дані головної сторінки",
+                "description": "Повертає всі дані для рендерингу головної сторінки, включаючи hero-секцію, статистику, партнерів та рекомендовані проекти",
+                "operationId": "getHomePage",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова контенту (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Дані головної сторінки",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "hero": {
+                                                    "properties": {
+                                                        "title": {
+                                                            "type": "object"
+                                                        },
+                                                        "video_poster": {
+                                                            "type": "string"
+                                                        },
+                                                        "video_poster_mobile": {
+                                                            "type": "string"
+                                                        },
+                                                        "image_poster": {
+                                                            "type": "string"
+                                                        },
+                                                        "image_poster_mobile": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "donates_section": {
+                                                    "properties": {
+                                                        "subtitle": {
+                                                            "type": "object"
+                                                        },
+                                                        "title": {
+                                                            "type": "object"
+                                                        },
+                                                        "text": {
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "statistics": {
+                                                    "properties": {
+                                                        "total_collected": {
+                                                            "type": "integer"
+                                                        },
+                                                        "declared_projects": {
+                                                            "type": "integer"
+                                                        },
+                                                        "active_projects": {
+                                                            "type": "integer"
+                                                        },
+                                                        "completed_projects": {
+                                                            "type": "integer"
+                                                        },
+                                                        "sold_projects": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "partners": {
+                                                    "properties": {
+                                                        "title": {
+                                                            "type": "object"
+                                                        },
+                                                        "items": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "ad_blocks": {
+                                                    "properties": {
+                                                        "first": {
+                                                            "type": "object"
+                                                        },
+                                                        "second": {
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "footer_expert": {
+                                                    "type": "object"
+                                                },
+                                                "featured_projects": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Головна сторінка не налаштована"
+                    }
+                }
+            }
+        },
+        "/home/statistics": {
+            "get": {
+                "tags": [
+                    "HomePage"
+                ],
+                "summary": "Статистика платформи",
+                "description": "Повертає актуальну статистику платформи (загальна сума зборів, кількість проектів)",
+                "operationId": "getHomeStatistics",
+                "responses": {
+                    "200": {
+                        "description": "Статистика",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "total_collected": {
+                                                    "type": "number",
+                                                    "example": 2325250
+                                                },
+                                                "declared_projects": {
+                                                    "type": "integer",
+                                                    "example": 624
+                                                },
+                                                "active_projects": {
+                                                    "type": "integer",
+                                                    "example": 387
+                                                },
+                                                "completed_projects": {
+                                                    "type": "integer",
+                                                    "example": 1126
+                                                },
+                                                "sold_projects": {
+                                                    "type": "integer",
+                                                    "example": 107
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/artists": {
             "get": {
                 "tags": [
@@ -6210,6 +6394,10 @@
         }
     },
     "tags": [
+        {
+            "name": "HomePage",
+            "description": "API для головної сторінки"
+        },
         {
             "name": "Artists",
             "description": "API для роботи з митцями (публічні профілі)"

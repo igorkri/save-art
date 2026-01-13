@@ -8,6 +8,7 @@ require __DIR__.'/api-auth.php';
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\ArtistBoardController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\HomePageController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
@@ -231,6 +232,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 // ============================================
 // Legacy public routes
 // ============================================
+
+// Home page data (главная страница для React фронтенда)
+Route::prefix('home')->group(function () {
+    Route::get('/', [HomePageController::class, 'index']);
+    Route::get('/statistics', [HomePageController::class, 'statistics']);
+});
 
 // Public routes for About (не требуют аутентификации)
 Route::prefix('about')->group(function () {
