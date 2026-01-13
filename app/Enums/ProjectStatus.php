@@ -84,10 +84,19 @@ enum ProjectStatus: string
     }
 
     /**
-     * Чи можна редагувати проєкт
+     * Чи можна редагувати проєкт повністю (чернетки)
      */
     public function isEditable(): bool
     {
         return in_array($this, [self::Draft, self::Rejected]);
+    }
+
+    /**
+     * Чи можна редагувати проєкт частково (опубліковані)
+     * Дозволяє редагувати: назву, опис, теги, додаткову інформацію
+     */
+    public function isPartiallyEditable(): bool
+    {
+        return in_array($this, [self::Announced, self::InProgress, self::Paused]);
     }
 }

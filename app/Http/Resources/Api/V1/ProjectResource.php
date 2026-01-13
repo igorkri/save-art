@@ -51,12 +51,43 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
  *         @OA\Property(property="amount", type="number", example=15000)
  *     )),
+ *     @OA\Property(property="final_result", ref="#/components/schemas/FinalResult", nullable=true),
  *     @OA\Property(property="stages", type="array", @OA\Items(ref="#/components/schemas/ProjectStage")),
  *     @OA\Property(property="bonuses", type="array", @OA\Items(ref="#/components/schemas/ProjectBonus")),
  *     @OA\Property(property="can_edit", type="boolean", example=false),
  *     @OA\Property(property="can_donate", type="boolean", example=true),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="FinalResult",
+ *     title="FinalResult",
+ *     description="Фінальний результат проєкту (03.4.4, 03.4.5). Типи: image (одне зображення), gallery (галерея), video (відео-файл), document (документ)",
+ *     type="object",
+ *     required={"type"},
+ *
+ *     @OA\Property(property="type", type="string", enum={"image", "gallery", "video", "document"}, example="gallery", description="Тип результату"),
+ *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true, description="Опис результату"),
+ *     @OA\Property(property="file", type="object", nullable=true, description="Один файл (для type=image або document або video з одним файлом)",
+ *         @OA\Property(property="path", type="string", example="projects/1/final-result/artwork.jpg"),
+ *         @OA\Property(property="url", type="string", example="http://save-art.local/storage/projects/1/final-result/artwork.jpg"),
+ *         @OA\Property(property="original_name", type="string", example="my-artwork.jpg"),
+ *         @OA\Property(property="mime_type", type="string", example="image/jpeg"),
+ *         @OA\Property(property="size", type="integer", example=1024000, description="Розмір у байтах")
+ *     ),
+ *     @OA\Property(property="files", type="array", nullable=true, description="Масив файлів (для type=gallery або кілька файлів)",
+ *
+ *         @OA\Items(type="object",
+ *
+ *             @OA\Property(property="path", type="string"),
+ *             @OA\Property(property="url", type="string"),
+ *             @OA\Property(property="original_name", type="string"),
+ *             @OA\Property(property="mime_type", type="string"),
+ *             @OA\Property(property="size", type="integer")
+ *         )
+ *     ),
+ *     @OA\Property(property="uploaded_at", type="string", format="date-time", description="Дата завантаження")
  * )
  */
 class ProjectResource extends JsonResource

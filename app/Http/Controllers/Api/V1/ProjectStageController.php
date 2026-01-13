@@ -12,11 +12,48 @@ use App\Models\ProjectStage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
+use OpenApi\Annotations as OA;
 
 class ProjectStageController extends Controller
 {
     /**
      * Отримати список етапів проєкту
+     *
+     * @OA\Get(
+     *     path="/v1/my/projects/{project}/stages",
+     *     operationId="getProjectStages",
+     *     tags={"Project Stages"},
+     *     summary="Отримати список етапів проєкту (03.4.2.6)",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *         description="ID проєкту",
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список етапів",
+     *
+     *         @OA\JsonContent(
+     *             type="object",
+     *
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *
+     *                 @OA\Items(ref="#/components/schemas/ProjectStage")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Проєкт не знайдено")
+     * )
      */
     public function index(Project $project): AnonymousResourceCollection
     {
@@ -27,6 +64,46 @@ class ProjectStageController extends Controller
 
     /**
      * Створити новий етап
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/stages",
+     *     operationId="createProjectStage",
+     *     tags={"Project Stages"},
+     *     summary="Створити новий етап проєкту (03.4.2.6)",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *         description="ID проєкту",
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *             required={"title"},
+     *
+     *             @OA\Property(property="title", ref="#/components/schemas/LocalizedString", example={"uk": "Закупівля матеріалів", "en": "Purchasing materials"}),
+     *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true, example={"uk": "Опис етапу", "en": "Stage description"}),
+     *             @OA\Property(property="days_planned", type="integer", example=14, description="Планова кількість днів"),
+     *             @OA\Property(property="budget_planned", type="number", format="float", example=5000.00, description="Плановий бюджет")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Етап створено",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProjectStage")
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=422, description="Validation Error")
+     * )
      */
     public function store(CreateStageRequest $request, Project $project): ProjectStageResource|JsonResponse
     {
@@ -49,6 +126,55 @@ class ProjectStageController extends Controller
 
     /**
      * Оновити етап
+     *
+     * @OA\Put(
+     *     path="/v1/my/projects/{project}/stages/{stage}",
+     *     operationId="updateProjectStage",
+     *     tags={"Project Stages"},
+     *     summary="Оновити етап проєкту (03.4.2.6)",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="stage",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+     *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString"),
+     *             @OA\Property(property="status", type="string", enum={"planned", "in_progress", "completed"}),
+     *             @OA\Property(property="days_planned", type="integer"),
+     *             @OA\Property(property="budget_planned", type="number", format="float"),
+     *             @OA\Property(property="budget_actual", type="number", format="float"),
+     *             @OA\Property(property="order", type="integer")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Етап оновлено",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProjectStage")
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function update(UpdateStageRequest $request, Project $project, ProjectStage $stage): ProjectStageResource|JsonResponse
     {
@@ -65,6 +191,44 @@ class ProjectStageController extends Controller
 
     /**
      * Видалити етап
+     *
+     * @OA\Delete(
+     *     path="/v1/my/projects/{project}/stages/{stage}",
+     *     operationId="deleteProjectStage",
+     *     tags={"Project Stages"},
+     *     summary="Видалити етап проєкту",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="stage",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Етап видалено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Етап видалено")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Проєкт не можна редагувати")
+     * )
      */
     public function destroy(Request $request, Project $project, ProjectStage $stage): JsonResponse
     {
@@ -88,6 +252,41 @@ class ProjectStageController extends Controller
 
     /**
      * Почати виконання етапу
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/stages/{stage}/start",
+     *     operationId="startProjectStage",
+     *     tags={"Project Stages"},
+     *     summary="Почати виконання етапу (03.4.2.6)",
+     *     description="Змінює статус етапу на 'in_progress' та встановлює дату початку",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="stage",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Етап розпочато",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProjectStage")
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function start(Request $request, Project $project, ProjectStage $stage): ProjectStageResource|JsonResponse
     {
@@ -109,6 +308,41 @@ class ProjectStageController extends Controller
 
     /**
      * Завершити етап
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/stages/{stage}/complete",
+     *     operationId="completeProjectStage",
+     *     tags={"Project Stages"},
+     *     summary="Завершити етап (03.4.2.6)",
+     *     description="Змінює статус етапу на 'completed' та встановлює дату завершення",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="stage",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Етап завершено",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProjectStage")
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function complete(Request $request, Project $project, ProjectStage $stage): ProjectStageResource|JsonResponse
     {
@@ -126,5 +360,204 @@ class ProjectStageController extends Controller
         ]);
 
         return new ProjectStageResource($stage);
+    }
+
+    /**
+     * Завантажити документи/фото для етапу
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/stages/{stage}/documents",
+     *     operationId="uploadStageDocuments",
+     *     tags={"Project Stages"},
+     *     summary="Завантажити документи/фото для етапу (03.4.2.6)",
+     *     description="Завантажує фото-звіти, чеки та інші документи для підтвердження виконання етапу",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *         description="ID проєкту",
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="stage",
+     *         in="path",
+     *         required=true,
+     *         description="ID етапу",
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *
+     *             @OA\Schema(
+     *                 required={"documents"},
+     *
+     *                 @OA\Property(
+     *                     property="documents",
+     *                     type="array",
+     *                     description="Файли документів (до 10 файлів, до 5MB кожен)",
+     *
+     *                     @OA\Items(type="string", format="binary")
+     *                 ),
+     *
+     *                 @OA\Property(
+     *                     property="descriptions",
+     *                     type="array",
+     *                     description="Описи для кожного файлу",
+     *
+     *                     @OA\Items(
+     *                         type="object",
+     *
+     *                         @OA\Property(property="uk", type="string", example="Чек за матеріали"),
+     *                         @OA\Property(property="en", type="string", example="Receipt for materials")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Документи завантажено",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProjectStage")
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Validation Error")
+     * )
+     */
+    public function uploadDocuments(Request $request, Project $project, ProjectStage $stage): ProjectStageResource|JsonResponse
+    {
+        if ($project->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($stage->project_id !== $project->id) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        $request->validate([
+            'documents' => ['required', 'array', 'max:10'],
+            'documents.*' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'descriptions' => ['nullable', 'array'],
+            'descriptions.*' => ['nullable', 'array'],
+            'descriptions.*.uk' => ['nullable', 'string', 'max:255'],
+            'descriptions.*.en' => ['nullable', 'string', 'max:255'],
+        ], [
+            'documents.required' => 'Завантажте хоча б один документ',
+            'documents.max' => 'Максимум 10 документів',
+            'documents.*.mimes' => 'Дозволені формати: JPG, PNG, PDF',
+            'documents.*.max' => 'Максимальний розмір файлу 5MB',
+        ]);
+
+        $existingDocuments = $stage->documents ?? [];
+        $newDocuments = [];
+        $descriptions = $request->input('descriptions', []);
+
+        foreach ($request->file('documents') as $index => $file) {
+            $path = $file->store("projects/{$project->id}/stages/{$stage->id}", 'public');
+
+            $newDocuments[] = [
+                'type' => $file->getClientOriginalExtension() === 'pdf' ? 'document' : 'photo',
+                'file' => $path,
+                'file_url' => Storage::disk('public')->url($path),
+                'original_name' => $file->getClientOriginalName(),
+                'description' => $descriptions[$index] ?? null,
+                'uploaded_at' => now()->toISOString(),
+            ];
+        }
+
+        $stage->update([
+            'documents' => array_merge($existingDocuments, $newDocuments),
+        ]);
+
+        return new ProjectStageResource($stage->fresh());
+    }
+
+    /**
+     * Видалити документ з етапу
+     *
+     * @OA\Delete(
+     *     path="/v1/my/projects/{project}/stages/{stage}/documents/{documentIndex}",
+     *     operationId="deleteStageDocument",
+     *     tags={"Project Stages"},
+     *     summary="Видалити документ з етапу",
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="project",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="stage",
+     *         in="path",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="documentIndex",
+     *         in="path",
+     *         required=true,
+     *         description="Індекс документа в масиві (починаючи з 0)",
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Документ видалено",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProjectStage")
+     *     ),
+     *
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
+    public function deleteDocument(Request $request, Project $project, ProjectStage $stage, int $documentIndex): ProjectStageResource|JsonResponse
+    {
+        if ($project->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($stage->project_id !== $project->id) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        $documents = $stage->documents ?? [];
+
+        if (! isset($documents[$documentIndex])) {
+            return response()->json(['message' => 'Документ не знайдено'], 404);
+        }
+
+        // Видаляємо файл зі сховища
+        if (isset($documents[$documentIndex]['file'])) {
+            Storage::disk('public')->delete($documents[$documentIndex]['file']);
+        }
+
+        // Видаляємо з масиву
+        array_splice($documents, $documentIndex, 1);
+
+        $stage->update([
+            'documents' => $documents,
+        ]);
+
+        return new ProjectStageResource($stage->fresh());
     }
 }

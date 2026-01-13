@@ -227,11 +227,19 @@ class Project extends Model
     }
 
     /**
-     * Чи можна редагувати проєкт
+     * Чи можна редагувати проєкт повністю
      */
     public function isEditable(): bool
     {
         return $this->status->isEditable();
+    }
+
+    /**
+     * Чи можна редагувати проєкт частково (опубліковані)
+     */
+    public function isPartiallyEditable(): bool
+    {
+        return $this->status->isPartiallyEditable();
     }
 
     /**

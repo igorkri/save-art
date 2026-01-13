@@ -1498,11 +1498,103 @@
                     "My Projects"
                 ],
                 "summary": "Створити проєкт",
-                "description": "Створює новий проєкт у статусі чернетки",
+                "description": "Створює новий проєкт у статусі чернетки. Підтримує завантаження обкладинки через multipart/form-data.",
                 "operationId": "createProject",
                 "requestBody": {
                     "required": true,
                     "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "title[uk]",
+                                    "user_type",
+                                    "art_category",
+                                    "currency",
+                                    "budget_goal"
+                                ],
+                                "properties": {
+                                    "user_type": {
+                                        "description": "Тип автора",
+                                        "type": "string",
+                                        "enum": [
+                                            "personal",
+                                            "legal"
+                                        ],
+                                        "example": "personal"
+                                    },
+                                    "title[uk]": {
+                                        "description": "Назва українською (обов'язкова)",
+                                        "type": "string",
+                                        "example": "Назва проєкту"
+                                    },
+                                    "title[en]": {
+                                        "description": "Назва англійською (опціонально)",
+                                        "type": "string",
+                                        "example": "Project name"
+                                    },
+                                    "short_description[uk]": {
+                                        "type": "string",
+                                        "example": "Короткий опис"
+                                    },
+                                    "short_description[en]": {
+                                        "type": "string",
+                                        "example": "Short description"
+                                    },
+                                    "cover": {
+                                        "description": "Обкладинка проєкту (JPG, PNG, до 15MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "art_category": {
+                                        "type": "string",
+                                        "enum": [
+                                            "scenic",
+                                            "visual",
+                                            "fine_art",
+                                            "literature",
+                                            "music",
+                                            "other"
+                                        ],
+                                        "example": "visual"
+                                    },
+                                    "art_subcategory": {
+                                        "type": "string",
+                                        "example": "painting",
+                                        "nullable": true
+                                    },
+                                    "tags[uk]": {
+                                        "type": "string",
+                                        "example": "живопис, арт"
+                                    },
+                                    "tags[en]": {
+                                        "type": "string",
+                                        "example": "painting, art"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ],
+                                        "example": "UAH"
+                                    },
+                                    "budget_goal": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "minimum": 100,
+                                        "example": 50000
+                                    },
+                                    "estimated_days": {
+                                        "type": "integer",
+                                        "maximum": 365,
+                                        "minimum": 1,
+                                        "example": 90
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
                         "application/json": {
                             "schema": {
                                 "required": [
@@ -1733,8 +1825,8 @@
                 "tags": [
                     "My Projects"
                 ],
-                "summary": "Оновити проєкт",
-                "description": "Оновлює дані проєкту. Доступно тільки для чернеток та відхилених.",
+                "summary": "Оновити проєкт (повне оновлення)",
+                "description": "Оновлює дані проєкту. Доступно тільки для чернеток та відхилених. Підтримує завантаження обкладинки через multipart/form-data.",
                 "operationId": "updateMyProject",
                 "parameters": [
                     {
@@ -1750,6 +1842,50 @@
                 "requestBody": {
                     "required": true,
                     "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "title[uk]": {
+                                        "type": "string",
+                                        "example": "Нова назва"
+                                    },
+                                    "title[en]": {
+                                        "type": "string",
+                                        "example": "New title"
+                                    },
+                                    "short_description[uk]": {
+                                        "type": "string"
+                                    },
+                                    "short_description[en]": {
+                                        "type": "string"
+                                    },
+                                    "cover": {
+                                        "description": "Обкладинка проєкту (JPG, PNG, до 15MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "art_category": {
+                                        "type": "string",
+                                        "enum": [
+                                            "scenic",
+                                            "visual",
+                                            "fine_art",
+                                            "literature",
+                                            "music",
+                                            "other"
+                                        ]
+                                    },
+                                    "budget_goal": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "estimated_days": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
                         "application/json": {
                             "schema": {
                                 "properties": {
@@ -1803,7 +1939,7 @@
                         "description": "Не авторизовано"
                     },
                     "403": {
-                        "description": "Не власник проєкту"
+                        "description": "Не власник проєкту або проєкт не є чернеткою"
                     },
                     "422": {
                         "description": "Помилка валідації"
@@ -1858,6 +1994,128 @@
                     },
                     "422": {
                         "description": "Неможливо видалити (не чернетка)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "My Projects"
+                ],
+                "summary": "Часткове оновлення опублікованого проєкту (03.4.2.2)",
+                "description": "Дозволяє редагувати назву, опис, теги та обкладинку опублікованого проєкту. Бюджет та категорію змінити не можна. Підтримує завантаження обкладинки через multipart/form-data.",
+                "operationId": "updateMyProjectPartially",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "title[uk]": {
+                                        "description": "Назва українською",
+                                        "type": "string",
+                                        "example": "Нова назва"
+                                    },
+                                    "title[en]": {
+                                        "description": "Назва англійською",
+                                        "type": "string",
+                                        "example": "New title"
+                                    },
+                                    "short_description[uk]": {
+                                        "description": "Короткий опис українською",
+                                        "type": "string"
+                                    },
+                                    "short_description[en]": {
+                                        "description": "Короткий опис англійською",
+                                        "type": "string"
+                                    },
+                                    "cover": {
+                                        "description": "Нова обкладинка (JPG, PNG, до 15MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "tags[uk]": {
+                                        "description": "Теги українською",
+                                        "type": "string",
+                                        "example": "живопис, арт"
+                                    },
+                                    "tags[en]": {
+                                        "description": "Теги англійською",
+                                        "type": "string",
+                                        "example": "painting, art"
+                                    },
+                                    "additional_info[uk]": {
+                                        "description": "Додаткова інформація українською",
+                                        "type": "string"
+                                    },
+                                    "additional_info[en]": {
+                                        "description": "Додаткова інформація англійською",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "short_description": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "tags": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "additional_info": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Проєкт оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Project"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "403": {
+                        "description": "Не власник проєкту або проєкт не опублікований"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
                     }
                 },
                 "security": [
@@ -1923,14 +2181,14 @@
                 ]
             }
         },
-        "/v1/my/projects/{project}/complete": {
+        "/v1/my/projects/{project}/final-result/upload": {
             "post": {
                 "tags": [
                     "My Projects"
                 ],
-                "summary": "Завершити проєкт",
-                "description": "Позначає проєкт як завершений та додає фінальний результат (зображення/відео/галерея)",
-                "operationId": "completeProject",
+                "summary": "Завантажити файли фінального результату (03.4.4)",
+                "description": "Завантажує файли фінального результату: зображення, галерею, відео або документ. Доступно для проєктів в роботі або завершених.",
+                "operationId": "uploadFinalResult",
                 "parameters": [
                     {
                         "name": "project",
@@ -1945,44 +2203,39 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "final_result"
+                                    "type",
+                                    "files"
                                 ],
                                 "properties": {
-                                    "final_result": {
-                                        "required": [
-                                            "type"
+                                    "type": {
+                                        "description": "Тип результату: image (одне зображення), gallery (кілька зображень), video (відео-файл), document (PDF або інший документ)",
+                                        "type": "string",
+                                        "enum": [
+                                            "image",
+                                            "gallery",
+                                            "video",
+                                            "document"
                                         ],
-                                        "properties": {
-                                            "type": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "image",
-                                                    "gallery",
-                                                    "video",
-                                                    "link"
-                                                ],
-                                                "example": "video"
-                                            },
-                                            "url": {
-                                                "type": "string",
-                                                "example": "https://youtube.com/watch?v=..."
-                                            },
-                                            "images": {
-                                                "description": "Для галереї",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                                "example": "Фінальний результат проєкту"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "example": "gallery"
+                                    },
+                                    "files": {
+                                        "description": "Файли (до 10 файлів, до 50MB кожен)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "description[uk]": {
+                                        "type": "string",
+                                        "example": "Опис результату українською"
+                                    },
+                                    "description[en]": {
+                                        "type": "string",
+                                        "example": "Result description in English"
                                     }
                                 },
                                 "type": "object"
@@ -1990,6 +2243,59 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "Файли завантажено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Фінальний результат збережено."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Project"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/projects/{project}/complete": {
+            "post": {
+                "tags": [
+                    "My Projects"
+                ],
+                "summary": "Завершити проєкт (03.4.5)",
+                "description": "Позначає проєкт як завершений. Перед викликом потрібно завантажити фінальний результат через /final-result/upload.",
+                "operationId": "completeProject",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Проєкт завершено",
@@ -2017,7 +2323,7 @@
                         "description": "Не власник проєкту"
                     },
                     "422": {
-                        "description": "Проєкт не в статусі 'в роботі'"
+                        "description": "Проєкт не в статусі 'в роботі' або немає фінального результату"
                     }
                 },
                 "security": [
@@ -2681,6 +2987,545 @@
                         "description": "Проект не знайдено"
                     }
                 }
+            }
+        },
+        "/v1/my/projects/{project}/stages": {
+            "get": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Отримати список етапів проєкту (03.4.2.6)",
+                "description": "Отримати список етапів проєкту",
+                "operationId": "getProjectStages",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "description": "ID проєкту",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список етапів",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProjectStage"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Проєкт не знайдено"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Створити новий етап проєкту (03.4.2.6)",
+                "description": "Створити новий етап",
+                "operationId": "createProjectStage",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "description": "ID проєкту",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "description": {
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/components/schemas/LocalizedString"
+                                            }
+                                        ],
+                                        "nullable": true,
+                                        "example": {
+                                            "uk": "Опис етапу",
+                                            "en": "Stage description"
+                                        }
+                                    },
+                                    "days_planned": {
+                                        "description": "Планова кількість днів",
+                                        "type": "integer",
+                                        "example": 14
+                                    },
+                                    "budget_planned": {
+                                        "description": "Плановий бюджет",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Етап створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectStage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/projects/{project}/stages/{stage}": {
+            "put": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Оновити етап проєкту (03.4.2.6)",
+                "description": "Оновити етап",
+                "operationId": "updateProjectStage",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stage",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "description": {
+                                        "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "planned",
+                                            "in_progress",
+                                            "completed"
+                                        ]
+                                    },
+                                    "days_planned": {
+                                        "type": "integer"
+                                    },
+                                    "budget_planned": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "budget_actual": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "order": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Етап оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectStage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Видалити етап проєкту",
+                "description": "Видалити етап",
+                "operationId": "deleteProjectStage",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stage",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Етап видалено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Етап видалено"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Проєкт не можна редагувати"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/projects/{project}/stages/{stage}/start": {
+            "post": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Почати виконання етапу (03.4.2.6)",
+                "description": "Змінює статус етапу на 'in_progress' та встановлює дату початку",
+                "operationId": "startProjectStage",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stage",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Етап розпочато",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectStage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/projects/{project}/stages/{stage}/complete": {
+            "post": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Завершити етап (03.4.2.6)",
+                "description": "Змінює статус етапу на 'completed' та встановлює дату завершення",
+                "operationId": "completeProjectStage",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stage",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Етап завершено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectStage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/projects/{project}/stages/{stage}/documents": {
+            "post": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Завантажити документи/фото для етапу (03.4.2.6)",
+                "description": "Завантажує фото-звіти, чеки та інші документи для підтвердження виконання етапу",
+                "operationId": "uploadStageDocuments",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "description": "ID проєкту",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stage",
+                        "in": "path",
+                        "description": "ID етапу",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "documents"
+                                ],
+                                "properties": {
+                                    "documents": {
+                                        "description": "Файли документів (до 10 файлів, до 5MB кожен)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "descriptions": {
+                                        "description": "Описи для кожного файлу",
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "uk": {
+                                                    "type": "string",
+                                                    "example": "Чек за матеріали"
+                                                },
+                                                "en": {
+                                                    "type": "string",
+                                                    "example": "Receipt for materials"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Документи завантажено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectStage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/projects/{project}/stages/{stage}/documents/{documentIndex}": {
+            "delete": {
+                "tags": [
+                    "Project Stages"
+                ],
+                "summary": "Видалити документ з етапу",
+                "description": "Видалити документ з етапу",
+                "operationId": "deleteStageDocument",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stage",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "documentIndex",
+                        "in": "path",
+                        "description": "Індекс документа в масиві (починаючи з 0)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Документ видалено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectStage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/v1/statistics": {
@@ -4568,6 +5413,14 @@
                         },
                         "nullable": true
                     },
+                    "final_result": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FinalResult"
+                            }
+                        ],
+                        "nullable": true
+                    },
                     "stages": {
                         "type": "array",
                         "items": {
@@ -4599,6 +5452,94 @@
                 },
                 "type": "object"
             },
+            "FinalResult": {
+                "title": "FinalResult",
+                "description": "Фінальний результат проєкту (03.4.4, 03.4.5). Типи: image (одне зображення), gallery (галерея), video (відео-файл), document (документ)",
+                "required": [
+                    "type"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "Тип результату",
+                        "type": "string",
+                        "enum": [
+                            "image",
+                            "gallery",
+                            "video",
+                            "document"
+                        ],
+                        "example": "gallery"
+                    },
+                    "description": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Опис результату"
+                    },
+                    "file": {
+                        "description": "Один файл (для type=image або document або video з одним файлом)",
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "example": "projects/1/final-result/artwork.jpg"
+                            },
+                            "url": {
+                                "type": "string",
+                                "example": "http://save-art.local/storage/projects/1/final-result/artwork.jpg"
+                            },
+                            "original_name": {
+                                "type": "string",
+                                "example": "my-artwork.jpg"
+                            },
+                            "mime_type": {
+                                "type": "string",
+                                "example": "image/jpeg"
+                            },
+                            "size": {
+                                "description": "Розмір у байтах",
+                                "type": "integer",
+                                "example": 1024000
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "files": {
+                        "description": "Масив файлів (для type=gallery або кілька файлів)",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "original_name": {
+                                    "type": "string"
+                                },
+                                "mime_type": {
+                                    "type": "string"
+                                },
+                                "size": {
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "uploaded_at": {
+                        "description": "Дата завантаження",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "ProjectStage": {
                 "title": "ProjectStage",
                 "description": "Етап проєкту",
@@ -4620,21 +5561,26 @@
                     "status": {
                         "type": "string",
                         "enum": [
-                            "pending",
+                            "planned",
                             "in_progress",
                             "completed"
                         ],
-                        "example": "pending"
+                        "example": "planned"
                     },
                     "status_label": {
                         "type": "string",
-                        "example": "Очікує"
+                        "example": "Заплановано"
                     },
                     "title": {
                         "$ref": "#/components/schemas/LocalizedString"
                     },
                     "description": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "days_planned": {
                         "type": "integer",
@@ -4670,6 +5616,59 @@
                     "is_in_progress": {
                         "type": "boolean",
                         "example": false
+                    },
+                    "documents": {
+                        "description": "Документи/фото для підтвердження виконання етапу",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StageDocument"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "StageDocument": {
+                "title": "StageDocument",
+                "description": "Документ або фото етапу",
+                "properties": {
+                    "type": {
+                        "description": "Тип: photo або document",
+                        "type": "string",
+                        "enum": [
+                            "photo",
+                            "document"
+                        ],
+                        "example": "photo"
+                    },
+                    "file": {
+                        "description": "Шлях до файлу",
+                        "type": "string",
+                        "example": "projects/1/stages/1/receipt.jpg"
+                    },
+                    "file_url": {
+                        "description": "Повний URL файлу",
+                        "type": "string",
+                        "example": "http://save-art.local/storage/projects/1/stages/1/receipt.jpg"
+                    },
+                    "original_name": {
+                        "description": "Оригінальна назва файлу",
+                        "type": "string",
+                        "example": "чек_матеріали.jpg"
+                    },
+                    "description": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Опис документа (uk, en)"
+                    },
+                    "uploaded_at": {
+                        "description": "Дата завантаження",
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
@@ -5246,6 +6245,10 @@
         {
             "name": "Projects",
             "description": "Projects"
+        },
+        {
+            "name": "Project Stages",
+            "description": "Project Stages"
         }
     ]
 }

@@ -222,6 +222,37 @@ class ProjectForm
 
                                         DatePicker::make('completed_at')
                                             ->label('Завершено'),
+
+                                        Repeater::make('documents')
+                                            ->label('Документи / Фото-звіти')
+                                            ->schema([
+                                                Select::make('type')
+                                                    ->label('Тип')
+                                                    ->options([
+                                                        'photo' => 'Фото',
+                                                        'document' => 'Документ',
+                                                    ])
+                                                    ->default('photo')
+                                                    ->required(),
+
+                                                FileUpload::make('file')
+                                                    ->label('Файл')
+                                                    ->directory('projects/stages/documents')
+                                                    ->image()
+                                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
+                                                    ->maxSize(5120)
+                                                    ->required(),
+
+                                                LanguageTabs::make([
+                                                    TextInput::make('description')
+                                                        ->label('Опис'),
+                                                ])->columnSpanFull(),
+                                            ])
+                                            ->columns(2)
+                                            ->columnSpanFull()
+                                            ->defaultItems(0)
+                                            ->collapsible()
+                                            ->itemLabel(fn (array $state): ?string => $state['description']['uk'] ?? ($state['type'] === 'photo' ? 'Фото' : 'Документ')),
                                     ])
                                     ->columns(3)
                                     ->columnSpanFull()

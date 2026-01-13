@@ -145,8 +145,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/', [MyProjectController::class, 'store']);
         Route::get('/{project}', [MyProjectController::class, 'show']);
         Route::put('/{project}', [MyProjectController::class, 'update']);
+        Route::patch('/{project}', [MyProjectController::class, 'updatePartial']);
         Route::delete('/{project}', [MyProjectController::class, 'destroy']);
         Route::post('/{project}/submit', [MyProjectController::class, 'submit']);
+        Route::post('/{project}/final-result/upload', [MyProjectController::class, 'uploadFinalResult']);
         Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
     });
 
@@ -189,6 +191,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::delete('/{stage}', [ProjectStageController::class, 'destroy']);
         Route::post('/{stage}/start', [ProjectStageController::class, 'start']);
         Route::post('/{stage}/complete', [ProjectStageController::class, 'complete']);
+        Route::post('/{stage}/documents', [ProjectStageController::class, 'uploadDocuments']);
+        Route::delete('/{stage}/documents/{documentIndex}', [ProjectStageController::class, 'deleteDocument']);
     });
 
     // Бонуси проєкту
