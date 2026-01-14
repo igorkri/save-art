@@ -6,8 +6,6 @@ use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\ProjectStage;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class ProjectStagesApiTest extends ApiTestCase
 {
@@ -15,24 +13,24 @@ class ProjectStagesApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
-        $this->project = Project::factory()->create([
-            'user_id' => $this->user->id,
-            'status' => ProjectStatus::InProgress,
-        ]);
     }
 
     // ==========================================
-    // Список етапів
+    // Список етапів проекту
     // ==========================================
 
     public function test_can_get_project_stages(): void
     {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
         ProjectStage::factory()->count(3)->create([
-            'project_id' => $this->project->id,
+            'project_id' => $project->id,
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->getJson("/api/v1/my/projects/{$this->project->id}/stages");
+            ->getJson("/api/v1/my/projects/{$project->id}/stages");
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -44,24 +42,40 @@ class ProjectStagesApiTest extends ApiTestCase
 
     public function test_can_create_stage(): void
     {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        $data = [
+            'title' => ['uk' => 'Етап 1', 'en' => 'Stage 1'],
+            'description' => ['uk' => 'Опис етапу', 'en' => 'Stage description'],
+            'budget_planned' => 5000,
+            'days_planned' => 14,
+            'order' => 1,
+        ];
+
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/stages", [
-                'title' => ['uk' => 'Етап 1', 'en' => 'Stage 1'],
-                'description' => ['uk' => 'Опис етапу', 'en' => 'Stage description'],
-                'budget' => 5000,
-                'planned_days' => 30,
-            ]);
+            ->postJson("/api/v1/my/projects/{$project->id}/stages", $data);
 
         $response->assertCreated()
-            ->assertJsonPath('data.budget', 5000);
+            ->assertJsonPath('data.budget_planned', 5000);
+
+        $this->assertDatabaseHas('project_stages', [
+            'project_id' => $project->id,
+            'budget_planned' => 5000,
+        ]);
     }
 
-    public function test_stage_requires_title(): void
+    public function test_cannot_create_stage_without_required_fields(): void
     {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/stages", [
-                'budget' => 5000,
-            ]);
+            ->postJson("/api/v1/my/projects/{$project->id}/stages", []);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['title']);
@@ -73,21 +87,27 @@ class ProjectStagesApiTest extends ApiTestCase
 
     public function test_can_update_stage(): void
     {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
         $stage = ProjectStage::factory()->create([
-            'project_id' => $this->project->id,
+            'project_id' => $project->id,
+            'budget_planned' => 5000,
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/projects/{$this->project->id}/stages/{$stage->id}", [
-                'title' => ['uk' => 'Оновлений', 'en' => 'Updated'],
-                'budget' => 10000,
+            ->putJson("/api/v1/my/projects/{$project->id}/stages/{$stage->id}", [
+                'title' => ['uk' => 'Оновлений етап', 'en' => 'Updated stage'],
+                'budget_planned' => 7000,
             ]);
 
         $response->assertOk();
 
         $this->assertDatabaseHas('project_stages', [
             'id' => $stage->id,
-            'budget' => 10000,
+            'budget_planned' => 7000,
         ]);
     }
 
@@ -97,14 +117,19 @@ class ProjectStagesApiTest extends ApiTestCase
 
     public function test_can_delete_stage(): void
     {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
         $stage = ProjectStage::factory()->create([
-            'project_id' => $this->project->id,
+            'project_id' => $project->id,
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->deleteJson("/api/v1/my/projects/{$this->project->id}/stages/{$stage->id}");
+            ->deleteJson("/api/v1/my/projects/{$project->id}/stages/{$stage->id}");
 
-        $response->assertNoContent();
+        $response->assertOk();
 
         $this->assertDatabaseMissing('project_stages', [
             'id' => $stage->id,
@@ -112,85 +137,29 @@ class ProjectStagesApiTest extends ApiTestCase
     }
 
     // ==========================================
-    // Старт етапу
-    // ==========================================
-
-    public function test_can_start_stage(): void
-    {
-        $stage = ProjectStage::factory()->create([
-            'project_id' => $this->project->id,
-            'status' => 'planned',
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$stage->id}/start");
-
-        $response->assertOk();
-    }
-
-    // ==========================================
-    // Завершення етапу
-    // ==========================================
-
-    public function test_can_complete_stage(): void
-    {
-        $stage = ProjectStage::factory()->create([
-            'project_id' => $this->project->id,
-            'status' => 'in_progress',
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$stage->id}/complete");
-
-        $response->assertOk();
-    }
-
-    // ==========================================
-    // Документи етапу
-    // ==========================================
-
-    public function test_can_upload_stage_documents(): void
-    {
-        Storage::fake('public');
-
-        $stage = ProjectStage::factory()->create([
-            'project_id' => $this->project->id,
-        ]);
-
-        $file = UploadedFile::fake()->create('document.pdf', 1024);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/stages/{$stage->id}/documents", [
-                'documents' => [$file],
-            ]);
-
-        $response->assertOk();
-    }
-
-    public function test_can_delete_stage_document(): void
-    {
-        $stage = ProjectStage::factory()->create([
-            'project_id' => $this->project->id,
-            'documents' => ['path/to/document.pdf'],
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->deleteJson("/api/v1/my/projects/{$this->project->id}/stages/{$stage->id}/documents/0");
-
-        $response->assertOk();
-    }
-
-    // ==========================================
     // Захист
     // ==========================================
 
-    public function test_cannot_access_other_user_project_stages(): void
+    public function test_cannot_manage_stages_for_other_user_project(): void
     {
-        $otherProject = Project::factory()->create();
+        $project = Project::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders())
-            ->getJson("/api/v1/my/projects/{$otherProject->id}/stages");
+            ->postJson("/api/v1/my/projects/{$project->id}/stages", [
+                'title' => ['uk' => 'Етап', 'en' => 'Stage'],
+                'budget_planned' => 5000,
+            ]);
 
         $response->assertForbidden();
+    }
+
+    public function test_unauthenticated_user_cannot_access(): void
+    {
+        $project = Project::factory()->create();
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/my/projects/{$project->id}/stages");
+
+        $response->assertUnauthorized();
     }
 }

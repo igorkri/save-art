@@ -13,7 +13,9 @@ class FaqApiTest extends ApiTestCase
 
     public function test_can_get_faq_list(): void
     {
-        $category = FaqCategory::factory()->create();
+        $category = FaqCategory::factory()->create([
+            'is_active' => true,
+        ]);
         Faq::factory()->count(5)->create([
             'faq_category_id' => $category->id,
             'is_active' => true,
@@ -24,11 +26,21 @@ class FaqApiTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonStructure([
+                'result',
                 'data' => [
-                    '*' => [
-                        'id',
-                        'question',
-                        'answer',
+                    'categories' => [
+                        '*' => [
+                            'id',
+                            'name',
+                            'slug',
+                            'questions' => [
+                                '*' => [
+                                    'id',
+                                    'question',
+                                    'answer',
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ]);
@@ -36,13 +48,24 @@ class FaqApiTest extends ApiTestCase
 
     public function test_inactive_faq_not_shown(): void
     {
-        Faq::factory()->create(['is_active' => false]);
+        // Створюємо активну категорію з неактивним FAQ
+        $category = FaqCategory::factory()->create([
+            'is_active' => true,
+        ]);
+        Faq::factory()->create([
+            'faq_category_id' => $category->id,
+            'is_active' => false,
+        ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson('/api/v1/faq');
 
-        $response->assertOk()
-            ->assertJsonCount(0, 'data');
+        $response->assertOk();
+        
+        // Категорія є, але питань в ній немає (неактивні відфільтровані)
+        $data = $response->json('data.categories');
+        $this->assertCount(1, $data);
+        $this->assertCount(0, $data[0]['questions']);
     }
 
     // ==========================================
@@ -51,7 +74,11 @@ class FaqApiTest extends ApiTestCase
 
     public function test_can_get_faq_by_language(): void
     {
+        $category = FaqCategory::factory()->create([
+            'is_active' => true,
+        ]);
         Faq::factory()->create([
+            'faq_category_id' => $category->id,
             'is_active' => true,
         ]);
 
@@ -77,6 +104,7 @@ class FaqApiTest extends ApiTestCase
     {
         $category = FaqCategory::factory()->create([
             'slug' => 'donations',
+            'is_active' => true,
         ]);
         Faq::factory()->count(3)->create([
             'faq_category_id' => $category->id,
@@ -87,7 +115,7 @@ class FaqApiTest extends ApiTestCase
             ->getJson('/api/v1/faq/category/donations');
 
         $response->assertOk()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data.category.questions');
     }
 
     public function test_returns_404_for_nonexistent_category(): void

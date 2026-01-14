@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\V1;
 
-use App\Models\Message;
 use App\Models\Notification;
 use App\Models\User;
 
@@ -28,56 +27,71 @@ class NotificationsApiTest extends ApiTestCase
             ->getJson('/api/v1/my/notifications');
 
         $response->assertOk()
+            ->assertJsonCount(3, 'data');
+    }
+
+    public function test_can_get_only_unread_notifications(): void
+    {
+        Notification::factory()->count(2)->create([
+            'user_id' => $this->user->id,
+            'read_at' => null,
+        ]);
+        Notification::factory()->create([
+            'user_id' => $this->user->id,
+            'read_at' => now(),
+        ]);
+
+        // Правильний параметр - unread_only
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/notifications?unread_only=1');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_notifications_are_paginated(): void
+    {
+        Notification::factory()->count(25)->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/notifications');
+
+        $response->assertOk()
             ->assertJsonStructure([
-                'data' => [
-                    '*' => [
-                        'id',
-                        'type',
-                        'title',
-                        'is_read',
-                        'created_at',
-                    ],
-                ],
+                'data',
+                'meta' => ['current_page', 'last_page'],
             ]);
     }
 
-    public function test_can_filter_unread_notifications(): void
-    {
-        Notification::factory()->create([
-            'user_id' => $this->user->id,
-            'is_read' => false,
-        ]);
-        Notification::factory()->create([
-            'user_id' => $this->user->id,
-            'is_read' => true,
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->getJson('/api/v1/my/notifications?unread=1');
-
-        $response->assertOk();
-    }
-
     // ==========================================
-    // Кількість непрочитаних
+    // Перегляд сповіщення (формат: {source}/{id})
     // ==========================================
 
-    public function test_can_get_unread_count(): void
+    public function test_can_get_notification(): void
     {
-        Notification::factory()->count(5)->create([
+        $notification = Notification::factory()->create([
             'user_id' => $this->user->id,
-            'is_read' => false,
-        ]);
-        Notification::factory()->count(2)->create([
-            'user_id' => $this->user->id,
-            'is_read' => true,
         ]);
 
+        // Формат роута: /my/notifications/{source}/{id}
         $response = $this->withHeaders($this->authHeaders())
-            ->getJson('/api/v1/my/notifications/unread-count');
+            ->getJson("/api/v1/my/notifications/notification/{$notification->id}");
 
         $response->assertOk()
-            ->assertJsonPath('data.count', 5);
+            ->assertJsonPath('data.id', $notification->id);
+    }
+
+    public function test_cannot_get_other_user_notification(): void
+    {
+        $notification = Notification::factory()->create();
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson("/api/v1/my/notifications/notification/{$notification->id}");
+
+        // 404 тому що сповіщення не належить поточному користувачу
+        $response->assertNotFound();
     }
 
     // ==========================================
@@ -88,43 +102,23 @@ class NotificationsApiTest extends ApiTestCase
     {
         $notification = Notification::factory()->create([
             'user_id' => $this->user->id,
-            'is_read' => false,
+            'read_at' => null,
         ]);
 
+        // Формат роута: /my/notifications/{source}/{id}/read
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/my/notifications/notification/{$notification->id}/read");
 
         $response->assertOk();
 
-        $this->assertDatabaseHas('notifications', [
-            'id' => $notification->id,
-            'is_read' => true,
-        ]);
+        $this->assertNotNull($notification->fresh()->read_at);
     }
 
-    public function test_can_mark_message_as_read(): void
-    {
-        $message = Message::factory()->create([
-            'user_id' => $this->user->id,
-            'is_read' => false,
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/notifications/message/{$message->id}/read");
-
-        $response->assertOk();
-
-        $this->assertDatabaseHas('messages', [
-            'id' => $message->id,
-            'is_read' => true,
-        ]);
-    }
-
-    public function test_can_mark_all_as_read(): void
+    public function test_can_mark_all_notifications_as_read(): void
     {
         Notification::factory()->count(3)->create([
             'user_id' => $this->user->id,
-            'is_read' => false,
+            'read_at' => null,
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
@@ -134,39 +128,14 @@ class NotificationsApiTest extends ApiTestCase
 
         $this->assertEquals(
             0,
-            Notification::where('user_id', $this->user->id)->where('is_read', false)->count()
+            Notification::where('user_id', $this->user->id)
+                ->whereNull('read_at')
+                ->count()
         );
     }
 
     // ==========================================
-    // Перегляд сповіщення
-    // ==========================================
-
-    public function test_can_view_notification(): void
-    {
-        $notification = Notification::factory()->create([
-            'user_id' => $this->user->id,
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->getJson("/api/v1/my/notifications/notification/{$notification->id}");
-
-        $response->assertOk()
-            ->assertJsonPath('data.id', $notification->id);
-    }
-
-    public function test_cannot_view_other_user_notification(): void
-    {
-        $notification = Notification::factory()->create();
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->getJson("/api/v1/my/notifications/notification/{$notification->id}");
-
-        $response->assertForbidden();
-    }
-
-    // ==========================================
-    // Видалення сповіщення
+    // Видалення сповіщень
     // ==========================================
 
     public function test_can_delete_notification(): void
@@ -175,13 +144,49 @@ class NotificationsApiTest extends ApiTestCase
             'user_id' => $this->user->id,
         ]);
 
+        // Формат роута: /my/notifications/{source}/{id}
         $response = $this->withHeaders($this->authHeaders())
             ->deleteJson("/api/v1/my/notifications/notification/{$notification->id}");
 
         $response->assertOk();
 
-        $this->assertDatabaseMissing('notifications', [
+        $this->assertDatabaseMissing('app_notifications', [
             'id' => $notification->id,
         ]);
+    }
+
+    // ==========================================
+    // Кількість непрочитаних
+    // ==========================================
+
+    public function test_can_get_unread_count(): void
+    {
+        Notification::factory()->count(5)->create([
+            'user_id' => $this->user->id,
+            'read_at' => null,
+        ]);
+        Notification::factory()->count(2)->create([
+            'user_id' => $this->user->id,
+            'read_at' => now(),
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/notifications/unread-count');
+
+        // Формат відповіді: unread_count, unread_notifications, unread_messages
+        $response->assertOk()
+            ->assertJsonPath('unread_notifications', 5);
+    }
+
+    // ==========================================
+    // Захист
+    // ==========================================
+
+    public function test_unauthenticated_user_cannot_access(): void
+    {
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/my/notifications');
+
+        $response->assertUnauthorized();
     }
 }

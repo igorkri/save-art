@@ -82,7 +82,11 @@ class HomeApiTest extends ApiTestCase
 
     public function test_home_requires_api_key(): void
     {
-        $response = $this->withHeaders($this->apiHeaders())->getJson('/api/home');
+        // Налаштовуємо API key щоб middleware перевіряв його
+        config(['services.api_key' => $this->apiKey]);
+        
+        // Запит без API key повинен повернути 403
+        $response = $this->getJson('/api/home');
 
         $response->assertForbidden();
     }

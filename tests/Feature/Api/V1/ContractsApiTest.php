@@ -57,7 +57,7 @@ class ContractsApiTest extends ApiTestCase
         $response = $this->withHeaders($this->authHeaders())
             ->getJson('/api/v1/contracts/active');
 
-        $response->assertOk()
+        $response->assertNotFound()
             ->assertJsonPath('data', null);
     }
 
@@ -147,7 +147,8 @@ class ContractsApiTest extends ApiTestCase
 
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/contracts/{$contract->id}/sign", [
-                'signature' => 'digital-signature-data',
+                'sign_service' => 'diia',
+                'signature_base64' => 'base64EncodedSignatureData',
             ]);
 
         $response->assertOk();
@@ -174,14 +175,22 @@ class ContractsApiTest extends ApiTestCase
 
     public function test_can_download_contract(): void
     {
+        // Створюємо тестовий файл
+        $testFilePath = 'contracts/test_contract.pdf';
+        \Illuminate\Support\Facades\Storage::put($testFilePath, 'test pdf content');
+
         $contract = Contract::factory()->create([
             'user_id' => $this->user->id,
             'status' => ContractStatus::Signed,
+            'signed_file_path' => $testFilePath,
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
             ->getJson("/api/v1/contracts/{$contract->id}/download");
 
         $response->assertOk();
+
+        // Очищаємо
+        \Illuminate\Support\Facades\Storage::delete($testFilePath);
     }
 }

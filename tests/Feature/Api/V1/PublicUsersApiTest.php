@@ -19,13 +19,17 @@ class PublicUsersApiTest extends ApiTestCase
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson("/api/v1/users/{$user->id}");
 
+        // Формат: data.user.id
         $response->assertOk()
             ->assertJsonStructure([
+                'result',
                 'data' => [
-                    'id',
-                    'name',
-                    'slug',
-                    'avatar_url',
+                    'user' => [
+                        'id',
+                        'name',
+                        'avatar',
+                        'statistics',
+                    ],
                 ],
             ]);
     }
@@ -66,8 +70,9 @@ class PublicUsersApiTest extends ApiTestCase
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson("/api/v1/users/{$user->id}/projects");
 
+        // Формат: data.projects
         $response->assertOk()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data.projects');
     }
 
     public function test_user_projects_only_shows_public(): void
@@ -91,8 +96,8 @@ class PublicUsersApiTest extends ApiTestCase
             ->getJson("/api/v1/users/{$user->id}/projects");
 
         $response->assertOk();
-        // Draft не показується, Active та Announced показуються
-        $this->assertGreaterThanOrEqual(1, count($response->json('data')));
+        // Draft не показується (приватний), InProgress та Announced показуються (публічні)
+        $this->assertCount(2, $response->json('data.projects'));
     }
 
     public function test_returns_empty_for_user_without_projects(): void
@@ -102,7 +107,8 @@ class PublicUsersApiTest extends ApiTestCase
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson("/api/v1/users/{$user->id}/projects");
 
+        // Формат: data.projects
         $response->assertOk()
-            ->assertJsonCount(0, 'data');
+            ->assertJsonCount(0, 'data.projects');
     }
 }

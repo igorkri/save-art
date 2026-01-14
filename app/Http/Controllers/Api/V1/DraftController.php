@@ -140,7 +140,7 @@ class DraftController extends Controller
             $project = Project::query()
                 ->where('user_id', $user->id)
                 ->where('status', ProjectStatus::Draft)
-                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(additional_info, '$.local_id')) = ?", [$request->input('local_id')])
+                ->where('additional_info->local_id', $request->input('local_id'))
                 ->first();
         }
 
@@ -154,6 +154,8 @@ class DraftController extends Controller
             // Генеруємо slug з назви або випадковий
             $title = $validated['title'] ?? ['uk' => 'Чернетка '.now()->format('d.m.Y H:i')];
             $project->slug = Project::generateSlugFromTitle($title);
+            // Встановлюємо дефолтний title для нових чернеток
+            $project->title = $title;
         }
 
         // Оновлюємо дані
@@ -462,7 +464,7 @@ class DraftController extends Controller
             $existingProject = Project::query()
                 ->where('user_id', $user->id)
                 ->where('status', ProjectStatus::Draft)
-                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(additional_info, '$.local_id')) = ?", [$localId])
+                ->where('additional_info->local_id', $localId)
                 ->first();
 
             if ($existingProject) {

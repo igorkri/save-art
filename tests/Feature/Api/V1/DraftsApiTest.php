@@ -18,11 +18,11 @@ class DraftsApiTest extends ApiTestCase
 
     public function test_can_get_drafts(): void
     {
-        // Створюємо чернетки через API
+        // Створюємо чернетку через API
         $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/drafts', [
-                'client_id' => 'draft-1',
-                'data' => ['title' => 'Draft 1'],
+                'local_id' => 'draft-1',
+                'title' => ['uk' => 'Draft 1'],
             ]);
 
         $response = $this->withHeaders($this->authHeaders())
@@ -30,12 +30,16 @@ class DraftsApiTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonStructure([
+                'result',
                 'data' => [
-                    '*' => [
-                        'id',
-                        'client_id',
-                        'data',
+                    'drafts' => [
+                        '*' => [
+                            'id',
+                            'local_id',
+                            'title',
+                        ],
                     ],
+                    'count',
                 ],
             ]);
     }
@@ -48,26 +52,34 @@ class DraftsApiTest extends ApiTestCase
     {
         $response = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/drafts', [
-                'client_id' => 'unique-draft-id',
-                'data' => [
-                    'title' => ['uk' => 'Чернетка', 'en' => 'Draft'],
-                    'description' => 'Some description',
-                ],
+                'local_id' => 'unique-draft-id',
+                'title' => ['uk' => 'Чернетка', 'en' => 'Draft'],
+                'short_description' => ['uk' => 'Опис', 'en' => 'Description'],
             ]);
 
         $response->assertCreated()
-            ->assertJsonPath('data.client_id', 'unique-draft-id');
+            ->assertJsonPath('data.draft.local_id', 'unique-draft-id');
     }
 
-    public function test_draft_requires_client_id(): void
+    public function test_can_create_draft_without_local_id(): void
     {
+        // local_id є опціональним, контролер створить чернетку без нього
         $response = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/drafts', [
-                'data' => ['title' => 'Draft'],
+                'title' => ['uk' => 'Нова чернетка'],
             ]);
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['client_id']);
+        $response->assertCreated()
+            ->assertJsonStructure([
+                'result',
+                'message',
+                'data' => [
+                    'draft' => [
+                        'id',
+                        'title',
+                    ],
+                ],
+            ]);
     }
 
     // ==========================================
@@ -78,17 +90,17 @@ class DraftsApiTest extends ApiTestCase
     {
         $createResponse = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/drafts', [
-                'client_id' => 'draft-to-view',
-                'data' => ['title' => 'View this'],
+                'local_id' => 'draft-to-view',
+                'title' => ['uk' => 'View this'],
             ]);
 
-        $draftId = $createResponse->json('data.id');
+        $draftId = $createResponse->json('data.draft.id');
 
         $response = $this->withHeaders($this->authHeaders())
             ->getJson("/api/v1/my/drafts/{$draftId}");
 
         $response->assertOk()
-            ->assertJsonPath('data.client_id', 'draft-to-view');
+            ->assertJsonPath('data.draft.local_id', 'draft-to-view');
     }
 
     // ==========================================
@@ -99,19 +111,19 @@ class DraftsApiTest extends ApiTestCase
     {
         $createResponse = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/drafts', [
-                'client_id' => 'draft-to-update',
-                'data' => ['title' => 'Original'],
+                'local_id' => 'draft-to-update',
+                'title' => ['uk' => 'Original'],
             ]);
 
-        $draftId = $createResponse->json('data.id');
+        $draftId = $createResponse->json('data.draft.id');
 
         $response = $this->withHeaders($this->authHeaders())
             ->putJson("/api/v1/my/drafts/{$draftId}", [
-                'data' => ['title' => 'Updated'],
+                'title' => ['uk' => 'Updated'],
             ]);
 
         $response->assertOk()
-            ->assertJsonPath('data.data.title', 'Updated');
+            ->assertJsonPath('data.draft.title.uk', 'Updated');
     }
 
     // ==========================================
@@ -122,16 +134,18 @@ class DraftsApiTest extends ApiTestCase
     {
         $createResponse = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/drafts', [
-                'client_id' => 'draft-to-delete',
-                'data' => ['title' => 'Delete me'],
+                'local_id' => 'draft-to-delete',
+                'title' => ['uk' => 'Delete me'],
             ]);
 
-        $draftId = $createResponse->json('data.id');
+        $draftId = $createResponse->json('data.draft.id');
 
         $response = $this->withHeaders($this->authHeaders())
             ->deleteJson("/api/v1/my/drafts/{$draftId}");
 
-        $response->assertNoContent();
+        // Контролер повертає 200 з JSON, а не 204
+        $response->assertOk()
+            ->assertJsonPath('result', true);
     }
 
     // ==========================================
@@ -144,14 +158,14 @@ class DraftsApiTest extends ApiTestCase
             ->postJson('/api/v1/my/drafts/sync', [
                 'drafts' => [
                     [
-                        'client_id' => 'sync-draft-1',
-                        'data' => ['title' => 'Synced 1'],
+                        'local_id' => 'sync-draft-1',
                         'updated_at' => now()->toIso8601String(),
+                        'data' => ['title' => ['uk' => 'Synced 1']],
                     ],
                     [
-                        'client_id' => 'sync-draft-2',
-                        'data' => ['title' => 'Synced 2'],
+                        'local_id' => 'sync-draft-2',
                         'updated_at' => now()->toIso8601String(),
+                        'data' => ['title' => ['uk' => 'Synced 2']],
                     ],
                 ],
             ]);

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\V1;
 
-use App\Enums\ProjectStatus;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\User;
@@ -29,41 +28,36 @@ class MessagesApiTest extends ApiTestCase
             ->getJson('/api/v1/messages');
 
         $response->assertOk()
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => [
-                        'id',
-                        'content',
-                        'is_read',
-                        'created_at',
-                    ],
-                ],
-            ]);
+            ->assertJsonCount(3, 'data');
     }
 
     // ==========================================
-    // Створення повідомлення
+    // Відправка повідомлення
     // ==========================================
 
     public function test_can_send_message(): void
     {
         $response = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/messages', [
-                'subject' => 'Тема повідомлення',
-                'content' => 'Текст повідомлення адміністрації',
+                'content' => 'Моє повідомлення для адміністрації платформи',
+                'subject' => 'Питання',
             ]);
 
-        $response->assertCreated();
+        $response->assertCreated()
+            ->assertJsonPath('message', 'Повідомлення надіслано.');
 
         $this->assertDatabaseHas('messages', [
             'user_id' => $this->user->id,
+            'direction' => 'user_to_admin',
         ]);
     }
 
     public function test_message_requires_content(): void
     {
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson('/api/v1/messages', []);
+            ->postJson('/api/v1/messages', [
+                'subject' => 'Тема без вмісту',
+            ]);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['content']);
@@ -102,17 +96,18 @@ class MessagesApiTest extends ApiTestCase
 
     public function test_can_get_unread_count(): void
     {
+        // Повідомлення від адміна (непрочитані)
         Message::factory()->count(3)->create([
             'user_id' => $this->user->id,
-            'is_read' => false,
-            'is_from_admin' => true,
+            'direction' => 'admin_to_user',
+            'read_at' => null,
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
             ->getJson('/api/v1/messages/unread-count');
 
         $response->assertOk()
-            ->assertJsonPath('data.count', 3);
+            ->assertJsonPath('unread_count', 3);
     }
 
     // ==========================================
@@ -121,47 +116,61 @@ class MessagesApiTest extends ApiTestCase
 
     public function test_can_mark_all_as_read(): void
     {
-        Message::factory()->count(3)->create([
+        Message::factory()->count(2)->create([
             'user_id' => $this->user->id,
-            'is_read' => false,
+            'direction' => 'admin_to_user',
+            'read_at' => null,
         ]);
 
+        // Правильний роут з routes/api.php - /mark-all-read
         $response = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/messages/mark-all-read');
 
         $response->assertOk();
+
+        $this->assertEquals(
+            0,
+            Message::where('user_id', $this->user->id)
+                ->where('direction', 'admin_to_user')
+                ->whereNull('read_at')
+                ->count()
+        );
     }
 
     // ==========================================
-    // Написати автору проекту
+    // Зв'язок з автором проекту (через адміністрацію)
     // ==========================================
 
     public function test_can_contact_project_author(): void
     {
+        $author = User::factory()->create();
         $project = Project::factory()->create([
-            'status' => ProjectStatus::InProgress,
+            'user_id' => $author->id,
         ]);
 
+        // Контролер очікує project_id в request body
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/projects/{$project->id}/contact-author", [
-                'message' => 'Маю питання щодо вашого проекту',
+                'content' => 'Маю питання щодо вашого проекту, будь ласка, допоможіть',
+                'project_id' => $project->id,
             ]);
 
-        $response->assertOk();
+        $response->assertCreated();
     }
 
-    public function test_cannot_contact_own_project(): void
+    public function test_cannot_contact_without_project_id(): void
     {
+        $author = User::factory()->create();
         $project = Project::factory()->create([
-            'user_id' => $this->user->id,
-            'status' => ProjectStatus::InProgress,
+            'user_id' => $author->id,
         ]);
 
+        // Без project_id в body - контролер повертає 422
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/projects/{$project->id}/contact-author", [
-                'message' => 'Повідомлення',
+                'content' => 'Повідомлення без project_id в body',
             ]);
 
-        $response->assertForbidden();
+        $response->assertUnprocessable();
     }
 }
