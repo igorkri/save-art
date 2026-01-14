@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\MessagesOverview;
+use App\Http\Middleware\AdminAccess;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -77,6 +78,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                AdminAccess::class,
             ]);
     }
 }
