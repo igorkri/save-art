@@ -17,8 +17,8 @@ return [
                 'oauth2_callback' => 'api/oauth2-callback/saveart',
             ],
             'paths' => [
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
-                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', false),
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', '/vendor/l5-swagger/'),
                 'docs_json' => 'api-docs.json',
                 'docs_yaml' => 'api-docs.yaml',
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
@@ -43,8 +43,8 @@ return [
                 'oauth2_callback' => 'api/oauth2-callback/art-info',
             ],
             'paths' => [
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
-                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', false),
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', '/vendor/l5-swagger/'),
                 'docs_json' => 'art-info-api-docs.json',
                 'docs_yaml' => 'art-info-api-docs.yaml',
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
@@ -68,8 +68,8 @@ return [
                 'oauth2_callback' => 'api/oauth2-callback/art-ua',
             ],
             'paths' => [
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
-                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', false),
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', '/vendor/l5-swagger/'),
                 'docs_json' => 'art-ua-api-docs.json',
                 'docs_yaml' => 'art-ua-api-docs.yaml',
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
