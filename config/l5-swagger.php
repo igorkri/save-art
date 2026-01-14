@@ -3,48 +3,78 @@
 return [
     'default' => 'default',
     'documentations' => [
+        /*
+         * SaveArt API - основна платформа краудфандингу (save-art.in.ua)
+         */
         'default' => [
             'api' => [
-                'title' => 'SaveArt API Documentation',
+                'title' => 'SaveArt API',
             ],
 
             'routes' => [
-                /*
-                 * Route for accessing api documentation interface
-                 */
                 'api' => 'api/documentation',
+                'docs' => 'docs/saveart',
+                'oauth2_callback' => 'api/oauth2-callback/saveart',
             ],
             'paths' => [
-                /*
-                 * Edit to include full URL in ui for assets
-                 */
                 'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
-
-                /*
-                * Edit to set path where swagger ui assets should be stored
-                */
                 'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
-
-                /*
-                 * File name of the generated json documentation file
-                 */
                 'docs_json' => 'api-docs.json',
-
-                /*
-                 * File name of the generated YAML documentation file
-                 */
                 'docs_yaml' => 'api-docs.yaml',
-
-                /*
-                 * Set this to `json` or `yaml` to determine which documentation file to use in UI
-                 */
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
-
-                /*
-                 * Absolute paths to directory containing the swagger annotations are stored.
-                 */
                 'annotations' => [
-                    base_path('app'),
+                    base_path('app/Http/Controllers/Api'),
+                    base_path('app/Http/Resources'),
+                ],
+            ],
+        ],
+
+        /*
+         * Art-UA Info API - інформаційний портал (art-ua.info)
+         */
+        'art-info' => [
+            'api' => [
+                'title' => 'Art-UA Info API',
+            ],
+
+            'routes' => [
+                'api' => 'api/documentation/art-info',
+                'docs' => 'docs/art-info',
+                'oauth2_callback' => 'api/oauth2-callback/art-info',
+            ],
+            'paths' => [
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'docs_json' => 'art-info-api-docs.json',
+                'docs_yaml' => 'art-info-api-docs.yaml',
+                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
+                'annotations' => [
+                    base_path('app/Http/Controllers/ArtInfo'),
+                ],
+            ],
+        ],
+
+        /*
+         * Art-UA API - маркетплейс мистецтва (art-ua.com)
+         */
+        'art-ua' => [
+            'api' => [
+                'title' => 'Art-UA Marketplace API',
+            ],
+
+            'routes' => [
+                'api' => 'api/documentation/art-ua',
+                'docs' => 'docs/art-ua',
+                'oauth2_callback' => 'api/oauth2-callback/art-ua',
+            ],
+            'paths' => [
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'docs_json' => 'art-ua-api-docs.json',
+                'docs_yaml' => 'art-ua-api-docs.yaml',
+                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
+                'annotations' => [
+                    base_path('app/Http/Controllers/ArtUA'),
                 ],
             ],
         ],

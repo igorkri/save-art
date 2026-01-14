@@ -1,0 +1,95 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Art-UA Info API",
+        "description": "API для інформаційного порталу art-ua.info — новини, події, статті про мистецтво",
+        "contact": {
+            "name": "Art-UA Info Support",
+            "email": "info@art-ua.info"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://art-ua.info/api/v1",
+            "description": "Production Server"
+        },
+        {
+            "url": "http://art-ua.info.local/api/v1",
+            "description": "Local Development"
+        }
+    ],
+    "paths": {
+        "/info": {
+            "get": {
+                "tags": [
+                    "Info"
+                ],
+                "summary": "Інформація про Art-UA Info API",
+                "description": "Повертає загальну інформацію про API та його можливості",
+                "operationId": "artInfoGetInfo",
+                "responses": {
+                    "200": {
+                        "description": "Інформація про API",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Art-UA Info API"
+                                        },
+                                        "version": {
+                                            "type": "string",
+                                            "example": "1.0.0"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "API для інформаційного порталу art-ua.info"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "active"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Info",
+            "description": "Загальна інформація про API"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Laravel Sanctum Bearer Token. Формат: Bearer <token>",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "apiKey": {
+                "type": "apiKey",
+                "description": "API ключ для доступу до API. Передається у заголовку X-Api-Key.",
+                "name": "X-Api-Key",
+                "in": "header"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKey": []
+        }
+    ]
+}
