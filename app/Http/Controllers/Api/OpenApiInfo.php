@@ -21,7 +21,12 @@ use OpenApi\Annotations as OA;
  *
  * @OA\Server(
  *     url="https://idart.dev2025.ingsot.com/api",
- *     description="Production Server"
+ *     description="Production Server (temporary)"
+ * )
+ *
+ * @OA\Server(
+ *     url="https://save-art.in.ua/api",
+ *     description="Production Server (main)"
  * )
  *
  * @OA\Server(
