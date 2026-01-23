@@ -6,13 +6,81 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ArtistBoardResource;
 use App\Models\ArtistBoard;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Tag(
+ *     name="Artist Board",
+ *     description="API для дошки художників (10 художників в 10 національних музеях світу)"
+ * )
+ */
 class ArtistBoardController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Отримати дані Artist Board
+     *
+     * @OA\Get(
+     *     path="/artist-board",
+     *     operationId="getArtistBoard",
+     *     tags={"Artist Board"},
+     *     summary="Дошка художників (10 художників в 10 національних музеях світу)",
+     *     description="Повертає дані про спецпроект '10 художників в 10 національних музеях світу'. Включає інформацію про художників, їх виставки, музеї та роботи. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
+     *
+     *     @OA\Parameter(
+     *         name="language",
+     *         in="query",
+     *         required=false,
+     *         description="Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
+     *
+     *         @OA\Schema(type="string", enum={"uk", "en"})
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Успішне отримання даних",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="ArtistBoard data retrieved successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="titles", type="object", example={"title1": {"uk": "Спецпроєкт", "en": "Special Project"}, "title2": {"uk": "10 художників в 10 національних музеях світу", "en": "10 artists in 10 national museums of the world"}}),
+     *                 @OA\Property(property="logo_museums", type="array",
+     *
+     *                     @OA\Items(type="object",
+     *
+     *                         @OA\Property(property="logo_museum", type="string", example="https://example.com/storage/artist-boards/logos/museum1.jpg")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="descriptions", type="object", example={"uk": "<p>Опис спецпроєкту...</p>", "en": "<p>Special project description...</p>"}),
+     *                 @OA\Property(property="data", type="array",
+     *
+     *                     @OA\Items(type="object", example={"image": "https://example.com/storage/artist-boards/artists/artist1.jpg", "name": {"uk": "Іван Петренко", "en": "Ivan Petrenko"}, "exhibition_link": "https://museum.com/exhibition", "facebook_link": "https://facebook.com/artist", "museums": {{"name": {"uk": "Національний музей мистецтв", "en": "National Museum of Arts"}, "exhibition_name": {"uk": "Виставка сучасного мистецтва", "en": "Contemporary Art Exhibition"}, "dates": "01.01.2024 - 01.03.2024"}}, "works": {{"title": {"uk": "Назва роботи", "en": "Work Title"}, "description": {"uk": "<p>Опис роботи...</p>", "en": "<p>Work description...</p>"}, "image": "https://example.com/storage/artist-boards/works/work1.jpg"}}})
+     *                 ),
+     *
+     *                 @OA\Property(property="created_at", type="string", format="date-time"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time")
+     *             ),
+     *             @OA\Property(property="language", type="string", nullable=true, example="uk", description="Вказана мова (якщо був переданий параметр)")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Дані не знайдено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="result", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="ArtistBoard data not found"),
+     *             @OA\Property(property="data", type="null")
+     *         )
+     *     )
+     * )
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $artistBoard = ArtistBoard::first();
 
@@ -22,70 +90,34 @@ class ArtistBoardController extends Controller
                 'message' => 'ArtistBoard data not found',
                 'data' => null,
             ], 404);
-        }
-
-        return response()->json([
-            'result' => true,
-            'message' => 'ArtistBoard data retrieved successfully',
-            'data' => new ArtistBoardResource($artistBoard),
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): JsonResponse
-    {
-        $artistBoard = ArtistBoard::find($id);
-
-        if (! $artistBoard) {
-            return response()->json([
-                'result' => false,
-                'message' => 'ArtistBoard data not found',
-                'data' => null,
-            ], 404);
-        }
-
-        return response()->json([
-            'result' => true,
-            'message' => 'ArtistBoard data retrieved successfully',
-            'data' => new ArtistBoardResource($artistBoard),
-        ]);
-    }
-
-    /**
-     * Get artist board data by language
-     */
-    public function getByLanguage(string $language = 'uk'): JsonResponse
-    {
-        $artistBoard = ArtistBoard::first();
-
-        if (! $artistBoard) {
-            return response()->json([
-                'result' => false,
-                'message' => 'ArtistBoard data not found',
-                'data' => null,
-            ], 404);
-        }
-
-        // Validate language
-        $supportedLanguages = ['uk', 'en'];
-        if (! in_array($language, $supportedLanguages)) {
-            $language = 'uk'; // default to Ukrainian
         }
 
         $resource = new ArtistBoardResource($artistBoard);
-        $data = $resource->toArray(request());
+        $data = $resource->toArray($request);
 
-        // Filter multilingual content by language
-        $filteredData = $this->filterByLanguage($data, $language);
-
-        return response()->json([
+        // Check if language parameter is provided
+        $language = $request->query('language');
+        $response = [
             'result' => true,
             'message' => 'ArtistBoard data retrieved successfully',
-            'data' => $filteredData,
-            'language' => $language,
-        ]);
+        ];
+
+        if ($language) {
+            // Validate language
+            $supportedLanguages = ['uk', 'en'];
+            if (! in_array($language, $supportedLanguages)) {
+                $language = 'uk';
+            }
+
+            // Filter data by language
+            $data = $this->filterByLanguage($data, $language);
+
+            $response['language'] = $language;
+        }
+
+        $response['data'] = $data;
+
+        return response()->json($response);
     }
 
     /**
@@ -148,6 +180,11 @@ class ArtistBoardController extends Controller
 
     /**
      * Extract content for specific language from multilingual array
+     *
+     * Handles different structures:
+     * 1. Simple language array: ['uk' => 'text', 'en' => 'text'] -> returns 'text' for requested language
+     * 2. Mixed array: ['uk' => [...], 'en' => [...], 'image' => '...'] -> keeps only requested language key
+     * 3. Nested objects with language values inside: recursively processes
      */
     private function extractLanguageContent($content, string $language)
     {
@@ -155,24 +192,41 @@ class ArtistBoardController extends Controller
             return $content;
         }
 
-        // If this is a direct language array (e.g., ['uk' => 'text', 'en' => 'text'])
-        if (isset($content[$language])) {
-            return $content[$language];
+        $supportedLanguages = ['uk', 'en'];
+
+        // Check what type of keys we have
+        $languageKeys = [];
+        $nonLanguageKeys = [];
+
+        foreach (array_keys($content) as $key) {
+            if (in_array($key, $supportedLanguages, true)) {
+                $languageKeys[] = $key;
+            } else {
+                $nonLanguageKeys[] = $key;
+            }
         }
 
-        // If this is a nested array, recursively process each element
+        // Case 1: Only language keys - return the value for requested language
+        if (! empty($languageKeys) && empty($nonLanguageKeys)) {
+            $value = $content[$language] ?? $content['uk'] ?? reset($content);
+
+            // Recursively process if the value is also an array
+            return is_array($value) ? $this->extractLanguageContent($value, $language) : $value;
+        }
+
+        // Case 2 & 3: Process all keys, removing unwanted language keys
         $extracted = [];
+
         foreach ($content as $key => $value) {
+            // Skip other languages (not the requested one)
+            if (in_array($key, $supportedLanguages, true) && $key !== $language) {
+                continue;
+            }
+
+            // Recursively process arrays
             if (is_array($value)) {
-                // Check if this is a language-specific array
-                if (isset($value[$language])) {
-                    $extracted[$key] = $value[$language];
-                } else {
-                    // Recursively process nested arrays
-                    $extracted[$key] = $this->extractLanguageContent($value, $language);
-                }
+                $extracted[$key] = $this->extractLanguageContent($value, $language);
             } else {
-                // Non-array values (like images, booleans) pass through unchanged
                 $extracted[$key] = $value;
             }
         }

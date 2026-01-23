@@ -322,6 +322,172 @@
                 }
             }
         },
+        "/artist-board": {
+            "get": {
+                "tags": [
+                    "Artist Board"
+                ],
+                "summary": "Дошка художників (10 художників в 10 національних музеях світу)",
+                "description": "Повертає дані про спецпроект '10 художників в 10 національних музеях світу'. Включає інформацію про художників, їх виставки, музеї та роботи. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
+                "operationId": "getArtistBoard",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успішне отримання даних",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "ArtistBoard data retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "titles": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "title1": {
+                                                            "uk": "Спецпроєкт",
+                                                            "en": "Special Project"
+                                                        },
+                                                        "title2": {
+                                                            "uk": "10 художників в 10 національних музеях світу",
+                                                            "en": "10 artists in 10 national museums of the world"
+                                                        }
+                                                    }
+                                                },
+                                                "logo_museums": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "logo_museum": {
+                                                                "type": "string",
+                                                                "example": "https://example.com/storage/artist-boards/logos/museum1.jpg"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "descriptions": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "uk": "<p>Опис спецпроєкту...</p>",
+                                                        "en": "<p>Special project description...</p>"
+                                                    }
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "example": {
+                                                            "image": "https://example.com/storage/artist-boards/artists/artist1.jpg",
+                                                            "name": {
+                                                                "uk": "Іван Петренко",
+                                                                "en": "Ivan Petrenko"
+                                                            },
+                                                            "exhibition_link": "https://museum.com/exhibition",
+                                                            "facebook_link": "https://facebook.com/artist",
+                                                            "museums": [
+                                                                {
+                                                                    "name": {
+                                                                        "uk": "Національний музей мистецтв",
+                                                                        "en": "National Museum of Arts"
+                                                                    },
+                                                                    "exhibition_name": {
+                                                                        "uk": "Виставка сучасного мистецтва",
+                                                                        "en": "Contemporary Art Exhibition"
+                                                                    },
+                                                                    "dates": "01.01.2024 - 01.03.2024"
+                                                                }
+                                                            ],
+                                                            "works": [
+                                                                {
+                                                                    "title": {
+                                                                        "uk": "Назва роботи",
+                                                                        "en": "Work Title"
+                                                                    },
+                                                                    "description": {
+                                                                        "uk": "<p>Опис роботи...</p>",
+                                                                        "en": "<p>Work description...</p>"
+                                                                    },
+                                                                    "image": "https://example.com/storage/artist-boards/works/work1.jpg"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "language": {
+                                            "description": "Вказана мова (якщо був переданий параметр)",
+                                            "type": "string",
+                                            "example": "uk",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Дані не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "ArtistBoard data not found"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/content": {
             "get": {
                 "tags": [
@@ -8143,6 +8309,10 @@
         {
             "name": "About",
             "description": "API для сторінки 'Про нас'"
+        },
+        {
+            "name": "Artist Board",
+            "description": "API для дошки художників (10 художників в 10 національних музеях світу)"
         },
         {
             "name": "Content",
