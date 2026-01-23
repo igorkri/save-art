@@ -26,3 +26,17 @@ Thumbs.db
 *.sh
 *.conf
 public/vendor/
+*.backup
+*.gz
+*.zip
+*.tar
+*.rar
+*.7z
+*.swp
+*.swo
+*.sqlite
+*.sqlite3
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+coverage/

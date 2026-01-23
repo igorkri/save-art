@@ -28,6 +28,649 @@
         }
     ],
     "paths": {
+        "/about": {
+            "get": {
+                "tags": [
+                    "About"
+                ],
+                "summary": "Дані сторінки 'Про нас'",
+                "description": "Повертає всі дані для сторінки 'Про нас'. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
+                "operationId": "getAbout",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успішне отримання даних",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "About data retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "uk": "Задачі проєкту",
+                                                        "en": "Project Tasks"
+                                                    }
+                                                },
+                                                "feats": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "uk": [
+                                                            {
+                                                                "name": "Екосистема",
+                                                                "title": "Арт-платформа для митців з України",
+                                                                "description": "Можливе масштабування на інші країни, які цього потребують."
+                                                            }
+                                                        ],
+                                                        "en": [
+                                                            {
+                                                                "name": "Ecosystem",
+                                                                "title": "An art platform for artists from Ukraine",
+                                                                "description": "Scalable to other countries that need it."
+                                                            }
+                                                        ],
+                                                        "feat_image": "https://example.com/storage/about/feat.webp"
+                                                    }
+                                                },
+                                                "description": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "uk": "творити Майбутнє вже сьогодні.",
+                                                        "en": "to create the Future today.",
+                                                        "icon": "https://example.com/storage/about/flag_ua.webp",
+                                                        "image": "https://example.com/storage/about/invasion.webp",
+                                                        "text": {
+                                                            "uk": "<p>Текст опису українською</p>",
+                                                            "en": "<p>Description text in English</p>"
+                                                        },
+                                                        "title_date": {
+                                                            "uk": "24.02",
+                                                            "en": "24.02"
+                                                        },
+                                                        "description_date": {
+                                                            "uk": "З початком повномасштабного вторгнення...",
+                                                            "en": "Since the beginning of the full-scale invasion..."
+                                                        }
+                                                    }
+                                                },
+                                                "goals": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "task": {
+                                                            "uk": "Створення арт-платформи підтримки українських митців",
+                                                            "en": "Creation of an art platform to support Ukrainian artists"
+                                                        },
+                                                        "image": "https://example.com/storage/about/purpose.webp",
+                                                        "title": {
+                                                            "uk": "Основна мета проєкту",
+                                                            "en": "The Main Goal of the Project"
+                                                        },
+                                                        "description": {
+                                                            "uk": "<p>для подолання глобальної культурної кризи...</p>",
+                                                            "en": "<p>to overcome the global cultural crisis...</p>"
+                                                        }
+                                                    }
+                                                },
+                                                "tasks": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "uk": [
+                                                            {
+                                                                "task": "Платформа для публікації проєкту"
+                                                            },
+                                                            {
+                                                                "task": "Прямий доступ до аудиторії"
+                                                            }
+                                                        ],
+                                                        "en": [
+                                                            {
+                                                                "task": "A platform for publishing a project"
+                                                            },
+                                                            {
+                                                                "task": "Direct access to an audience willing to support"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "implementation": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "image": "https://example.com/storage/about/project_implementation.webp",
+                                                        "title": {
+                                                            "uk": "Реалізація проєкту",
+                                                            "en": "Project Implementation"
+                                                        },
+                                                        "items": {
+                                                            "uk": [
+                                                                {
+                                                                    "item": {
+                                                                        "title": "Створення всеукраїнської платформи особистостей",
+                                                                        "description": "з різних культурних сфер діяльності..."
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "en": [
+                                                                {
+                                                                    "item": {
+                                                                        "title": "Creation of a nationwide platform of individuals",
+                                                                        "description": "from various cultural fields..."
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "results": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "title": {
+                                                            "uk": "Результат",
+                                                            "en": "Result"
+                                                        },
+                                                        "description": {
+                                                            "uk": "<h6>Митці отримують грантову підтримку...</h6>",
+                                                            "en": "<h6>Artists receive grant support...</h6>"
+                                                        }
+                                                    }
+                                                },
+                                                "id_art": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "image": "https://example.com/storage/about/idArtUa.webp",
+                                                        "title": {
+                                                            "uk": "Благодійний фонд ID Art UA",
+                                                            "en": "Charitable Foundation ID Art UA"
+                                                        },
+                                                        "description": {
+                                                            "uk": "<p>Транслювати події, обставини...</p>",
+                                                            "en": "<p>To convey events, circumstances...</p>"
+                                                        }
+                                                    }
+                                                },
+                                                "events": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "h2": {
+                                                            "uk": "<h2>Персональні виставки українських художників в провідних музеях світу</h2>",
+                                                            "en": "<h2>Solo exhibitions of Ukrainian artists in leading museums worldwide</h2>"
+                                                        },
+                                                        "title": {
+                                                            "uk": "Пілотний проект",
+                                                            "en": "Pilot Project"
+                                                        }
+                                                    }
+                                                },
+                                                "project": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "image": "https://example.com/storage/about/project/main_project_img.webp",
+                                                        "image_bg": "https://example.com/storage/about/project/main_project_bg.webp",
+                                                        "description": {
+                                                            "uk": "<p>Культурна спадщина України...</p>",
+                                                            "en": "<p>Ukraine's cultural heritage...</p>"
+                                                        }
+                                                    }
+                                                },
+                                                "artists": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "example": {
+                                                            "id": 1,
+                                                            "name": "Художник"
+                                                        }
+                                                    },
+                                                    "nullable": true
+                                                },
+                                                "is_active_artist": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "partners": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "example": {
+                                                            "id": 1,
+                                                            "name": "Партнер",
+                                                            "logo": "https://example.com/storage/partners/logo.webp"
+                                                        }
+                                                    },
+                                                    "nullable": true
+                                                },
+                                                "artist_board": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "id": 1,
+                                                        "titles": {
+                                                            "uk": "Заголовок",
+                                                            "en": "Title"
+                                                        },
+                                                        "descriptions": {
+                                                            "uk": "Опис",
+                                                            "en": "Description"
+                                                        },
+                                                        "data": []
+                                                    },
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "language": {
+                                            "description": "Вказана мова (якщо був переданий параметр)",
+                                            "type": "string",
+                                            "example": "uk",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Дані не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "About data not found"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/content": {
+            "get": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Список сторінок контенту",
+                "description": "Повертає список всіх активних сторінок контенту, включаючи Спецпроекти та інші статичні сторінки",
+                "operationId": "getContentList",
+                "responses": {
+                    "200": {
+                        "description": "Успішне отримання списку",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content list retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "page_title": {
+                                                        "properties": {
+                                                            "uk": {
+                                                                "type": "string"
+                                                            },
+                                                            "en": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "title": {
+                                                        "properties": {
+                                                            "uk": {
+                                                                "type": "string"
+                                                            },
+                                                            "en": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "special-projects"
+                                                    },
+                                                    "content": {
+                                                        "type": "object"
+                                                    },
+                                                    "meta_title": {
+                                                        "type": "object"
+                                                    },
+                                                    "meta_description": {
+                                                        "type": "object"
+                                                    },
+                                                    "meta_keywords": {
+                                                        "type": "object"
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/content/{slug}": {
+            "get": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Сторінка контенту за slug",
+                "description": "Повертає дані сторінки контенту за вказаним slug (наприклад, special-projects для Спецпроектів)",
+                "operationId": "getContentBySlug",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Унікальний slug сторінки (наприклад: special-projects)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успішне отримання даних",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "page_title": {
+                                                    "type": "object"
+                                                },
+                                                "title": {
+                                                    "type": "object"
+                                                },
+                                                "slug": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "object"
+                                                },
+                                                "meta_title": {
+                                                    "type": "object"
+                                                },
+                                                "meta_description": {
+                                                    "type": "object"
+                                                },
+                                                "meta_keywords": {
+                                                    "type": "object"
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Контент не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content not found"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/content/{slug}/{language}": {
+            "get": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Сторінка контенту за slug та мовою",
+                "description": "Повертає дані сторінки контенту за вказаним slug з фільтрацією мультимовного контенту за вказаною мовою",
+                "operationId": "getContentBySlugAndLanguage",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Унікальний slug сторінки",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "path",
+                        "description": "Код мови (uk або en)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успішне отримання даних",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "language": {
+                                            "type": "string",
+                                            "example": "uk"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Контент не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content not found"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/content/language/{language}": {
+            "get": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Контент за мовою",
+                "description": "Повертає перший активний контент з фільтрацією мультимовного контенту за вказаною мовою",
+                "operationId": "getContentByLanguage",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "path",
+                        "description": "Код мови (uk або en)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успішне отримання даних",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "language": {
+                                            "type": "string",
+                                            "example": "uk"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Контент не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Content not found"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/home": {
             "get": {
                 "tags": [
@@ -7497,6 +8140,14 @@
         }
     },
     "tags": [
+        {
+            "name": "About",
+            "description": "API для сторінки 'Про нас'"
+        },
+        {
+            "name": "Content",
+            "description": "API для сторінок контенту (Спецпроекти та інші)"
+        },
         {
             "name": "HomePage",
             "description": "API для головної сторінки"

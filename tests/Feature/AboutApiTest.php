@@ -166,7 +166,7 @@ class AboutApiTest extends TestCase
 
     public function test_can_get_about_data_by_language_ukrainian(): void
     {
-        $response = $this->get('/api/about/language/uk');
+        $response = $this->get('/api/about?language=uk');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -187,7 +187,7 @@ class AboutApiTest extends TestCase
 
     public function test_can_get_about_data_by_language_english(): void
     {
-        $response = $this->get('/api/about/language/en');
+        $response = $this->get('/api/about?language=en');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -235,7 +235,7 @@ class AboutApiTest extends TestCase
 
     public function test_defaults_to_ukrainian_for_invalid_language(): void
     {
-        $response = $this->get('/api/about/language/invalid-lang');
+        $response = $this->get('/api/about?language=invalid-lang');
 
         $response->assertStatus(200);
         $data = $response->json();

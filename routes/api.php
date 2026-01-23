@@ -243,11 +243,7 @@ Route::prefix('home')->middleware('api.key')->group(function () {
 });
 
 // Public routes for About (не требуют аутентификации)
-Route::prefix('about')->middleware('api.key')->group(function () {
-    Route::get('/', [AboutController::class, 'index']);
-    Route::get('/language/{language}', [AboutController::class, 'getByLanguage']);
-    Route::get('/{id}', [AboutController::class, 'show']);
-});
+Route::get('/about', [AboutController::class, 'index'])->middleware('api.key');
 
 // Public routes for ArtistBoard (не требуют аутентификации)
 Route::prefix('artist-board')->middleware('api.key')->group(function () {
@@ -259,6 +255,8 @@ Route::prefix('artist-board')->middleware('api.key')->group(function () {
 // Public routes for Content
 Route::prefix('content')->middleware('api.key')->group(function () {
     Route::get('/', [ContentController::class, 'index']);
+    Route::get('/language/{language}', [ContentController::class, 'getByLanguage']);
+    Route::get('/{slug}', [ContentController::class, 'show']);
     Route::get('/{slug}/{language}', [ContentController::class, 'showByLanguage']);
 });
 
