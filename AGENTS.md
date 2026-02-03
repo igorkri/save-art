@@ -216,6 +216,57 @@ php artisan db:seed --class=SiteSettingsSeeder
 
 ---
 
+## 📊 DonationChartData (Графік донатів)
+
+Модель `DonationChartData` зберігає кешовані дані для графіка донатів.
+
+### Структура бази даних
+
+| Поле | Тип | Опис |
+|------|-----|------|
+| `period_type` | string(20) | Тип періоду: day, week, month, year, all |
+| `total` | decimal(15,2) | Загальна сума за період |
+| `labels` | json | Мітки осі X (масив рядків) |
+| `values` | json | Значення (масив чисел) |
+| `data_collected_at` | timestamp | Час останнього збору даних |
+| `is_manual` | boolean | true = введено вручну (крон не перезаписує) |
+
+### Консольна команда
+
+```bash
+# Зібрати всі періоди
+php artisan donations:collect-chart-data
+
+# Зібрати конкретний період
+php artisan donations:collect-chart-data --period=month
+
+# Примусово оновити (ігнорує is_manual)
+php artisan donations:collect-chart-data --force
+```
+
+### Розклад крона
+
+Команда запускається автоматично кожну годину (див. `routes/console.php`).
+
+### Контроль автозбору
+
+В `HomePage` є поле `chart_auto_collect`:
+- `true` — крон збирає дані автоматично
+- `false` — крон не збирає (потрібен `--force`)
+
+### API Endpoint
+
+Графік повертається через `/api/home/chart?period=month`.
+Якщо є кешовані дані — повертаються вони, інакше генеруються на льоту.
+
+### Filament ресурс
+
+`app/Filament/Resources/DonationChartData/DonationChartDataResource.php`
+
+Кнопка "Зібрати дані" в таблиці дозволяє вручну запустити збір.
+
+---
+
 ## 🔑 Ключові Enums
 
 При роботі з проектом використовуй ці enum-класи:

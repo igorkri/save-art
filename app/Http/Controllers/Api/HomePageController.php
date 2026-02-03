@@ -271,7 +271,8 @@ class HomePageController extends Controller
      *                 @OA\Property(property="period", type="string", example="month"),
      *                 @OA\Property(property="total", type="number", example=2325250),
      *                 @OA\Property(property="labels", type="array", @OA\Items(type="string")),
-     *                 @OA\Property(property="values", type="array", @OA\Items(type="number"))
+     *                 @OA\Property(property="values", type="array", @OA\Items(type="number")),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", nullable=true)
      *             )
      *         )
      *     )
@@ -281,6 +282,16 @@ class HomePageController extends Controller
     {
         $period = $request->get('period', 'month');
 
+        // Спочатку спробуємо отримати кешовані дані
+        $cachedData = \App\Models\DonationChartData::getByPeriod($period);
+
+        if ($cachedData) {
+            return response()->json([
+                'data' => $cachedData->toApiArray(),
+            ]);
+        }
+
+        // Якщо кешованих даних немає, генеруємо на льоту
         $data = match ($period) {
             'day' => $this->getChartDataByHours(),
             'week' => $this->getChartDataByDays(7),
@@ -296,6 +307,7 @@ class HomePageController extends Controller
                 'total' => $data['total'],
                 'labels' => $data['labels'],
                 'values' => $data['values'],
+                'updated_at' => now()->toIso8601String(),
             ],
         ]);
     }

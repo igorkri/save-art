@@ -12,7 +12,6 @@ class HomePage extends Model
 
     /**
      * Получить общую сумму собранных средств
-     * @return int|null
      */
     public function getTotalCollected(): ?int
     {
@@ -62,6 +61,7 @@ class HomePage extends Model
         'footer_expert_features',
         'footer_expert_button_text',
         'is_active',
+        'chart_auto_collect',
     ];
 
     protected function casts(): array
@@ -86,6 +86,7 @@ class HomePage extends Model
             'completed_projects' => 'integer',
             'sold_projects' => 'integer',
             'is_active' => 'boolean',
+            'chart_auto_collect' => 'boolean',
             'partners' => 'array',
         ];
     }
@@ -98,54 +99,50 @@ class HomePage extends Model
         return static::where('is_active', true)->first();
     }
 
-
     // ----------------- HERO SECTION -----------------
     /**
      * Отримання выдео постера з автоопеределением типу пристрою
      * 'desktop', 'mobile'
-     *
-     * @return string|null
      */
     public function getHeroPosterVideo(): ?string
     {
         $device = session('device_type', 'desktop'); // 'desktop', 'tablet' або 'mobile'
 
         if ($device === 'mobile' && $this->hero_video_poster_m) {
-            return asset('storage/' . $this->hero_video_poster_m);
+            return asset('storage/'.$this->hero_video_poster_m);
         }
         if ($this->hero_video_poster) {
-            return asset('storage/' . $this->hero_video_poster);
+            return asset('storage/'.$this->hero_video_poster);
         }
+
         return null;
     }
 
     /**
      * Отримання зображення постера з автоопеределением типу пристрою
      * 'desktop', 'mobile'
-     *
-     * @return string|null
      */
     public function getHeroPosterImage(): ?string
     {
         $device = session('device_type', 'desktop'); // 'desktop', 'tablet' або 'mobile'
         if ($device === 'mobile' && $this->hero_image_poster_m) {
-            return asset('storage/' . $this->hero_image_poster_m);
+            return asset('storage/'.$this->hero_image_poster_m);
         }
         if ($this->hero_image_poster) {
-            return asset('storage/' . $this->hero_image_poster);
+            return asset('storage/'.$this->hero_image_poster);
         }
+
         return '';
     }
 
     /**
      * Отримання hero_title з автоопеределением мови
      * 'ua', 'en'
-     * @return string|null
-     *
      */
     public function getHeroTitle(): ?string
     {
         $locale = app()->getLocale(); // 'ua', 'en' або інші
+
         return $this->getTranslation('hero_title', $locale);
         // return $this->hero_title[$locale] ?? null;
     }
@@ -154,12 +151,11 @@ class HomePage extends Model
     /**
      * Отримання donates_subtitle з автоопеределением мови
      * 'ua', 'en'
-     * @return string|null
-     *
      */
     public function getDonatesSubtitle(): ?string
     {
         $locale = app()->getLocale(); // 'ua', 'en' або інші
+
         return $this->getTranslation('donates_subtitle', $locale);
         // return $this->donates_subtitle[$locale] ?? null;
     }
@@ -167,41 +163,36 @@ class HomePage extends Model
     /**
      * Отримання donates_title з автоопеределением мови
      * 'ua', 'en'
-     * @return string|null
-     *
      */
     public function getDonatesTitle(): ?string
     {
         $locale = app()->getLocale(); // 'ua', 'en' або інші
+
         return $this->getTranslation('donates_title', $locale);
         // return $this->donates_title[$locale] ?? null;
     }
 
-
     /**
      * Отримання donates_text з автоопеределением мови
      * 'ua', 'en'
-     * @return string|null
-     *
      */
     public function getDonatesText(): ?string
     {
         $locale = app()->getLocale(); // 'ua', 'en' або інші
+
         return $this->getTranslation('donates_text', $locale);
         // return $this->donates_text[$locale] ?? null;
     }
-
 
     // ----------------- PARTNERS SECTION -----------------
     /**
      * Отримання partners_title з автоопеределением мови
      * 'ua', 'en'
-     * @return string|null
-     *
      */
     public function getPartnersTitle(): ?string
     {
         $locale = app()->getLocale(); // 'ua', 'en' або інші
+
         return $this->getTranslation('partners_title', $locale);
         // return $this->partners_title[$locale] ?? null;
     }
@@ -212,11 +203,12 @@ class HomePage extends Model
     public function getPartnerLogo(int $index): ?string
     {
         $partner = $this->partners[$index] ?? null;
-        if (!$partner || empty($partner['logo'])) {
+        if (! $partner || empty($partner['logo'])) {
             return null;
         }
+
         // Вернуть абсолютный путь к файлу
-        return asset('storage/' . $partner['logo']);
+        return asset('storage/'.$partner['logo']);
     }
 
     /**
@@ -225,13 +217,14 @@ class HomePage extends Model
     public function getPartnerName(int $index): ?string
     {
         $partner = $this->partners[$index] ?? null;
-        if (!$partner || empty($partner['name'])) {
+        if (! $partner || empty($partner['name'])) {
             return null;
         }
         $locale = app()->getLocale();
         if (is_array($partner['name'])) {
             return $partner['name'][$locale] ?? reset($partner['name']);
         }
+
         return $partner['name'];
     }
 
@@ -241,13 +234,14 @@ class HomePage extends Model
     public function getPartnerDescription(int $index): ?string
     {
         $partner = $this->partners[$index] ?? null;
-        if (!$partner || empty($partner['description'])) {
+        if (! $partner || empty($partner['description'])) {
             return null;
         }
         $locale = app()->getLocale();
         if (is_array($partner['description'])) {
             return $partner['description'][$locale] ?? reset($partner['description']);
         }
+
         return $partner['description'];
     }
 }
