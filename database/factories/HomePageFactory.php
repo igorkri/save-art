@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\HomePage>
- * 
+ *
  * Factory for HomePage model
- * 
+ *
  * приклад використання:
  * HomePage::factory()->create();
  * HomePage::factory()->count(5)->create();
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
   HomePage::factory()->count(3)->state(new Sequence(
       ['is_active' => true],
       ['is_active' => false],
-  ))->create();    
+  ))->create();
  */
 class HomePageFactory extends Factory
 {
@@ -123,6 +123,7 @@ class HomePageFactory extends Factory
             ],
 
             'is_active' => true,
+            'statistics_is_active' => true,
         ];
     }
 }

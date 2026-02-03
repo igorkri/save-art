@@ -905,6 +905,10 @@
                                                 },
                                                 "statistics": {
                                                     "properties": {
+                                                        "is_active": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
                                                         "total_collected": {
                                                             "type": "integer"
                                                         },
@@ -986,6 +990,11 @@
                                     "properties": {
                                         "data": {
                                             "properties": {
+                                                "is_active": {
+                                                    "description": "Чи активна секція статистики",
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
                                                 "total_collected": {
                                                     "type": "number",
                                                     "example": 2325250
@@ -1072,6 +1081,11 @@
                                                     "items": {
                                                         "type": "number"
                                                     }
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "nullable": true
                                                 }
                                             },
                                             "type": "object"

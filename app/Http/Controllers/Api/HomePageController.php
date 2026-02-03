@@ -59,6 +59,7 @@ class HomePageController extends Controller
      *                     @OA\Property(property="text", type="object")
      *                 ),
      *                 @OA\Property(property="statistics", type="object",
+     *                     @OA\Property(property="is_active", type="boolean", example=true),
      *                     @OA\Property(property="total_collected", type="integer"),
      *                     @OA\Property(property="declared_projects", type="integer"),
      *                     @OA\Property(property="active_projects", type="integer"),
@@ -207,6 +208,7 @@ class HomePageController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="is_active", type="boolean", example=true, description="Чи активна секція статистики"),
      *                 @OA\Property(property="total_collected", type="number", example=2325250),
      *                 @OA\Property(property="declared_projects", type="integer", example=624),
      *                 @OA\Property(property="active_projects", type="integer", example=387),
@@ -227,20 +229,37 @@ class HomePageController extends Controller
     /**
      * Отримати дані статистики з бази даних
      *
-     * @return array<string, int|float>
+     * @return array<string, int|float|bool>
      */
     private function getStatisticsData(): array
     {
-        $totalCollected = Project::whereIn('status', ProjectStatus::publicStatuses())
-            ->sum('budget_collected');
+        $homePage = HomePage::getActive();
+        $isActive = $homePage?->statistics_is_active ?? true;
 
-        return [
-            'total_collected' => (float) $totalCollected,
-            'declared_projects' => Project::where('status', ProjectStatus::Announced)->count(),
-            'active_projects' => Project::where('status', ProjectStatus::InProgress)->count(),
-            'completed_projects' => Project::where('status', ProjectStatus::Completed)->count(),
-            'sold_projects' => Project::where('status', ProjectStatus::Sold)->count(),
-        ];
+        if ($isActive && $homePage) {
+            // Берем данные из модели HomePage (когда statistics_is_active = true)
+            return [
+                'is_active' => $isActive,
+                'total_collected' => (float) ($homePage->total_collected ?? 0),
+                'declared_projects' => $homePage->declared_projects ?? 0,
+                'active_projects' => $homePage->active_projects ?? 0,
+                'completed_projects' => $homePage->completed_projects ?? 0,
+                'sold_projects' => $homePage->sold_projects ?? 0,
+            ];
+        } else {
+            // Вычисляем данные из проектов (когда statistics_is_active = false или нет HomePage)
+            $totalCollected = Project::whereIn('status', ProjectStatus::publicStatuses())
+                ->sum('budget_collected');
+
+            return [
+                'is_active' => $isActive,
+                'total_collected' => (float) $totalCollected,
+                'declared_projects' => Project::where('status', ProjectStatus::Announced)->count(),
+                'active_projects' => Project::where('status', ProjectStatus::InProgress)->count(),
+                'completed_projects' => Project::where('status', ProjectStatus::Completed)->count(),
+                'sold_projects' => Project::where('status', ProjectStatus::Sold)->count(),
+            ];
+        }
     }
 
     /**

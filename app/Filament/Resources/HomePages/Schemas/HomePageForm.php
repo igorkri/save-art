@@ -104,6 +104,10 @@ class HomePageForm
 
                 Section::make('Статистика')
                     ->schema([
+                        Toggle::make('statistics_is_active')
+                            ->label('Відображати ці статистичні дані на головній сторінці (вкл) / приховати (викл) Буде розраховувати та оновлюватися автоматично')
+                            ->default(true),
+
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('total_collected')

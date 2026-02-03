@@ -43,6 +43,7 @@ class HomePageSeeder extends Seeder
             'active_projects' => 387,
             'completed_projects' => 1126,
             'sold_projects' => 107,
+            'statistics_is_active' => false, // Для тестирования установим в false
 
             'partners_title' => [
                 'uk' => 'Партнери',
