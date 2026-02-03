@@ -10,6 +10,9 @@ class EditDonationChartData extends EditRecord
 {
     protected static string $resource = DonationChartDataResource::class;
 
+    //title сторінки редагування
+    protected static ?string $title = 'Редагувати дані для графіків донатів';
+
     protected function getHeaderActions(): array
     {
         return [

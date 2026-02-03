@@ -11,6 +11,15 @@ class ListDonationChartData extends ListRecords
 {
     protected static string $resource = DonationChartDataResource::class;
 
+    //title сторінки списку
+    protected static ?string $title = 'Дані для графіків донатів';
+
+    // breadcrumb
+    public function getBreadcrumb(): ?string
+    {
+        return 'Перелік';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

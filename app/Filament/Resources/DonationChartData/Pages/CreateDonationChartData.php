@@ -9,6 +9,9 @@ class CreateDonationChartData extends CreateRecord
 {
     protected static string $resource = DonationChartDataResource::class;
 
+    //title сторінки створення
+    protected static ?string $title = 'Створити дані для графіків донатів';
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Обробка chart_data з Repeater

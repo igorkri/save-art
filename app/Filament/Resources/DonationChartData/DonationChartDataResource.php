@@ -13,12 +13,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class DonationChartDataResource extends Resource
 {
     protected static ?string $model = DonationChartData::class;
 
+    protected static ?string $slug = 'donation-chart-data';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
+
+    protected static ?string $navigationLabel = 'Графіки донатів';
+
+    protected static ?string $pluralModelLabel = 'Графіки донатів';
+
+    protected static ?string $modelLabel = 'Дані графіку';
 
     public static function form(Schema $schema): Schema
     {
