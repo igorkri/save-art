@@ -73,7 +73,6 @@ class HomePageController extends Controller
      *                     @OA\Property(property="first", type="object"),
      *                     @OA\Property(property="second", type="object")
      *                 ),
-     *                 @OA\Property(property="footer_expert", type="object"),
      *                 @OA\Property(property="featured_projects", type="array", @OA\Items(type="object"))
      *             )
      *         )
@@ -82,8 +81,17 @@ class HomePageController extends Controller
      *     @OA\Response(response=404, description="Головна сторінка не налаштована")
      * )
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        $language = $request->get('language', 'uk');
+
+        // Валідація мови
+        if (! in_array($language, ['uk', 'en'])) {
+            $language = 'uk';
+        }
+
+        app()->setLocale($language);
+
         $homePage = HomePage::getActive();
 
         if (! $homePage) {
@@ -102,8 +110,8 @@ class HomePageController extends Controller
             ->map(fn (Project $project) => [
                 'id' => $project->id,
                 'slug' => $project->slug,
-                'title' => $project->title,
-                'short_description' => $project->short_description,
+                'title' => $this->extractTranslation($project->title, $language),
+                'short_description' => $this->extractTranslation($project->short_description, $language),
                 'cover_url' => $project->cover ? asset('storage/'.$project->cover) : null,
                 'status' => $project->status->value,
                 'status_label' => $project->status->getLabel(),
@@ -177,12 +185,6 @@ class HomePageController extends Controller
                             ? asset('storage/'.$homePage->ad_second_image)
                             : null,
                     ],
-                ],
-                'footer_expert' => [
-                    'title' => $homePage->footer_expert_title,
-                    'text' => $homePage->footer_expert_text,
-                    'features' => $homePage->footer_expert_features,
-                    'button_text' => $homePage->footer_expert_button_text,
                 ],
             ],
         ]);
@@ -416,5 +418,23 @@ class HomePageController extends Controller
             'labels' => $labels,
             'values' => $values,
         ];
+    }
+
+    /**
+     * Витягти переклад з мультимовного поля
+     *
+     * @param  array|string|null  $value
+     */
+    private function extractTranslation($value, string $language): ?string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return $value[$language] ?? $value['uk'] ?? null;
+        }
+
+        return null;
     }
 }

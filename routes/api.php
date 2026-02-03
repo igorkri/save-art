@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\ArtistBoardController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\HomePageController;
+use App\Http\Controllers\Api\SiteSettingsController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
@@ -234,6 +235,13 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
 // ============================================
 // Legacy public routes
 // ============================================
+
+// Site global settings (глобальні налаштування для всіх сторінок)
+Route::prefix('site')->middleware('api.key')->group(function () {
+    Route::get('/settings', [SiteSettingsController::class, 'index']);
+    Route::get('/footer', [SiteSettingsController::class, 'footer']);
+    Route::get('/header', [SiteSettingsController::class, 'header']);
+});
 
 // Home page data (главная страница для React фронтенда)
 Route::prefix('home')->middleware('api.key')->group(function () {

@@ -77,6 +77,141 @@ Project (Проект)
 ├── ProjectLike (1:n) - Лайки
 ├── Donation (1:n) - Донати
 └── Report (1:n) - Звіти про виконання
+
+SiteSettings (Глобальні налаштування сайту)
+├── Header - Дані хедера (логотип, меню, соцмережі, кнопки)
+└── Footer - Дані футера (бренд, слоган, меню сайтів, контакти)
+```
+
+---
+
+## 🌐 SiteSettings (Глобальні налаштування сайту)
+
+Модель `SiteSettings` зберігає глобальні налаштування сайту для header та footer.
+
+### Структура бази даних
+
+| Поле | Тип | Опис |
+|------|-----|------|
+| `site_logo` | string | Шлях до логотипу |
+| `header_brand_name` | json | Назва бренду (translatable) |
+| `header_dropdown_sites` | json | Список сайтів у dropdown [{name, url, is_active}] |
+| `header_menu` | json | Головне меню [{label, url}] |
+| `header_socials` | json | Соцмережі {instagram, facebook, youtube} |
+| `header_support_button_url` | string | URL кнопки підтримки |
+| `header_support_button_text` | json | Текст кнопки підтримки (translatable) |
+| `header_login_button_text` | json | Текст кнопки входу (translatable) |
+| `footer_brand_name` | json | Назва бренду у футері (translatable) |
+| `footer_slogan` | json | Слоган (translatable) |
+| `footer_collaboration_title` | json | Заголовок співпраці (translatable) |
+| `footer_collaboration_text` | json | Текст співпраці (translatable) |
+| `footer_collaboration_items` | json | Елементи співпраці [{image, text}] |
+| `footer_collaboration_button_text` | json | Текст кнопки (translatable) |
+| `footer_sites_menu` | json | Меню сайтів [{site_name, site_url, links}] |
+| `footer_company_name` | json | Назва компанії (translatable) |
+| `footer_address` | json | Адреса (translatable) |
+| `footer_email` | string | Email |
+| `footer_phone` | string | Телефон |
+| `footer_social_links` | json | Соцмережі [{type, url, label}] |
+| `footer_copyright_year` | string | Рік копірайту |
+
+### Translatable поля
+
+```php
+public array $translatable = [
+    'header_brand_name',
+    'header_support_button_text',
+    'header_login_button_text',
+    'footer_brand_name',
+    'footer_slogan',
+    'footer_collaboration_title',
+    'footer_collaboration_text',
+    'footer_collaboration_button_text',
+    'footer_company_name',
+    'footer_address',
+];
+```
+
+### API Endpoints
+
+| Endpoint | Метод | Опис |
+|----------|-------|------|
+| `/api/site/settings` | GET | Всі налаштування (header + footer) |
+| `/api/site/header` | GET | Тільки дані хедера |
+| `/api/site/footer` | GET | Тільки дані футера |
+
+**Query параметри:**
+- `language` - `uk` або `en` (default: `uk`)
+
+### Приклад відповіді API Header
+
+```json
+{
+  "data": {
+    "logo": "https://example.com/storage/logo.svg",
+    "brand_name": "save-art.in.ua",
+    "dropdown_sites": [
+      {"name": "save-art.in.ua", "url": "https://save-art.in.ua", "is_active": true},
+      {"name": "art-ua.info", "url": "https://art-ua.info", "is_active": false}
+    ],
+    "menu": [
+      {"label": "Проєкти", "url": "/projects/page/1"},
+      {"label": "Звіти", "url": "/reports"}
+    ],
+    "socials": {"instagram": "...", "facebook": "...", "youtube": "..."},
+    "support_button": {"url": "/support-platform", "text": "Підтримати"},
+    "login_button": {"text": "Увійти"}
+  }
+}
+```
+
+### Приклад відповіді API Footer
+
+```json
+{
+  "data": {
+    "top": {
+      "brand_name": "save-art.in.ua",
+      "slogan": "Мистецтво допомоги — найсучасніше з мистецтв",
+      "collaboration": {
+        "title": "Запрошуємо експертів до співпраці",
+        "text": "Благодійний фонд ID_Art UA відкритий до співпраці...",
+        "items": [{"image": null, "text": "Створення сучасного українського мистецтва"}],
+        "button_text": "Відправити заявку"
+      }
+    },
+    "middle": {
+      "sites_menu": [
+        {
+          "site_name": "save-art.in.ua",
+          "site_url": "/",
+          "links": [{"label": "Проєкти", "url": "/projects/page/1"}]
+        }
+      ]
+    },
+    "bottom": {
+      "company_name": "БЛАГОДІЙНИЙ ФОНД ID_Art UA",
+      "address": "м. Івано-Франківськ, Україна",
+      "email": "idartua.bo@gmail.com",
+      "phone": "+380 67 734 5938",
+      "social_links": [{"type": "instagram", "url": "...", "label": null}],
+      "copyright_year": "2025"
+    }
+  }
+}
+```
+
+### Filament ресурс
+
+Файли:
+- `app/Filament/Resources/SiteSettings/SiteSettingsResource.php`
+- `app/Filament/Resources/SiteSettings/Schemas/SiteSettingsForm.php`
+- `app/Filament/Resources/SiteSettings/Tables/SiteSettingsTable.php`
+
+### Seeder
+
+```bash
+php artisan db:seed --class=SiteSettingsSeeder
 ```
 
 ---

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\HomePages\Schemas;
 use App\Rules\MaxFileSizeRule;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -231,33 +230,6 @@ class HomePageForm
                                         Storage::disk('public')->delete($file);
                                     }),
                             ]),
-                    ])
-                    ->collapsible()->collapsed(),
-
-                Section::make('Футер - Секція для експертів')
-                    ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('footer_expert_title')
-                                ->label('Заголовок')
-                                ->placeholder('Запрошуємо експертів до співпраці')
-                                ->maxLength(255),
-
-                            Textarea::make('footer_expert_text')
-                                ->label('Опис')
-                                ->placeholder('Благодійний фонд ID_Art UA відкритий до співпраці...')
-                                ->rows(3),
-
-                            Textarea::make('footer_expert_features')
-                                ->label('Особливості (JSON масив)')
-                                ->placeholder('["Створення сучасного українського мистецтва", "Участь у проведенні виставок", "Популяризація українських митців"]')
-                                ->rows(3)
-                                ->helperText('Введіть JSON масив з трьома пунктами'),
-
-                            TextInput::make('footer_expert_button_text')
-                                ->label('Текст кнопки')
-                                ->placeholder('Відправити заявку')
-                                ->maxLength(100),
-                        ]),
                     ])
                     ->collapsible()->collapsed(),
             ]);

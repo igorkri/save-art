@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
         // Головна сторінка
         $this->call(HomePageSeeder::class);
 
+        // Налаштування сайту (Header/Footer)
+        $this->call(SiteSettingsSeeder::class);
+
         // Сторінка "Про нас"
         $this->call(AboutSeeder::class);
 

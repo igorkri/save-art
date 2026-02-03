@@ -10,6 +10,13 @@ SaveArt — краудфандингова платформа для підтр�
 ## Ключові моделі
 - User → ProfilePersonal, ProfileLegal, ProfileSocial, ProfileDocument, Contract, Project, Donation
 - Project → ProjectStage, ProjectBonus, ProjectLike, Donation, Report
+- SiteSettings → Глобальні налаштування (header/footer)
+
+## SiteSettings API
+- GET /api/site/settings — всі налаштування
+- GET /api/site/header — тільки header
+- GET /api/site/footer — тільки footer
+- Query param: language=uk|en
 
 ## Enums (app/Enums/)
 ProjectStatus, ModerationStatus, DonationStatus, ContractStatus, StageStatus, UserType, ArtCategory, Currency, SignService, NotificationType

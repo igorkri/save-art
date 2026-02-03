@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Filament\Resources\SiteSettings\Pages;
+
+use App\Filament\Resources\SiteSettings\SiteSettingsResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
+
+class ListSiteSettings extends ListRecords
+{
+    protected static string $resource = SiteSettingsResource::class;
+
+    protected static ?string $title = 'Heder/Footer';
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make(),
+        ];
+    }
+}

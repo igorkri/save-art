@@ -948,9 +948,6 @@
                                                     },
                                                     "type": "object"
                                                 },
-                                                "footer_expert": {
-                                                    "type": "object"
-                                                },
                                                 "featured_projects": {
                                                     "type": "array",
                                                     "items": {
@@ -1084,6 +1081,149 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/site/settings": {
+            "get": {
+                "tags": [
+                    "SiteSettings"
+                ],
+                "summary": "Всі налаштування сайту",
+                "description": "Повертає повні дані для header та footer",
+                "operationId": "getSiteSettings",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова контенту (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Налаштування сайту",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "header": {
+                                                    "$ref": "#/components/schemas/SiteHeader"
+                                                },
+                                                "footer": {
+                                                    "$ref": "#/components/schemas/SiteFooter"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Налаштування не знайдені"
+                    }
+                }
+            }
+        },
+        "/site/header": {
+            "get": {
+                "tags": [
+                    "SiteSettings"
+                ],
+                "summary": "Дані хедера сайту",
+                "description": "Повертає дані для рендерингу хедера: логотип, меню, соцмережі, кнопки",
+                "operationId": "getSiteHeader",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова контенту (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Дані хедера",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/SiteHeader"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Налаштування не знайдені"
+                    }
+                }
+            }
+        },
+        "/site/footer": {
+            "get": {
+                "tags": [
+                    "SiteSettings"
+                ],
+                "summary": "Дані футера сайту",
+                "description": "Повертає дані для рендерингу футера: бренд, слоган, співпраця, меню сайтів, контакти",
+                "operationId": "getSiteFooter",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова контенту (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Дані футера",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/SiteFooter"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Налаштування не знайдені"
                     }
                 }
             }
@@ -6839,6 +6979,233 @@
                 },
                 "type": "object"
             },
+            "SiteHeader": {
+                "title": "SiteHeader",
+                "description": "Дані хедера сайту",
+                "properties": {
+                    "logo": {
+                        "type": "string",
+                        "example": "https://example.com/storage/site-settings/logos/logo.svg",
+                        "nullable": true
+                    },
+                    "brand_name": {
+                        "type": "string",
+                        "example": "save-art.in.ua"
+                    },
+                    "dropdown_sites": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "save-art.in.ua"
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "https://save-art.in.ua"
+                                },
+                                "is_active": {
+                                    "type": "boolean",
+                                    "example": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "menu": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "example": "Проєкти"
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "/projects"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "socials": {
+                        "properties": {
+                            "instagram": {
+                                "type": "string",
+                                "example": "https://instagram.com/"
+                            },
+                            "facebook": {
+                                "type": "string",
+                                "example": "https://facebook.com/"
+                            },
+                            "youtube": {
+                                "type": "string",
+                                "example": "https://youtube.com/"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "support_button": {
+                        "properties": {
+                            "url": {
+                                "type": "string",
+                                "example": "/support-platform"
+                            },
+                            "text": {
+                                "type": "string",
+                                "example": "Підтримати"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "login_button": {
+                        "properties": {
+                            "text": {
+                                "type": "string",
+                                "example": "Увійти"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "SiteFooter": {
+                "title": "SiteFooter",
+                "description": "Дані футера сайту",
+                "properties": {
+                    "top": {
+                        "properties": {
+                            "brand_name": {
+                                "type": "string",
+                                "example": "save-art.in.ua"
+                            },
+                            "slogan": {
+                                "type": "string",
+                                "example": "Мистецтво допомоги — найсучасніше з мистецтв"
+                            },
+                            "collaboration": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Запрошуємо експертів до співпраці"
+                                    },
+                                    "text": {
+                                        "type": "string",
+                                        "example": "Благодійний фонд ID_Art UA відкритий до співпраці..."
+                                    },
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "image": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "text": {
+                                                    "type": "string",
+                                                    "example": "Створення сучасного українського мистецтва"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "button_text": {
+                                        "type": "string",
+                                        "example": "Відправити заявку"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "middle": {
+                        "properties": {
+                            "sites_menu": {
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "site_name": {
+                                            "type": "string",
+                                            "example": "save-art.in.ua"
+                                        },
+                                        "site_url": {
+                                            "type": "string",
+                                            "example": "/"
+                                        },
+                                        "links": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "Проєкти"
+                                                    },
+                                                    "url": {
+                                                        "type": "string",
+                                                        "example": "/projects"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "bottom": {
+                        "properties": {
+                            "company_name": {
+                                "type": "string",
+                                "example": "БЛАГОДІЙНИЙ ФОНД ID_Art UA"
+                            },
+                            "address": {
+                                "type": "string",
+                                "example": "м. Івано-Франківськ, Україна"
+                            },
+                            "email": {
+                                "type": "string",
+                                "example": "idartua.bo@gmail.com"
+                            },
+                            "phone": {
+                                "type": "string",
+                                "example": "+380 67 734 5938"
+                            },
+                            "social_links": {
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "instagram"
+                                        },
+                                        "url": {
+                                            "type": "string",
+                                            "example": "https://instagram.com/"
+                                        },
+                                        "label": {
+                                            "type": "string",
+                                            "example": "@id_artUA",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "copyright_year": {
+                                "type": "string",
+                                "example": "2025"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "Artist": {
                 "title": "Artist",
                 "description": "Публічний профіль митця",
@@ -8321,6 +8688,10 @@
         {
             "name": "HomePage",
             "description": "API для головної сторінки"
+        },
+        {
+            "name": "SiteSettings",
+            "description": "API для глобальних налаштувань сайту (header, footer)"
         },
         {
             "name": "Artists",
