@@ -367,17 +367,30 @@
                                                     "example": 1
                                                 },
                                                 "titles": {
-                                                    "type": "object",
-                                                    "example": {
+                                                    "properties": {
                                                         "title1": {
-                                                            "uk": "Спецпроєкт",
-                                                            "en": "Special Project"
+                                                            "type": "object",
+                                                            "example": {
+                                                                "uk": "Спецпроєкт",
+                                                                "en": "Special Project"
+                                                            }
                                                         },
                                                         "title2": {
-                                                            "uk": "10 художників в 10 національних музеях світу",
-                                                            "en": "10 artists in 10 national museums of the world"
+                                                            "type": "object",
+                                                            "example": {
+                                                                "uk": "10 художників в 10 національних музеях світу",
+                                                                "en": "10 artists in 10 national museums of the world"
+                                                            }
+                                                        },
+                                                        "description": {
+                                                            "type": "object",
+                                                            "example": {
+                                                                "uk": "Короткий опис спецпроєкту українською",
+                                                                "en": "Short description of the special project in English"
+                                                            }
                                                         }
-                                                    }
+                                                    },
+                                                    "type": "object"
                                                 },
                                                 "logo_museums": {
                                                     "type": "array",

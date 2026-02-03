@@ -14,6 +14,13 @@ use OpenApi\Annotations as OA;
  *     name="Artist Board",
  *     description="API для дошки художників (10 художників в 10 національних музеях світу)"
  * )
+ *
+ * Контроллер для API дошки художників.
+ *
+ * Структура поля titles включає:
+ * - title1: Перший заголовок (мультимовний)
+ * - title2: Другий заголовок (мультимовний)
+ * - description: Короткий опис спецпроєкту (мультимовний) - додано в Swagger документацію
  */
 class ArtistBoardController extends Controller
 {
@@ -46,7 +53,11 @@ class ArtistBoardController extends Controller
      *             @OA\Property(property="message", type="string", example="ArtistBoard data retrieved successfully"),
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="titles", type="object", example={"title1": {"uk": "Спецпроєкт", "en": "Special Project"}, "title2": {"uk": "10 художників в 10 національних музеях світу", "en": "10 artists in 10 national museums of the world"}}),
+     *                 @OA\Property(property="titles", type="object",
+     *                     @OA\Property(property="title1", type="object", example={"uk": "Спецпроєкт", "en": "Special Project"}),
+     *                     @OA\Property(property="title2", type="object", example={"uk": "10 художників в 10 національних музеях світу", "en": "10 artists in 10 national museums of the world"}),
+     *                     @OA\Property(property="description", type="object", example={"uk": "Короткий опис спецпроєкту українською", "en": "Short description of the special project in English"})
+     *                 ),
      *                 @OA\Property(property="logo_museums", type="array",
      *
      *                     @OA\Items(type="object",

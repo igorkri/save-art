@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ArtistBoards\Schemas;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -24,6 +25,7 @@ class ArtistBoardForm
                         LanguageTabs::make([
                             TextInput::make('titles.title1')->label('Заголовок 1')->placeholder('Спецпроєкт')->required(),
                             TextInput::make('titles.title2')->label('Заголовок 2')->placeholder('10 художників в 10 національних музеях світу')->required(),
+                            Textarea::make('titles.description')->label('Короткий опис')->rows(2),
                         ]),
                     ])
                     ->collapsible()
