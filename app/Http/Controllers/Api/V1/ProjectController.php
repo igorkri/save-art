@@ -21,11 +21,11 @@ class ProjectController extends Controller
      *     operationId="getProjects",
      *     tags={"Projects"},
      *     summary="Список публічних проектів",
-     *     description="Повертає список публічних проектів з можливістю фільтрації та пагінації",
+     *     description="Повертає список публічних проектів з можливістю фільтрації та пагінації. Параметри art_category, art_subcategory та status підтримують множинні значення через кому.",
      *
-     *     @OA\Parameter(name="art_category", in="query", description="Фільтр по категорії", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="art_subcategory", in="query", description="Фільтр по підкатегорії", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="status", in="query", description="Фільтр по статусу", @OA\Schema(type="string", enum={"announced", "in_progress", "completed", "sold"})),
+     *     @OA\Parameter(name="art_category", in="query", description="Фільтр по категорії (можна вказати кілька через кому)", @OA\Schema(type="string"), example="visual,literary"),
+     *     @OA\Parameter(name="art_subcategory", in="query", description="Фільтр по підкатегорії (можна вказати кілька через кому)", @OA\Schema(type="string"), example="poetry,prose,graphics,painting"),
+     *     @OA\Parameter(name="status", in="query", description="Фільтр по статусу (можна вказати кілька через кому)", @OA\Schema(type="string"), example="announced,in_progress,completed"),
      *     @OA\Parameter(name="budget_min", in="query", description="Мінімальний бюджет", @OA\Schema(type="number")),
      *     @OA\Parameter(name="budget_max", in="query", description="Максимальний бюджет", @OA\Schema(type="number")),
      *     @OA\Parameter(name="search", in="query", description="Пошук по назві", @OA\Schema(type="string")),
@@ -54,19 +54,27 @@ class ProjectController extends Controller
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('announced_at', 'desc');
 
-        // Фільтр по категорії
+        // Фільтр по категорії (підтримує множинні значення через кому)
         if ($request->filled('art_category')) {
-            $query->where('art_category', $request->input('art_category'));
+            $categories = array_map('trim', explode(',', $request->input('art_category')));
+            $query->whereIn('art_category', $categories);
         }
 
-        // Фільтр по підкатегорії
+        // Фільтр по підкатегорії (підтримує множинні значення через кому)
         if ($request->filled('art_subcategory')) {
-            $query->where('art_subcategory', $request->input('art_subcategory'));
+            $subcategories = array_map('trim', explode(',', $request->input('art_subcategory')));
+            $query->whereIn('art_subcategory', $subcategories);
         }
 
-        // Фільтр по статусу
+        // Фільтр по статусу (підтримує множинні значення через кому)
         if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+            $statuses = array_map('trim', explode(',', $request->input('status')));
+            // Перевіряємо, що статуси є публічними
+            $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
+            $validStatuses = array_intersect($statuses, $publicStatuses);
+            if (! empty($validStatuses)) {
+                $query->whereIn('status', $validStatuses);
+            }
         }
 
         // Фільтр по сумі збору (від)

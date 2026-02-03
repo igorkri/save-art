@@ -5510,38 +5510,35 @@
                     "Projects"
                 ],
                 "summary": "Список публічних проектів",
-                "description": "Повертає список публічних проектів з можливістю фільтрації та пагінації",
+                "description": "Повертає список публічних проектів з можливістю фільтрації та пагінації. Параметри art_category, art_subcategory та status підтримують множинні значення через кому.",
                 "operationId": "getProjects",
                 "parameters": [
                     {
                         "name": "art_category",
                         "in": "query",
-                        "description": "Фільтр по категорії",
+                        "description": "Фільтр по категорії (можна вказати кілька через кому)",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "visual,literary"
                     },
                     {
                         "name": "art_subcategory",
                         "in": "query",
-                        "description": "Фільтр по підкатегорії",
+                        "description": "Фільтр по підкатегорії (можна вказати кілька через кому)",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "poetry,prose,graphics,painting"
                     },
                     {
                         "name": "status",
                         "in": "query",
-                        "description": "Фільтр по статусу",
+                        "description": "Фільтр по статусу (можна вказати кілька через кому)",
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "announced",
-                                "in_progress",
-                                "completed",
-                                "sold"
-                            ]
-                        }
+                            "type": "string"
+                        },
+                        "example": "announced,in_progress,completed"
                     },
                     {
                         "name": "budget_min",
