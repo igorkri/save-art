@@ -61,7 +61,7 @@ class FaqApiTest extends ApiTestCase
             ->getJson('/api/v1/faq');
 
         $response->assertOk();
-        
+
         // Категорія є, але питань в ній немає (неактивні відфільтровані)
         $data = $response->json('data.categories');
         $this->assertCount(1, $data);
@@ -69,7 +69,7 @@ class FaqApiTest extends ApiTestCase
     }
 
     // ==========================================
-    // FAQ по мові
+    // FAQ по мові (через query параметр)
     // ==========================================
 
     public function test_can_get_faq_by_language(): void
@@ -83,17 +83,48 @@ class FaqApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->getJson('/api/v1/faq/language/uk');
+            ->getJson('/api/v1/faq?language=uk');
 
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonPath('language', 'uk')
+            ->assertJsonPath('result', true);
     }
 
-    public function test_returns_empty_for_unsupported_language(): void
+    public function test_returns_faq_with_fallback_for_unsupported_language(): void
     {
-        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->getJson('/api/v1/faq/language/fr');
+        $category = FaqCategory::factory()->create([
+            'is_active' => true,
+        ]);
+        Faq::factory()->create([
+            'faq_category_id' => $category->id,
+            'is_active' => true,
+        ]);
 
-        $response->assertOk();
+        // Unsupported language falls back to 'uk'
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/faq?language=fr');
+
+        $response->assertOk()
+            ->assertJsonPath('language', 'uk')
+            ->assertJsonPath('result', true);
+    }
+
+    public function test_returns_all_languages_when_no_language_specified(): void
+    {
+        $category = FaqCategory::factory()->create([
+            'is_active' => true,
+        ]);
+        Faq::factory()->create([
+            'faq_category_id' => $category->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/faq');
+
+        $response->assertOk()
+            ->assertJsonMissing(['language'])
+            ->assertJsonPath('result', true);
     }
 
     // ==========================================

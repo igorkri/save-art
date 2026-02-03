@@ -82,7 +82,16 @@ class ReportsTable
 
                 SelectFilter::make('project_id')
                     ->label('Проєкт')
-                    ->relationship('project', 'title')
+                    ->options(function () {
+                        return \App\Models\Project::all()
+                            ->mapWithKeys(function ($project) {
+                                $label = is_array($project->title)
+                                    ? ($project->title['uk'] ?? $project->title['en'] ?? 'Без назви')
+                                    : $project->title;
+
+                                return [$project->id => $label];
+                            });
+                    })
                     ->searchable()
                     ->preload(),
             ])

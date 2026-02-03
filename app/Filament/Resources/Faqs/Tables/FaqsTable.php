@@ -47,7 +47,16 @@ class FaqsTable
             ->filters([
                 SelectFilter::make('faq_category_id')
                     ->label('Категорія')
-                    ->relationship('category', 'name')
+                    ->options(function () {
+                        return \App\Models\FaqCategory::all()
+                            ->mapWithKeys(function ($category) {
+                                $label = is_array($category->name)
+                                    ? ($category->name['uk'] ?? $category->name['en'] ?? 'Без назви')
+                                    : $category->name;
+
+                                return [$category->id => $label];
+                            });
+                    })
                     ->searchable()
                     ->preload(),
 

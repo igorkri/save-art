@@ -107,7 +107,6 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
     // FAQ (публічний)
     Route::prefix('faq')->group(function () {
         Route::get('/', [FaqController::class, 'index']);
-        Route::get('/language/{language}', [FaqController::class, 'byLanguage']);
         Route::get('/category/{slug}', [FaqController::class, 'category']);
     });
 

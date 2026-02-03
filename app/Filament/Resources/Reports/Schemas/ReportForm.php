@@ -23,7 +23,8 @@ class ReportForm
                     ->schema([
                         Select::make('project_id')
                             ->label('Проєкт')
-                            ->relationship('project', 'title')
+                            ->relationship('project')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->title['uk'] ?? $record->title['en'] ?? 'Без назви')
                             ->searchable()
                             ->preload()
                             ->required(),

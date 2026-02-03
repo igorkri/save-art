@@ -3309,16 +3309,20 @@
                     "FAQ"
                 ],
                 "summary": "Список FAQ",
-                "description": "Повертає всі FAQ категорії з питаннями та відповідями",
+                "description": "Повертає всі FAQ категорії з питаннями та відповідями. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
                 "operationId": "getFaq",
                 "parameters": [
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Мова (uk, en)",
+                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
+                        "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "uk"
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
                         }
                     }
                 ],
@@ -3332,64 +3336,70 @@
                                         "result": {
                                             "type": "boolean",
                                             "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "FAQ data retrieved successfully"
                                         },
                                         "data": {
                                             "properties": {
                                                 "categories": {
                                                     "type": "array",
                                                     "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "object",
+                                                                "example": {
+                                                                    "uk": "Загальні питання",
+                                                                    "en": "General questions"
+                                                                }
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "general"
+                                                            },
+                                                            "questions": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "question": {
+                                                                            "type": "object",
+                                                                            "example": {
+                                                                                "uk": "Як це працює?",
+                                                                                "en": "How does it work?"
+                                                                            }
+                                                                        },
+                                                                        "answer": {
+                                                                            "type": "object",
+                                                                            "example": {
+                                                                                "uk": "Відповідь...",
+                                                                                "en": "Answer..."
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
                                                         "type": "object"
                                                     }
                                                 }
                                             },
                                             "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ]
-            }
-        },
-        "/v1/faq/{language}": {
-            "get": {
-                "tags": [
-                    "FAQ"
-                ],
-                "summary": "FAQ по мові",
-                "description": "Повертає FAQ для вказаної мови",
-                "operationId": "getFaqByLanguage",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "path",
-                        "description": "Код мови (uk, en)",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список FAQ",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
                                         },
-                                        "data": {
-                                            "type": "object"
+                                        "language": {
+                                            "description": "Вказана мова (якщо був переданий параметр)",
+                                            "type": "string",
+                                            "example": "uk",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -3411,7 +3421,7 @@
                     "FAQ"
                 ],
                 "summary": "FAQ категорії",
-                "description": "Повертає питання конкретної FAQ категорії",
+                "description": "Повертає питання конкретної FAQ категорії. Якщо вказано параметр language - повертає контент лише для вказаної мови.",
                 "operationId": "getFaqCategory",
                 "parameters": [
                     {
@@ -3421,6 +3431,19 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
                         }
                     }
                 ],
@@ -3435,13 +3458,45 @@
                                             "type": "boolean",
                                             "example": true
                                         },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "FAQ category retrieved successfully"
+                                        },
                                         "data": {
                                             "properties": {
                                                 "category": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "object",
+                                                            "example": {
+                                                                "uk": "Загальні питання",
+                                                                "en": "General questions"
+                                                            }
+                                                        },
+                                                        "slug": {
+                                                            "type": "string",
+                                                            "example": "general"
+                                                        },
+                                                        "questions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
                                                     "type": "object"
                                                 }
                                             },
                                             "type": "object"
+                                        },
+                                        "language": {
+                                            "type": "string",
+                                            "example": "uk",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -8733,6 +8788,10 @@
             "description": "API для роботи з донатами"
         },
         {
+            "name": "FAQ",
+            "description": "API для роботи з FAQ"
+        },
+        {
             "name": "My Projects",
             "description": "API для управління власними проєктами (кабінет митця)"
         },
@@ -8751,10 +8810,6 @@
         {
             "name": "Drafts",
             "description": "Drafts"
-        },
-        {
-            "name": "FAQ",
-            "description": "FAQ"
         },
         {
             "name": "Likes",
