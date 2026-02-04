@@ -5509,10 +5509,23 @@
                 "tags": [
                     "Projects"
                 ],
-                "summary": "Список публічних проектів",
-                "description": "Повертає список публічних проектів з можливістю фільтрації та пагінації. Параметри art_category, art_subcategory та status підтримують множинні значення через кому.",
+                "summary": "Список публічних проектів з опціями фільтрації",
+                "description": "Повертає список публічних проектів з можливістю фільтрації та пагінації, а також всі доступні опції фільтрації. Параметри art_category, art_subcategory, status, currency та tags підтримують множинні значення через кому.",
                 "operationId": "getProjects",
                 "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова для назв фільтрів (uk, en). Якщо вказано - повертає строку замість об'єкта з мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        },
+                        "example": "uk"
+                    },
                     {
                         "name": "art_category",
                         "in": "query",
@@ -5520,7 +5533,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "visual,literary"
+                        "example": "visual,literature"
                     },
                     {
                         "name": "art_subcategory",
@@ -5529,7 +5542,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "poetry,prose,graphics,painting"
+                        "example": "poetry,prose,photography,painting"
                     },
                     {
                         "name": "status",
@@ -5541,12 +5554,22 @@
                         "example": "announced,in_progress,completed"
                     },
                     {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "Фільтр по валюті (можна вказати кілька через кому)",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "UAH,USD,EUR"
+                    },
+                    {
                         "name": "budget_min",
                         "in": "query",
                         "description": "Мінімальний бюджет",
                         "schema": {
                             "type": "number"
-                        }
+                        },
+                        "example": 1000
                     },
                     {
                         "name": "budget_max",
@@ -5554,12 +5577,102 @@
                         "description": "Максимальний бюджет",
                         "schema": {
                             "type": "number"
+                        },
+                        "example": 100000
+                    },
+                    {
+                        "name": "budget_collected_min",
+                        "in": "query",
+                        "description": "Мінімальна зібрана сума",
+                        "schema": {
+                            "type": "number"
                         }
+                    },
+                    {
+                        "name": "budget_collected_max",
+                        "in": "query",
+                        "description": "Максимальна зібрана сума",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "progress_min",
+                        "in": "query",
+                        "description": "Мінімальний прогрес збору (відсотки 0-100)",
+                        "schema": {
+                            "type": "number",
+                            "maximum": 100,
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "progress_max",
+                        "in": "query",
+                        "description": "Максимальний прогрес збору (відсотки 0-100)",
+                        "schema": {
+                            "type": "number",
+                            "maximum": 100,
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "days_left_min",
+                        "in": "query",
+                        "description": "Мінімум днів до завершення",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "days_left_max",
+                        "in": "query",
+                        "description": "Максимум днів до завершення",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "tags",
+                        "in": "query",
+                        "description": "Фільтр по тегах (можна вказати кілька через кому)",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "живопис,сучасне мистецтво"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "Фільтр по автору (ID користувача)",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "announced_from",
+                        "in": "query",
+                        "description": "Оголошені від дати (YYYY-MM-DD)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2025-01-01"
+                    },
+                    {
+                        "name": "announced_to",
+                        "in": "query",
+                        "description": "Оголошені до дати (YYYY-MM-DD)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2025-12-31"
                     },
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Пошук по назві",
+                        "description": "Пошук по назві та опису",
                         "schema": {
                             "type": "string"
                         }
@@ -5571,13 +5684,13 @@
                         "schema": {
                             "type": "string",
                             "enum": [
-                                "announced_at",
-                                "budget_goal",
-                                "budget_collected",
-                                "likes_count",
-                                "donors_count"
+                                "newest",
+                                "popular",
+                                "ending_soon",
+                                "most_funded"
                             ]
-                        }
+                        },
+                        "example": "newest"
                     },
                     {
                         "name": "sort_dir",
@@ -5589,7 +5702,8 @@
                                 "asc",
                                 "desc"
                             ]
-                        }
+                        },
+                        "example": "desc"
                     },
                     {
                         "name": "per_page",
@@ -5597,7 +5711,9 @@
                         "description": "Кількість на сторінку (макс 50)",
                         "schema": {
                             "type": "integer",
-                            "default": 15
+                            "default": 15,
+                            "maximum": 50,
+                            "minimum": 1
                         }
                     },
                     {
@@ -5605,13 +5721,14 @@
                         "in": "query",
                         "description": "Номер сторінки",
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Список проектів",
+                        "description": "Список проектів з опціями фільтрації",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5619,13 +5736,21 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "$ref": "#/components/schemas/ProjectList"
                                             }
                                         },
                                         "links": {
                                             "type": "object"
                                         },
                                         "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        },
+                                        "filters": {
+                                            "description": "Доступні опції фільтрації",
+                                            "type": "object"
+                                        },
+                                        "filters_applied": {
+                                            "description": "Застосовані фільтри",
                                             "type": "object"
                                         }
                                     },
@@ -7749,6 +7874,18 @@
                         "format": "float",
                         "example": 25
                     },
+                    "estimated_days": {
+                        "description": "Орієнтовна кількість днів на реалізацію",
+                        "type": "integer",
+                        "example": 90,
+                        "nullable": true
+                    },
+                    "days_left": {
+                        "description": "Залишилось днів до планованого завершення",
+                        "type": "integer",
+                        "example": 30,
+                        "nullable": true
+                    },
                     "likes_count": {
                         "type": "integer",
                         "example": 42
@@ -7757,10 +7894,28 @@
                         "type": "integer",
                         "example": 15
                     },
+                    "tags": {
+                        "description": "Теги проєкту",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "живопис",
+                            "сучасне мистецтво"
+                        ],
+                        "nullable": true
+                    },
                     "author": {
                         "$ref": "#/components/schemas/Author"
                     },
                     "announced_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "planned_completion_at": {
+                        "description": "Планова дата завершення",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true

@@ -99,25 +99,32 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Отримуємо мову з параметра запиту
+        $language = $request->query('language');
+        $supportedLanguages = ['uk', 'en'];
+        if ($language && ! in_array($language, $supportedLanguages)) {
+            $language = null;
+        }
+
         return [
             'id' => $this->id,
             'slug' => $this->slug,
             'code' => $this->code,
 
             'status' => $this->status->value,
-            'status_label' => $this->status->getLabel(),
+            'status_label' => $this->status->getLabel($language ?? 'uk'),
             'status_moderation' => $this->status_moderation->value,
 
-            'title' => $this->title,
-            'short_description' => $this->short_description,
+            'title' => $this->localizeField($this->title, $language),
+            'short_description' => $this->localizeField($this->short_description, $language),
             'cover_url' => $this->cover ? Storage::url($this->cover) : null,
 
             'art_category' => $this->art_category?->value,
-            'art_category_label' => $this->art_category?->getLabel(),
+            'art_category_label' => $this->art_category?->getLabel($language ?? 'uk'),
             'art_subcategory' => $this->art_subcategory,
-            'art_subcategory_label' => $this->getArtSubcategoryLabel(),
+            'art_subcategory_label' => $this->getArtSubcategoryLabel($language ?? 'uk'),
 
-            'tags' => $this->tags,
+            'tags' => $this->localizeField($this->tags, $language),
 
             'currency' => $this->currency->value,
             'budget_goal' => (float) $this->budget_goal,
@@ -146,10 +153,10 @@ class ProjectResource extends JsonResource
                 'avatar_url' => $this->user->avatar ? Storage::url($this->user->avatar) : null,
             ],
 
-            'characteristics' => $this->characteristics,
-            'budget_items' => $this->budget_items,
-            'additional_info' => $this->additional_info,
-            'final_result' => $this->final_result,
+            'characteristics' => $this->localizeArrayField($this->characteristics, $language),
+            'budget_items' => $this->localizeArrayField($this->budget_items, $language),
+            'additional_info' => $this->localizeField($this->additional_info, $language),
+            'final_result' => $this->localizeFinalResult($this->final_result, $language),
 
             'stages' => ProjectStageResource::collection($this->whenLoaded('stages')),
             'bonuses' => ProjectBonusResource::collection($this->whenLoaded('bonuses')),
@@ -164,5 +171,69 @@ class ProjectResource extends JsonResource
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
         ];
+    }
+
+    /**
+     * Локалізація поля - повертає значення для конкретної мови або весь об'єкт
+     */
+    private function localizeField($field, ?string $language): mixed
+    {
+        if ($language === null) {
+            return $field;
+        }
+
+        if (! is_array($field)) {
+            return $field;
+        }
+
+        // Перевіряємо чи це об'єкт з мовами (має ключі uk/en)
+        $hasLanguageKeys = isset($field['uk']) || isset($field['en']);
+
+        if ($hasLanguageKeys) {
+            // Це мультимовне поле - повертаємо значення для вказаної мови
+            return $field[$language] ?? $field['uk'] ?? reset($field);
+        }
+
+        // Це звичайний масив (не мультимовний) - повертаємо як є
+        return $field;
+    }
+
+    /**
+     * Локалізація масиву об'єктів з вкладеними мовними полями
+     */
+    private function localizeArrayField($field, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($field)) {
+            return $field;
+        }
+
+        return array_map(function ($item) use ($language) {
+            if (! is_array($item)) {
+                return $item;
+            }
+
+            $localized = [];
+            foreach ($item as $key => $value) {
+                $localized[$key] = $this->localizeField($value, $language);
+            }
+
+            return $localized;
+        }, $field);
+    }
+
+    /**
+     * Локалізація final_result з вкладеним description
+     */
+    private function localizeFinalResult($finalResult, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($finalResult)) {
+            return $finalResult;
+        }
+
+        if (isset($finalResult['description'])) {
+            $finalResult['description'] = $this->localizeField($finalResult['description'], $language);
+        }
+
+        return $finalResult;
     }
 }

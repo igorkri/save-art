@@ -259,16 +259,37 @@ class Project extends Model
     }
 
     /**
-     * Отримати назву підкатегорії мистецтва
+     * Отримати назву підкатегорії мистецтва (з підтримкою мультимовності)
      */
-    public function getArtSubcategoryLabel(): ?string
+    public function getArtSubcategoryLabel(?string $language = 'uk'): ?string
     {
         if (! $this->art_category || ! $this->art_subcategory) {
             return null;
         }
 
-        $subcategories = $this->art_category->getSubcategories();
+        return $this->art_category->getSubcategoryLabel($this->art_subcategory, $language);
+    }
 
-        return $subcategories[$this->art_subcategory] ?? null;
+    /**
+     * Отримати кількість днів до запланованого завершення
+     */
+    public function getDaysLeft(): ?int
+    {
+        if (! $this->planned_completion_at) {
+            return null;
+        }
+
+        // Якщо проєкт вже завершений - повертаємо 0
+        if ($this->completed_at || in_array($this->status, [ProjectStatus::Completed, ProjectStatus::Sold])) {
+            return 0;
+        }
+
+        $now = now()->startOfDay();
+        $plannedDate = $this->planned_completion_at->startOfDay();
+
+        $daysLeft = $now->diffInDays($plannedDate, false);
+
+        // Якщо дата вже пройшла - повертаємо 0
+        return max(0, (int) $daysLeft);
     }
 }

@@ -12,18 +12,30 @@ enum ArtCategory: string
     case Other = 'other';
 
     /**
-     * Отримати назву категорії українською
+     * Отримати назву категорії (підтримує мультимовність)
      */
-    public function getLabel(): string
+    public function getLabel(?string $language = 'uk'): string
     {
-        return match ($this) {
-            self::Scenic => 'Сценічне мистецтво',
-            self::Visual => 'Візуальне мистецтво',
-            self::FineArt => 'Образотворче мистецтво',
-            self::Literature => 'Література',
-            self::Music => 'Музичне мистецтво',
-            self::Other => 'Інше',
-        };
+        $labels = [
+            'uk' => match ($this) {
+                self::Scenic => 'Сценічне мистецтво',
+                self::Visual => 'Візуальне мистецтво',
+                self::FineArt => 'Образотворче мистецтво',
+                self::Literature => 'Література',
+                self::Music => 'Музичне мистецтво',
+                self::Other => 'Інше',
+            },
+            'en' => match ($this) {
+                self::Scenic => 'Performing Arts',
+                self::Visual => 'Visual Arts',
+                self::FineArt => 'Fine Arts',
+                self::Literature => 'Literature',
+                self::Music => 'Music',
+                self::Other => 'Other',
+            },
+        ];
+
+        return $labels[$language] ?? $labels['uk'];
     }
 
     /**
@@ -42,7 +54,7 @@ enum ArtCategory: string
     }
 
     /**
-     * Отримати підкатегорії для цієї категорії
+     * Отримати підкатегорії для цієї категорії (без мови - тільки українська)
      *
      * @return array<string, string>
      */
@@ -73,6 +85,56 @@ enum ArtCategory: string
             self::Music => [],
             self::Other => [],
         };
+    }
+
+    /**
+     * Отримати підкатегорії з перекладами для всіх мов
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function getSubcategoriesWithTranslations(): array
+    {
+        return match ($this) {
+            self::Scenic => [
+                'directing' => ['uk' => 'Режисура', 'en' => 'Directing'],
+                'acting' => ['uk' => 'Акторське мистецтво', 'en' => 'Acting'],
+                'choreography' => ['uk' => 'Хореографічне мистецтво', 'en' => 'Choreography'],
+                'original_genre' => ['uk' => 'Оригінальний жанр', 'en' => 'Original Genre'],
+            ],
+            self::Visual => [
+                'photography' => ['uk' => 'Художня фотографія', 'en' => 'Art Photography'],
+                'video' => ['uk' => 'Відеозйомка та монтаж', 'en' => 'Video Production'],
+                'cinema' => ['uk' => 'Повнометражний кінематограф', 'en' => 'Feature Film'],
+                'ar' => ['uk' => 'Доповнена реальність', 'en' => 'Augmented Reality'],
+            ],
+            self::FineArt => [
+                'painting' => ['uk' => 'Живопис', 'en' => 'Painting'],
+                'sculpture' => ['uk' => 'Скульптура', 'en' => 'Sculpture'],
+                'digital' => ['uk' => 'Діджитал', 'en' => 'Digital'],
+            ],
+            self::Literature => [
+                'poetry' => ['uk' => 'Поезія', 'en' => 'Poetry'],
+                'prose' => ['uk' => 'Проза', 'en' => 'Prose'],
+            ],
+            self::Music => [],
+            self::Other => [],
+        };
+    }
+
+    /**
+     * Отримати назву підкатегорії за slug
+     */
+    public function getSubcategoryLabel(string $slug, ?string $language = 'uk'): ?string
+    {
+        $subcategories = $this->getSubcategoriesWithTranslations();
+
+        if (! isset($subcategories[$slug])) {
+            return null;
+        }
+
+        $translations = $subcategories[$slug];
+
+        return $translations[$language] ?? $translations['uk'] ?? null;
     }
 
     /**

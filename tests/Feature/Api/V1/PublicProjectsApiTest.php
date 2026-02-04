@@ -39,7 +39,51 @@ class PublicProjectsApiTest extends ApiTestCase
                 ],
                 'meta',
                 'links',
+                'filters' => [
+                    'categories',
+                    'statuses',
+                    'budget_range',
+                    'currencies',
+                    'sort_options',
+                    'total_projects',
+                ],
+                'filters_applied',
             ]);
+    }
+
+    public function test_projects_list_includes_filters_with_language(): void
+    {
+        Project::factory()->count(2)->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/projects?language=uk');
+
+        $response->assertOk()
+            ->assertJsonPath('language', 'uk');
+
+        // Перевіряємо що назви фільтрів - це строки, а не об'єкти
+        $categories = $response->json('filters.categories');
+        $this->assertIsString($categories[0]['name']);
+    }
+
+    public function test_projects_list_filters_without_language_returns_objects(): void
+    {
+        Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/projects');
+
+        $response->assertOk();
+
+        // Перевіряємо що назви фільтрів - це об'єкти з uk і en
+        $categories = $response->json('filters.categories');
+        $this->assertIsArray($categories[0]['name']);
+        $this->assertArrayHasKey('uk', $categories[0]['name']);
+        $this->assertArrayHasKey('en', $categories[0]['name']);
     }
 
     public function test_can_filter_projects_by_status(): void

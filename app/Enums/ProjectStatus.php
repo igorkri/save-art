@@ -14,20 +14,34 @@ enum ProjectStatus: string
     case Rejected = 'rejected';
 
     /**
-     * Отримати назву статусу українською
+     * Отримати назву статусу (підтримує мультимовність)
      */
-    public function getLabel(): string
+    public function getLabel(?string $language = 'uk'): string
     {
-        return match ($this) {
-            self::Draft => 'Чернетка',
-            self::Moderation => 'На модерації',
-            self::Announced => 'Оголошений',
-            self::InProgress => 'В роботі',
-            self::Paused => 'На паузі',
-            self::Completed => 'Завершений',
-            self::Sold => 'Проданий',
-            self::Rejected => 'Відхилений',
-        };
+        $labels = [
+            'uk' => match ($this) {
+                self::Draft => 'Чернетка',
+                self::Moderation => 'На модерації',
+                self::Announced => 'Оголошений',
+                self::InProgress => 'В роботі',
+                self::Paused => 'На паузі',
+                self::Completed => 'Завершений',
+                self::Sold => 'Проданий',
+                self::Rejected => 'Відхилений',
+            },
+            'en' => match ($this) {
+                self::Draft => 'Draft',
+                self::Moderation => 'Under Review',
+                self::Announced => 'Announced',
+                self::InProgress => 'In Progress',
+                self::Paused => 'Paused',
+                self::Completed => 'Completed',
+                self::Sold => 'Sold',
+                self::Rejected => 'Rejected',
+            },
+        ];
+
+        return $labels[$language] ?? $labels['uk'];
     }
 
     /**
