@@ -2083,6 +2083,266 @@
                 }
             }
         },
+        "/v1/categories": {
+            "get": {
+                "tags": [
+                    "Catalog"
+                ],
+                "summary": "Список категорій мистецтва",
+                "description": "Повертає список всіх категорій мистецтва з перекладами та підкатегоріями",
+                "operationId": "getCategories",
+                "parameters": [
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список категорій",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "value": {
+                                                        "type": "string",
+                                                        "example": "scenic"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "Сценічне мистецтво"
+                                                    },
+                                                    "subcategories": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "value": {
+                                                                    "type": "string",
+                                                                    "example": "directing"
+                                                                },
+                                                                "label": {
+                                                                    "type": "string",
+                                                                    "example": "Режисура"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "value": "scenic",
+                                            "label": "Сценічне мистецтво",
+                                            "subcategories": [
+                                                {
+                                                    "value": "directing",
+                                                    "label": "Режисура"
+                                                },
+                                                {
+                                                    "value": "acting",
+                                                    "label": "Акторське мистецтво"
+                                                },
+                                                {
+                                                    "value": "choreography",
+                                                    "label": "Хореографічне мистецтво"
+                                                },
+                                                {
+                                                    "value": "original_genre",
+                                                    "label": "Оригінальний жанр"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "value": "visual",
+                                            "label": "Візуальне мистецтво",
+                                            "subcategories": [
+                                                {
+                                                    "value": "photography",
+                                                    "label": "Художня фотографія"
+                                                },
+                                                {
+                                                    "value": "video",
+                                                    "label": "Відеозйомка та монтаж"
+                                                },
+                                                {
+                                                    "value": "cinema",
+                                                    "label": "Повнометражний кінематограф"
+                                                },
+                                                {
+                                                    "value": "ar",
+                                                    "label": "Доповнена реальність"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "value": "fine_art",
+                                            "label": "Образотворче мистецтво",
+                                            "subcategories": [
+                                                {
+                                                    "value": "painting",
+                                                    "label": "Живопис"
+                                                },
+                                                {
+                                                    "value": "sculpture",
+                                                    "label": "Скульптура"
+                                                },
+                                                {
+                                                    "value": "digital",
+                                                    "label": "Діджитал"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "value": "literature",
+                                            "label": "Література",
+                                            "subcategories": [
+                                                {
+                                                    "value": "poetry",
+                                                    "label": "Поезія"
+                                                },
+                                                {
+                                                    "value": "prose",
+                                                    "label": "Проза"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "value": "music",
+                                            "label": "Музичне мистецтво",
+                                            "subcategories": []
+                                        },
+                                        {
+                                            "value": "other",
+                                            "label": "Інше",
+                                            "subcategories": []
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/regions": {
+            "get": {
+                "tags": [
+                    "Catalog"
+                ],
+                "summary": "Список регіонів",
+                "description": "Повертає список всіх регіонів з перекладами",
+                "operationId": "getRegions",
+                "parameters": [
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "uk",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список регіонів",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "value": {
+                                                        "type": "string",
+                                                        "example": "europe"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "Європа"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "value": "europe",
+                                            "label": "Європа"
+                                        },
+                                        {
+                                            "value": "middle_east",
+                                            "label": "Близький Схід"
+                                        },
+                                        {
+                                            "value": "asia",
+                                            "label": "Азія"
+                                        },
+                                        {
+                                            "value": "africa",
+                                            "label": "Африка"
+                                        },
+                                        {
+                                            "value": "north_america",
+                                            "label": "Північна Америка"
+                                        },
+                                        {
+                                            "value": "south_america",
+                                            "label": "Південна Америка"
+                                        },
+                                        {
+                                            "value": "oceania",
+                                            "label": "Океанія"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
         "/v1/contracts/template": {
             "get": {
                 "tags": [
@@ -9331,6 +9591,10 @@
         {
             "name": "Artists",
             "description": "API для роботи з митцями (публічні профілі)"
+        },
+        {
+            "name": "Catalog",
+            "description": "Довідники та каталоги"
         },
         {
             "name": "Contracts",

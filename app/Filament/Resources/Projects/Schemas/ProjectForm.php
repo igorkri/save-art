@@ -63,6 +63,7 @@ class ProjectForm
                                     ->label('Обкладинка')
                                     ->image()
                                     ->imageEditor()
+                                    ->disk('public')
                                     ->directory('projects/covers')
                                     ->columnSpanFull(),
                             ]),
@@ -261,6 +262,7 @@ class ProjectForm
 
                                                 FileUpload::make('file')
                                                     ->label('Файл')
+                                                    ->disk('public')
                                                     ->directory('projects/stages/documents')
                                                     ->image()
                                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])

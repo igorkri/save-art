@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
+use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\DraftController;
@@ -65,28 +66,10 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
     });
 
     // Категорії мистецтва
-    Route::get('/categories', function () {
-        return response()->json([
-            'data' => collect(\App\Enums\ArtCategory::cases())->map(fn ($cat) => [
-                'value' => $cat->value,
-                'label' => $cat->getLabel(),
-                'subcategories' => collect($cat->getSubcategories())->map(fn ($label, $value) => [
-                    'value' => $value,
-                    'label' => $label,
-                ])->values(),
-            ]),
-        ]);
-    });
+    Route::get('/categories', [CatalogController::class, 'categories']);
 
     // Регіони
-    Route::get('/regions', function () {
-        return response()->json([
-            'data' => collect(\App\Enums\Region::cases())->map(fn ($region) => [
-                'value' => $region->value,
-                'label' => $region->getLabel(),
-            ]),
-        ]);
-    });
+    Route::get('/regions', [CatalogController::class, 'regions']);
 
     // Статистика платформи
     Route::prefix('statistics')->group(function () {

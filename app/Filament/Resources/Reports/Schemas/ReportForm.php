@@ -67,6 +67,7 @@ class ReportForm
                             ->label('Обкладинка')
                             ->image()
                             ->imageEditor()
+                            ->disk('public')
                             ->directory('reports/covers'),
 
                         FileUpload::make('images')
@@ -74,12 +75,14 @@ class ReportForm
                             ->multiple()
                             ->image()
                             ->imageEditor()
+                            ->disk('public')
                             ->directory('reports/images')
                             ->reorderable(),
 
                         FileUpload::make('attachments')
                             ->label('Прикріплені файли')
                             ->multiple()
+                            ->disk('public')
                             ->directory('reports/attachments')
                             ->preserveFilenames(),
                     ]),
