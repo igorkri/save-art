@@ -4,21 +4,36 @@ namespace App\Http\Requests\Api\V1;
 
 use App\Enums\ArtCategory;
 use App\Enums\Currency;
+use App\Enums\ProjectStatus;
 use App\Enums\UserType;
+use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Request для створення проекту з етапами та бонусами
+ * Request для оновлення повного проекту з етапами та бонусами в одному запиті
  */
-class CreateProjectRequest extends FormRequest
+class UpdateFullProjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        /** @var Project|null $project */
+        $project = $this->route('project');
+
+        if (! $project) {
+            return false;
+        }
+
+        // Перевіряємо, що користувач є власником проєкту
+        if ($this->user() === null || $project->user_id !== $this->user()->id) {
+            return false;
+        }
+
+        // Повне оновлення доступне тільки для чернеток та відхилених
+        return in_array($project->status, [ProjectStatus::Draft, ProjectStatus::Rejected]);
     }
 
     /**
@@ -30,10 +45,10 @@ class CreateProjectRequest extends FormRequest
     {
         return [
             // ========== Основні поля проекту ==========
-            'user_type' => ['required', Rule::enum(UserType::class)],
+            'user_type' => ['sometimes', Rule::enum(UserType::class)],
 
-            'title' => ['required', 'array'],
-            'title.uk' => ['required', 'string', 'max:255'],
+            'title' => ['sometimes', 'array'],
+            'title.uk' => ['required_with:title', 'string', 'max:255'],
             'title.en' => ['nullable', 'string', 'max:255'],
 
             'short_description' => ['nullable', 'array'],
@@ -43,7 +58,7 @@ class CreateProjectRequest extends FormRequest
             'cover' => ['nullable', 'image', 'max:15360'], // 15MB
 
             // Категорія
-            'art_category' => ['required', Rule::enum(ArtCategory::class)],
+            'art_category' => ['sometimes', Rule::enum(ArtCategory::class)],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
             'tags' => ['nullable', 'array'],
@@ -51,8 +66,8 @@ class CreateProjectRequest extends FormRequest
             'tags.en' => ['nullable', 'string', 'max:500'],
 
             // Бюджет
-            'currency' => ['required', Rule::enum(Currency::class)],
-            'budget_goal' => ['required', 'numeric', 'min:100'],
+            'currency' => ['sometimes', Rule::enum(Currency::class)],
+            'budget_goal' => ['sometimes', 'numeric', 'min:100'],
             'estimated_days' => ['nullable', 'integer', 'min:1', 'max:365'],
 
             // Статті бюджету
@@ -78,6 +93,7 @@ class CreateProjectRequest extends FormRequest
 
             // ========== Етапи проекту ==========
             'stages' => ['nullable', 'array', 'max:20'],
+            'stages.*.id' => ['nullable', 'integer', 'exists:project_stages,id'],
             'stages.*.title' => ['required', 'array'],
             'stages.*.title.uk' => ['required', 'string', 'max:255'],
             'stages.*.title.en' => ['nullable', 'string', 'max:255'],
@@ -90,6 +106,7 @@ class CreateProjectRequest extends FormRequest
 
             // ========== Бонуси для меценатів ==========
             'bonuses' => ['nullable', 'array', 'max:20'],
+            'bonuses.*.id' => ['nullable', 'integer', 'exists:project_bonuses,id'],
             'bonuses.*.title' => ['required', 'array'],
             'bonuses.*.title.uk' => ['required', 'string', 'max:255'],
             'bonuses.*.title.en' => ['nullable', 'string', 'max:255'],
@@ -109,21 +126,21 @@ class CreateProjectRequest extends FormRequest
     {
         return [
             // Проект
-            'title.uk.required' => 'Назва проєкту українською є обов\'язковою',
-            'art_category.required' => 'Оберіть галузь мистецтва',
-            'budget_goal.required' => 'Вкажіть ціль збору',
+            'title.uk.required_with' => 'Назва проєкту українською є обов\'язковою',
             'budget_goal.min' => 'Мінімальна ціль збору — 100',
             'cover.max' => 'Максимальний розмір обкладинки — 15 МБ',
 
             // Етапи
             'stages.max' => 'Максимум 20 етапів',
             'stages.*.title.uk.required' => 'Назва етапу українською є обов\'язковою',
+            'stages.*.id.exists' => 'Етап не знайдено',
 
             // Бонуси
             'bonuses.max' => 'Максимум 20 бонусів',
             'bonuses.*.title.uk.required' => 'Назва бонусу українською є обов\'язковою',
             'bonuses.*.min_donation.required' => 'Мінімальна сума підтримки для бонусу є обов\'язковою',
             'bonuses.*.min_donation.min' => 'Мінімальна сума підтримки — 10',
+            'bonuses.*.id.exists' => 'Бонус не знайдено',
         ];
     }
 

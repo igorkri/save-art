@@ -9,6 +9,9 @@ use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Request для оновлення проекту з етапами та бонусами
+ */
 class UpdateProjectRequest extends FormRequest
 {
     public function authorize(): bool
@@ -27,7 +30,7 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Основні поля
+            // ========== Основні поля проекту ==========
             'user_type' => ['sometimes', Rule::enum(UserType::class)],
 
             'title' => ['sometimes', 'array'],
@@ -55,13 +58,19 @@ class UpdateProjectRequest extends FormRequest
 
             // Статті бюджету
             'budget_items' => ['nullable', 'array'],
-            'budget_items.*.name' => ['required_with:budget_items', 'string', 'max:255'],
+            'budget_items.*.name' => ['required_with:budget_items', 'array'],
+            'budget_items.*.name.uk' => ['required_with:budget_items', 'string', 'max:255'],
+            'budget_items.*.name.en' => ['nullable', 'string', 'max:255'],
             'budget_items.*.amount' => ['required_with:budget_items', 'numeric', 'min:0'],
 
             // Характеристики
             'characteristics' => ['nullable', 'array'],
-            'characteristics.*.name' => ['required_with:characteristics', 'string', 'max:255'],
-            'characteristics.*.value' => ['required_with:characteristics', 'string', 'max:500'],
+            'characteristics.*.name' => ['required_with:characteristics', 'array'],
+            'characteristics.*.name.uk' => ['required_with:characteristics', 'string', 'max:255'],
+            'characteristics.*.name.en' => ['nullable', 'string', 'max:255'],
+            'characteristics.*.value' => ['required_with:characteristics', 'array'],
+            'characteristics.*.value.uk' => ['required_with:characteristics', 'string', 'max:500'],
+            'characteristics.*.value.en' => ['nullable', 'string', 'max:500'],
 
             // Додаткова інформація
             'additional_info' => ['nullable', 'array'],
@@ -75,6 +84,32 @@ class UpdateProjectRequest extends FormRequest
             'final_result.urls' => ['nullable', 'array', 'max:10'],
             'final_result.urls.*' => ['string', 'max:500'],
             'final_result.description' => ['nullable', 'array'],
+
+            // ========== Етапи проекту ==========
+            'stages' => ['nullable', 'array', 'max:20'],
+            'stages.*.id' => ['nullable', 'integer', 'exists:project_stages,id'],
+            'stages.*.title' => ['required', 'array'],
+            'stages.*.title.uk' => ['required', 'string', 'max:255'],
+            'stages.*.title.en' => ['nullable', 'string', 'max:255'],
+            'stages.*.description' => ['nullable', 'array'],
+            'stages.*.description.uk' => ['nullable', 'string', 'max:2000'],
+            'stages.*.description.en' => ['nullable', 'string', 'max:2000'],
+            'stages.*.days_planned' => ['nullable', 'integer', 'min:1'],
+            'stages.*.budget_planned' => ['nullable', 'numeric', 'min:0'],
+            'stages.*.order' => ['nullable', 'integer', 'min:0'],
+
+            // ========== Бонуси для меценатів ==========
+            'bonuses' => ['nullable', 'array', 'max:20'],
+            'bonuses.*.id' => ['nullable', 'integer', 'exists:project_bonuses,id'],
+            'bonuses.*.title' => ['required', 'array'],
+            'bonuses.*.title.uk' => ['required', 'string', 'max:255'],
+            'bonuses.*.title.en' => ['nullable', 'string', 'max:255'],
+            'bonuses.*.description' => ['nullable', 'array'],
+            'bonuses.*.description.uk' => ['nullable', 'string', 'max:2000'],
+            'bonuses.*.description.en' => ['nullable', 'string', 'max:2000'],
+            'bonuses.*.min_donation' => ['required', 'numeric', 'min:10'],
+            'bonuses.*.quantity' => ['nullable', 'integer', 'min:1'],
+            'bonuses.*.order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
@@ -84,9 +119,38 @@ class UpdateProjectRequest extends FormRequest
     public function messages(): array
     {
         return [
+            // Проект
             'title.uk.required_with' => 'Назва проєкту українською є обов\'язковою',
             'budget_goal.min' => 'Мінімальна ціль збору — 100',
             'cover.max' => 'Максимальний розмір обкладинки — 15 МБ',
+
+            // Етапи
+            'stages.max' => 'Максимум 20 етапів',
+            'stages.*.title.uk.required' => 'Назва етапу українською є обов\'язковою',
+            'stages.*.id.exists' => 'Етап не знайдено',
+
+            // Бонуси
+            'bonuses.max' => 'Максимум 20 бонусів',
+            'bonuses.*.title.uk.required' => 'Назва бонусу українською є обов\'язковою',
+            'bonuses.*.min_donation.required' => 'Мінімальна сума підтримки для бонусу є обов\'язковою',
+            'bonuses.*.min_donation.min' => 'Мінімальна сума підтримки — 10',
+            'bonuses.*.id.exists' => 'Бонус не знайдено',
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'stages.*.title.uk' => 'назва етапу',
+            'stages.*.description.uk' => 'опис етапу',
+            'bonuses.*.title.uk' => 'назва бонусу',
+            'bonuses.*.description.uk' => 'опис бонусу',
+            'bonuses.*.min_donation' => 'мінімальна сума підтримки',
         ];
     }
 }

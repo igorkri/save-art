@@ -21,6 +21,7 @@ class LoginController extends Controller
      *     tags={"Auth"},
      *     summary="Авторизація користувача",
      *     description="Авторизація користувача за email та паролем. Повертає Bearer токен для подальших запитів.",
+     *     security={{"apiKey":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -49,6 +50,16 @@ class LoginController extends Controller
      *                 @OA\Property(property="role", type="string", example="user")
      *             ),
      *             @OA\Property(property="token", type="string", example="1|abc123...")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=403,
+     *         description="Невалідний або відсутній API ключ",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Invalid or missing API key.")
      *         )
      *     ),
      *

@@ -31,6 +31,7 @@ class ProjectForm
                 // Ліва колонка - основна інформація
                 Tabs::make('Основна інформація')
                     ->columnSpan(2)
+                    ->persistTabInQueryString()
                     ->tabs([
                         Tabs\Tab::make('Загальне')
                             ->icon('heroicon-o-information-circle')
@@ -96,6 +97,7 @@ class ProjectForm
 
                         Tabs\Tab::make('Бюджет')
                             ->icon('heroicon-o-currency-dollar')
+                            ->columns(2)
                             ->schema([
                                 Select::make('currency')
                                     ->label('Валюта')
@@ -131,13 +133,21 @@ class ProjectForm
                                 Repeater::make('budget_items')
                                     ->label('Статті бюджету')
                                     ->schema([
-                                        TextInput::make('name')
-                                            ->label('Назва')
-                                            ->required(),
+                                        LanguageTabs::make([
+                                            TextInput::make('name')
+                                                ->label('Назва')
+                                                ->required(),
+                                        ])->columnSpan(1),
+
                                         TextInput::make('amount')
                                             ->label('Сума')
                                             ->numeric()
-                                            ->required(),
+                                            ->required()
+                                            ->prefix(fn (callable $get) => match ($get('currency')) {
+                                                'USD' => '$',
+                                                'EUR' => '€',
+                                                default => '₴',
+                                            }),
                                     ])
                                     ->columns(2)
                                     ->columnSpanFull()
@@ -152,13 +162,20 @@ class ProjectForm
                                 Repeater::make('characteristics')
                                     ->label('Характеристики проєкту')
                                     ->schema([
-                                        TextInput::make('name')
-                                            ->label('Назва')
-                                            ->placeholder('Тривалість, Жанр, Режисер...')
-                                            ->required(),
-                                        TextInput::make('value')
-                                            ->label('Значення')
-                                            ->required(),
+
+                                        LanguageTabs::make([
+                                            TextInput::make('name')
+                                                ->label('Назва')
+                                                ->placeholder('Тривалість, Жанр, Режисер...')
+                                                ->required(),
+                                        ])->columnSpan(1),
+
+                                        LanguageTabs::make([
+                                            TextInput::make('value')
+                                                ->label('Значення')
+                                                ->required(),
+                                        ])->columnSpan(1),
+
                                     ])
                                     ->columns(2)
                                     ->columnSpanFull()
@@ -218,10 +235,12 @@ class ProjectForm
                                             ->columnSpan(1),
 
                                         DatePicker::make('started_at')
-                                            ->label('Початок'),
+                                            ->label('Початок')
+                                            ->columnSpan(1),
 
                                         DatePicker::make('completed_at')
-                                            ->label('Завершено'),
+                                            ->label('Завершено')
+                                            ->columnSpan(1),
 
                                         Repeater::make('documents')
                                             ->label('Документи / Фото-звіти')
@@ -235,18 +254,19 @@ class ProjectForm
                                                     ->default('photo')
                                                     ->required(),
 
+                                                LanguageTabs::make([
+                                                    TextInput::make('description')
+                                                        ->label('Опис'),
+                                                ])->columnSpan(1),
+
                                                 FileUpload::make('file')
                                                     ->label('Файл')
                                                     ->directory('projects/stages/documents')
                                                     ->image()
                                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                                                     ->maxSize(5120)
-                                                    ->required(),
-
-                                                LanguageTabs::make([
-                                                    TextInput::make('description')
-                                                        ->label('Опис'),
-                                                ])->columnSpanFull(),
+                                                    ->required()
+                                                    ->columnSpanFull(),
                                             ])
                                             ->columns(2)
                                             ->columnSpanFull()
@@ -343,13 +363,13 @@ class ProjectForm
                         Fieldset::make('Дати')
                             ->schema([
                                 DatePicker::make('announced_at')
-                                    ->label('Дата оголошення'),
+                                    ->label('Дата оголошення')->columnSpanFull(),
 
                                 DatePicker::make('planned_completion_at')
-                                    ->label('Планове завершення'),
+                                    ->label('Планове завершення')->columnSpanFull(),
 
                                 DatePicker::make('completed_at')
-                                    ->label('Фактичне завершення'),
+                                    ->label('Фактичне завершення')->columnSpanFull(),
                             ]),
 
                         Fieldset::make('Статистика')

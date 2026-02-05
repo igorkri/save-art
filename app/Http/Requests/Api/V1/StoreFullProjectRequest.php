@@ -9,9 +9,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Request для створення проекту з етапами та бонусами
+ * Request для створення повного проекту з етапами та бонусами в одному запиті
  */
-class CreateProjectRequest extends FormRequest
+class StoreFullProjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
+use App\Enums\StageStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CreateProjectRequest;
 use App\Http\Requests\Api\V1\UpdateProjectRequest;
@@ -11,9 +12,12 @@ use App\Http\Requests\Api\V1\UpdatePublishedProjectRequest;
 use App\Http\Resources\Api\V1\ProjectListResource;
 use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\Project;
+use App\Models\ProjectBonus;
+use App\Models\ProjectStage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use OpenApi\Annotations as OA;
@@ -89,8 +93,8 @@ class MyProjectController extends Controller
      *     path="/v1/my/projects",
      *     operationId="createProject",
      *     tags={"My Projects"},
-     *     summary="Створити проєкт",
-     *     description="Створює новий проєкт у статусі чернетки. Підтримує завантаження обкладинки через multipart/form-data.",
+     *     summary="Створити проєкт з етапами та бонусами",
+     *     description="Створює новий проєкт у статусі чернетки разом з етапами реалізації та бонусами для меценатів.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
@@ -103,17 +107,17 @@ class MyProjectController extends Controller
      *                 required={"title[uk]", "user_type", "art_category", "currency", "budget_goal"},
      *
      *                 @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, example="personal", description="Тип автора"),
-     *                 @OA\Property(property="title[uk]", type="string", example="Назва проєкту", description="Назва українською (обов'язкова)"),
-     *                 @OA\Property(property="title[en]", type="string", example="Project name", description="Назва англійською (опціонально)"),
-     *                 @OA\Property(property="short_description[uk]", type="string", example="Короткий опис"),
-     *                 @OA\Property(property="short_description[en]", type="string", example="Short description"),
+     *                 @OA\Property(property="title[uk]", type="string", example="Картина 'Світанок над Дніпром'", description="Назва українською (обов'язкова)"),
+     *                 @OA\Property(property="title[en]", type="string", example="Painting 'Dawn over Dnipro'", description="Назва англійською"),
+     *                 @OA\Property(property="short_description[uk]", type="string", example="Олійний живопис на полотні, присвячений красі українських пейзажів"),
+     *                 @OA\Property(property="short_description[en]", type="string", example="Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"),
      *                 @OA\Property(property="cover", type="string", format="binary", description="Обкладинка проєкту (JPG, PNG, до 15MB)"),
-     *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="visual"),
+     *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="fine_art"),
      *                 @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
-     *                 @OA\Property(property="tags[uk]", type="string", example="живопис, арт"),
-     *                 @OA\Property(property="tags[en]", type="string", example="painting, art"),
+     *                 @OA\Property(property="tags[uk]", type="string", example="живопис, пейзаж, Україна, олія"),
+     *                 @OA\Property(property="tags[en]", type="string", example="painting, landscape, Ukraine, oil"),
      *                 @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
-     *                 @OA\Property(property="budget_goal", type="number", format="float", minimum=100, example=50000),
+     *                 @OA\Property(property="budget_goal", type="number", format="float", minimum=100, example=75000),
      *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, example=90)
      *             )
      *         ),
@@ -123,39 +127,128 @@ class MyProjectController extends Controller
      *
      *             @OA\Schema(
      *                 required={"title", "user_type", "art_category", "currency", "budget_goal"},
+     *                 example={
+     *                     "user_type": "personal",
+     *                     "title": {"uk": "Картина 'Світанок над Дніпром'", "en": "Painting 'Dawn over Dnipro'"},
+     *                     "short_description": {"uk": "Олійний живопис на полотні, присвячений красі українських пейзажів", "en": "Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"},
+     *                     "art_category": "fine_art",
+     *                     "art_subcategory": "painting",
+     *                     "tags": {"uk": "живопис, пейзаж, Україна", "en": "painting, landscape, Ukraine"},
+     *                     "currency": "UAH",
+     *                     "budget_goal": 75000,
+     *                     "estimated_days": 90,
+     *                     "budget_items": {
+     *                         {"name": {"uk": "Фарби та матеріали", "en": "Paints and materials"}, "amount": 15000},
+     *                         {"name": {"uk": "Полотно та підрамник", "en": "Canvas and stretcher"}, "amount": 8000},
+     *                         {"name": {"uk": "Рама для картини", "en": "Picture frame"}, "amount": 12000},
+     *                         {"name": {"uk": "Оренда студії", "en": "Studio rent"}, "amount": 20000},
+     *                         {"name": {"uk": "Доставка та пакування", "en": "Delivery and packaging"}, "amount": 5000},
+     *                         {"name": {"uk": "Комісія платформи", "en": "Platform commission"}, "amount": 15000}
+     *                     },
+     *                     "characteristics": {
+     *                         {"name": {"uk": "Розмір", "en": "Size"}, "value": {"uk": "100x150 см", "en": "100x150 cm"}},
+     *                         {"name": {"uk": "Техніка", "en": "Technique"}, "value": {"uk": "Олія на полотні", "en": "Oil on canvas"}},
+     *                         {"name": {"uk": "Рік створення", "en": "Year"}, "value": {"uk": "2024", "en": "2024"}}
+     *                     },
+     *                     "additional_info": {"uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.", "en": "The painting will be ready within 3 months. Free delivery within Ukraine."},
+     *                     "stages": {
+     *                         {"title": {"uk": "Підготовка ескізів", "en": "Sketch preparation"}, "description": {"uk": "Створення детальних ескізів та вибір композиції", "en": "Creating detailed sketches and choosing the composition"}, "days_planned": 14, "budget_planned": 5000},
+     *                         {"title": {"uk": "Підготовка полотна", "en": "Canvas preparation"}, "description": {"uk": "Натягування полотна, ґрунтування", "en": "Stretching canvas, priming"}, "days_planned": 7, "budget_planned": 8000},
+     *                         {"title": {"uk": "Основна робота", "en": "Main work"}, "description": {"uk": "Нанесення фарб, робота над деталями", "en": "Applying paints, working on details"}, "days_planned": 45, "budget_planned": 35000},
+     *                         {"title": {"uk": "Завершення та оформлення", "en": "Finishing and framing"}, "description": {"uk": "Лакування, оформлення в раму", "en": "Varnishing, framing"}, "days_planned": 14, "budget_planned": 17000},
+     *                         {"title": {"uk": "Доставка", "en": "Delivery"}, "description": {"uk": "Пакування та відправка покупцю", "en": "Packaging and shipping to buyer"}, "days_planned": 10, "budget_planned": 10000}
+     *                     },
+     *                     "bonuses": {
+     *                         {"title": {"uk": "Подяка на сайті", "en": "Thanks on website"}, "description": {"uk": "Ваше ім'я буде вказано у списку меценатів проєкту", "en": "Your name will be listed among project patrons"}, "min_donation": 100, "quantity": null},
+     *                         {"title": {"uk": "Листівка з репродукцією", "en": "Postcard with reproduction"}, "description": {"uk": "Авторська листівка з репродукцією картини", "en": "Author's postcard with painting reproduction"}, "min_donation": 500, "quantity": 100},
+     *                         {"title": {"uk": "Підписаний принт А4", "en": "Signed A4 print"}, "description": {"uk": "Якісний принт картини з підписом автора", "en": "Quality print of the painting with author's signature"}, "min_donation": 1500, "quantity": 50},
+     *                         {"title": {"uk": "Підписаний принт А3", "en": "Signed A3 print"}, "description": {"uk": "Великий принт картини з підписом та сертифікатом", "en": "Large print with signature and certificate"}, "min_donation": 3000, "quantity": 25},
+     *                         {"title": {"uk": "Відвідування студії", "en": "Studio visit"}, "description": {"uk": "Особиста екскурсія до студії та спостереження за процесом створення", "en": "Personal studio tour and watching the creation process"}, "min_donation": 5000, "quantity": 10},
+     *                         {"title": {"uk": "Оригінальний ескіз", "en": "Original sketch"}, "description": {"uk": "Один з оригінальних ескізів до картини з підписом", "en": "One of the original sketches with signature"}, "min_donation": 10000, "quantity": 5}
+     *                     }
+     *                 },
      *
-     *                 @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, example="personal", description="Тип автора"),
-     *                 @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
-     *                 @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
-     *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="visual"),
-     *                 @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
-     *                 @OA\Property(property="tags", ref="#/components/schemas/LocalizedString"),
-     *                 @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
-     *                 @OA\Property(property="budget_goal", type="number", format="float", minimum=100, example=50000),
-     *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, example=90),
+     *                 @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, description="Тип автора"),
+     *                 @OA\Property(property="title", type="object", description="Назва проєкту",
+     *                     @OA\Property(property="uk", type="string", description="Українською (обов'язково)"),
+     *                     @OA\Property(property="en", type="string", description="Англійською")
+     *                 ),
+     *                 @OA\Property(property="short_description", type="object", description="Короткий опис",
+     *                     @OA\Property(property="uk", type="string", maxLength=1000),
+     *                     @OA\Property(property="en", type="string", maxLength=1000)
+     *                 ),
+     *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, description="Галузь мистецтва"),
+     *                 @OA\Property(property="art_subcategory", type="string", nullable=true, description="Підкатегорія"),
+     *                 @OA\Property(property="tags", type="object", description="Теги через кому",
+     *                     @OA\Property(property="uk", type="string"),
+     *                     @OA\Property(property="en", type="string")
+     *                 ),
+     *                 @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, description="Валюта"),
+     *                 @OA\Property(property="budget_goal", type="number", minimum=100, description="Ціль збору"),
+     *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, description="Термін реалізації (днів)"),
      *                 @OA\Property(property="budget_items", type="array", description="Статті бюджету",
      *
      *                     @OA\Items(type="object",
      *
-     *                         @OA\Property(property="name", type="object", description="Назва статті (мультимовна)",
-     *                             @OA\Property(property="uk", type="string", example="Матеріали"),
-     *                             @OA\Property(property="en", type="string", example="Materials")
+     *                         @OA\Property(property="name", type="object",
+     *                             @OA\Property(property="uk", type="string"),
+     *                             @OA\Property(property="en", type="string")
      *                         ),
-     *                         @OA\Property(property="amount", type="number", example=15000, description="Сума у валюті проєкту")
+     *                         @OA\Property(property="amount", type="number", description="Сума")
      *                     )
      *                 ),
-     *                 @OA\Property(property="characteristics", type="array", nullable=true, description="Характеристики проєкту",
+     *                 @OA\Property(property="characteristics", type="array", description="Характеристики проєкту",
      *
      *                     @OA\Items(type="object",
      *
-     *                         @OA\Property(property="name", type="object", description="Назва характеристики",
-     *                             @OA\Property(property="uk", type="string", example="Розмір"),
-     *                             @OA\Property(property="en", type="string", example="Size")
+     *                         @OA\Property(property="name", type="object",
+     *                             @OA\Property(property="uk", type="string"),
+     *                             @OA\Property(property="en", type="string")
      *                         ),
-     *                         @OA\Property(property="value", type="object", description="Значення характеристики",
-     *                             @OA\Property(property="uk", type="string", example="100x150 см"),
-     *                             @OA\Property(property="en", type="string", example="100x150 cm")
+     *                         @OA\Property(property="value", type="object",
+     *                             @OA\Property(property="uk", type="string"),
+     *                             @OA\Property(property="en", type="string")
      *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="additional_info", type="object", description="Додаткова інформація",
+     *                     @OA\Property(property="uk", type="string", maxLength=10000),
+     *                     @OA\Property(property="en", type="string", maxLength=10000)
+     *                 ),
+     *                 @OA\Property(property="stages", type="array", description="Етапи реалізації (до 20)",
+     *
+     *                     @OA\Items(type="object",
+     *                         required={"title"},
+     *
+     *                         @OA\Property(property="title", type="object", required={"uk"},
+     *                             @OA\Property(property="uk", type="string", description="Назва українською (обов'язково)"),
+     *                             @OA\Property(property="en", type="string")
+     *                         ),
+     *                         @OA\Property(property="description", type="object",
+     *                             @OA\Property(property="uk", type="string", maxLength=2000),
+     *                             @OA\Property(property="en", type="string", maxLength=2000)
+     *                         ),
+     *                         @OA\Property(property="days_planned", type="integer", minimum=1, description="Планова тривалість (днів)"),
+     *                         @OA\Property(property="budget_planned", type="number", minimum=0, description="Плановий бюджет"),
+     *                         @OA\Property(property="order", type="integer", minimum=0, description="Порядок (автоматично якщо не вказано)")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="bonuses", type="array", description="Бонуси для меценатів (до 20)",
+     *
+     *                     @OA\Items(type="object",
+     *                         required={"title", "min_donation"},
+     *
+     *                         @OA\Property(property="title", type="object", required={"uk"},
+     *                             @OA\Property(property="uk", type="string", description="Назва українською (обов'язково)"),
+     *                             @OA\Property(property="en", type="string")
+     *                         ),
+     *                         @OA\Property(property="description", type="object",
+     *                             @OA\Property(property="uk", type="string", maxLength=2000),
+     *                             @OA\Property(property="en", type="string", maxLength=2000)
+     *                         ),
+     *                         @OA\Property(property="min_donation", type="number", minimum=10, description="Мінімальна сума підтримки"),
+     *                         @OA\Property(property="quantity", type="integer", nullable=true, minimum=1, description="Кількість (null = необмежено)"),
+     *                         @OA\Property(property="order", type="integer", minimum=0, description="Порядок (автоматично якщо не вказано)")
      *                     )
      *                 )
      *             )
@@ -180,6 +273,11 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
+        // Витягуємо stages та bonuses з даних
+        $stagesData = $data['stages'] ?? [];
+        $bonusesData = $data['bonuses'] ?? [];
+        unset($data['stages'], $data['bonuses']);
+
         // Генеруємо унікальний код та slug
         $data['code'] = strtoupper(Str::random(8));
         $data['slug'] = Str::slug($data['title']['uk'] ?? 'project').'-'.Str::random(6);
@@ -197,7 +295,36 @@ class MyProjectController extends Controller
         $data['likes_count'] = 0;
         $data['donors_count'] = 0;
 
-        $project = Project::create($data);
+        // Створюємо проєкт та зв'язані дані в транзакції
+        $project = DB::transaction(function () use ($data, $stagesData, $bonusesData) {
+            $project = Project::create($data);
+
+            // Створюємо етапи
+            foreach ($stagesData as $index => $stageData) {
+                $project->stages()->create([
+                    'title' => $stageData['title'],
+                    'description' => $stageData['description'] ?? null,
+                    'days_planned' => $stageData['days_planned'] ?? null,
+                    'budget_planned' => $stageData['budget_planned'] ?? 0,
+                    'order' => $stageData['order'] ?? $index,
+                    'status' => StageStatus::Planned,
+                ]);
+            }
+
+            // Створюємо бонуси
+            foreach ($bonusesData as $index => $bonusData) {
+                $project->bonuses()->create([
+                    'title' => $bonusData['title'],
+                    'description' => $bonusData['description'] ?? null,
+                    'min_donation' => $bonusData['min_donation'],
+                    'quantity' => $bonusData['quantity'] ?? null,
+                    'quantity_claimed' => 0,
+                    'order' => $bonusData['order'] ?? $index,
+                ]);
+            }
+
+            return $project;
+        });
 
         return new ProjectResource($project->load(['user', 'stages', 'bonuses']));
     }
@@ -292,6 +419,11 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
+        // Витягуємо stages та bonuses з даних
+        $stagesData = $data['stages'] ?? null;
+        $bonusesData = $data['bonuses'] ?? null;
+        unset($data['stages'], $data['bonuses']);
+
         // Обробка обкладинки
         if ($request->hasFile('cover')) {
             // Видаляємо стару обкладинку
@@ -301,9 +433,99 @@ class MyProjectController extends Controller
             $data['cover'] = $request->file('cover')->store('projects/covers', 'public');
         }
 
-        $project->update($data);
+        // Оновлюємо проєкт та зв'язані дані в транзакції
+        DB::transaction(function () use ($project, $data, $stagesData, $bonusesData) {
+            // Оновлюємо основні дані проєкту
+            $project->update($data);
 
-        return new ProjectResource($project->load(['user', 'stages', 'bonuses']));
+            // Оновлюємо етапи (якщо передано)
+            if ($stagesData !== null) {
+                $existingStageIds = $project->stages->pluck('id')->toArray();
+                $receivedStageIds = [];
+
+                foreach ($stagesData as $index => $stageData) {
+                    if (! empty($stageData['id'])) {
+                        // Оновлюємо існуючий етап
+                        $stage = ProjectStage::where('id', $stageData['id'])
+                            ->where('project_id', $project->id)
+                            ->first();
+
+                        if ($stage) {
+                            $stage->update([
+                                'title' => $stageData['title'],
+                                'description' => $stageData['description'] ?? $stage->description,
+                                'days_planned' => $stageData['days_planned'] ?? $stage->days_planned,
+                                'budget_planned' => $stageData['budget_planned'] ?? $stage->budget_planned,
+                                'order' => $stageData['order'] ?? $index,
+                            ]);
+                            $receivedStageIds[] = $stage->id;
+                        }
+                    } else {
+                        // Створюємо новий етап
+                        $newStage = $project->stages()->create([
+                            'title' => $stageData['title'],
+                            'description' => $stageData['description'] ?? null,
+                            'days_planned' => $stageData['days_planned'] ?? null,
+                            'budget_planned' => $stageData['budget_planned'] ?? 0,
+                            'order' => $stageData['order'] ?? $index,
+                            'status' => StageStatus::Planned,
+                        ]);
+                        $receivedStageIds[] = $newStage->id;
+                    }
+                }
+
+                // Видаляємо етапи, яких немає в запиті
+                $stagesToDelete = array_diff($existingStageIds, $receivedStageIds);
+                ProjectStage::whereIn('id', $stagesToDelete)
+                    ->where('project_id', $project->id)
+                    ->delete();
+            }
+
+            // Оновлюємо бонуси (якщо передано)
+            if ($bonusesData !== null) {
+                $existingBonusIds = $project->bonuses->pluck('id')->toArray();
+                $receivedBonusIds = [];
+
+                foreach ($bonusesData as $index => $bonusData) {
+                    if (! empty($bonusData['id'])) {
+                        // Оновлюємо існуючий бонус
+                        $bonus = ProjectBonus::where('id', $bonusData['id'])
+                            ->where('project_id', $project->id)
+                            ->first();
+
+                        if ($bonus) {
+                            $bonus->update([
+                                'title' => $bonusData['title'],
+                                'description' => $bonusData['description'] ?? $bonus->description,
+                                'min_donation' => $bonusData['min_donation'],
+                                'quantity' => $bonusData['quantity'] ?? $bonus->quantity,
+                                'order' => $bonusData['order'] ?? $index,
+                            ]);
+                            $receivedBonusIds[] = $bonus->id;
+                        }
+                    } else {
+                        // Створюємо новий бонус
+                        $newBonus = $project->bonuses()->create([
+                            'title' => $bonusData['title'],
+                            'description' => $bonusData['description'] ?? null,
+                            'min_donation' => $bonusData['min_donation'],
+                            'quantity' => $bonusData['quantity'] ?? null,
+                            'quantity_claimed' => 0,
+                            'order' => $bonusData['order'] ?? $index,
+                        ]);
+                        $receivedBonusIds[] = $newBonus->id;
+                    }
+                }
+
+                // Видаляємо бонуси, яких немає в запиті
+                $bonusesToDelete = array_diff($existingBonusIds, $receivedBonusIds);
+                ProjectBonus::whereIn('id', $bonusesToDelete)
+                    ->where('project_id', $project->id)
+                    ->delete();
+            }
+        });
+
+        return new ProjectResource($project->fresh()->load(['user', 'stages', 'bonuses']));
     }
 
     /**
