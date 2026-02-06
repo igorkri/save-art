@@ -56,6 +56,7 @@ class ProjectFactory extends Factory
             'characteristics' => null,
             'budget_items' => null,
             'additional_info' => null,
+            'content_blocks' => null,
             'final_result' => null,
             'likes_count' => 0,
             'donors_count' => 0,
@@ -133,6 +134,47 @@ class ProjectFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'user_id' => $user->id,
+        ]);
+    }
+
+    /**
+     * Проєкт з прикладами контент-блоків
+     */
+    public function withContentBlocks(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'content_blocks' => [
+                [
+                    'type' => 'heading',
+                    'heading_level' => 'h2',
+                    'heading_text' => [
+                        'uk' => 'Про проєкт',
+                        'en' => 'About the project',
+                    ],
+                ],
+                [
+                    'type' => 'paragraph',
+                    'paragraph_text' => [
+                        'uk' => $this->faker->paragraphs(3, true),
+                        'en' => $this->faker->paragraphs(3, true),
+                    ],
+                ],
+                [
+                    'type' => 'heading',
+                    'heading_level' => 'h3',
+                    'heading_text' => [
+                        'uk' => 'Чому це важливо',
+                        'en' => 'Why it matters',
+                    ],
+                ],
+                [
+                    'type' => 'paragraph',
+                    'paragraph_text' => [
+                        'uk' => $this->faker->paragraphs(2, true),
+                        'en' => $this->faker->paragraphs(2, true),
+                    ],
+                ],
+            ],
         ]);
     }
 }

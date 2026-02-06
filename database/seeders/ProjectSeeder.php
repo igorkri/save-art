@@ -74,6 +74,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Технічне обладнання', 'en' => 'Technical equipment'], 'amount' => 20000],
                     ['name' => ['uk' => 'Кейтеринг на відкритті', 'en' => 'Catering at opening'], 'amount' => 10000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Концепція виставки',
+                            'en' => 'Exhibition concept',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Виставка "Незламність" – це спроба осмислити через мистецтво те, що відбувається в Україні сьогодні. 30 нових робіт від провідних художників України розповідають історії мужності, надії та незламного духу нашого народу.',
+                            'en' => 'The exhibition "Unbreakable" is an attempt to comprehend through art what is happening in Ukraine today. 30 new works from leading Ukrainian artists tell stories of courage, hope and the indomitable spirit of our people.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('painting'),
+                        'image_alt' => [
+                            'uk' => 'Одна з картин виставки "Незламність"',
+                            'en' => 'One of the paintings from the "Unbreakable" exhibition',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Експозиція включає 30 нових робіт українських художників',
+                            'en' => 'The exposition includes 30 new works by Ukrainian artists',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Що ви побачите',
+                            'en' => 'What you will see',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Експозиція включає роботи в різних техніках: від класичного олійного живопису до сучасних змішаних технік. Кожна картина – це особиста історія митця, його переживання та роздуми про сучасність.',
+                            'en' => 'The exposition includes works in various techniques: from classical oil painting to modern mixed media. Each painting is a personal story of the artist, his experiences and reflections on modernity.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Виставка включає роботи в різних техніках: олія, акрил, акварель. Буде організовано майстер-класи та зустрічі з художниками. Частина коштів від продажу картин піде на підтримку ЗСУ.',
                     'en' => 'The exhibition includes works in various techniques: oil, acrylic, watercolor. Master classes and meetings with artists will be organized. Part of the funds from the sale of paintings will go to support the Armed Forces.',
@@ -191,6 +235,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Підготовка фундаменту', 'en' => 'Foundation preparation'], 'amount' => 50000],
                     ['name' => ['uk' => 'Транспортування та монтаж', 'en' => 'Transportation and installation'], 'amount' => 50000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Ідея проєкту',
+                            'en' => 'Project idea',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Монументальна скульптура "Пам\'ятник героям України" присвячена захисникам нашої країни. Це бронзова композиція висотою 3.5 метра, яка символізує незламність та силу українського народу. Скульптура зображує фігуру воїна-захисника в момент прийняття важливого рішення.',
+                            'en' => 'The monumental sculpture "Monument to Ukrainian Heroes" is dedicated to the defenders of our country. This is a bronze composition 3.5 meters high, symbolizing the resilience and strength of the Ukrainian people. The sculpture depicts the figure of a warrior-defender at the moment of making an important decision.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('sculpture'),
+                        'image_alt' => [
+                            'uk' => 'Макет скульптури "Пам\'ятник героям України"',
+                            'en' => 'Model of the sculpture "Monument to Ukrainian Heroes"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Бронзова скульптура висотою 3.5 метра',
+                            'en' => 'Bronze sculpture 3.5 meters high',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Процес створення',
+                            'en' => 'Creation process',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Робота над скульптурою включає кілька етапів: спочатку створюється ескіз та невеликий макет у масштабі 1:10, потім у натуральну величину виготовляється глиняна модель, яка служить основою для форми. Лиття бронзи – складний процес, що вимагає високої майстерності. Після лиття скульптура проходить обробку та патинування для надання благородного відтінку.',
+                            'en' => 'Work on the sculpture includes several stages: first a sketch and small 1:10 scale model are created, then a full-size clay model is made, which serves as the basis for the mold. Bronze casting is a complex process requiring high skill. After casting, the sculpture undergoes processing and patination to give it a noble hue.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Скульптура буде встановлена на гранітному постаменті. Урочисте відкриття заплановано на День Незалежності. Автор проєкту - скульптор Тарас Коваленко, член Національної спілки художників України.',
                     'en' => 'The sculpture will be installed on a granite pedestal. The grand opening is planned for Independence Day. The project author is sculptor Taras Kovalenko, member of the National Union of Artists of Ukraine.',
@@ -301,6 +389,62 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Сценографія та костюми', 'en' => 'Set design and costumes'], 'amount' => 60000],
                     ['name' => ['uk' => 'Оренда театру', 'en' => 'Theatre rental'], 'amount' => 40000],
                     ['name' => ['uk' => 'Технічне забезпечення', 'en' => 'Technical support'], 'amount' => 20000],
+                ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Про виставу',
+                            'en' => 'About the performance',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('theatre'),
+                        'image_alt' => [
+                            'uk' => 'Постер театральної постановки "Майдан: Голоси свободи"',
+                            'en' => 'Poster of the theatre production "Maidan: Voices of Freedom"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Документальна драма про Революцію Гідності',
+                            'en' => 'Documentary drama about the Revolution of Dignity',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Театральна постановка "Майдан: Голоси свободи" – це документальна драма, створена на основі реальних свідчень учасників Революції Гідності. Вистава об\'єднує дванадцять акторів, кожен з яких втілює історію реальної людини, яка була на Майдані в ті переломні дні.',
+                            'en' => 'The theatre production "Maidan: Voices of Freedom" is a documentary drama based on real testimonies of participants of the Revolution of Dignity. The performance brings together twelve actors, each embodying the story of a real person who was on Maidan during those pivotal days.',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Команда проєкту',
+                            'en' => 'Project team',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('theatre'),
+                        'image_alt' => [
+                            'uk' => 'Постер театральної постановки "Майдан: Голоси свободи"',
+                            'en' => 'Poster of the theatre production "Maidan: Voices of Freedom"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Документальна драма про Революцію Гідності',
+                            'en' => 'Documentary drama about the Revolution of Dignity',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Режисер Марія Шевченко разом з драматургом провели понад 50 інтерв\'ю для створення сценарію. У виставі задіяні професійні актори Київського академічного театру драми. Сценографія і костюми створені провідними українськими художниками, які прагнули максимально відтворити атмосферу тих днів.',
+                            'en' => 'Director Maria Shevchenko together with the playwright conducted over 50 interviews to create the script. The performance features professional actors from Kyiv Academic Drama Theatre. Set design and costumes were created by leading Ukrainian artists who sought to recreate the atmosphere of those days as accurately as possible.',
+                        ],
+                    ],
                 ],
                 'additional_info' => [
                     'uk' => 'Вистава створена за реальними інтерв\'ю з учасниками Революції Гідності. Режисер - Марія Шевченко. Вистава отримала гран-прі на фестивалі "Золотий Лев".',
@@ -424,6 +568,62 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Дизайн обкладинки', 'en' => 'Cover design'], 'amount' => 10000],
                     ['name' => ['uk' => 'Пресування вінілу та CD', 'en' => 'Vinyl and CD pressing'], 'amount' => 20000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Концепція альбому',
+                            'en' => 'Album concept',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => '"Корені та крила" – це музичний проєкт, який поєднує давні українські народні пісні з сучасним електронним звучанням. Альбом містить 12 композицій, кожна з яких є унікальною інтерпретацією автентичної мелодії. Використовуються як традиційні інструменти (бандура, сопілка, цимбали), так і сучасні синтезатори та електронні біти.',
+                            'en' => '"Roots and Wings" is a musical project that combines ancient Ukrainian folk songs with modern electronic sound. The album contains 12 compositions, each a unique interpretation of an authentic melody. Both traditional instruments (bandura, sopilka, cymbals) and modern synthesizers and electronic beats are used.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('music'),
+                        'image_alt' => [
+                            'uk' => 'Обкладинка музичного альбому "Корені та крила"',
+                            'en' => 'Cover of the music album "Roots and Wings"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Музичний альбом "Корені та крила" поєднує традиції та сучасність',
+                            'en' => 'The music album "Roots and Wings" combines tradition and modernity',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Музиканти',
+                            'en' => 'Musicians',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'У записі альбому беруть участь відомі українські музиканти: виконавці на традиційних інструментах, вокалісти та електронні продюсери. Аранжування створені таким чином, щоб зберегти автентичність мелодій, але надати їм свіжого, сучасного звучання, яке буде зрозумілим і цікавим молодій аудиторії.',
+                            'en' => 'Well-known Ukrainian musicians participate in the album recording: traditional instrument performers, vocalists and electronic producers. The arrangements are created to preserve the authenticity of the melodies while giving them a fresh, modern sound that will be understandable and interesting to young audiences.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('music'),
+                        'image_alt' => [
+                            'uk' => 'Музиканти, які беруть участь у створенні альбому "Корені та крила"',
+                            'en' => 'Musicians participating in the creation of the album "Roots and Wings"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'У записі альбому беруть участь відомі українські музиканти',
+                            'en' => 'Well-known Ukrainian musicians participate in the album recording',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Альбом включає автентичні українські народні пісні у сучасній електронній обробці. Використовуються як традиційні, так і електронні інструменти. Записується у студії "Sound Factory" у Києві.',
                     'en' => 'The album includes authentic Ukrainian folk songs in modern electronic arrangements. Both traditional and electronic instruments are used. Recorded at Sound Factory studio in Kyiv.',
@@ -541,6 +741,62 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Друк фотокниги', 'en' => 'Photo book printing'], 'amount' => 30000],
                     ['name' => ['uk' => 'Організація виставки', 'en' => 'Exhibition organization'], 'amount' => 15000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Про проєкт',
+                            'en' => 'About the project',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Фотопроєкт "Обличчя незламних" – це документальна серія портретів українців, які попри всі виклики продовжують творити, працювати і жити. Проєкт охопить представників різних професій з усіх регіонів України: від вчителів та медиків до митців та підприємців.',
+                            'en' => 'The photo project "Faces of the Unbreakable" is a documentary series of portraits of Ukrainians who, despite all challenges, continue to create, work and live. The project will cover representatives of various professions from all regions of Ukraine: from teachers and doctors to artists and entrepreneurs.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('photography'),
+                        'image_alt' => [
+                            'uk' => 'Постер фотопроєкту "Обличчя незламних"',
+                            'en' => 'Poster of the photo project "Faces of the Unbreakable"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Документальна серія портретів українців, які продовжують творити, працювати і жити',
+                            'en' => 'Documentary series of portraits of Ukrainians who continue to create, work and live',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Формат проєкту',
+                            'en' => 'Project format',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('photography'),
+                        'image_alt' => [
+                            'uk' => 'Постер фотопроєкту "Обличчя незламних"',
+                            'en' => 'Poster of the photo project "Faces of the Unbreakable"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Документальна серія портретів українців, які продовжують творити, працювати і жити',
+                            'en' => 'Documentary series of portraits of Ukrainians who continue to create, work and live',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Кожен портрет супроводжується інтерв\'ю з героєм, де вони розповідають свою історію. Фінальним результатом стане фотокнига з 100 портретами, виставка у провідних галереях України та онлайн-галерея. Частина книг буде передана у бібліотеки, школи та культурні центри.',
+                            'en' => 'Each portrait is accompanied by an interview with the hero, where they tell their story. The final result will be a photo book with 100 portraits, an exhibition in leading galleries of Ukraine and an online gallery. Part of the books will be donated to libraries, schools and cultural centers.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Проєкт буде містити портрети українців різних професій та регіонів. Кожен портрет супроводжується особистою історією героя. Частина тиражу книги буде передана бібліотекам.',
                     'en' => 'The project will feature portraits of Ukrainians from various professions and regions. Each portrait is accompanied by a personal story of the hero. Part of the book edition will be donated to libraries.',
@@ -657,6 +913,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Воркшопи та лекції', 'en' => 'Workshops and lectures'], 'amount' => 20000],
                     ['name' => ['uk' => 'Фінальна виставка', 'en' => 'Final exhibition'], 'amount' => 20000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Філософія резиденції',
+                            'en' => 'Residency philosophy',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('residency'),
+                        'image_alt' => [
+                            'uk' => 'Пейзаж Карпат, де проходить арт-резиденція',
+                            'en' => 'Carpathian landscape where the art residency takes place',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Арт-резиденція "Карпати. Діалог з природою" проходить у мальовничому селі Дора в Карпатах',
+                            'en' => 'The art residency "Carpathians. Dialogue with Nature" takes place in the picturesque village of Dora in the Carpathians',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Арт-резиденція "Карпати. Діалог з природою" об\'єднує художників з України та світу для спільної роботи в унікальному природному середовищі. Резиденція фокусується на темах екології, сталого розвитку та ленд-арту. Учасники матимуть можливість створювати роботи, використовуючи природні матеріали та ландшафт Карпат.',
+                            'en' => 'The art residency "Carpathians. Dialogue with Nature" brings together artists from Ukraine and the world for collaborative work in a unique natural environment. The residency focuses on themes of ecology, sustainable development and land art. Participants will have the opportunity to create works using natural materials and the Carpathian landscape.',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Програма резиденції',
+                            'en' => 'Residency program',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Протягом двох місяців художники житимуть та працюватимуть у селі Дора. Програма включає щотижневі воркшопи з запрошеними лекторами, спільні дискусії та індивідуальну роботу над власними проєктами. Кульмінацією резиденції стане відкрита виставка робіт учасників просто неба, де глядачі зможуть побачити створені інсталяції у природному контексті.',
+                            'en' => 'For two months, artists will live and work in the village of Dora. The program includes weekly workshops with invited lecturers, group discussions and individual work on personal projects. The culmination of the residency will be an open-air exhibition of participants\' works, where visitors can see the created installations in their natural context.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Резиденція проходить у мальовничому селі Дора в Карпатах. Учасники працюють на перетині мистецтва та екології, створюючи ленд-арт інсталяції. Куратор проєкту - Оксана Петренко. По завершенні буде організована виставка робіт.',
                     'en' => 'The residency takes place in the picturesque village of Dora in the Carpathians. Participants work at the intersection of art and ecology, creating land art installations. Project curator - Oksana Petrenko. An exhibition of works will be organized upon completion.',
@@ -767,6 +1067,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Зйомки (5 днів)', 'en' => 'Filming (5 days)'], 'amount' => 100000],
                     ['name' => ['uk' => 'Акторам та команді', 'en' => 'Actors and crew'], 'amount' => 50000],
                     ['name' => ['uk' => 'Постпродакшн', 'en' => 'Post-production'], 'amount' => 30000],
+                ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Синопсис фільму',
+                            'en' => 'Film synopsis',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => '"Тиша між вибухами" – це камерна драма про родину, яка намагається зберегти нормальність життя в умовах війни. Фільм розповідає історію одного дня з життя чотирьох людей у невеликій квартирі, де кожен звук за вікном може змінити все. Через мікрокосм однієї родини ми бачимо універсальну історію про силу людського духу, надію та важливість простих речей.',
+                            'en' => '"Silence Between Explosions" is an intimate drama about a family trying to maintain normalcy of life during wartime. The film tells the story of one day in the lives of four people in a small apartment, where every sound outside the window can change everything. Through the microcosm of one family, we see a universal story about the strength of the human spirit, hope, and the importance of simple things.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('film'),
+                        'image_alt' => [
+                            'uk' => 'Постер короткометражного фільму "Тиша між вибухами"',
+                            'en' => 'Poster of the short film "Silence Between Explosions"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Камерна драма про родину під час війни',
+                            'en' => 'An intimate drama about a family during the war',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Творча команда',
+                            'en' => 'Creative team',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Режисер та автор сценарію – Тарас Коваленко, відомий своїм чуттєвим підходом до складних тем. У фільмі знімаються провідні українські актори. Оператор – лауреат національних кінопремій. Після завершення фільм буде представлений на міжнародних кінофестивалях.',
+                            'en' => 'Director and screenwriter – Taras Kovalenko, known for his sensitive approach to complex themes. Leading Ukrainian actors star in the film. Cinematographer – winner of national film awards. After completion, the film will be presented at international film festivals.',
+                        ],
+                    ],
                 ],
                 'additional_info' => [
                     'uk' => 'Фільм розповідає історію родини під час війни. Режисер та автор сценарію - Тарас Коваленко. Плануємо участь у міжнародних кінофестивалях.',
@@ -885,6 +1229,38 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Інтерактивна розробка', 'en' => 'Interactive development'], 'amount' => 50000],
                     ['name' => ['uk' => 'Монтаж інсталяції', 'en' => 'Installation setup'], 'amount' => 20000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Концепція VR-досвіду',
+                            'en' => 'VR experience concept',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'VR-інсталяція "Київ 360" – це імерсивна подорож столицею України очима різних людей. За 15 хвилин глядачі відвідають 8 знакових локацій Києва і почують історії від мешканців міста: від студента-архітектора до волонтера, від художниці до підприємця. Кожна локація розкриває унікальну перспективу на життя міста.',
+                            'en' => 'The VR installation "Kyiv 360" is an immersive journey through the capital of Ukraine through the eyes of different people. In 15 minutes, viewers will visit 8 iconic locations in Kyiv and hear stories from city residents: from a student architect to a volunteer, from an artist to an entrepreneur. Each location reveals a unique perspective on city life.',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Технологія створення',
+                            'en' => 'Creation technology',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Для створення проєкту використовується найсучасніше обладнання для зйомки 360° відео у роздільній здатності 8K. Після зйомки відбувається складний процес стітчингу та колоркорекції. Інсталяція включає інтерактивні елементи – глядачі можуть вибирати, які історії слухати, та досліджувати простір у власному темпі.',
+                            'en' => 'The most modern equipment for shooting 360° video in 8K resolution is used to create the project. After filming, there is a complex process of stitching and color correction. The installation includes interactive elements – viewers can choose which stories to listen to and explore the space at their own pace.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Унікальна VR-інсталяція дозволить відвідувачам побачити Київ очима різних людей. Включає історії мешканців, митців, захисників міста. Використовується найсучасніше обладнання для зйомки 360°.',
                     'en' => 'A unique VR installation will allow visitors to see Kyiv through the eyes of different people. Includes stories of residents, artists, city defenders. The most modern equipment is used for 360° filming.',
@@ -995,6 +1371,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Оренда підйомника', 'en' => 'Lift rental'], 'amount' => 25000],
                     ['name' => ['uk' => 'Робота асистентів', 'en' => 'Assistants work'], 'amount' => 15000],
                     ['name' => ['uk' => 'Захисне покриття', 'en' => 'Protective coating'], 'amount' => 5000],
+                ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Символізм муралу',
+                            'en' => 'Mural symbolism',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Мурал "Крила свободи" розташований на фасаді будинку на вулиці Хрещатик і став новою візитівкою столиці. Центральний образ – абстрактні крила, що символізують прагнення до свободи та незалежності. Композиція поєднує елементи реалізму та графіки, створюючи динамічний візуальний ефект.',
+                            'en' => 'The mural "Wings of Freedom" is located on the facade of a building on Khreshchatyk Street and has become a new landmark of the capital. The central image is abstract wings symbolizing the desire for freedom and independence. The composition combines elements of realism and graphics, creating a dynamic visual effect.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('mural'),
+                        'image_alt' => [
+                            'uk' => 'Вуличний мурал "Крила свободи" на вулиці Хрещатик',
+                            'en' => 'Street mural "Wings of Freedom" on Khreshchatyk Street',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Динамічна композиція з абстрактними крилами на фасаді будинку',
+                            'en' => 'Dynamic composition with abstract wings on the building facade',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Процес створення',
+                            'en' => 'Creation process',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Робота над муралом тривала 10 днів. Команда з чотирьох художників працювала з автопідйомника, використовуючи спеціальні фасадні фарби, стійкі до погодних умов. Спочатку на стіну було нанесено базовий шар, потім основні кольори та контури, і фінально – деталі та захисне покриття. Мурал став вірусним у соцмережах і залучив понад 10,000 відвідувачів за перший тиждень.',
+                            'en' => 'Work on the mural lasted 10 days. A team of four artists worked from a lift, using special facade paints resistant to weather conditions. First, a base layer was applied to the wall, then the main colors and contours, and finally – details and protective coating. The mural went viral on social media and attracted over 10,000 visitors in the first week.',
+                        ],
+                    ],
                 ],
                 'additional_info' => [
                     'uk' => 'Мурал розміщений на центральній вулиці Києва. Зображує символічну композицію з крилами як символом свободи. Робота виконана за 10 днів бригадою з 4 художників.',
@@ -1117,6 +1537,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Дизайн та верстка', 'en' => 'Design and layout'], 'amount' => 15000],
                     ['name' => ['uk' => 'Друк (1000 прим.)', 'en' => 'Printing (1000 copies)'], 'amount' => 50000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Про книгу',
+                            'en' => 'About the book',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => '"Казки незламних" – це збірка з 10 авторських казок для дітей віком від 4 до 10 років. Кожна казка розповідає про важливі людські якості: сміливість, доброту, чесність, дружбу та надію. Головні герої – українські діти та фантастичні персонажі – долають різні перешкоди, навчаючись вірити в себе та підтримувати один одного.',
+                            'en' => '"Tales of the Unbreakable" is a collection of 10 original fairy tales for children aged 4 to 10 years. Each tale tells about important human qualities: courage, kindness, honesty, friendship and hope. The main characters – Ukrainian children and fantastic characters – overcome various obstacles, learning to believe in themselves and support each other.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('illustration'),
+                        'image_alt' => [
+                            'uk' => 'Обкладинка дитячої книги "Казки незламних" з ілюстраціями',
+                            'en' => 'Cover of the children\'s book "Tales of the Unbreakable" with illustrations',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Збірка 10 авторських казок про мужність та доброту для дітей',
+                            'en' => 'Collection of 10 original fairy tales about courage and kindness for children',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Ілюстрації та оформлення',
+                            'en' => 'Illustrations and design',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Книга містить 40 повнокольорових ілюстрацій, виконаних у теплій, казковій манері. Кожна казка супроводжується 4 великими ілюстраціями, які допомагають дітям краще уявити героїв та події. Книга друкується на якісному папері з твердою обкладинкою. Частина тиражу буде безкоштовно передана дитячим будинкам, лікарням та бібліотекам.',
+                            'en' => 'The book contains 40 full-color illustrations done in a warm, fairy-tale manner. Each tale is accompanied by 4 large illustrations that help children better imagine the characters and events. The book is printed on quality paper with a hardcover. Part of the edition will be donated free of charge to orphanages, hospitals and libraries.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Книга містить 10 авторських казок про мужність, доброту та надію. Кожна казка супроводжується 4 повнокольоровими ілюстраціями. Частина тиражу буде подарована дитячим будинкам та лікарням.',
                     'en' => 'The book contains 10 original fairy tales about courage, kindness and hope. Each tale is accompanied by 4 full-color illustrations. Part of the edition will be donated to orphanages and hospitals.',
@@ -1238,6 +1702,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Оренда залу', 'en' => 'Hall rental'], 'amount' => 50000],
                     ['name' => ['uk' => 'Музичний супровід', 'en' => 'Musical accompaniment'], 'amount' => 20000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Концепція балету',
+                            'en' => 'Ballet concept',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Сучасна балетна постановка "Тіло і повітря" досліджує тему крихкості та водночас незламності людського тіла. Вистава поєднує елементи класичного балету з контемпорарі-танцем, створюючи унікальну хореографічну мову. Восьмеро танцюристів створюють на сцені живі скульптури, що розповідають історію без слів – через рух, простір та музику.',
+                            'en' => 'The contemporary ballet production "Body and Air" explores the theme of fragility and at the same time resilience of the human body. The performance combines elements of classical ballet with contemporary dance, creating a unique choreographic language. Eight dancers create living sculptures on stage that tell a story without words – through movement, space and music.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('ballet'),
+                        'image_alt' => [
+                            'uk' => 'Панер сучасної балетної постановки "Тіло і повітря"',
+                            'en' => 'Poster of the contemporary ballet "Body and Air"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Сучасна хореографія, що досліджує крихкість та силу людського тіла',
+                            'en' => 'Contemporary choreography exploring fragility and strength of the human body',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Творча команда',
+                            'en' => 'Creative team',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Хореографиня Марія Шевченко працює з талановитими солістами провідних українських балетних труп. Музика створена спеціально для цієї постановки українським композитором-експериментатором. Сценографія та костюми підкреслюють мінімалістичну естетику вистави, дозволяючи глядачам зосередитися на красі та виразності руху.',
+                            'en' => 'Choreographer Maria Shevchenko works with talented soloists from leading Ukrainian ballet companies. The music was created especially for this production by a Ukrainian experimental composer. Set design and costumes emphasize the minimalist aesthetics of the performance, allowing viewers to focus on the beauty and expressiveness of movement.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Балет створений відомою хореографинею Марією Шевченко. Вистава поєднує елементи класичного та сучасного балету. Музика написана спеціально для цієї постановки українським композитором.',
                     'en' => 'The ballet was created by renowned choreographer Maria Shevchenko. The production combines elements of classical and contemporary ballet. The music was specially written for this production by a Ukrainian composer.',
@@ -1354,6 +1862,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Обладнання для запису', 'en' => 'Recording equipment'], 'amount' => 25000],
                     ['name' => ['uk' => 'Монтаж та постпродакшн', 'en' => 'Editing and post-production'], 'amount' => 25000],
                     ['name' => ['uk' => 'Просування', 'en' => 'Promotion'], 'amount' => 10000],
+                ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Концепція подкасту',
+                            'en' => 'Podcast concept',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => '"Голоси України" – це документальний подкаст, який розповідає реальні історії людей з різних куточків країни. Кожен епізод – це глибоке інтерв\'ю тривалістю 30-40 хвилин, де герої діляться своїм життєвим досвідом, мріями, викликами та надіями. Проєкт має на меті показати різноманіття українського досвіду через особисті історії звичайних людей.',
+                            'en' => '"Voices of Ukraine" is a documentary podcast that tells real stories of people from different parts of the country. Each episode is an in-depth interview lasting 30-40 minutes, where heroes share their life experiences, dreams, challenges and hopes. The project aims to show the diversity of Ukrainian experience through personal stories of ordinary people.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('podcast'),
+                        'image_alt' => [
+                            'uk' => 'Постер документального подкасту "Голоси України"',
+                            'en' => 'Poster of the documentary podcast "Voices of Ukraine"',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Серія глибоких інтерв\'ю з реальними історіями українців',
+                            'en' => 'Series of in-depth interviews with real stories of Ukrainians',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Формат та дистрибуція',
+                            'en' => 'Format and distribution',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Перший сезон складається з 12 епізодів, які виходитимуть щотижня. Подкаст буде доступний на всіх основних платформах: Spotify, Apple Podcasts, Google Podcasts та YouTube. Кожен епізод супроводжується детальним description і таймкодами для зручності слухачів. Автор проєкту також створює bonus-контент для меценатів: розширені версії інтерв\'ю та закулісні матеріали.',
+                            'en' => 'The first season consists of 12 episodes that will be released weekly. The podcast will be available on all major platforms: Spotify, Apple Podcasts, Google Podcasts and YouTube. Each episode is accompanied by a detailed description and timestamps for listeners\' convenience. The project author also creates bonus content for patrons: extended versions of interviews and behind-the-scenes materials.',
+                        ],
+                    ],
                 ],
                 'additional_info' => [
                     'uk' => 'Подкаст розповідає історії звичайних українців з різних куточків країни. Кожен епізод - це глибоке інтерв\'ю про життя, мрії, виклики. Вийде по 1 епізоду на тиждень.',
@@ -1476,6 +2028,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Друк (500 прим.)', 'en' => 'Printing (500 copies)'], 'amount' => 60000],
                     ['name' => ['uk' => 'Упаковка та доставка', 'en' => 'Packaging and delivery'], 'amount' => 10000],
                 ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Про артбук',
+                            'en' => 'About the artbook',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Артбук "Сни України" об\'єднує роботи 15 найкращих українських ілюстраторів сучасності. Кожен художник представляє 8 авторських ілюстрацій на тему "Сни України" – особисте бачення минулого, сучасного та майбутнього нашої країни. Книга має формат альбому А4 з твердою обкладинкою та друкується на преміальному папері з UF-лаком.',
+                            'en' => 'The artbook "Dreams of Ukraine" brings together works of 15 best contemporary Ukrainian illustrators. Each artist presents 8 original illustrations on the theme "Dreams of Ukraine" – a personal vision of the past, present and future of our country. The book has an A4 album format with a hardcover and is printed on premium paper with UV coating.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('artbook'),
+                        'image_alt' => [
+                            'uk' => 'Обкладинка артбуку "Сни України" з ілюстраціями 15 художників',
+                            'en' => 'Cover of the artbook "Dreams of Ukraine" with illustrations by 15 artists',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Колекційне видання українських ілюстрацій на А4 папері з твердою обкладинкою',
+                            'en' => 'Collectible edition of Ukrainian illustrations on A4 premium paper with hardcover',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Художники та стилі',
+                            'en' => 'Artists and styles',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'У артбуці представлені різноманітні стилі ілюстрації: від класичної акварелі до цифрового арту, від детальної графіки до мінімалістичних композицій. Кожен художник супроводжує свої роботи коротким есе про свій творчий процес та джерела натхнення. Артбук стане не лише колекційним виданням, а й документом часу, що фіксує погляд сучасних українських митців на свою країну.',
+                            'en' => 'The artbook features various illustration styles: from classical watercolor to digital art, from detailed graphics to minimalist compositions. Each artist accompanies their work with a short essay about their creative process and sources of inspiration. The artbook will become not only a collectible edition, but also a document of time that captures the view of contemporary Ukrainian artists on their country.',
+                        ],
+                    ],
+                ],
                 'additional_info' => [
                     'uk' => 'Артбук об\'єднує роботи 15 найкращих українських ілюстраторів. Кожен художник представляє 8 робіт на тему "Сни України". Книга буде друкуватися на преміальному папері з UF-лаком.',
                     'en' => 'The artbook brings together works of 15 best Ukrainian illustrators. Each artist presents 8 works on the theme "Dreams of Ukraine". The book will be printed on premium paper with UV coating.',
@@ -1592,6 +2188,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Монтаж конструкції', 'en' => 'Structure installation'], 'amount' => 25000],
                     ['name' => ['uk' => 'Дозволи та документація', 'en' => 'Permits and documentation'], 'amount' => 10000],
                     ['name' => ['uk' => 'Технічна підтримка (1 міс.)', 'en' => 'Technical support (1 month)'], 'amount' => 5000],
+                ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Концепція інсталяції',
+                            'en' => 'Installation concept',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Світлова інсталяція "Серце міста" – це інтерактивний медіа-арт об\'єкт розміром 10x6 метрів, розташований на Площі Незалежності у центрі Києва. Інсталяція використовує сучасні LED-технології та датчики руху, створюючи живу, що реагує на перехожих, світлову картину. Кожен рух людини біля інсталяції породжує унікальний візуальний патерн – так мистецтво стає діалогом між твором і глядачем.',
+                            'en' => 'The light installation "Heart of the City" is an interactive media art object measuring 10x6 meters, located on Independence Square in the center of Kyiv. The installation uses modern LED technology and motion sensors, creating a living light picture that responds to passers-by. Each movement of a person near the installation generates a unique visual pattern – thus art becomes a dialogue between the work and the viewer.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('light-art'),
+                        'image_alt' => [
+                            'uk' => 'Інтерактивна світлова інсталяція "Серце міста" на Площі Незалежності',
+                            'en' => 'Interactive light installation "Heart of the City" on Independence Square',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Медіа-арт об\'єкт розміром 10x6 метрів з LED-технологією та датчиками руху',
+                            'en' => 'Media art object 10x6 meters with LED technology and motion sensors',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Реалізація та результати',
+                            'en' => 'Implementation and results',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Інсталяція була створена за 45 днів та працює щовечора з 18:00 до 23:00. За перший місяць роботи її побачили понад 100,000 людей, а відео з інсталяцією набрали понад 500,000 переглядів у соціальних мережах. Міська рада, вражена популярністю проєкту, вирішила продовжити роботу інсталяції на додаткові 6 місяців. "Серце міста" стало новою визначною точкою Києва та улюбленим місцем для фотосесій.',
+                            'en' => 'The installation was created in 45 days and operates every evening from 18:00 to 23:00. In the first month of operation, over 100,000 people saw it, and videos of the installation gained over 500,000 views on social media. The city council, impressed by the project\'s popularity, decided to extend the installation\'s operation for an additional 6 months. "Heart of the City" has become a new landmark of Kyiv and a favorite place for photo shoots.',
+                        ],
+                    ],
                 ],
                 'additional_info' => [
                     'uk' => 'Інсталяція "Серце міста" реагує на рух перехожих, створюючи унікальні світлові візерунки. Працює щовечора з 18:00 до 23:00. Автор - медіа-художник Тарас Коваленко.',
@@ -1713,6 +2353,50 @@ class ProjectSeeder extends Seeder
                     ['name' => ['uk' => 'Монтаж та постпродакшн', 'en' => 'Editing and post-production'], 'amount' => 25000],
                     ['name' => ['uk' => 'Платформа для курсу', 'en' => 'Course platform'], 'amount' => 15000],
                     ['name' => ['uk' => 'Методичні матеріали', 'en' => 'Educational materials'], 'amount' => 10000],
+                ],
+                'content_blocks' => [
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h2',
+                        'heading_text' => [
+                            'uk' => 'Структура курсу',
+                            'en' => 'Course structure',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Онлайн-курс "Фотографія з нуля" – це комплексна освітня програма для початківців, яка охоплює всі аспекти фотомистецтва. Курс складається з 20 відеоуроків загальною тривалістю 15 годин. Програма включає теорію (налаштування камери, експозиція, композиція, робота зі світлом) та практику (20 практичних завдань з детальним розбором). Студенти отримують довічний доступ до всіх матеріалів та можливість повторного перегляду.',
+                            'en' => 'The online course "Photography from Scratch" is a comprehensive educational program for beginners that covers all aspects of photography. The course consists of 20 video lessons with a total duration of 15 hours. The program includes theory (camera settings, exposure, composition, working with light) and practice (20 practical assignments with detailed analysis). Students receive lifetime access to all materials and the ability to rewatch.',
+                        ],
+                    ],
+                    [
+                        'type' => 'image',
+                        'image' => ImageSeederHelper::getProjectCover('education'),
+                        'image_alt' => [
+                            'uk' => 'Обкладинка онлайн-курсу "Фотографія з нуля" для початківців',
+                            'en' => 'Cover of the online course "Photography from Scratch" for beginners',
+                        ],
+                        'image_caption' => [
+                            'uk' => 'Комплексна освітня програма з 20 відеоуроків та 15 годин матеріалу',
+                            'en' => 'Comprehensive educational program with 20 video lessons and 15 hours of material',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'heading_level' => 'h3',
+                        'heading_text' => [
+                            'uk' => 'Про викладача',
+                            'en' => 'About the instructor',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'paragraph_text' => [
+                            'uk' => 'Курс веде Анна Павленко – професійний фотограф з 10-річним досвідом роботи. Анна спеціалізується на портретній та документальній фотографії, є лауреатом міжнародних фотоконкурсів. Її роботи публікувалися у провідних українських та міжнародних виданнях. У курсі Анна ділиться як технічними знаннями, так і творчими прийомами, що допомагають розвинути власний стиль.',
+                            'en' => 'The course is taught by Anna Pavlenko – a professional photographer with 10 years of experience. Anna specializes in portrait and documentary photography, is a laureate of international photography competitions. Her work has been published in leading Ukrainian and international publications. In the course, Anna shares both technical knowledge and creative techniques that help develop one\'s own style.',
+                        ],
+                    ],
                 ],
                 'additional_info' => [
                     'uk' => 'Курс охоплює всі основи фотографії: налаштування камери, композиція, світло, обробка. Включає 20 практичних завдань з перевіркою. Автор - професійний фотограф з 10-річним досвідом Анна Павленко.',

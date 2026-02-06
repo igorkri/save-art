@@ -191,6 +191,100 @@ class ProjectForm
                                 ])->columnSpanFull(),
                             ]),
 
+                        Tabs\Tab::make('Контент')
+                            ->icon('heroicon-o-document-text')
+                            ->schema([
+                                Repeater::make('content_blocks')
+                                    ->label('Контент-блоки')
+                                    ->schema([
+                                        Select::make('type')
+                                            ->label('Тип блоку')
+                                            ->options([
+                                                'heading' => 'Заголовок',
+                                                'paragraph' => 'Параграф',
+                                                'image' => 'Зображення',
+                                            ])
+                                            ->default('paragraph')
+                                            ->required()
+                                            ->reactive()
+                                            ->columnSpanFull(),
+
+                                        // ПОЛЯ ДЛЯ ЗАГОЛОВКА
+                                        Select::make('heading_level')
+                                            ->label('Рівень заголовка')
+                                            ->options([
+                                                'h2' => 'H2 - Великий заголовок',
+                                                'h3' => 'H3 - Середній заголовок',
+                                                'h4' => 'H4 - Малий заголовок',
+                                                'h5' => 'H5 - Дрібний заголовок',
+                                                'h6' => 'H6 - Мінімальний заголовок',
+                                            ])
+                                            ->default('h2')
+                                            ->required()
+                                            ->visible(fn (callable $get) => $get('type') === 'heading')
+                                            ->columnSpanFull(),
+
+                                        LanguageTabs::make([
+                                            TextInput::make('heading_text')
+                                                ->label('Текст заголовка')
+                                                ->required()
+                                                ->maxLength(255),
+                                        ])
+                                            ->visible(fn (callable $get) => $get('type') === 'heading')
+                                            ->columnSpanFull(),
+
+                                        // ПОЛЯ ДЛЯ ПАРАГРАФА
+                                        LanguageTabs::make([
+                                            Textarea::make('paragraph_text')
+                                                ->label('Текст параграфа')
+                                                ->required()
+                                                ->rows(5),
+                                        ])
+                                            ->visible(fn (callable $get) => $get('type') === 'paragraph')
+                                            ->columnSpanFull(),
+
+                                        // ПОЛЯ ДЛЯ ЗОБРАЖЕННЯ
+                                        FileUpload::make('image')
+                                            ->label('Зображення')
+                                            ->image()
+                                            ->imageEditor()
+                                            ->disk('public')
+                                            ->directory('projects/content-blocks')
+                                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                            ->maxSize(5120)
+                                            ->required()
+                                            ->visible(fn (callable $get) => $get('type') === 'image')
+                                            ->columnSpanFull(),
+
+                                        LanguageTabs::make([
+                                            TextInput::make('image_alt')
+                                                ->label('Alt текст (опис зображення)')
+                                                ->helperText('Важливо для доступності та SEO'),
+                                        ])
+                                            ->visible(fn (callable $get) => $get('type') === 'image')
+                                            ->columnSpanFull(),
+
+                                        LanguageTabs::make([
+                                            TextInput::make('image_caption')
+                                                ->label('Підпис під зображенням')
+                                                ->helperText('Необов\'язково'),
+                                        ])
+                                            ->visible(fn (callable $get) => $get('type') === 'image')
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(1)
+                                    ->columnSpanFull()
+                                    ->defaultItems(0)
+                                    ->reorderable()
+                                    ->collapsible()
+                                    ->itemLabel(fn (array $state): ?string => match ($state['type'] ?? null) {
+                                        'heading' => strtoupper($state['heading_level'] ?? 'h2').': '.($state['heading_text']['uk'] ?? 'Новий заголовок'),
+                                        'paragraph' => 'Параграф: '.\Illuminate\Support\Str::limit($state['paragraph_text']['uk'] ?? 'Новий параграф', 50),
+                                        'image' => 'Зображення'.(isset($state['image_alt']['uk']) ? ': '.$state['image_alt']['uk'] : ''),
+                                        default => 'Новий блок',
+                                    }),
+                            ]),
+
                         Tabs\Tab::make('Етапи')
                             ->icon('heroicon-o-list-bullet')
                             ->schema([

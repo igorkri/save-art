@@ -51,6 +51,18 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
  *         @OA\Property(property="amount", type="number", example=15000)
  *     )),
+ *     @OA\Property(property="content_blocks", type="array", nullable=true, description="Динамічні контент-блоки", @OA\Items(
+ *         type="object",
+ *         required={"type"},
+ *         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}, example="heading"),
+ *         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}, example="h2", description="Тільки для type=heading"),
+ *         @OA\Property(property="heading_text", type="string", example="Про проєкт", description="Тільки для type=heading (локалізовано)"),
+ *         @OA\Property(property="paragraph_text", type="string", example="Опис проєкту...", description="Тільки для type=paragraph (локалізовано)"),
+ *         @OA\Property(property="image", type="string", example="projects/content-blocks/abc123.jpg", description="Тільки для type=image"),
+ *         @OA\Property(property="image_url", type="string", example="http://localhost/storage/projects/content-blocks/abc123.jpg", description="Тільки для type=image"),
+ *         @OA\Property(property="image_alt", type="string", example="Опис зображення", description="Тільки для type=image (локалізовано)"),
+ *         @OA\Property(property="image_caption", type="string", nullable=true, example="Підпис", description="Тільки для type=image (локалізовано)")
+ *     )),
  *     @OA\Property(property="final_result", ref="#/components/schemas/FinalResult", nullable=true),
  *     @OA\Property(property="stages", type="array", @OA\Items(ref="#/components/schemas/ProjectStage")),
  *     @OA\Property(property="bonuses", type="array", @OA\Items(ref="#/components/schemas/ProjectBonus")),
@@ -156,6 +168,7 @@ class ProjectResource extends JsonResource
             'characteristics' => $this->localizeArrayField($this->characteristics, $language),
             'budget_items' => $this->localizeArrayField($this->budget_items, $language),
             'additional_info' => $this->localizeField($this->additional_info, $language),
+            'content_blocks' => $this->localizeContentBlocks($this->content_blocks, $language),
             'final_result' => $this->localizeFinalResult($this->final_result, $language),
 
             'stages' => ProjectStageResource::collection($this->whenLoaded('stages')),
@@ -235,5 +248,37 @@ class ProjectResource extends JsonResource
         }
 
         return $finalResult;
+    }
+
+    /**
+     * Локалізація content_blocks з вкладеними мовними полями
+     */
+    private function localizeContentBlocks($contentBlocks, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($contentBlocks)) {
+            return $contentBlocks;
+        }
+
+        return array_map(function ($block) use ($language) {
+            if (! is_array($block)) {
+                return $block;
+            }
+
+            $localized = ['type' => $block['type'] ?? null];
+
+            if ($block['type'] === 'heading') {
+                $localized['heading_level'] = $block['heading_level'] ?? 'h2';
+                $localized['heading_text'] = $this->localizeField($block['heading_text'] ?? null, $language);
+            } elseif ($block['type'] === 'paragraph') {
+                $localized['paragraph_text'] = $this->localizeField($block['paragraph_text'] ?? null, $language);
+            } elseif ($block['type'] === 'image') {
+                $localized['image'] = $block['image'] ?? null;
+                $localized['image_url'] = isset($block['image']) ? Storage::url($block['image']) : null;
+                $localized['image_alt'] = $this->localizeField($block['image_alt'] ?? null, $language);
+                $localized['image_caption'] = $this->localizeField($block['image_caption'] ?? null, $language);
+            }
+
+            return $localized;
+        }, $contentBlocks);
     }
 }

@@ -8765,6 +8765,71 @@
                         },
                         "nullable": true
                     },
+                    "content_blocks": {
+                        "description": "Динамічні контент-блоки",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "type"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "heading",
+                                        "paragraph",
+                                        "image"
+                                    ],
+                                    "example": "heading"
+                                },
+                                "heading_level": {
+                                    "description": "Тільки для type=heading",
+                                    "type": "string",
+                                    "enum": [
+                                        "h2",
+                                        "h3",
+                                        "h4",
+                                        "h5",
+                                        "h6"
+                                    ],
+                                    "example": "h2"
+                                },
+                                "heading_text": {
+                                    "description": "Тільки для type=heading (локалізовано)",
+                                    "type": "string",
+                                    "example": "Про проєкт"
+                                },
+                                "paragraph_text": {
+                                    "description": "Тільки для type=paragraph (локалізовано)",
+                                    "type": "string",
+                                    "example": "Опис проєкту..."
+                                },
+                                "image": {
+                                    "description": "Тільки для type=image",
+                                    "type": "string",
+                                    "example": "projects/content-blocks/abc123.jpg"
+                                },
+                                "image_url": {
+                                    "description": "Тільки для type=image",
+                                    "type": "string",
+                                    "example": "http://localhost/storage/projects/content-blocks/abc123.jpg"
+                                },
+                                "image_alt": {
+                                    "description": "Тільки для type=image (локалізовано)",
+                                    "type": "string",
+                                    "example": "Опис зображення"
+                                },
+                                "image_caption": {
+                                    "description": "Тільки для type=image (локалізовано)",
+                                    "type": "string",
+                                    "example": "Підпис",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
                     "final_result": {
                         "oneOf": [
                             {
