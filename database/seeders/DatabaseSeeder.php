@@ -38,6 +38,9 @@ class DatabaseSeeder extends Seeder
         // Проєкти з етапами та бонусами
         $this->call(ProjectSeeder::class);
 
+        // Додаткові розширені проєкти
+        $this->call(AdditionalProjectsSeeder::class);
+
         // Донати
         $this->call(DonationSeeder::class);
 
