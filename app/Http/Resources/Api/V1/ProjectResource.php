@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\V1;
 
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -156,12 +157,7 @@ class ProjectResource extends JsonResource
             'planned_completion_at' => $this->planned_completion_at?->toISOString(),
             'completed_at' => $this->completed_at?->toISOString(),
 
-            'author' => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'slug' => $this->user->slug ?? null,
-                'avatar_url' => $this->user->profilePersonal?->avatar ? Storage::url($this->user->profilePersonal->avatar) : null,
-            ],
+            'author' => $this->formatAuthor($this->user, $language),
 
             'characteristics' => $this->localizeArrayField($this->characteristics, $language),
             'budget_items' => $this->localizeArrayField($this->budget_items, $language),
@@ -229,5 +225,38 @@ class ProjectResource extends JsonResource
 
             return $localized;
         }, $contentBlocks);
+    }
+
+    /**
+     * Форматувати дані автора залежно від типу (фіз. особа або юр. особа)
+     *
+     * @return array<string, mixed>
+     */
+    private function formatAuthor(User $user, ?string $language): array
+    {
+        // Перевіряємо чи це юридична особа
+        $isLegal = $user->profileLegal?->is_legal ?? false;
+
+        if ($isLegal && $user->profileLegal) {
+            // Юридична особа - дані з ProfileLegal
+            return [
+                'id' => $user->id,
+                'name' => $this->localizeField($user->profileLegal->name, $language),
+                'slug' => $user->slug ?? null,
+                'avatar_url' => $user->profileLegal->logo ? Storage::url($user->profileLegal->logo) : null,
+                'profession' => $this->localizeField($user->profilePersonal?->profession, $language),
+                'type' => 'legal',
+            ];
+        } else {
+            // Фізична особа - дані з ProfilePersonal
+            return [
+                'id' => $user->id,
+                'name' => $this->localizeField($user->profilePersonal?->full_name, $language) ?? $user->name,
+                'slug' => $user->slug ?? null,
+                'avatar_url' => $user->profilePersonal?->avatar ? Storage::url($user->profilePersonal->avatar) : null,
+                'profession' => $this->localizeField($user->profilePersonal?->profession, $language),
+                'type' => 'personal',
+            ];
+        }
     }
 }
