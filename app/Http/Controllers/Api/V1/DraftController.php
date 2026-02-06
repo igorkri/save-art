@@ -8,6 +8,7 @@ use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class DraftController extends Controller
@@ -527,7 +528,7 @@ class DraftController extends Controller
             'local_id' => $project->additional_info['local_id'] ?? null,
             'title' => $project->title,
             'short_description' => $project->short_description,
-            'cover' => $project->cover,
+            'cover' => $project->cover ? Storage::url($project->cover) : null,
             'art_category' => $project->art_category,
             'art_subcategory' => $project->art_subcategory,
             'budget_goal' => $project->budget_goal,

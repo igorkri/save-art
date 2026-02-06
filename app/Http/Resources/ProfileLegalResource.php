@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
@@ -51,7 +52,7 @@ class ProfileLegalResource extends JsonResource
             'user_id' => $this->user_id,
             'currency' => $this->currency,
             'is_legal' => $this->is_legal,
-            'logo' => $this->logo,
+            'logo' => $this->logo ? Storage::url($this->logo) : null,
             'name' => $this->name ?? ['en' => null, 'uk' => null],
             'edrpou' => $this->edrpou,
             'authorized_person' => $this->authorized_person ?? ['en' => null, 'uk' => null],

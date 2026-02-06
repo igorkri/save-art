@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class PublicUserController extends Controller
@@ -74,7 +75,7 @@ class PublicUserController extends Controller
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'avatar' => $personal?->avatar ?? null,
+                    'avatar' => $personal?->avatar ? Storage::url($personal->avatar) : null,
                     'role' => $user->role->value ?? 'user',
                     'profession' => $personal?->profession ?? null,
                     'description' => $personal?->about ?? null,
@@ -150,7 +151,7 @@ class PublicUserController extends Controller
                 'collected' => (float) $project->budget_collected,
                 'need_to_collect' => (float) $project->budget_goal,
                 'people_supported' => $project->donors_count,
-                'project_image' => $project->cover,
+                'project_image' => $project->cover ? Storage::url($project->cover) : null,
                 'project_status' => [
                     'key' => $project->status->value,
                     'uk' => $project->status->getLabel(),

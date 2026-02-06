@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
@@ -62,7 +63,7 @@ class ProfilePersonalResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar ? Storage::url($this->avatar) : null,
             'full_name' => $this->full_name ?? ['en' => null, 'uk' => null],
             'profession' => $this->profession ?? ['en' => null, 'uk' => null],
             'tags' => $this->tags ?? ['en' => null, 'uk' => null],

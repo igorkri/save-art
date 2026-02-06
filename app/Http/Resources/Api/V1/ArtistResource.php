@@ -49,7 +49,7 @@ class ArtistResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
+            'avatar_url' => $this->profilePersonal?->avatar ? Storage::url($this->profilePersonal->avatar) : null,
 
             // Публічні дані з профілю
             'profession' => $this->profilePersonal?->profession,

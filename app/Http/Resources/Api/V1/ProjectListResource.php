@@ -92,7 +92,7 @@ class ProjectListResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'slug' => $this->user->slug ?? null,
-                'avatar_url' => $this->user->avatar ? Storage::url($this->user->avatar) : null,
+                'avatar_url' => $this->user->profilePersonal?->avatar ? Storage::url($this->user->profilePersonal->avatar) : null,
             ],
 
             'can_donate' => $this->canReceiveDonations(),

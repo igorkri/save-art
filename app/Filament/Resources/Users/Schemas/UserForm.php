@@ -106,8 +106,8 @@ class UserForm
                                                     ->imageCropAspectRatio('1:1')
                                                     ->imageEditor()
                                                     ->maxSize(1024)
-                                                    ->directory('avatars')
                                                     ->disk('public')
+                                                    ->directory('avatars')
                                                     ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
                                                     ->nullable(),
                                             ])

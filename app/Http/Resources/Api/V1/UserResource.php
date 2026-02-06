@@ -56,7 +56,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'slug' => $this->slug,
             'role' => $this->role?->value,
-            'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
+            'avatar_url' => $this->profilePersonal?->avatar ? Storage::url($this->profilePersonal->avatar) : null,
             'email_verified_at' => $this->email_verified_at?->toISOString(),
 
             // Профілі (conditionally loaded)

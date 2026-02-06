@@ -181,7 +181,7 @@ class LoginController extends Controller
                 'email' => $user->email,
                 'slug' => $user->slug,
                 'role' => $user->role->value,
-                'avatar_url' => $user->avatar ? \Storage::url($user->avatar) : null,
+                'avatar_url' => $user->profilePersonal?->avatar ? \Storage::url($user->profilePersonal->avatar) : null,
                 'created_at' => $user->created_at->toISOString(),
             ],
         ]);
