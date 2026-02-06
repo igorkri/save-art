@@ -31,6 +31,8 @@ class StatisticsController extends Controller
      *     summary="Загальна статистика",
      *     description="Повертає загальну статистику платформи: збори, проєкти, митці, меценати",
      *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Статистика платформи",
@@ -73,11 +75,22 @@ class StatisticsController extends Controller
      *     )
      * )
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        $language = $this->getLanguage($request);
+
         $stats = Cache::remember('platform_statistics', 300, function () {
             return $this->calculatePlatformStatistics();
         });
+
+        // Локалізуємо by_art_form після кешу
+        if ($language && isset($stats['by_art_form'])) {
+            $stats['by_art_form'] = array_map(function ($item) use ($language) {
+                $item['art_form'] = $this->localizeValue($item['art_form'], $language);
+
+                return $item;
+            }, $stats['by_art_form']);
+        }
 
         return response()->json([
             'result' => true,
@@ -104,6 +117,8 @@ class StatisticsController extends Controller
      *         example="year"
      *     ),
      *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Статистика проєктів",
@@ -119,11 +134,33 @@ class StatisticsController extends Controller
     public function projects(Request $request): JsonResponse
     {
         $period = $request->input('period', 'all'); // all, year, month
+        $language = $this->getLanguage($request);
 
         $cacheKey = "project_statistics_{$period}";
         $stats = Cache::remember($cacheKey, 300, function () use ($period) {
             return $this->calculateProjectStatistics($period);
         });
+
+        // Локалізуємо після кешу
+        if ($language) {
+            if (isset($stats['by_status'])) {
+                foreach ($stats['by_status'] as $key => $item) {
+                    $stats['by_status'][$key]['label'] = $this->localizeValue($item['label'], $language);
+                }
+            }
+            if (isset($stats['by_category'])) {
+                foreach ($stats['by_category'] as $key => $item) {
+                    $stats['by_category'][$key]['label'] = $this->localizeValue($item['label'], $language);
+                }
+            }
+            if (isset($stats['top_projects'])) {
+                $stats['top_projects'] = $stats['top_projects']->map(function ($item) use ($language) {
+                    $item['title'] = $this->localizeValue($item['title'], $language);
+
+                    return $item;
+                });
+            }
+        }
 
         return response()->json([
             'result' => true,
@@ -420,5 +457,31 @@ class StatisticsController extends Controller
         }
 
         return $result;
+    }
+
+    /**
+     * Отримати мову з запиту
+     */
+    private function getLanguage(Request $request): ?string
+    {
+        $language = $request->query('language');
+
+        return ($language && in_array($language, ['uk', 'en'])) ? $language : null;
+    }
+
+    /**
+     * Локалізувати значення поля
+     */
+    private function localizeValue(mixed $value, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($value)) {
+            return $value;
+        }
+
+        if (isset($value['uk']) || isset($value['en'])) {
+            return $value[$language] ?? $value['uk'] ?? reset($value);
+        }
+
+        return $value;
     }
 }

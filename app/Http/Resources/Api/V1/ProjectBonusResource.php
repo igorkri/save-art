@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -30,6 +31,8 @@ use OpenApi\Annotations as OA;
  */
 class ProjectBonusResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
@@ -37,12 +40,14 @@ class ProjectBonusResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $language = $this->getLanguage($request);
+
         return [
             'id' => $this->id,
             'order' => $this->order,
 
-            'title' => $this->title,
-            'description' => $this->description,
+            'title' => $this->localizeField($this->title, $language),
+            'description' => $this->localizeField($this->description, $language),
 
             'min_donation' => (float) $this->min_donation,
 

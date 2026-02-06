@@ -329,6 +329,8 @@ class ProjectController extends Controller
      *         example="miy-noviy-proekt-abc123"
      *     ),
      *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Деталі проекту",
@@ -386,6 +388,8 @@ class ProjectController extends Controller
      *         @OA\Schema(type="integer", default=20, maximum=50),
      *         example=20
      *     ),
+     *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,

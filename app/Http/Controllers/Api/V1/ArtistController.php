@@ -56,6 +56,8 @@ class ArtistController extends Controller
      *         example=1
      *     ),
      *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Список митців",
@@ -109,6 +111,8 @@ class ArtistController extends Controller
      *         @OA\Schema(type="string"),
      *         example="ivan-franko-abc123"
      *     ),
+     *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -177,6 +181,8 @@ class ArtistController extends Controller
      *
      *         @OA\Schema(type="integer", default=15, maximum=50)
      *     ),
+     *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,

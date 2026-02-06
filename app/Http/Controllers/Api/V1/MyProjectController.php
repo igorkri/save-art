@@ -52,6 +52,7 @@ class MyProjectController extends Controller
      *
      *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15, maximum=50)),
      *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer", default=1)),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -118,7 +119,8 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="tags[en]", type="string", example="painting, landscape, Ukraine, oil"),
      *                 @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
      *                 @OA\Property(property="budget_goal", type="number", format="float", minimum=100, example=75000),
-     *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, example=90)
+     *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, example=90),
+     *                 @OA\Property(property="content_blocks", type="string", description="JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image. Приклад: [{""type"":""heading"",""heading_level"":""h2"",""heading_text"":{""uk"":""Заголовок""}}]")
      *             )
      *         ),
      *
@@ -151,6 +153,11 @@ class MyProjectController extends Controller
      *                         {"name": {"uk": "Рік створення", "en": "Year"}, "value": {"uk": "2024", "en": "2024"}}
      *                     },
      *                     "additional_info": {"uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.", "en": "The painting will be ready within 3 months. Free delivery within Ukraine."},
+     *                     "content_blocks": {
+     *                         {"type": "heading", "heading_level": "h2", "heading_text": {"uk": "Про проєкт", "en": "About the project"}},
+     *                         {"type": "paragraph", "paragraph_text": {"uk": "Опис проєкту...", "en": "Project description..."}},
+     *                         {"type": "image", "image": "projects/content/img.jpg", "image_alt": {"uk": "Опис", "en": "Description"}}
+     *                     },
      *                     "stages": {
      *                         {"title": {"uk": "Підготовка ескізів", "en": "Sketch preparation"}, "description": {"uk": "Створення детальних ескізів та вибір композиції", "en": "Creating detailed sketches and choosing the composition"}, "days_planned": 14, "budget_planned": 5000},
      *                         {"title": {"uk": "Підготовка полотна", "en": "Canvas preparation"}, "description": {"uk": "Натягування полотна, ґрунтування", "en": "Stretching canvas, priming"}, "days_planned": 7, "budget_planned": 8000},
@@ -214,6 +221,32 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="additional_info", type="object", description="Додаткова інформація",
      *                     @OA\Property(property="uk", type="string", maxLength=10000),
      *                     @OA\Property(property="en", type="string", maxLength=10000)
+     *                 ),
+     *                 @OA\Property(property="content_blocks", type="array", description="Контент-блоки проєкту (до 50)", maxItems=50,
+     *
+     *                     @OA\Items(type="object",
+     *                         required={"type"},
+     *
+     *                         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}, description="Тип блоку"),
+     *                         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}, description="Рівень заголовка (для type=heading)"),
+     *                         @OA\Property(property="heading_text", type="object", description="Текст заголовка (для type=heading)",
+     *                             @OA\Property(property="uk", type="string", maxLength=255),
+     *                             @OA\Property(property="en", type="string", maxLength=255)
+     *                         ),
+     *                         @OA\Property(property="paragraph_text", type="object", description="Текст параграфа (для type=paragraph)",
+     *                             @OA\Property(property="uk", type="string", maxLength=10000),
+     *                             @OA\Property(property="en", type="string", maxLength=10000)
+     *                         ),
+     *                         @OA\Property(property="image", type="string", maxLength=500, description="Шлях до зображення (для type=image)"),
+     *                         @OA\Property(property="image_alt", type="object", description="Alt текст (для type=image)",
+     *                             @OA\Property(property="uk", type="string", maxLength=255),
+     *                             @OA\Property(property="en", type="string", maxLength=255)
+     *                         ),
+     *                         @OA\Property(property="image_caption", type="object", description="Підпис (для type=image)",
+     *                             @OA\Property(property="uk", type="string", maxLength=500),
+     *                             @OA\Property(property="en", type="string", maxLength=500)
+     *                         )
+     *                     )
      *                 ),
      *                 @OA\Property(property="stages", type="array", description="Етапи реалізації (до 20)",
      *
@@ -341,6 +374,7 @@ class MyProjectController extends Controller
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -391,7 +425,8 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="cover", type="string", format="binary", description="Обкладинка проєкту (JPG, PNG, до 15MB)"),
      *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}),
      *                 @OA\Property(property="budget_goal", type="number", format="float"),
-     *                 @OA\Property(property="estimated_days", type="integer")
+     *                 @OA\Property(property="estimated_days", type="integer"),
+     *                 @OA\Property(property="content_blocks", type="string", description="JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image.")
      *             )
      *         ),
      *
@@ -404,7 +439,21 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
      *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}),
      *                 @OA\Property(property="budget_goal", type="number", format="float"),
-     *                 @OA\Property(property="estimated_days", type="integer")
+     *                 @OA\Property(property="estimated_days", type="integer"),
+     *                 @OA\Property(property="content_blocks", type="array", description="Контент-блоки (до 50)", maxItems=50,
+     *
+     *                     @OA\Items(type="object",
+     *                         required={"type"},
+     *
+     *                         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}),
+     *                         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}),
+     *                         @OA\Property(property="heading_text", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="paragraph_text", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="image", type="string"),
+     *                         @OA\Property(property="image_alt", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="image_caption", ref="#/components/schemas/LocalizedString")
+     *                     )
+     *                 )
      *             )
      *         )
      *     ),
@@ -557,7 +606,8 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="tags[uk]", type="string", example="живопис, арт", description="Теги українською"),
      *                 @OA\Property(property="tags[en]", type="string", example="painting, art", description="Теги англійською"),
      *                 @OA\Property(property="additional_info[uk]", type="string", description="Додаткова інформація українською"),
-     *                 @OA\Property(property="additional_info[en]", type="string", description="Додаткова інформація англійською")
+     *                 @OA\Property(property="additional_info[en]", type="string", description="Додаткова інформація англійською"),
+     *                 @OA\Property(property="content_blocks", type="string", description="JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image.")
      *             )
      *         ),
      *
@@ -569,7 +619,21 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="title", ref="#/components/schemas/LocalizedString", description="Нова назва проєкту"),
      *                 @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString", description="Новий короткий опис"),
      *                 @OA\Property(property="tags", ref="#/components/schemas/LocalizedString", description="Нові теги"),
-     *                 @OA\Property(property="additional_info", ref="#/components/schemas/LocalizedString", description="Нова додаткова інформація")
+     *                 @OA\Property(property="additional_info", ref="#/components/schemas/LocalizedString", description="Нова додаткова інформація"),
+     *                 @OA\Property(property="content_blocks", type="array", description="Контент-блоки (до 50)", maxItems=50,
+     *
+     *                     @OA\Items(type="object",
+     *                         required={"type"},
+     *
+     *                         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}),
+     *                         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}),
+     *                         @OA\Property(property="heading_text", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="paragraph_text", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="image", type="string"),
+     *                         @OA\Property(property="image_alt", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="image_caption", ref="#/components/schemas/LocalizedString")
+     *                     )
+     *                 )
      *             )
      *         )
      *     ),

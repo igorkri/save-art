@@ -25,6 +25,7 @@ class PublicUserController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(name="id", in="path", required=true, description="ID користувача", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -47,8 +48,10 @@ class PublicUserController extends Controller
      *     @OA\Response(response=404, description="Користувача не знайдено")
      * )
      */
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
+        $language = $this->getLanguage($request);
+
         $user = User::query()
             ->with(['profilePersonal', 'profileSocial'])
             ->findOrFail($id);
@@ -77,10 +80,10 @@ class PublicUserController extends Controller
                     'name' => $user->name,
                     'avatar' => $personal?->avatar ? Storage::url($personal->avatar) : null,
                     'role' => $user->role->value ?? 'user',
-                    'profession' => $personal?->profession ?? null,
-                    'description' => $personal?->about ?? null,
-                    'country' => $personal?->country ?? null,
-                    'city' => $personal?->city ?? null,
+                    'profession' => $this->localizeValue($personal?->profession, $language),
+                    'description' => $this->localizeValue($personal?->about, $language),
+                    'country' => $this->localizeValue($personal?->country, $language),
+                    'city' => $this->localizeValue($personal?->city, $language),
                     'social_links' => [
                         'website' => $social?->website ?? null,
                         'instagram' => $social?->instagram ?? null,
@@ -113,6 +116,7 @@ class PublicUserController extends Controller
      *     @OA\Parameter(name="id", in="path", required=true, description="ID користувача", @OA\Schema(type="integer")),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=10)),
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -134,6 +138,7 @@ class PublicUserController extends Controller
     public function projects(Request $request, int $id): JsonResponse
     {
         $user = User::findOrFail($id);
+        $language = $this->getLanguage($request);
 
         $perPage = min((int) $request->input('per_page', 10), 50);
 
@@ -143,19 +148,22 @@ class PublicUserController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-        $formattedProjects = $projects->getCollection()->map(function (Project $project) {
+        $formattedProjects = $projects->getCollection()->map(function (Project $project) use ($language) {
             return [
                 'id' => $project->id,
                 'slug' => $project->slug,
-                'name' => $project->title,
+                'name' => $this->localizeValue($project->title, $language),
                 'collected' => (float) $project->budget_collected,
                 'need_to_collect' => (float) $project->budget_goal,
                 'people_supported' => $project->donors_count,
                 'project_image' => $project->cover ? Storage::url($project->cover) : null,
-                'project_status' => [
+                'project_status' => $language ? [
                     'key' => $project->status->value,
-                    'uk' => $project->status->getLabel(),
-                    'en' => $project->status->value,
+                    'label' => $project->status->getLabel($language),
+                ] : [
+                    'key' => $project->status->value,
+                    'uk' => $project->status->getLabel('uk'),
+                    'en' => $project->status->getLabel('en'),
                 ],
                 'art_form' => $project->art_category,
                 'art_subform' => $project->art_subcategory,
@@ -177,5 +185,31 @@ class PublicUserController extends Controller
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Отримати мову з запиту
+     */
+    private function getLanguage(Request $request): ?string
+    {
+        $language = $request->query('language');
+
+        return ($language && in_array($language, ['uk', 'en'])) ? $language : null;
+    }
+
+    /**
+     * Локалізувати значення поля
+     */
+    private function localizeValue(mixed $value, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($value)) {
+            return $value;
+        }
+
+        if (isset($value['uk']) || isset($value['en'])) {
+            return $value[$language] ?? $value['uk'] ?? reset($value);
+        }
+
+        return $value;
     }
 }

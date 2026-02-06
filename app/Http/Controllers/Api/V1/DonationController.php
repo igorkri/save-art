@@ -40,6 +40,8 @@ class DonationController extends Controller
      *     description="Повертає список донатів авторизованого користувача",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Список донатів",
@@ -216,6 +218,7 @@ class DonationController extends Controller
      *
      *         @OA\JsonContent(
      *             required={"amount", "currency", "donor_type"},
+     *
      *             @OA\Property(property="amount", type="number", format="float", minimum=10, example=500.00, description="Сума донату"),
      *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
      *             @OA\Property(property="donor_type", type="string", enum={"personal", "legal"}, example="personal", description="Тип донатера"),
@@ -234,6 +237,7 @@ class DonationController extends Controller
      *         description="Донат створено",
      *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Донат на платформу створено. Очікуємо на оплату."),
      *             @OA\Property(property="data", ref="#/components/schemas/Donation"),
      *             @OA\Property(property="payment", type="object", nullable=true,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -38,6 +39,8 @@ use OpenApi\Annotations as OA;
  */
 class ArtistResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
@@ -45,6 +48,8 @@ class ArtistResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $language = $this->getLanguage($request);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -52,10 +57,10 @@ class ArtistResource extends JsonResource
             'avatar_url' => $this->profilePersonal?->avatar ? Storage::url($this->profilePersonal->avatar) : null,
 
             // Публічні дані з профілю
-            'profession' => $this->profilePersonal?->profession,
-            'bio' => $this->profilePersonal?->bio,
-            'city' => $this->profilePersonal?->city,
-            'country' => $this->profilePersonal?->country,
+            'profession' => $this->localizeField($this->profilePersonal?->profession, $language),
+            'bio' => $this->localizeField($this->profilePersonal?->bio, $language),
+            'city' => $this->localizeField($this->profilePersonal?->city, $language),
+            'country' => $this->localizeField($this->profilePersonal?->country, $language),
 
             // Соціальні мережі
             'social' => $this->whenLoaded('profileSocial', function () {

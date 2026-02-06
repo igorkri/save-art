@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -39,6 +40,8 @@ use OpenApi\Annotations as OA;
  */
 class DonationResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
@@ -46,6 +49,8 @@ class DonationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $language = $this->getLanguage($request);
+
         return [
             'id' => $this->id,
             'donation_type' => $this->donation_type ?? 'project',
@@ -53,7 +58,7 @@ class DonationResource extends JsonResource
             'project' => $this->project ? [
                 'id' => $this->project->id,
                 'slug' => $this->project->slug,
-                'title' => $this->project->title,
+                'title' => $this->localizeField($this->project->title, $language),
             ] : null,
 
             'amount' => (float) $this->amount,
@@ -62,21 +67,15 @@ class DonationResource extends JsonResource
                 : (string) $this->currency,
 
             'status' => $this->status,
-            'status_label' => match ($this->status) {
-                'pending' => 'Очікує',
-                'paid' => 'Оплачено',
-                'failed' => 'Помилка',
-                'refunded' => 'Повернено',
-                default => $this->status,
-            },
+            'status_label' => $this->getDonationStatusLabel($language),
 
             'is_anonymous' => $this->is_anonymous,
             'donor_name' => $this->is_anonymous ? null : $this->donor_name,
 
-            'bonus' => $this->whenLoaded('bonus', function () {
+            'bonus' => $this->whenLoaded('bonus', function () use ($language) {
                 return [
                     'id' => $this->bonus->id,
-                    'title' => $this->bonus->title,
+                    'title' => $this->localizeField($this->bonus->title, $language),
                 ];
             }),
 
@@ -85,5 +84,22 @@ class DonationResource extends JsonResource
             'paid_at' => $this->paid_at?->toISOString(),
             'created_at' => $this->created_at->toISOString(),
         ];
+    }
+
+    /**
+     * Отримати локалізовану назву статусу донату
+     */
+    private function getDonationStatusLabel(?string $language): string
+    {
+        $labels = [
+            'pending' => ['uk' => 'Очікує', 'en' => 'Pending'],
+            'paid' => ['uk' => 'Оплачено', 'en' => 'Paid'],
+            'failed' => ['uk' => 'Помилка', 'en' => 'Failed'],
+            'refunded' => ['uk' => 'Повернено', 'en' => 'Refunded'],
+        ];
+
+        $statusLabels = $labels[$this->status] ?? ['uk' => $this->status, 'en' => $this->status];
+
+        return $statusLabels[$language ?? 'uk'];
     }
 }

@@ -27,9 +27,9 @@ class CatalogController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(
-     *         name="lang",
+     *         name="language",
      *         in="query",
-     *         description="Мова відповіді (uk, en)",
+     *         description="Мова відповіді (uk, en). Якщо не вказано — uk за замовчуванням",
      *         required=false,
      *
      *         @OA\Schema(type="string", enum={"uk", "en"}, default="uk")
@@ -118,7 +118,7 @@ class CatalogController extends Controller
      */
     public function categories(): JsonResponse
     {
-        $language = request('lang', 'uk');
+        $language = request('language', 'uk');
 
         return response()->json([
             'data' => collect(ArtCategory::cases())->map(fn (ArtCategory $cat) => [
@@ -144,9 +144,9 @@ class CatalogController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(
-     *         name="lang",
+     *         name="language",
      *         in="query",
-     *         description="Мова відповіді (uk, en)",
+     *         description="Мова відповіді (uk, en). Якщо не вказано — uk за замовчуванням",
      *         required=false,
      *
      *         @OA\Schema(type="string", enum={"uk", "en"}, default="uk")
@@ -185,7 +185,7 @@ class CatalogController extends Controller
      */
     public function regions(): JsonResponse
     {
-        $language = request('lang', 'uk');
+        $language = request('language', 'uk');
 
         return response()->json([
             'data' => collect(Region::cases())->map(fn (Region $region) => [

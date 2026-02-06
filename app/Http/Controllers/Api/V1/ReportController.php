@@ -27,6 +27,7 @@ class ReportController extends Controller
      *     @OA\Parameter(name="search", in="query", description="Пошук по назві", @OA\Schema(type="string")),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=12)),
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -45,6 +46,8 @@ class ReportController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $language = $this->getLanguage($request);
+
         $query = Report::query()
             ->with(['project:id,title,slug,cover', 'user:id,name'])
             ->published()
@@ -75,7 +78,7 @@ class ReportController extends Controller
         return response()->json([
             'result' => true,
             'data' => [
-                'reports' => $reports->items(),
+                'reports' => collect($reports->items())->map(fn (Report $report) => $this->formatReport($report, $language)),
                 'pagination' => [
                     'current_page' => $reports->currentPage(),
                     'per_page' => $reports->perPage(),
@@ -100,6 +103,7 @@ class ReportController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(name="id", in="path", required=true, description="ID звіту", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -117,8 +121,10 @@ class ReportController extends Controller
      *     @OA\Response(response=404, description="Звіт не знайдено")
      * )
      */
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
+        $language = $this->getLanguage($request);
+
         $report = Report::query()
             ->with([
                 'project' => fn ($q) => $q->select('id', 'title', 'slug', 'cover', 'status', 'budget_goal', 'budget_collected'),
@@ -130,7 +136,7 @@ class ReportController extends Controller
         return response()->json([
             'result' => true,
             'data' => [
-                'report' => $report,
+                'report' => $this->formatReport($report, $language),
             ],
         ]);
     }
@@ -149,6 +155,7 @@ class ReportController extends Controller
      *     @OA\Parameter(name="slug", in="path", required=true, description="Slug проекту", @OA\Schema(type="string")),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=10)),
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -170,6 +177,8 @@ class ReportController extends Controller
      */
     public function byProject(string $slug, Request $request): JsonResponse
     {
+        $language = $this->getLanguage($request);
+
         $project = \App\Models\Project::query()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->where('slug', $slug)
@@ -189,10 +198,10 @@ class ReportController extends Controller
             'data' => [
                 'project' => [
                     'id' => $project->id,
-                    'title' => $project->title,
+                    'title' => $this->localizeValue($project->title, $language),
                     'slug' => $project->slug,
                 ],
-                'reports' => $reports->items(),
+                'reports' => collect($reports->items())->map(fn (Report $report) => $this->formatReport($report, $language)),
                 'pagination' => [
                     'current_page' => $reports->currentPage(),
                     'per_page' => $reports->perPage(),
@@ -201,5 +210,71 @@ class ReportController extends Controller
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Форматувати звіт з локалізацією
+     *
+     * @return array<string, mixed>
+     */
+    private function formatReport(Report $report, ?string $language): array
+    {
+        $data = [
+            'id' => $report->id,
+            'title' => $this->localizeValue($report->title, $language),
+            'description' => $this->localizeValue($report->description, $language),
+            'cover' => $report->cover,
+            'images' => $report->images,
+            'attachments' => $report->attachments,
+            'collected_amount' => (float) $report->collected_amount,
+            'spent_amount' => (float) $report->spent_amount,
+            'report_date' => $report->report_date?->toDateString(),
+            'status' => $report->status,
+            'created_at' => $report->created_at->toISOString(),
+        ];
+
+        if ($report->relationLoaded('project') && $report->project) {
+            $data['project'] = [
+                'id' => $report->project->id,
+                'title' => $this->localizeValue($report->project->title, $language),
+                'slug' => $report->project->slug,
+                'cover' => $report->project->cover,
+            ];
+        }
+
+        if ($report->relationLoaded('user') && $report->user) {
+            $data['user'] = [
+                'id' => $report->user->id,
+                'name' => $report->user->name,
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Отримати мову з запиту
+     */
+    private function getLanguage(Request $request): ?string
+    {
+        $language = $request->query('language');
+
+        return ($language && in_array($language, ['uk', 'en'])) ? $language : null;
+    }
+
+    /**
+     * Локалізувати значення поля
+     */
+    private function localizeValue(mixed $value, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($value)) {
+            return $value;
+        }
+
+        if (isset($value['uk']) || isset($value['en'])) {
+            return $value[$language] ?? $value['uk'] ?? reset($value);
+        }
+
+        return $value;
     }
 }

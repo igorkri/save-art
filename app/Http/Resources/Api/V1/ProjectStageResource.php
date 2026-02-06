@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -55,6 +56,8 @@ use OpenApi\Annotations as OA;
  */
 class ProjectStageResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
@@ -62,15 +65,17 @@ class ProjectStageResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $language = $this->getLanguage($request);
+
         return [
             'id' => $this->id,
             'order' => $this->order,
 
             'status' => $this->status->value,
-            'status_label' => $this->status->getLabel(),
+            'status_label' => $this->getStageStatusLabel($language),
 
-            'title' => $this->title,
-            'description' => $this->description,
+            'title' => $this->localizeField($this->title, $language),
+            'description' => $this->localizeField($this->description, $language),
 
             'days_planned' => $this->days_planned,
             'budget_planned' => $this->budget_planned ? (float) $this->budget_planned : null,
@@ -82,7 +87,45 @@ class ProjectStageResource extends JsonResource
             'is_completed' => $this->isCompleted(),
             'is_in_progress' => $this->isInProgress(),
 
-            'documents' => $this->documents,
+            'documents' => $this->localizeDocuments($this->documents, $language),
         ];
+    }
+
+    /**
+     * Отримати локалізовану назву статусу етапу
+     */
+    private function getStageStatusLabel(?string $language): string
+    {
+        $labels = [
+            'planned' => ['uk' => 'Запланований', 'en' => 'Planned'],
+            'in_progress' => ['uk' => 'В процесі', 'en' => 'In Progress'],
+            'completed' => ['uk' => 'Завершений', 'en' => 'Completed'],
+        ];
+
+        $statusLabels = $labels[$this->status->value] ?? ['uk' => $this->status->value, 'en' => $this->status->value];
+
+        return $statusLabels[$language ?? 'uk'];
+    }
+
+    /**
+     * Локалізація documents масиву
+     */
+    private function localizeDocuments($documents, ?string $language): mixed
+    {
+        if ($language === null || ! is_array($documents)) {
+            return $documents;
+        }
+
+        return array_map(function ($doc) use ($language) {
+            if (! is_array($doc)) {
+                return $doc;
+            }
+
+            if (isset($doc['description'])) {
+                $doc['description'] = $this->localizeField($doc['description'], $language);
+            }
+
+            return $doc;
+        }, $documents);
     }
 }

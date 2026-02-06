@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +42,8 @@ use OpenApi\Annotations as OA;
  */
 class ProjectListResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
@@ -48,12 +51,7 @@ class ProjectListResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Отримуємо мову з параметра запиту
-        $language = $request->query('language');
-        $supportedLanguages = ['uk', 'en'];
-        if ($language && ! in_array($language, $supportedLanguages)) {
-            $language = null;
-        }
+        $language = $this->getLanguage($request);
 
         return [
             'id' => $this->id,
@@ -97,30 +95,5 @@ class ProjectListResource extends JsonResource
 
             'can_donate' => $this->canReceiveDonations(),
         ];
-    }
-
-    /**
-     * Локалізація поля - повертає значення для конкретної мови або весь об'єкт
-     */
-    private function localizeField($field, ?string $language): mixed
-    {
-        if ($language === null) {
-            return $field;
-        }
-
-        if (! is_array($field)) {
-            return $field;
-        }
-
-        // Перевіряємо чи це об'єкт з мовами (має ключі uk/en)
-        $hasLanguageKeys = isset($field['uk']) || isset($field['en']);
-
-        if ($hasLanguageKeys) {
-            // Це мультимовне поле - повертаємо значення для вказаної мови
-            return $field[$language] ?? $field['uk'] ?? reset($field);
-        }
-
-        // Це звичайний масив (не мультимовний) - повертаємо як є
-        return $field;
     }
 }

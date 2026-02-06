@@ -1293,6 +1293,18 @@
                             "default": 1
                         },
                         "example": 1
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -1341,6 +1353,18 @@
                             "type": "string"
                         },
                         "example": "ivan-franko-abc123"
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -1414,6 +1438,18 @@
                             "type": "integer",
                             "default": 15,
                             "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
                         }
                     }
                 ],
@@ -2093,9 +2129,9 @@
                 "operationId": "getCategories",
                 "parameters": [
                     {
-                        "name": "lang",
+                        "name": "language",
                         "in": "query",
-                        "description": "Мова відповіді (uk, en)",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — uk за замовчуванням",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -2260,9 +2296,9 @@
                 "operationId": "getRegions",
                 "parameters": [
                     {
-                        "name": "lang",
+                        "name": "language",
                         "in": "query",
-                        "description": "Мова відповіді (uk, en)",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — uk за замовчуванням",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -2814,6 +2850,20 @@
                 "summary": "Мої донати",
                 "description": "Повертає список донатів авторизованого користувача",
                 "operationId": "getMyDonations",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Список донатів",
@@ -4242,6 +4292,18 @@
                             "type": "integer",
                             "default": 1
                         }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -4377,6 +4439,10 @@
                                         "maximum": 365,
                                         "minimum": 1,
                                         "example": 90
+                                    },
+                                    "content_blocks": {
+                                        "description": "JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image. Приклад: [{\"type\":\"heading\",\"heading_level\":\"h2\",\"heading_text\":{\"uk\":\"Заголовок\"}}]",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -4545,6 +4611,100 @@
                                             }
                                         },
                                         "type": "object"
+                                    },
+                                    "content_blocks": {
+                                        "description": "Контент-блоки проєкту (до 50)",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "Тип блоку",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "heading",
+                                                        "paragraph",
+                                                        "image"
+                                                    ]
+                                                },
+                                                "heading_level": {
+                                                    "description": "Рівень заголовка (для type=heading)",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "h2",
+                                                        "h3",
+                                                        "h4",
+                                                        "h5",
+                                                        "h6"
+                                                    ]
+                                                },
+                                                "heading_text": {
+                                                    "description": "Текст заголовка (для type=heading)",
+                                                    "properties": {
+                                                        "uk": {
+                                                            "type": "string",
+                                                            "maxLength": 255
+                                                        },
+                                                        "en": {
+                                                            "type": "string",
+                                                            "maxLength": 255
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "paragraph_text": {
+                                                    "description": "Текст параграфа (для type=paragraph)",
+                                                    "properties": {
+                                                        "uk": {
+                                                            "type": "string",
+                                                            "maxLength": 10000
+                                                        },
+                                                        "en": {
+                                                            "type": "string",
+                                                            "maxLength": 10000
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "image": {
+                                                    "description": "Шлях до зображення (для type=image)",
+                                                    "type": "string",
+                                                    "maxLength": 500
+                                                },
+                                                "image_alt": {
+                                                    "description": "Alt текст (для type=image)",
+                                                    "properties": {
+                                                        "uk": {
+                                                            "type": "string",
+                                                            "maxLength": 255
+                                                        },
+                                                        "en": {
+                                                            "type": "string",
+                                                            "maxLength": 255
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "image_caption": {
+                                                    "description": "Підпис (для type=image)",
+                                                    "properties": {
+                                                        "uk": {
+                                                            "type": "string",
+                                                            "maxLength": 500
+                                                        },
+                                                        "en": {
+                                                            "type": "string",
+                                                            "maxLength": 500
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "maxItems": 50
                                     },
                                     "stages": {
                                         "description": "Етапи реалізації (до 20)",
@@ -4759,6 +4919,31 @@
                                         "uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.",
                                         "en": "The painting will be ready within 3 months. Free delivery within Ukraine."
                                     },
+                                    "content_blocks": [
+                                        {
+                                            "type": "heading",
+                                            "heading_level": "h2",
+                                            "heading_text": {
+                                                "uk": "Про проєкт",
+                                                "en": "About the project"
+                                            }
+                                        },
+                                        {
+                                            "type": "paragraph",
+                                            "paragraph_text": {
+                                                "uk": "Опис проєкту...",
+                                                "en": "Project description..."
+                                            }
+                                        },
+                                        {
+                                            "type": "image",
+                                            "image": "projects/content/img.jpg",
+                                            "image_alt": {
+                                                "uk": "Опис",
+                                                "en": "Description"
+                                            }
+                                        }
+                                    ],
                                     "stages": [
                                         {
                                             "title": {
@@ -4955,6 +5140,18 @@
                             "type": "integer"
                         },
                         "example": 1
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -5050,6 +5247,10 @@
                                     },
                                     "estimated_days": {
                                         "type": "integer"
+                                    },
+                                    "content_blocks": {
+                                        "description": "JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image.",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -5081,6 +5282,52 @@
                                     },
                                     "estimated_days": {
                                         "type": "integer"
+                                    },
+                                    "content_blocks": {
+                                        "description": "Контент-блоки (до 50)",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "heading",
+                                                        "paragraph",
+                                                        "image"
+                                                    ]
+                                                },
+                                                "heading_level": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "h2",
+                                                        "h3",
+                                                        "h4",
+                                                        "h5",
+                                                        "h6"
+                                                    ]
+                                                },
+                                                "heading_text": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                },
+                                                "paragraph_text": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                },
+                                                "image": {
+                                                    "type": "string"
+                                                },
+                                                "image_alt": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                },
+                                                "image_caption": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "maxItems": 50
                                     }
                                 },
                                 "type": "object"
@@ -5237,6 +5484,10 @@
                                     "additional_info[en]": {
                                         "description": "Додаткова інформація англійською",
                                         "type": "string"
+                                    },
+                                    "content_blocks": {
+                                        "description": "JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image.",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -5256,6 +5507,52 @@
                                     },
                                     "additional_info": {
                                         "$ref": "#/components/schemas/LocalizedString"
+                                    },
+                                    "content_blocks": {
+                                        "description": "Контент-блоки (до 50)",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "heading",
+                                                        "paragraph",
+                                                        "image"
+                                                    ]
+                                                },
+                                                "heading_level": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "h2",
+                                                        "h3",
+                                                        "h4",
+                                                        "h5",
+                                                        "h6"
+                                                    ]
+                                                },
+                                                "heading_text": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                },
+                                                "paragraph_text": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                },
+                                                "image": {
+                                                    "type": "string"
+                                                },
+                                                "image_alt": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                },
+                                                "image_caption": {
+                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "maxItems": 50
                                     }
                                 },
                                 "type": "object"
@@ -6441,6 +6738,18 @@
                             "type": "string"
                         },
                         "example": "miy-noviy-proekt-abc123"
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -6501,6 +6810,18 @@
                             "maximum": 50
                         },
                         "example": 20
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -7116,6 +7437,18 @@
                         "schema": {
                             "type": "integer"
                         }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -7201,6 +7534,18 @@
                         "description": "Номер сторінки",
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
                         }
                     }
                 ],
@@ -7295,6 +7640,18 @@
                         "schema": {
                             "type": "integer"
                         }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -7352,6 +7709,18 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
                         }
                     }
                 ],
@@ -7425,6 +7794,18 @@
                         "schema": {
                             "type": "integer"
                         }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -7480,6 +7861,20 @@
                 "summary": "Загальна статистика",
                 "description": "Повертає загальну статистику платформи: збори, проєкти, митці, меценати",
                 "operationId": "getPlatformStatistics",
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Статистика платформи",
@@ -7619,6 +8014,18 @@
                             ]
                         },
                         "example": "year"
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
                     }
                 ],
                 "responses": {

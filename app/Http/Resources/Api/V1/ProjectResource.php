@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -104,6 +105,8 @@ use OpenApi\Annotations as OA;
  */
 class ProjectResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
@@ -111,12 +114,7 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Отримуємо мову з параметра запиту
-        $language = $request->query('language');
-        $supportedLanguages = ['uk', 'en'];
-        if ($language && ! in_array($language, $supportedLanguages)) {
-            $language = null;
-        }
+        $language = $this->getLanguage($request);
 
         return [
             'id' => $this->id,
@@ -187,54 +185,6 @@ class ProjectResource extends JsonResource
     }
 
     /**
-     * Локалізація поля - повертає значення для конкретної мови або весь об'єкт
-     */
-    private function localizeField($field, ?string $language): mixed
-    {
-        if ($language === null) {
-            return $field;
-        }
-
-        if (! is_array($field)) {
-            return $field;
-        }
-
-        // Перевіряємо чи це об'єкт з мовами (має ключі uk/en)
-        $hasLanguageKeys = isset($field['uk']) || isset($field['en']);
-
-        if ($hasLanguageKeys) {
-            // Це мультимовне поле - повертаємо значення для вказаної мови
-            return $field[$language] ?? $field['uk'] ?? reset($field);
-        }
-
-        // Це звичайний масив (не мультимовний) - повертаємо як є
-        return $field;
-    }
-
-    /**
-     * Локалізація масиву об'єктів з вкладеними мовними полями
-     */
-    private function localizeArrayField($field, ?string $language): mixed
-    {
-        if ($language === null || ! is_array($field)) {
-            return $field;
-        }
-
-        return array_map(function ($item) use ($language) {
-            if (! is_array($item)) {
-                return $item;
-            }
-
-            $localized = [];
-            foreach ($item as $key => $value) {
-                $localized[$key] = $this->localizeField($value, $language);
-            }
-
-            return $localized;
-        }, $field);
-    }
-
-    /**
      * Локалізація final_result з вкладеним description
      */
     private function localizeFinalResult($finalResult, ?string $language): mixed
@@ -272,8 +222,7 @@ class ProjectResource extends JsonResource
             } elseif ($block['type'] === 'paragraph') {
                 $localized['paragraph_text'] = $this->localizeField($block['paragraph_text'] ?? null, $language);
             } elseif ($block['type'] === 'image') {
-                $localized['image'] = $block['image'] ?? null;
-                $localized['image_url'] = isset($block['image']) ? Storage::url($block['image']) : null;
+                $localized['image'] = isset($block['image']) ? Storage::url($block['image']) : null;
                 $localized['image_alt'] = $this->localizeField($block['image_alt'] ?? null, $language);
                 $localized['image_caption'] = $this->localizeField($block['image_caption'] ?? null, $language);
             }

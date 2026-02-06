@@ -76,6 +76,24 @@ class CreateProjectRequest extends FormRequest
             'additional_info.uk' => ['nullable', 'string', 'max:10000'],
             'additional_info.en' => ['nullable', 'string', 'max:10000'],
 
+            // Контент-блоки
+            'content_blocks' => ['nullable', 'array', 'max:50'],
+            'content_blocks.*.type' => ['required_with:content_blocks', 'string', 'in:heading,paragraph,image'],
+            'content_blocks.*.heading_level' => ['nullable', 'string', 'in:h2,h3,h4,h5,h6'],
+            'content_blocks.*.heading_text' => ['nullable', 'array'],
+            'content_blocks.*.heading_text.uk' => ['nullable', 'string', 'max:255'],
+            'content_blocks.*.heading_text.en' => ['nullable', 'string', 'max:255'],
+            'content_blocks.*.paragraph_text' => ['nullable', 'array'],
+            'content_blocks.*.paragraph_text.uk' => ['nullable', 'string', 'max:10000'],
+            'content_blocks.*.paragraph_text.en' => ['nullable', 'string', 'max:10000'],
+            'content_blocks.*.image' => ['nullable', 'string', 'max:500'],
+            'content_blocks.*.image_alt' => ['nullable', 'array'],
+            'content_blocks.*.image_alt.uk' => ['nullable', 'string', 'max:255'],
+            'content_blocks.*.image_alt.en' => ['nullable', 'string', 'max:255'],
+            'content_blocks.*.image_caption' => ['nullable', 'array'],
+            'content_blocks.*.image_caption.uk' => ['nullable', 'string', 'max:500'],
+            'content_blocks.*.image_caption.en' => ['nullable', 'string', 'max:500'],
+
             // ========== Етапи проекту ==========
             'stages' => ['nullable', 'array', 'max:20'],
             'stages.*.title' => ['required', 'array'],
@@ -114,6 +132,11 @@ class CreateProjectRequest extends FormRequest
             'budget_goal.required' => 'Вкажіть ціль збору',
             'budget_goal.min' => 'Мінімальна ціль збору — 100',
             'cover.max' => 'Максимальний розмір обкладинки — 15 МБ',
+
+            // Контент-блоки
+            'content_blocks.max' => 'Максимум 50 контент-блоків',
+            'content_blocks.*.type.required_with' => 'Тип контент-блоку є обов\'язковим',
+            'content_blocks.*.type.in' => 'Тип контент-блоку має бути: heading, paragraph або image',
 
             // Етапи
             'stages.max' => 'Максимум 20 етапів',
