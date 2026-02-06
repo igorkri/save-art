@@ -17,6 +17,7 @@ class SiteSettingsTable
             ->columns([
                 ImageColumn::make('site_logo')
                     ->label('Логотип')
+                    ->disk('public')
                     ->circular(),
 
                 TextColumn::make('header_brand_name')

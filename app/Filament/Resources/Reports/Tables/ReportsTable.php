@@ -18,6 +18,7 @@ class ReportsTable
             ->columns([
                 ImageColumn::make('cover')
                     ->label('Обкладинка')
+                    ->disk('public')
                     ->circular(),
 
                 TextColumn::make('title')

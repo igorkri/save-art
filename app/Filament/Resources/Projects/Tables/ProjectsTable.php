@@ -34,8 +34,10 @@ class ProjectsTable
             ->columns([
                 ImageColumn::make('cover')
                     ->label('Обкладинка')
+                    ->disk('public')
                     ->circular()
-                    ->defaultImageUrl(fn () => asset('img/placeholder-project.png')),
+                    ->size(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('title.uk')
                     ->label('Назва')
