@@ -206,7 +206,7 @@ class ArtistController extends Controller
             ->firstOrFail();
 
         $query = $artist->projects()
-            ->with(['user.profilePersonal', 'user.profileLegal'])
+            ->with(['user.profileLegal'])
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('announced_at', 'desc');
 

@@ -86,7 +86,7 @@ class ProjectController extends Controller
 
         // Будуємо запит для проєктів
         $query = Project::query()
-            ->with(['user.profilePersonal', 'user.profileLegal'])
+            ->with(['user.profileLegal'])
             ->whereIn('status', ProjectStatus::publicStatuses());
 
         // Фільтр по категорії (підтримує множинні значення через кому)
@@ -352,8 +352,7 @@ class ProjectController extends Controller
     public function show(string $slug): ProjectResource
     {
         $project = Project::query()
-            ->with([
-                'user.profilePersonal',
+            ->with([,
                 'user.profileLegal',
                 'stages' => fn ($q) => $q->orderBy('order'),
                 'bonuses' => fn ($q) => $q->orderBy('order'),

@@ -54,13 +54,13 @@ class ArtistResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'avatar_url' => $this->profilePersonal?->avatar ? Storage::url($this->profilePersonal->avatar) : null,
+            'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
 
             // Публічні дані з профілю
-            'profession' => $this->localizeField($this->profilePersonal?->profession, $language),
-            'bio' => $this->localizeField($this->profilePersonal?->bio, $language),
-            'city' => $this->localizeField($this->profilePersonal?->city, $language),
-            'country' => $this->localizeField($this->profilePersonal?->country, $language),
+            'profession' => $this->localizeField($this->profession, $language),
+            'bio' => $this->localizeField($this->description, $language),
+            'city' => $this->localizeField($this->city, $language),
+            'country' => $this->localizeField($this->country, $language),
 
             // Соціальні мережі
             'social' => $this->whenLoaded('profileSocial', function () {

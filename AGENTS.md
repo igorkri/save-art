@@ -60,7 +60,6 @@ app/
 
 ```
 User (Користувач)
-├── ProfilePersonal (1:1) - Персональні дані
 ├── ProfileLegal (1:1) - Юридичні дані (для організацій)
 ├── ProfileSocial (1:1) - Соціальні мережі
 ├── ProfileDocument (1:n) - Документи
@@ -69,6 +68,10 @@ User (Користувач)
 ├── Donation (1:n) - Донати (як донор)
 ├── Message (1:n) - Повідомлення
 └── Notification (1:n) - Сповіщення
+
+Примітка: Персональні дані (avatar, full_name, profession, tags, country,
+region, city, postal_code, profile_type, description) тепер зберігаються
+безпосередньо в моделі User.
 
 Project (Проект)
 ├── User (n:1) - Автор

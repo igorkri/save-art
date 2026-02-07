@@ -244,17 +244,17 @@ class ProjectResource extends JsonResource
                 'name' => $this->localizeField($user->profileLegal->name, $language),
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->profileLegal->logo ? Storage::url($user->profileLegal->logo) : null,
-                'profession' => $this->localizeField($user->profilePersonal?->profession, $language),
+                'profession' => $this->localizeField($user->profession, $language),
                 'type' => 'legal',
             ];
         } else {
-            // Фізична особа - дані з ProfilePersonal
+            // Фізична особа - дані з User
             return [
                 'id' => $user->id,
-                'name' => $this->localizeField($user->profilePersonal?->full_name, $language) ?? $user->name,
+                'name' => $this->localizeField($user->full_name, $language) ?? $user->name,
                 'slug' => $user->slug ?? null,
-                'avatar_url' => $user->profilePersonal?->avatar ? Storage::url($user->profilePersonal->avatar) : null,
-                'profession' => $this->localizeField($user->profilePersonal?->profession, $language),
+                'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
+                'profession' => $this->localizeField($user->profession, $language),
                 'type' => 'personal',
             ];
         }

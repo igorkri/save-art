@@ -79,30 +79,6 @@ class EditUser extends EditRecord
         $user = $this->record;
         $data = $this->form->getState();
 
-        // ProfilePersonal
-        $personalData = $data['profilePersonal'] ?? [];
-        $personal = $user->profilePersonal;
-        if (! $personal) {
-            $personal = new \App\Models\ProfilePersonal;
-            $personal->user_id = $user->id;
-        }
-
-        // Заполняем обычные поля
-        foreach ($personalData as $key => $value) {
-            if (! in_array($key, ['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'])) {
-                $personal->$key = $value;
-            }
-        }
-
-        // Для полей с array cast используем setAttribute, который автоматически применит cast
-        foreach (['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'] as $field) {
-            if (isset($personalData[$field])) {
-                $personal->setAttribute($field, $personalData[$field]);
-            }
-        }
-
-        $personal->save();
-
         // ProfileLegal
         $legalData = $data['profileLegal'] ?? [];
         $legal = $user->profileLegal;
@@ -152,32 +128,6 @@ class EditUser extends EditRecord
         Log::info('handleRecordUpdate called', ['data' => $data, 'record' => $record->toArray()]);
 
         $updatedRecord = parent::handleRecordUpdate($record, $data);
-
-        // ProfilePersonal
-        $personalData = $data['profilePersonal'] ?? [];
-        if (! empty($personalData)) {
-            $personal = $record->profilePersonal;
-            if (! $personal) {
-                $personal = new \App\Models\ProfilePersonal;
-                $personal->user_id = $record->id;
-            }
-
-            // Заполняем обычные поля
-            foreach ($personalData as $key => $value) {
-                if (! in_array($key, ['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'])) {
-                    $personal->$key = $value;
-                }
-            }
-
-            // Для полей с array cast используем setAttribute, который автоматически применит cast
-            foreach (['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'] as $field) {
-                if (isset($personalData[$field])) {
-                    $personal->setAttribute($field, $personalData[$field]);
-                }
-            }
-
-            $personal->save();
-        }
 
         // ProfileLegal
         $legalData = $data['profileLegal'] ?? [];
@@ -294,15 +244,13 @@ class EditUser extends EditRecord
     public function mount($record = null): void
     {
         parent::mount($record);
-        // Если $record — строка (id), загружаем модель вручную
+        // Якщо $record — строка (id), завантажуємо модель вручну
         if (is_string($record) || is_int($record)) {
             $record = \App\Models\User::find($record);
         }
         if ($record && is_object($record)) {
-            $personal = method_exists($record, 'profilePersonal') && $record->profilePersonal ? collect($record->profilePersonal->toArray())->only([
-                'avatar', 'full_name', 'profession', 'tags', 'country', 'region', 'city', 'postal_code', 'role', 'description',
-            ])->toArray() : [];
             $legal = method_exists($record, 'profileLegal') && $record->profileLegal ? [
+                'is_active' => $record->profileLegal->is_active,
                 'currency' => $record->profileLegal->currency instanceof \BackedEnum ? $record->profileLegal->currency->value : $record->profileLegal->currency,
                 'logo' => $record->profileLegal->logo,
                 'name' => $record->profileLegal->name,
@@ -316,17 +264,32 @@ class EditUser extends EditRecord
                 'website', 'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'pinterest', 'github', 'telegram', 'tiktok', 'youtube_channel', 'whatsapp', 'deviantart',
             ])->toArray() : [];
 
-            // Загружаем пути к документам
+            // Завантажуємо шляхи до документів
             $documents = method_exists($record, 'profileDocuments') && $record->profileDocuments
                 ? $record->profileDocuments->pluck('file_path')->toArray()
                 : [];
 
             $this->form->fill([
-                'name' => $record->name ?? '',
+                // Основні дані користувача
                 'email' => $record->email ?? '',
                 'role' => $record->role instanceof \BackedEnum ? $record->role->value : $record->role,
                 'email_verified_at' => $record->email_verified_at ?? null,
-                'profilePersonal' => $personal,
+                'is_blocked' => $record->is_blocked ?? false,
+                'blocked_until' => $record->blocked_until ?? null,
+
+                // Персональні дані (тепер в User)
+                'avatar' => $record->avatar,
+                'full_name' => $record->full_name ?? ['uk' => '', 'en' => ''],
+                'profession' => $record->profession ?? ['uk' => '', 'en' => ''],
+                'tags' => $record->tags ?? ['uk' => '', 'en' => ''],
+                'country' => $record->country ?? ['uk' => '', 'en' => ''],
+                'region' => $record->region ?? ['uk' => '', 'en' => ''],
+                'city' => $record->city ?? ['uk' => '', 'en' => ''],
+                'postal_code' => $record->postal_code,
+                'profile_type' => $record->profile_type instanceof \BackedEnum ? $record->profile_type->value : $record->profile_type,
+                'description' => $record->description ?? ['uk' => '', 'en' => ''],
+
+                // Профілі
                 'profileLegal' => $legal,
                 'profileSocial' => $social,
                 'profileDocuments' => $documents,

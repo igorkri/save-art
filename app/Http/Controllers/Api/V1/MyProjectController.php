@@ -72,7 +72,7 @@ class MyProjectController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Project::query()
-            ->with(['user.profilePersonal', 'user.profileLegal'])
+            ->with(['user.profileLegal'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
 
@@ -359,7 +359,7 @@ class MyProjectController extends Controller
             return $project;
         });
 
-        return new ProjectResource($project->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
     }
 
     /**
@@ -394,7 +394,7 @@ class MyProjectController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        return new ProjectResource($project->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
     }
 
     /**
@@ -574,7 +574,7 @@ class MyProjectController extends Controller
             }
         });
 
-        return new ProjectResource($project->fresh()->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses']));
     }
 
     /**
@@ -664,7 +664,7 @@ class MyProjectController extends Controller
 
         $project->update($data);
 
-        return new ProjectResource($project->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
     }
 
     /**
@@ -781,7 +781,7 @@ class MyProjectController extends Controller
 
         return response()->json([
             'message' => 'Проєкт відправлено на модерацію.',
-            'data' => new ProjectResource($project->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses'])),
+            'data' => new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses'])),
         ]);
     }
 
@@ -916,7 +916,7 @@ class MyProjectController extends Controller
 
         return response()->json([
             'message' => 'Фінальний результат збережено.',
-            'data' => new ProjectResource($project->fresh()->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses'])),
+            'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses'])),
         ]);
     }
 
@@ -975,7 +975,7 @@ class MyProjectController extends Controller
 
         return response()->json([
             'message' => 'Проєкт завершено.',
-            'data' => new ProjectResource($project->load(['user.profilePersonal', 'user.profileLegal', 'stages', 'bonuses'])),
+            'data' => new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses'])),
         ]);
     }
 }

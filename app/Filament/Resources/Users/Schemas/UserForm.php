@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Enums\ProfileType;
 use App\UserRole;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -33,11 +34,6 @@ class UserForm
                                 Section::make('Облікові дані')
                                     ->columns(2)
                                     ->schema([
-                                        TextInput::make('name')
-                                            ->label('ПІБ')
-                                            ->required()
-                                            ->maxLength(255),
-
                                         TextInput::make('email')
                                             ->label('Email')
                                             ->email()
@@ -45,17 +41,11 @@ class UserForm
                                             ->maxLength(255),
 
                                         Select::make('role')
-                                            ->label('Роль користувача')
-                                            ->options([
-                                                UserRole::Developer->value => UserRole::Developer->getLabel(),
-                                                UserRole::Admin->value => UserRole::Admin->getLabel(),
-                                                UserRole::Moderator->value => UserRole::Moderator->getLabel(),
-                                                UserRole::Owner->value => UserRole::Owner->getLabel(),
-                                                UserRole::Mecenat->value => UserRole::Mecenat->getLabel(),
-                                                UserRole::User->value => UserRole::User->getLabel(),
-                                            ])
+                                            ->label('Системна роль')
+                                            ->options(UserRole::getOptions())
                                             ->required()
-                                            ->default(UserRole::User->value),
+                                            ->default(UserRole::User->value)
+                                            ->helperText('Визначає доступ до адмін-панелі'),
 
                                         DateTimePicker::make('email_verified_at')
                                             ->label('Email підтверджено')
@@ -86,26 +76,20 @@ class UserForm
                                             ->dehydrated(false)
                                             ->visible(fn (string $context) => $context === 'edit')
                                             ->helperText('Залиште порожнім, якщо не хочете змінювати пароль.'),
-
                                     ]),
-                            ]),
 
-                        // 🔹 Персональний профіль
-                        Tab::make('Особистий профіль')
-                            ->icon('heroicon-o-identification')
-                            ->schema([
-                                Section::make('Аватар')
+                                Section::make('Персональні дані')
                                     ->columns(2)
                                     ->schema([
                                         Section::make('')
                                             ->description('Рекомендоване співвідношення 1:1 Максимальний розмір файлу: 1 МБ.')
                                             ->schema([
-                                                FileUpload::make('profilePersonal.avatar')
+                                                FileUpload::make('avatar')
                                                     ->label('Аватар')
                                                     ->image()
                                                     ->imageCropAspectRatio('1:1')
                                                     ->imageEditor()
-                                                    ->maxSize(1024)
+                                                    ->maxSize(1024 * 5) // 5 МБ
                                                     ->disk('public')
                                                     ->directory('avatars')
                                                     ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
@@ -115,33 +99,42 @@ class UserForm
 
                                         Section::make('')
                                             ->schema([
-                                                Select::make('profilePersonal.role')
-                                                    ->label('Роль/Посада')
-                                                    ->options([
-                                                        UserRole::Owner->value => UserRole::Owner->getLabel(),
-                                                        UserRole::Mecenat->value => UserRole::Mecenat->getLabel(),
-                                                        UserRole::User->value => UserRole::User->getLabel(),
-                                                    ]),
-                                                TextInput::make('profilePersonal.postal_code')->label('Поштовий індекс'),
+                                                Select::make('profile_type')
+                                                    ->label('Тип профілю')
+                                                    ->options(ProfileType::getOptions())
+                                                    ->helperText('Митець — створює проєкти, Меценат — підтримує проєкти'),
+                                                TextInput::make('postal_code')->label('Поштовий індекс'),
                                             ])
                                             ->columns(1),
                                     ]),
 
-                                Section::make('Персональні дані')
+                                Section::make('Основна інформація')
                                     ->columns(1)
                                     ->schema([
                                         LanguageTabs::make([
-                                            TextInput::make('profilePersonal.full_name')->label('ПІБ'),
-                                            TextInput::make('profilePersonal.profession')->label('Професія'),
-                                            TextInput::make('profilePersonal.tags')->label('Теги'),
-                                            TextInput::make('profilePersonal.country')->label('Країна'),
-                                            TextInput::make('profilePersonal.region')->label('Область / Регіон'),
-                                            TextInput::make('profilePersonal.city')->label('Місто'),
-                                            Textarea::make('profilePersonal.description')
+                                            TextInput::make('full_name')->label('ПІБ'),
+                                            TextInput::make('profession')->label('Професія'),
+                                            TextInput::make('tags')->label('Теги'),
+                                            TextInput::make('country')->label('Країна'),
+                                            TextInput::make('region')->label('Область / Регіон'),
+                                            TextInput::make('city')->label('Місто'),
+                                            Textarea::make('description')
                                                 ->label('Опис')
                                                 ->rows(5)
                                                 ->columnSpanFull(),
                                         ]),
+                                    ])
+                                    ->collapsible(),
+
+                                Section::make('Статус користувача')
+                                    ->columns(2)
+                                    ->schema([
+                                        Toggle::make('is_blocked')
+                                            ->label('Заблокувати користувача'),
+                                        DateTimePicker::make('blocked_until')
+                                            ->label('Дата закінчення блоку')
+                                            ->seconds(true)
+                                            ->helperText('Якщо вказано дату, блокування автоматично зніметься після її закінчення.'),
                                     ])
                                     ->collapsible(),
                             ]),
@@ -153,9 +146,9 @@ class UserForm
                                 Section::make('Компанія')
                                     ->columns(2)
                                     ->schema([
-                                        // Toggle::make('profileLegal.is_legal')
-                                        //     ->label('Юридична особа')
-                                        //     ->live(),
+                                        Toggle::make('profileLegal.is_active')
+                                            ->label('Активний профіль')
+                                            ->default(true),
 
                                         FileUpload::make('profileLegal.logo')
                                             ->image()
@@ -267,23 +260,6 @@ class UserForm
                                             ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
                                             ->helperText('Завантажте документи, пов\'язані з профілем користувача.')
                                             ->columnSpanFull(),
-                                    ])
-                                    ->collapsible(),
-                            ]),
-
-                        // 🔹 Додаткова інформація
-                        Tab::make('Додаткова інформація')
-                            ->icon('heroicon-o-information-circle')
-                            ->schema([
-                                Section::make('Блокування користувача')
-                                    ->columns(2)
-                                    ->schema([
-                                        Toggle::make('is_blocked')
-                                            ->label('Заблокувати користувача'),
-                                        DateTimePicker::make('blocked_until')
-                                            ->label('Дата закінчення блоку')
-                                            ->seconds(true)
-                                            ->helperText('Якщо вказано дату, блокування автоматично зніметься після її закінчення.'),
                                     ])
                                     ->collapsible(),
                             ]),

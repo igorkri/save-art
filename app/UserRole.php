@@ -2,32 +2,33 @@
 
 namespace App;
 
+/**
+ * Системні ролі користувачів (доступ до адмін-панелі)
+ *
+ * Примітка: для типу діяльності (митець/меценат) використовуйте App\Enums\ProfileType
+ */
 enum UserRole: string
 {
     case Developer = 'developer';
     case Admin = 'admin';
     case Moderator = 'moderator';
-    case Owner = 'owner';
-    case Mecenat = 'mecenat';
     case User = 'user';
 
     /**
-     * Получить название роли на украинском языке
+     * Отримати назву ролі українською
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::Developer => 'Розробник',
             self::Admin => 'Адміністратор',
             self::Moderator => 'Модератор',
-            self::Owner => 'Власник',
-            self::Mecenat => 'Меценат',
             self::User => 'Користувач',
         };
     }
 
     /**
-     * Получить все роли с переводами
+     * Отримати всі ролі з перекладами
      *
      * @return array<string, string>
      */
@@ -42,18 +43,18 @@ enum UserRole: string
     }
 
     /**
-     * Проверить, является ли роль административной
+     * Перевірити, чи є роль адміністративною (доступ до адмін-панелі)
      */
     public function isAdmin(): bool
     {
-        return in_array($this, [self::Developer, self::Admin, self::Owner]);
+        return in_array($this, [self::Developer, self::Admin]);
     }
 
     /**
-     * Проверить, может ли роль модерировать контент
+     * Перевірити, чи може роль модерувати контент
      */
     public function canModerate(): bool
     {
-        return in_array($this, [self::Developer, self::Admin, self::Owner, self::Moderator]);
+        return in_array($this, [self::Developer, self::Admin, self::Moderator]);
     }
 }

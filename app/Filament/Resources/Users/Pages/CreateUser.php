@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Log;
 
 class CreateUser extends CreateRecord
 {
@@ -17,33 +18,12 @@ class CreateUser extends CreateRecord
         $user = $this->record;
         $data = $this->form->getState();
 
-        // ProfilePersonal
-        $personalData = $data['profilePersonal'] ?? [];
-        $personal = new \App\Models\ProfilePersonal;
-        $personal->user_id = $user->id;
-
-        // Заполняем обычные поля
-        foreach ($personalData as $key => $value) {
-            if (! in_array($key, ['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'])) {
-                $personal->$key = $value;
-            }
-        }
-
-        // Для полей с array cast используем setAttribute, который автоматически применит cast
-        foreach (['full_name', 'profession', 'tags', 'country', 'region', 'city', 'description'] as $field) {
-            if (isset($personalData[$field])) {
-                $personal->setAttribute($field, $personalData[$field]);
-            }
-        }
-
-        $personal->save();
-
         // ProfileLegal
         $legalData = $data['profileLegal'] ?? [];
         $legal = new \App\Models\ProfileLegal;
         $legal->user_id = $user->id;
 
-        // Заполняем обычные поля
+        // Заповнюємо звичайні поля
         foreach ($legalData as $key => $value) {
             if (! in_array($key, ['name', 'authorized_person', 'address'])) {
                 $legal->$key = $value;
@@ -55,7 +35,7 @@ class CreateUser extends CreateRecord
             $legal->currency = 'UAH';
         }
 
-        // Для полей с array cast используем setAttribute, который автоматически применит cast
+        // Для полів з array cast використовуємо setAttribute
         foreach (['name', 'authorized_person', 'address'] as $field) {
             if (isset($legalData[$field])) {
                 $legal->setAttribute($field, $legalData[$field]);
@@ -78,7 +58,7 @@ class CreateUser extends CreateRecord
                 if (file_exists($fullPath)) {
                     $fileHash = hash_file('sha256', $fullPath);
 
-                    // Проверяем, существует ли уже документ с таким хешем
+                    // Перевіряємо, чи існує документ з таким хешем
                     $existingDocument = \App\Models\ProfileDocument::where('hash', $fileHash)
                         ->where('user_id', $user->id)
                         ->first();
@@ -94,8 +74,7 @@ class CreateUser extends CreateRecord
                             ]);
                             $document->save();
                         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
-                            // Документ с таким хешем уже существует, пропускаем
-                            \Log::warning('Документ з таким хешем вже існує при створенні користувача', [
+                            Log::warning('Документ з таким хешем вже існує при створенні користувача', [
                                 'user_id' => $user->id,
                                 'file_path' => $filePath,
                                 'hash' => $fileHash,

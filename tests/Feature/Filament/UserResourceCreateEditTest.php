@@ -37,14 +37,11 @@ class UserResourceCreateEditTest extends TestCase
     {
         Livewire::test(CreateUser::class)
             ->fillForm([
-                'name' => 'Test User',
+                'full_name' => ['uk' => 'Test User', 'en' => 'Test User'],
                 'email' => 'test@example.com',
                 'password' => 'password123',
                 'role' => UserRole::User->value,
-                'profilePersonal' => [
-                    'full_name' => ['uk' => 'Тестовий Користувач', 'en' => 'Test User'],
-                    'profession' => ['uk' => 'Художник', 'en' => 'Artist'],
-                ],
+                'profession' => ['uk' => 'Художник', 'en' => 'Artist'],
                 'profileLegal' => [
                     'currency' => 'UAH',
                     'is_legal' => false,
@@ -62,10 +59,9 @@ class UserResourceCreateEditTest extends TestCase
         // Перевіряємо, що користувач створений
         $user = User::where('email', 'test@example.com')->first();
         $this->assertNotNull($user);
-        $this->assertEquals('Test User', $user->name);
+        $this->assertEquals('Test User', $user->full_name['uk']);
 
         // Перевіряємо, що створено профілі
-        $this->assertNotNull($user->profilePersonal);
         $this->assertNotNull($user->profileLegal);
 
         // Перевіряємо JSON поля
@@ -78,14 +74,14 @@ class UserResourceCreateEditTest extends TestCase
     {
         // Створюємо користувача
         $user = User::factory()->create([
-            'name' => 'Original User',
+            'full_name' => ['uk' => 'Original User', 'en' => 'Original User'],
             'email' => 'original@example.com',
             'role' => UserRole::User,
         ]);
 
         Livewire::test(EditUser::class, ['record' => $user->id])
             ->fillForm([
-                'name' => 'Updated User',
+                'full_name' => ['uk' => 'Updated User', 'en' => 'Updated User'],
                 'email' => 'updated@example.com',
                 'role' => UserRole::User->value,
                 'profileLegal' => [
@@ -104,7 +100,7 @@ class UserResourceCreateEditTest extends TestCase
 
         // Перевіряємо, що користувач оновлений
         $user->refresh();
-        $this->assertEquals('Updated User', $user->name);
+        $this->assertEquals('Updated User', $user->full_name['uk']);
         $this->assertEquals('updated@example.com', $user->email);
 
         // Перевіряємо, що профіль створено/оновлено

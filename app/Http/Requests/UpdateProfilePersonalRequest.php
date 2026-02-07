@@ -16,6 +16,7 @@ class UpdateProfilePersonalRequest extends FormRequest
 
     /**
      * Правила валідації для оновлення особистого профілю
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -42,7 +43,7 @@ class UpdateProfilePersonalRequest extends FormRequest
             'city.en' => ['nullable', 'string', 'max:255'],
             'city.uk' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['nullable', 'string', 'max:20'],
-            'role' => ['nullable', 'string', 'max:50'],
+            'profile_type' => ['nullable', 'string', 'in:artist,patron'],
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
             'description.uk' => ['nullable', 'string'],

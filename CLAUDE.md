@@ -8,11 +8,16 @@ SaveArt — краудфандингова платформа для підтр�
 - Адміністратори модерують контент
 
 ## Ключові моделі
-- User → ProfilePersonal, ProfileLegal, ProfileSocial, ProfileDocument, Contract, Project, Donation
+- User → ProfileLegal, ProfileSocial, ProfileDocument, Contract, Project, Donation
+  (Персональні дані тепер безпосередньо в User: avatar, full_name, profile_type і т.д.)
 - Project → ProjectStage, ProjectBonus, ProjectLike, Donation, Report
 
 ## Enums (app/Enums/)
-ProjectStatus, ModerationStatus, DonationStatus, ContractStatus, StageStatus, UserType, ArtCategory, Currency, SignService, NotificationType
+ProjectStatus, ModerationStatus, DonationStatus, ContractStatus, StageStatus, UserType, ProfileType, ArtCategory, Currency, SignService, NotificationType
+
+## Ролі та типи
+- UserRole (app/UserRole.php) — системні ролі: Developer, Admin, Moderator, User (для доступу до адмінки)
+- ProfileType (app/Enums/ProfileType.php) — тип діяльності: Artist (митець), Patron (меценат)
 
 ## Мультимовність
 - Мови: uk (українська), en (англійська)

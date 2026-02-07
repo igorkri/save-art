@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ProfileType;
 use App\Models\User;
 use App\UserRole;
 use Database\Seeders\Helpers\ImageSeederHelper;
@@ -18,7 +19,7 @@ class UserSeeder extends Seeder
         // Створюємо адміністратора
         if (! User::where('email', 'admin@saveart.com')->exists()) {
             $admin = User::factory()->create([
-                'name' => 'Адміністратор SaveArt',
+                'full_name' => ['uk' => 'Адміністратор SaveArt', 'en' => 'SaveArt Administrator'],
                 'slug' => 'admin-saveart',
                 'email' => 'admin@saveart.com',
                 'password' => Hash::make('password'),
@@ -30,16 +31,11 @@ class UserSeeder extends Seeder
         // Створюємо модератора
         if (! User::where('email', 'moderator@saveart.com')->exists()) {
             $moderator = User::factory()->create([
-                'name' => 'Ірина Коваль',
                 'slug' => 'iryna-koval',
                 'email' => 'moderator@saveart.com',
                 'password' => Hash::make('password'),
                 'role' => UserRole::Moderator->value,
                 'email_verified_at' => now(),
-            ]);
-
-            \App\Models\ProfilePersonal::create([
-                'user_id' => $moderator->id,
                 'avatar' => ImageSeederHelper::getUserAvatar('woman'),
                 'full_name' => [
                     'uk' => 'Ірина Коваль',
@@ -59,7 +55,7 @@ class UserSeeder extends Seeder
         // Реалістичні власники проєктів (митці)
         $artists = [
             [
-                'name' => 'Оксана Петренко',
+
                 'slug' => 'oksana-petrenko',
                 'email' => 'oksana.petrenko@example.com',
                 'profile' => [
@@ -75,7 +71,7 @@ class UserSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Тарас Коваленко',
+
                 'slug' => 'taras-kovalenko',
                 'email' => 'taras.kovalenko@example.com',
                 'profile' => [
@@ -91,7 +87,7 @@ class UserSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Марія Шевченко',
+
                 'slug' => 'maria-shevchenko',
                 'email' => 'maria.shevchenko@example.com',
                 'profile' => [
@@ -107,7 +103,7 @@ class UserSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Дмитро Литвин',
+
                 'slug' => 'dmytro-lytvyn',
                 'email' => 'dmytro.lytvyn@example.com',
                 'profile' => [
@@ -123,7 +119,7 @@ class UserSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Анна Павленко',
+
                 'slug' => 'anna-pavlenko',
                 'email' => 'anna.pavlenko@example.com',
                 'profile' => [
@@ -142,19 +138,15 @@ class UserSeeder extends Seeder
 
         foreach ($artists as $artistData) {
             if (! User::where('email', $artistData['email'])->exists()) {
-                $user = User::factory()->create([
+                $user = User::factory()->create(array_merge([
                     'name' => $artistData['name'],
                     'slug' => $artistData['slug'],
                     'email' => $artistData['email'],
                     'password' => Hash::make('password'),
-                    'role' => UserRole::Owner->value,
+                    'role' => UserRole::User->value,
+                    'profile_type' => ProfileType::Artist->value,
                     'email_verified_at' => now(),
-                ]);
-
-                \App\Models\ProfilePersonal::create(array_merge(
-                    ['user_id' => $user->id],
-                    $artistData['profile']
-                ));
+                ], $artistData['profile']));
 
                 \App\Models\ProfileLegal::factory()->create(['user_id' => $user->id]);
                 \App\Models\ProfileSocial::factory()->create(['user_id' => $user->id]);
@@ -164,7 +156,7 @@ class UserSeeder extends Seeder
         // Реалістичні меценати
         $mecenats = [
             [
-                'name' => 'Петро Василенко',
+
                 'slug' => 'petro-vasylenko',
                 'email' => 'petro.vasylenko@example.com',
                 'profile' => [
@@ -179,7 +171,7 @@ class UserSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Олена Мельник',
+
                 'slug' => 'olena-melnyk',
                 'email' => 'olena.melnyk@example.com',
                 'profile' => [
@@ -197,19 +189,15 @@ class UserSeeder extends Seeder
 
         foreach ($mecenats as $mecenatData) {
             if (! User::where('email', $mecenatData['email'])->exists()) {
-                $user = User::factory()->create([
+                $user = User::factory()->create(array_merge([
                     'name' => $mecenatData['name'],
                     'slug' => $mecenatData['slug'],
                     'email' => $mecenatData['email'],
                     'password' => Hash::make('password'),
-                    'role' => UserRole::Mecenat->value,
+                    'role' => UserRole::User->value,
+                    'profile_type' => ProfileType::Patron->value,
                     'email_verified_at' => now(),
-                ]);
-
-                \App\Models\ProfilePersonal::create(array_merge(
-                    ['user_id' => $user->id],
-                    $mecenatData['profile']
-                ));
+                ], $mecenatData['profile']));
 
                 \App\Models\ProfileSocial::factory()->create(['user_id' => $user->id]);
             }

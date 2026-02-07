@@ -53,7 +53,7 @@ class PublicUserController extends Controller
         $language = $this->getLanguage($request);
 
         $user = User::query()
-            ->with(['profilePersonal', 'profileSocial'])
+            ->with(['profileSocial'])
             ->findOrFail($id);
 
         // Рахуємо статистику
@@ -69,7 +69,6 @@ class PublicUserController extends Controller
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->sum('donors_count');
 
-        $personal = $user->profilePersonal;
         $social = $user->profileSocial;
 
         return response()->json([
@@ -78,12 +77,13 @@ class PublicUserController extends Controller
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'avatar' => $personal?->avatar ? Storage::url($personal->avatar) : null,
+                    'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
                     'role' => $user->role->value ?? 'user',
-                    'profession' => $this->localizeValue($personal?->profession, $language),
-                    'description' => $this->localizeValue($personal?->about, $language),
-                    'country' => $this->localizeValue($personal?->country, $language),
-                    'city' => $this->localizeValue($personal?->city, $language),
+                    'profile_type' => $user->profile_type?->value,
+                    'profession' => $this->localizeValue($user->profession, $language),
+                    'description' => $this->localizeValue($user->description, $language),
+                    'country' => $this->localizeValue($user->country, $language),
+                    'city' => $this->localizeValue($user->city, $language),
                     'social_links' => [
                         'website' => $social?->website ?? null,
                         'instagram' => $social?->instagram ?? null,
@@ -144,7 +144,6 @@ class PublicUserController extends Controller
 
         $projects = $user->projects()
             ->whereIn('status', ProjectStatus::publicStatuses())
-            ->with(['user.profilePersonal'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 

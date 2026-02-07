@@ -3,13 +3,40 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\ProfileType;
 use App\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Модель користувача
+ *
+ * @property int $id
+ * @property string $email
+ * @property string|null $slug
+ * @property UserRole $role Системна роль (admin, moderator, user)
+ * @property string|null $avatar Шлях до аватара
+ * @property array|null $full_name ПІБ (мультимовне)
+ * @property array|null $profession Професія (мультимовне)
+ * @property array|null $tags Теги (мультимовне)
+ * @property array|null $country Країна (мультимовне)
+ * @property array|null $region Область/регіон (мультимовне)
+ * @property array|null $city Місто (мультимовне)
+ * @property string|null $postal_code Поштовий індекс
+ * @property ProfileType|null $profile_type Тип профілю (artist/patron)
+ * @property array|null $description Опис/біографія (мультимовне)
+ * @property bool $is_blocked Чи заблокований
+ * @property \Carbon\Carbon|null $blocked_until Дата закінчення блокування
+ * @property \Carbon\Carbon|null $deletion_requested_at Дата запиту на видалення
+ * @property \Carbon\Carbon|null $email_verified_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -21,11 +48,20 @@ class User extends Authenticatable implements FilamentUser
      * @var list<string>
      */
     protected $fillable = [
-        'name',
         'email',
         'password',
         'role',
         'slug',
+        'avatar',
+        'full_name',
+        'profession',
+        'tags',
+        'country',
+        'region',
+        'city',
+        'postal_code',
+        'profile_type',
+        'description',
         'is_blocked',
         'blocked_until',
         'deletion_requested_at',
@@ -52,6 +88,14 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'full_name' => 'array',
+            'profession' => 'array',
+            'tags' => 'array',
+            'country' => 'array',
+            'region' => 'array',
+            'city' => 'array',
+            'description' => 'array',
+            'profile_type' => ProfileType::class,
             'is_blocked' => 'boolean',
             'blocked_until' => 'datetime',
             'deletion_requested_at' => 'datetime',
@@ -59,7 +103,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Проверить, имеет ли пользователь указанную роль
+     * Перевірити, чи має користувач вказану роль
      */
     public function hasRole(UserRole $role): bool
     {
@@ -67,7 +111,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Проверить, имеет ли пользователь любую из указанных ролей
+     * Перевірити, чи має користувач будь-яку з вказаних ролей
      *
      * @param  UserRole[]  $roles
      */
@@ -77,7 +121,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Проверить, может ли пользователь получить доступ к Filament панели
+     * Перевірити, чи може користувач отримати доступ до Filament панелі
      */
     public function canAccessPanel(Panel $panel): bool
     {
@@ -89,7 +133,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Проверить, является ли пользователь администратором
+     * Перевірити, чи є користувач адміністратором
      */
     public function isAdmin(): bool
     {
@@ -97,7 +141,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Проверить, может ли пользователь модерировать контент
+     * Перевірити, чи може користувач модерувати контент
      */
     public function canModerate(): bool
     {
@@ -105,38 +149,57 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Получить название роли на русском языке
+     * Отримати назву ролі українською
      */
     public function getRoleLabelAttribute(): string
     {
         return $this->role->getLabel();
     }
 
-    public function profileLegal()
+    /**
+     * Юридичний профіль користувача
+     */
+    public function profileLegal(): HasOne
     {
         return $this->hasOne(ProfileLegal::class);
     }
 
-    public function profilePersonal()
-    {
-        return $this->hasOne(ProfilePersonal::class);
-    }
-
-    public function profileSocial()
+    /**
+     * Соціальні мережі користувача
+     */
+    public function profileSocial(): HasOne
     {
         return $this->hasOne(ProfileSocial::class);
     }
 
-    // profile_documents
-    public function profileDocuments()
+    /**
+     * Документи профілю користувача
+     */
+    public function profileDocuments(): HasMany
     {
         return $this->hasMany(ProfileDocument::class);
     }
 
     /**
+     * Перевірити, чи є користувач митцем
+     */
+    public function isArtist(): bool
+    {
+        return $this->profile_type === ProfileType::Artist;
+    }
+
+    /**
+     * Перевірити, чи є користувач меценатом
+     */
+    public function isPatron(): bool
+    {
+        return $this->profile_type === ProfileType::Patron;
+    }
+
+    /**
      * Контракти користувача
      */
-    public function contracts()
+    public function contracts(): HasMany
     {
         return $this->hasMany(Contract::class);
     }
@@ -144,7 +207,7 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Активний (підписаний) контракт користувача
      */
-    public function activeContract()
+    public function activeContract(): HasOne
     {
         return $this->hasOne(Contract::class)->signed()->latest();
     }
@@ -160,15 +223,23 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Проєкти користувача
      */
-    public function projects()
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
     }
 
     /**
+     * Донати користувача (як донора)
+     */
+    public function donations(): HasMany
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    /**
      * Повідомлення користувача (чат з адміном)
      */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
     }
@@ -176,7 +247,7 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Непрочитані повідомлення від адміністрації
      */
-    public function unreadMessages()
+    public function unreadMessages(): HasMany
     {
         return $this->messages()->fromAdmin()->unread();
     }
@@ -184,7 +255,7 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Сповіщення користувача
      */
-    public function notifications()
+    public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
     }
@@ -210,5 +281,23 @@ class User extends Authenticatable implements FilamentUser
     public function getIsActuallyBlockedAttribute(): bool
     {
         return $this->isActuallyBlocked();
+    }
+
+    /**
+     * Отримати відображуване ім'я користувача
+     * Повертає full_name['uk'] або full_name['en']
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'Користувач';
+    }
+
+    /**
+     * Отримати ім'я для авторизації (сумісність з Laravel Auth)
+     * Laravel очікує поле name, тому створюємо accessor
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'User';
     }
 }

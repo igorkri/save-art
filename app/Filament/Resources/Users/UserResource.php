@@ -63,15 +63,16 @@ class UserResource extends Resource
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()
-            ->with(['profileLegal', 'profilePersonal', 'profileSocial', 'profileDocuments']);
+            ->with(['profileLegal', 'profileSocial', 'profileDocuments']);
     }
 
     public static function mapRecordDataToFormData(\Illuminate\Database\Eloquent\Model $record): array
     {
         $data = $record->toArray();
 
-        // Преобразуем связанные данные в вложенные массивы для формы
-        $data['profilePersonal'] = $record->profilePersonal ? $record->profilePersonal->toArray() : [];
+        // Конвертуємо enum в string для форми
+        $data['role'] = $record->role instanceof \BackedEnum ? $record->role->value : $record->role;
+        $data['profile_type'] = $record->profile_type instanceof \BackedEnum ? $record->profile_type->value : $record->profile_type;
 
         $data['profileLegal'] = $record->profileLegal ? [
             'currency' => $record->profileLegal->currency instanceof \BackedEnum ? $record->profileLegal->currency->value : $record->profileLegal->currency,

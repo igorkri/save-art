@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id ID запису
  * @property int $user_id ID користувача
+ * @property bool $is_active Чи активний юридичний профіль
  * @property string $currency Валюта за замовчуванням (ISO 4217 currency code)
  * @property string|null $logo Логотип компанії
  * @property array $name Назва компанії або ПІБ приватної особи
@@ -20,22 +21,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $phone Телефон
  * @property string|null $email Email
  * @property \Illuminate\Support\Carbon|null $created_at Дата створення запису
- * @property \Illuminate\Support\Carbon|null $updated_at Дата останнього оновлення запис
+ * @property \Illuminate\Support\Carbon|null $updated_at Дата останнього оновлення запису
  * @property-read \App\Models\User $user
- *
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal query()
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereAuthorizedPerson($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereEdrpou($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereEmail($value)
  */
 class ProfileLegal extends Model
 {
@@ -43,6 +30,7 @@ class ProfileLegal extends Model
 
     protected $fillable = [
         'user_id',
+        'is_active',
         'currency',
         'logo',
         'name',
@@ -58,6 +46,7 @@ class ProfileLegal extends Model
         'authorized_person' => 'array',
         'address' => 'array',
         'currency' => Currency::class,
+        'is_active' => 'boolean',
     ];
 
     // Визначення зв'язку з користувачем

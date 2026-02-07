@@ -56,13 +56,12 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'slug' => $this->slug,
             'role' => $this->role?->value,
-            'avatar_url' => $this->profilePersonal?->avatar ? Storage::url($this->profilePersonal->avatar) : null,
+            'profile_type' => $this->profile_type?->value,
+            'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
             'email_verified_at' => $this->email_verified_at?->toISOString(),
 
-            // Профілі (conditionally loaded)
-            'profile_personal' => $this->whenLoaded('profilePersonal', function () {
-                return new ProfilePersonalResource($this->profilePersonal);
-            }),
+            // Персональні дані (тепер в User)
+            'profile_personal' => new ProfilePersonalResource($this->resource),
             'profile_legal' => $this->whenLoaded('profileLegal', function () {
                 return new ProfileLegalResource($this->profileLegal);
             }),

@@ -11,7 +11,6 @@ use App\Http\Resources\ProfileLegalResource;
 use App\Http\Resources\ProfilePersonalResource;
 use App\Models\ProfileDocument;
 use App\Models\ProfileLegal;
-use App\Models\ProfilePersonal;
 use App\Models\ProfileSocial;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -71,11 +70,11 @@ class ProfileApiController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        $user->load(['profilePersonal', 'profileLegal', 'profileSocial', 'profileDocuments']);
+        $user->load(['profileLegal', 'profileSocial', 'profileDocuments']);
 
         return response()->json([
             'user' => $user,
-            'profilePersonal' => $user->profilePersonal ? new ProfilePersonalResource($user->profilePersonal) : null,
+            'profilePersonal' => new ProfilePersonalResource($user),
             'profileLegal' => $user->profileLegal ? new ProfileLegalResource($user->profileLegal) : null,
             'profileSocial' => $user->profileSocial,
             'profileDocuments' => ProfileDocumentResource::collection($user->profileDocuments),
@@ -143,15 +142,12 @@ class ProfileApiController extends Controller
      */
     public function updatePersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
     {
+        /** @var User $user */
         $user = $request->user();
-        $profile = $user->profilePersonal;
-        if (! $profile) {
-            $profile = new ProfilePersonal(['user_id' => $user->id]);
-        }
-        $profile->fill($request->validated());
-        $profile->save();
+        $user->fill($request->validated());
+        $user->save();
 
-        return response()->json(['profilePersonal' => new ProfilePersonalResource($profile)]);
+        return response()->json(['profilePersonal' => new ProfilePersonalResource($user)]);
     }
 
     /**
@@ -216,15 +212,14 @@ class ProfileApiController extends Controller
      */
     public function createPersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
     {
+        /** @var User $user */
         $user = $request->user();
-        if ($user->profilePersonal()->exists()) {
-            return response()->json(['message' => __('api.profile.personal_exists')], 409);
-        }
-        $profile = new ProfilePersonal(['user_id' => $user->id]);
-        $profile->fill($request->validated());
-        $profile->save();
 
-        return response()->json(['profilePersonal' => new ProfilePersonalResource($profile)], 201);
+        // Персональні дані тепер завжди в User, тому просто оновлюємо
+        $user->fill($request->validated());
+        $user->save();
+
+        return response()->json(['profilePersonal' => new ProfilePersonalResource($user)], 201);
     }
 
     /**
@@ -669,23 +664,16 @@ class ProfileApiController extends Controller
         $file = $request->file('avatar');
 
         // Видаляємо старий аватар, якщо є
-        $profile = $user->profilePersonal;
-        if ($profile && $profile->avatar) {
-            Storage::disk('public')->delete($profile->avatar);
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
         }
 
         // Зберігаємо новий аватар
         $path = $file->store('avatars', 'public');
 
-        // Оновлюємо або створюємо профіль
-        if (! $profile) {
-            $profile = new ProfilePersonal([
-                'user_id' => $user->id,
-                'full_name' => $user->name,
-            ]);
-        }
-        $profile->avatar = $path;
-        $profile->save();
+        // Оновлюємо аватар користувача
+        $user->avatar = $path;
+        $user->save();
 
         return response()->json([
             'message' => 'Аватар успішно оновлено.',
@@ -736,7 +724,6 @@ class ProfileApiController extends Controller
 
         // Якщо немає незакритих операцій - видаляємо одразу
         // Спочатку видаляємо пов'язані дані
-        $user->profilePersonal?->delete();
         $user->profileLegal?->delete();
         $user->profileSocial?->delete();
         $user->profileDocuments()->delete();

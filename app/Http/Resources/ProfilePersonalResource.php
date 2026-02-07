@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -42,7 +43,7 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(property="en", type="string", example="Kyiv")
  *     ),
  *     @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
- *     @OA\Property(property="role", type="string", nullable=true, example="artist", description="Роль користувача"),
+ *     @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Тип профілю: artist або patron"),
  *     @OA\Property(property="description", type="object", nullable=true, description="Опис/біографія (мультимовне)",
  *         @OA\Property(property="uk", type="string", example="Український художник"),
  *         @OA\Property(property="en", type="string", example="Ukrainian artist")
@@ -50,6 +51,8 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")
  * )
+ *
+ * @mixin User
  */
 class ProfilePersonalResource extends JsonResource
 {
@@ -62,7 +65,7 @@ class ProfilePersonalResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
+            'user_id' => $this->id,
             'avatar' => $this->avatar ? Storage::url($this->avatar) : null,
             'full_name' => $this->full_name ?? ['en' => null, 'uk' => null],
             'profession' => $this->profession ?? ['en' => null, 'uk' => null],
@@ -71,7 +74,7 @@ class ProfilePersonalResource extends JsonResource
             'region' => $this->region ?? ['en' => null, 'uk' => null],
             'city' => $this->city ?? ['en' => null, 'uk' => null],
             'postal_code' => $this->postal_code,
-            'role' => $this->role,
+            'profile_type' => $this->profile_type?->value,
             'description' => $this->description ?? ['en' => null, 'uk' => null],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
