@@ -20,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Support\Enums\Width;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -75,6 +76,23 @@ class AdminPanelProvider extends PanelProvider
                 //                        ['code' => 'uk', 'name' => 'Українська', 'flag' => 'ua'],
                 //                    ]),
             ])
+            ->sidebarCollapsibleOnDesktop() // Добавляем сворачиваемое меню на десктопе
+            // ->sidebarFullyCollapsibleOnDesktop() // Альтернатива: полное сворачивание
+            // Доступные варианты ширины:
+            // В Filament v4 вы можете использовать следующие варианты ширины (от самой узкой до самой широкой):
+            // Width::ExtraSmall - очень узкая
+            // Width::Small - узкая
+            // Width::Medium - средняя
+            // Width::Large - большая
+            // Width::ExtraLarge - очень большая
+            // Width::TwoExtraLarge - 2xl
+            // Width::ThreeExtraLarge - 3xl
+            // Width::FourExtraLarge - 4xl
+            // Width::FiveExtraLarge - 5xl
+            // Width::SixExtraLarge - 6xl
+            // Width::SevenExtraLarge - 7xl (по умолчанию)
+            // Width::Full - на всю ширину страницы (установлено)
+            ->maxContentWidth(Width::Full) // Устанавливаем максимальную ширину на всю страницу
             ->authMiddleware([
                 Authenticate::class,
             ]);
