@@ -13,6 +13,7 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class EditUser extends EditRecord
 {
@@ -51,6 +52,15 @@ class EditUser extends EditRecord
                 }),
             DeleteAction::make(),
         ];
+    }
+
+    protected function onValidationError(ValidationException $exception): void
+    {
+        Notification::make()
+            ->title('Помилка валідації')
+            ->body(collect($exception->errors())->flatten()->first())
+            ->danger()
+            ->send();
     }
 
     // title для сторінки редагування
@@ -111,6 +121,11 @@ class EditUser extends EditRecord
         // Встановлюємо значення за замовчуванням для currency, якщо воно null
         if (empty($legal->currency)) {
             $legal->currency = 'UAH';
+        }
+
+        // Встановлюємо значення за замовчуванням для name, якщо воно null або порожнє
+        if (empty($legal->name)) {
+            $legal->name = ['uk' => '', 'en' => ''];
         }
 
         // Для полей с array cast используем setAttribute, который автоматически применит cast
@@ -287,9 +302,16 @@ class EditUser extends EditRecord
             $personal = method_exists($record, 'profilePersonal') && $record->profilePersonal ? collect($record->profilePersonal->toArray())->only([
                 'avatar', 'full_name', 'profession', 'tags', 'country', 'region', 'city', 'postal_code', 'role', 'description',
             ])->toArray() : [];
-            $legal = method_exists($record, 'profileLegal') && $record->profileLegal ? collect($record->profileLegal->toArray())->only([
-                'currency', 'is_legal', 'logo', 'name', 'edrpou', 'authorized_person', 'address', 'phone', 'email',
-            ])->toArray() : [];
+            $legal = method_exists($record, 'profileLegal') && $record->profileLegal ? [
+                'currency' => $record->profileLegal->currency instanceof \BackedEnum ? $record->profileLegal->currency->value : $record->profileLegal->currency,
+                'logo' => $record->profileLegal->logo,
+                'name' => $record->profileLegal->name,
+                'edrpou' => $record->profileLegal->edrpou,
+                'authorized_person' => $record->profileLegal->authorized_person,
+                'address' => $record->profileLegal->address,
+                'phone' => $record->profileLegal->phone,
+                'email' => $record->profileLegal->email,
+            ] : [];
             $social = method_exists($record, 'profileSocial') && $record->profileSocial ? collect($record->profileSocial->toArray())->only([
                 'website', 'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'pinterest', 'github', 'telegram', 'tiktok', 'youtube_channel', 'whatsapp', 'deviantart',
             ])->toArray() : [];

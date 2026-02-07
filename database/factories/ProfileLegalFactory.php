@@ -16,26 +16,25 @@ class ProfileLegalFactory extends Factory
      */
     public function definition(): array
     {
-            return [
-                'user_id' => null,
-                'currency' => fake()->randomElement(['UAH', 'USD', 'EUR']),
-                'is_legal' => fake()->boolean(),
-                'logo' => fake()->imageUrl(400, 400, 'business'),
-                'name' => [
-                    'uk' => fake()->company(),
-                    'en' => fake()->company(),
-                ],
-                'edrpou' => fake()->numerify('########'),
-                'authorized_person' => [
-                    'uk' => fake()->name(),
-                    'en' => fake()->name(),
-                ],
-                'address' => [
-                    'uk' => fake()->address(),
-                    'en' => fake()->address(),
-                ],
-                'phone' => fake()->phoneNumber(),
-                'email' => fake()->companyEmail(),
-            ];
+        return [
+            'user_id' => null,
+            'currency' => fake()->randomElement(['UAH', 'USD', 'EUR']),
+            'logo' => fake()->imageUrl(400, 400, 'business'),
+            'name' => [
+                'uk' => fake()->company(),
+                'en' => fake()->company(),
+            ],
+            'edrpou' => fake()->numerify('########'),
+            'authorized_person' => [
+                'uk' => fake()->name(),
+                'en' => fake()->name(),
+            ],
+            'address' => [
+                'uk' => fake()->address(),
+                'en' => fake()->address(),
+            ],
+            'phone' => fake()->phoneNumber(),
+            'email' => fake()->companyEmail(),
+        ];
     }
 }

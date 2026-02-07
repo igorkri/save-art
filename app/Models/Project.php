@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property int $user_id
  * @property string $user_type
+ * @property bool $is_legal
  * @property string $code
  * @property string $slug
  * @property string $status
@@ -57,6 +58,7 @@ class Project extends Model
     protected $fillable = [
         'user_id',
         'user_type',
+        'is_legal',
         'code',
         'slug',
         'status',
@@ -101,6 +103,7 @@ class Project extends Model
             'final_result' => 'array',
             'budget_goal' => 'decimal:2',
             'budget_collected' => 'decimal:2',
+            'is_legal' => 'boolean',
             'status' => ProjectStatus::class,
             'status_moderation' => ModerationStatus::class,
             'user_type' => UserType::class,

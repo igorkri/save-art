@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\Currency;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * App\Models\ProfileLegal
@@ -12,7 +12,6 @@ use App\Enums\Currency;
  * @property int $id ID запису
  * @property int $user_id ID користувача
  * @property string $currency Валюта за замовчуванням (ISO 4217 currency code)
- * @property bool $is_legal Признак приватної особи або юридичної
  * @property string|null $logo Логотип компанії
  * @property array $name Назва компанії або ПІБ приватної особи
  * @property string|null $edrpou ЄДРПОУ
@@ -23,6 +22,7 @@ use App\Enums\Currency;
  * @property \Illuminate\Support\Carbon|null $created_at Дата створення запису
  * @property \Illuminate\Support\Carbon|null $updated_at Дата останнього оновлення запис
  * @property-read \App\Models\User $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal query()
@@ -31,9 +31,6 @@ use App\Enums\Currency;
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereEdrpou($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereIsLegal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereLogo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProfileLegal whereUpdatedAt($value)
@@ -47,7 +44,6 @@ class ProfileLegal extends Model
     protected $fillable = [
         'user_id',
         'currency',
-        'is_legal',
         'logo',
         'name',
         'edrpou',
@@ -58,13 +54,11 @@ class ProfileLegal extends Model
     ];
 
     protected $casts = [
-        'is_legal' => 'boolean',
         'name' => 'array',
         'authorized_person' => 'array',
         'address' => 'array',
         'currency' => Currency::class,
     ];
-
 
     // Визначення зв'язку з користувачем
     public function user()
@@ -112,6 +106,7 @@ class ProfileLegal extends Model
         if (is_array($name)) {
             return $name[$locale] ?? $name[$fallback] ?? null;
         }
+
         return $name;
     }
 
@@ -126,6 +121,7 @@ class ProfileLegal extends Model
         if (is_array($address)) {
             return $address[$locale] ?? $address[$fallback] ?? null;
         }
+
         return $address;
     }
 
@@ -140,6 +136,7 @@ class ProfileLegal extends Model
         if (is_array($person)) {
             return $person[$locale] ?? $person[$fallback] ?? null;
         }
+
         return $person;
     }
 }

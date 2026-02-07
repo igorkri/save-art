@@ -30,6 +30,7 @@ class ProjectFactory extends Factory
         return [
             'user_id' => User::factory(),
             'user_type' => $this->faker->randomElement(UserType::cases()),
+            'is_legal' => $this->faker->boolean(),
             'code' => strtoupper(Str::random(8)),
             'slug' => $this->faker->unique()->slug(),
             'status' => ProjectStatus::Draft,

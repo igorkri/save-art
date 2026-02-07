@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
+use Filament\Forms\Components\Toggle;
 
 class ProjectForm
 {
@@ -432,6 +433,13 @@ class ProjectForm
                 Section::make('Статус')
                     ->columnSpan(1)
                     ->schema([
+
+                        // is_legal - відображається тільки для адмінів, тому що це поле проєкту, а не користувача
+                        Toggle::make('is_legal')
+                            ->label('Юридична особа')
+                            ->helperText('Проєкт буде відображатися з юридичним статусом, незалежно від статусу користувача-автора')
+                            ->default(false),
+
                         Select::make('status')
                             ->label('Статус проєкту')
                             ->options(ProjectStatus::getOptions())

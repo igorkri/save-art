@@ -32,6 +32,7 @@ class UpdateProjectRequest extends FormRequest
         return [
             // ========== Основні поля проекту ==========
             'user_type' => ['sometimes', Rule::enum(UserType::class)],
+            'is_legal' => ['sometimes', 'boolean'],
 
             'title' => ['sometimes', 'array'],
             'title.uk' => ['required_with:title', 'string', 'max:255'],

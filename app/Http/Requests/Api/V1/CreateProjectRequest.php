@@ -31,6 +31,7 @@ class CreateProjectRequest extends FormRequest
         return [
             // ========== Основні поля проекту ==========
             'user_type' => ['required', Rule::enum(UserType::class)],
+            'is_legal' => ['sometimes', 'boolean'],
 
             'title' => ['required', 'array'],
             'title.uk' => ['required', 'string', 'max:255'],

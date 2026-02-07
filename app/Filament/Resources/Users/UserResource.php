@@ -72,7 +72,18 @@ class UserResource extends Resource
 
         // Преобразуем связанные данные в вложенные массивы для формы
         $data['profilePersonal'] = $record->profilePersonal ? $record->profilePersonal->toArray() : [];
-        $data['profileLegal'] = $record->profileLegal ? $record->profileLegal->toArray() : [];
+
+        $data['profileLegal'] = $record->profileLegal ? [
+            'currency' => $record->profileLegal->currency instanceof \BackedEnum ? $record->profileLegal->currency->value : $record->profileLegal->currency,
+            'logo' => $record->profileLegal->logo,
+            'name' => $record->profileLegal->name,
+            'edrpou' => $record->profileLegal->edrpou,
+            'authorized_person' => $record->profileLegal->authorized_person,
+            'address' => $record->profileLegal->address,
+            'phone' => $record->profileLegal->phone,
+            'email' => $record->profileLegal->email,
+        ] : [];
+
         $data['profileSocial'] = $record->profileSocial ? $record->profileSocial->toArray() : [];
         $data['profileDocuments'] = $record->profileDocuments ? $record->profileDocuments->toArray() : [];
 

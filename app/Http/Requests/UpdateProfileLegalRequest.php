@@ -16,13 +16,13 @@ class UpdateProfileLegalRequest extends FormRequest
 
     /**
      * Правила валідації для оновлення юридичного профілю
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
             'currency' => ['nullable', 'in:UAH,USD,EUR'],
-            'is_legal' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'string', 'max:255'],
             // Багатомовні JSON об'єкти
             'name' => ['nullable', 'array'],

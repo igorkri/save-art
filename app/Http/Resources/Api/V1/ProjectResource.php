@@ -234,8 +234,8 @@ class ProjectResource extends JsonResource
      */
     private function formatAuthor(User $user, ?string $language): array
     {
-        // Перевіряємо чи це юридична особа
-        $isLegal = $user->profileLegal?->is_legal ?? false;
+        // Перевіряємо чи це юридична особа за полем проєкту
+        $isLegal = $this->is_legal;
 
         if ($isLegal && $user->profileLegal) {
             // Юридична особа - дані з ProfileLegal

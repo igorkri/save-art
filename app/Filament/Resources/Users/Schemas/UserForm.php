@@ -153,6 +153,10 @@ class UserForm
                                 Section::make('Компанія')
                                     ->columns(2)
                                     ->schema([
+                                        // Toggle::make('profileLegal.is_legal')
+                                        //     ->label('Юридична особа')
+                                        //     ->live(),
+
                                         FileUpload::make('profileLegal.logo')
                                             ->image()
                                             ->label('Логотип компанії')
@@ -172,12 +176,8 @@ class UserForm
                                                 'EUR' => 'Євро (EUR)',
                                             ])
                                             ->label('Основна валюта')
-                                            ->default('UAH')
-                                            ->required(),
+                                            ->default('UAH'),
                                     ]),
-
-                                Toggle::make('profileLegal.is_legal')
-                                    ->label('Юридична особа'),
 
                                 Section::make('Реквізити компанії')
                                     ->columns(2)
@@ -201,18 +201,54 @@ class UserForm
                                 Section::make('Профілі та посилання')
                                     ->columns(3)
                                     ->schema([
-                                        TextInput::make('profileSocial.website')->label('Вебсайт')->url(),
-                                        TextInput::make('profileSocial.facebook')->label('Facebook')->url(),
-                                        TextInput::make('profileSocial.instagram')->label('Instagram')->url(),
-                                        TextInput::make('profileSocial.linkedin')->label('LinkedIn')->url(),
-                                        TextInput::make('profileSocial.twitter')->label('Twitter')->url(),
-                                        TextInput::make('profileSocial.telegram')->label('Telegram')->url(),
-                                        TextInput::make('profileSocial.youtube')->label('YouTube')->url(),
-                                        TextInput::make('profileSocial.tiktok')->label('TikTok')->url(),
-                                        TextInput::make('profileSocial.github')->label('GitHub')->url(),
-                                        TextInput::make('profileSocial.pinterest')->label('Pinterest')->url(),
-                                        TextInput::make('profileSocial.whatsapp')->label('WhatsApp')->url(),
-                                        TextInput::make('profileSocial.deviantart')->label('DeviantArt')->url(),
+                                        TextInput::make('profileSocial.website')
+                                            ->label('Вебсайт')
+                                            ->url()
+                                            ->placeholder('https://example.com'),
+                                        TextInput::make('profileSocial.facebook')
+                                            ->label('Facebook')
+                                            ->url()
+                                            ->placeholder('https://facebook.com/...'),
+                                        TextInput::make('profileSocial.instagram')
+                                            ->label('Instagram')
+                                            ->url()
+                                            ->placeholder('https://instagram.com/...'),
+                                        TextInput::make('profileSocial.linkedin')
+                                            ->label('LinkedIn')
+                                            ->url()
+                                            ->placeholder('https://linkedin.com/in/...'),
+                                        TextInput::make('profileSocial.twitter')
+                                            ->label('Twitter')
+                                            ->url()
+                                            ->placeholder('https://x.com/...'),
+                                        TextInput::make('profileSocial.telegram')
+                                            ->label('Telegram')
+                                            ->url()
+                                            ->placeholder('https://t.me/...'),
+                                        TextInput::make('profileSocial.youtube')
+                                            ->label('YouTube')
+                                            ->url()
+                                            ->placeholder('https://youtube.com/...'),
+                                        TextInput::make('profileSocial.tiktok')
+                                            ->label('TikTok')
+                                            ->url()
+                                            ->placeholder('https://tiktok.com/@...'),
+                                        TextInput::make('profileSocial.github')
+                                            ->label('GitHub')
+                                            ->url()
+                                            ->placeholder('https://github.com/...'),
+                                        TextInput::make('profileSocial.pinterest')
+                                            ->label('Pinterest')
+                                            ->url()
+                                            ->placeholder('https://pinterest.com/...'),
+                                        TextInput::make('profileSocial.whatsapp')
+                                            ->label('WhatsApp')
+                                            ->url()
+                                            ->placeholder('https://wa.me/...'),
+                                        TextInput::make('profileSocial.deviantart')
+                                            ->label('DeviantArt')
+                                            ->url()
+                                            ->placeholder('https://deviantart.com/...'),
                                     ])
                                     ->collapsible(),
                             ]),
