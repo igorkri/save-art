@@ -22,8 +22,9 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('ФІО')
+                TextColumn::make('full_name')
+                    ->label('ПІБ')
+                    ->formatStateUsing(fn ($state) => $state['uk'] ?? $state['en'] ?? 'Не вказано')
                     ->copyable()
                     ->searchable(),
                 TextColumn::make('email')
@@ -34,6 +35,16 @@ class UsersTable
                     ->label('Роль')
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state?->getLabel() ?? $state)
+                    ->searchable(),
+                TextColumn::make('profile_type')
+                    ->label('Тип профілю')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Не вказано')
+                    ->color(fn ($state) => match ($state?->value) {
+                        'artist' => 'info',
+                        'patron' => 'success',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 TextColumn::make('email_verified_at')
                     ->label('Email підтверджено')
@@ -71,6 +82,9 @@ class UsersTable
                 \Filament\Tables\Filters\SelectFilter::make('role')
                     ->label('Роль')
                     ->options(\App\UserRole::getOptions()),
+                \Filament\Tables\Filters\SelectFilter::make('profile_type')
+                    ->label('Тип профілю')
+                    ->options(\App\Enums\ProfileType::getOptions()),
             ])
             ->recordActions([
                 ActionGroup::make([

@@ -19,6 +19,8 @@ class ProfileDocumentsApiTest extends TestCase
     {
         parent::setUp();
         Storage::fake('public');
+        // Вимикаємо перевірку API key для тестів
+        config(['services.api_key' => '']);
         $this->user = User::factory()->create();
     }
 

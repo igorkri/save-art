@@ -74,16 +74,19 @@ class ArtistController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = User::query()
-            ->with(['profilePersonal'])
             ->withCount([
                 'projects' => fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()),
             ])
             ->whereHas('projects', fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()))
             ->orderByDesc('projects_count');
 
-        // Пошук по імені
+        // Пошук по імені (full_name — JSON поле)
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->input('search').'%');
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk')) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en')) LIKE ?", ["%{$search}%"]);
+            });
         }
 
         $perPage = min($request->input('per_page', 20), 50);
@@ -135,7 +138,7 @@ class ArtistController extends Controller
     public function show(string $slug): ArtistResource
     {
         $artist = User::query()
-            ->with(['profilePersonal', 'profileSocial'])
+            ->with(['profileSocial'])
             ->withCount([
                 'projects' => fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()),
             ])

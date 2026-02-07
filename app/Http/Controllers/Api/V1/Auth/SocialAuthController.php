@@ -141,12 +141,14 @@ class SocialAuthController extends Controller
             }
         } else {
             // New user - create account
+            $userName = $socialUser->getName() ?? $email;
             $user = User::create([
-                'name' => $socialUser->getName() ?? $email,
+                'full_name' => ['uk' => $userName, 'en' => $userName],
                 'email' => $email,
                 'email_verified_at' => now(),
                 'password' => Hash::make(Str::random(32)),
                 'role' => UserRole::User,
+                'slug' => Str::slug($userName).'-'.Str::random(6),
             ]);
         }
 
