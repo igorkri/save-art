@@ -22,14 +22,17 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('full_name')
+                TextColumn::make('display_name')
                     ->label('ПІБ')
-                    ->formatStateUsing(fn ($state) => $state['uk'] ?? $state['en'] ?? 'Не вказано')
                     ->copyable()
-                    ->searchable(),
+                    ->copyableState(fn (User $record): string => $record->display_name)
+                    ->searchable('full_name->uk'),
+
                 TextColumn::make('email')
                     ->label('Email')
                     ->copyable()
+                    ->copyMessage('Copied!')
+                    ->copyMessageDuration(1500)
                     ->searchable(),
                 TextColumn::make('role')
                     ->label('Роль')

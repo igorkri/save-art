@@ -352,7 +352,7 @@ class ProjectController extends Controller
     public function show(string $slug): ProjectResource
     {
         $project = Project::query()
-            ->with([,
+            ->with([
                 'user.profileLegal',
                 'stages' => fn ($q) => $q->orderBy('order'),
                 'bonuses' => fn ($q) => $q->orderBy('order'),

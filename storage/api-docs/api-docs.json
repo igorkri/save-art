@@ -9792,11 +9792,6 @@
                         "example": "UAH",
                         "nullable": true
                     },
-                    "is_legal": {
-                        "description": "Чи є юридичною особою",
-                        "type": "boolean",
-                        "example": true
-                    },
                     "logo": {
                         "description": "Логотип",
                         "type": "string",
@@ -9991,8 +9986,8 @@
                         "example": "01001",
                         "nullable": true
                     },
-                    "role": {
-                        "description": "Роль користувача",
+                    "profile_type": {
+                        "description": "Тип профілю: artist або patron",
                         "type": "string",
                         "example": "artist",
                         "nullable": true

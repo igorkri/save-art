@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\ProfileType;
+use App\Traits\LocalizesAttributes;
 use App\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -40,7 +41,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, \Laravel\Sanctum\HasApiTokens, Notifiable;
+    use HasFactory, \Laravel\Sanctum\HasApiTokens, LocalizesAttributes, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -76,6 +77,15 @@ class User extends Authenticatable implements FilamentUser
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<string>
+     */
+    protected $appends = [
+        'display_name',
     ];
 
     /**
@@ -290,7 +300,11 @@ class User extends Authenticatable implements FilamentUser
      */
     public function getDisplayNameAttribute(): string
     {
-        return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'Користувач';
+        if (! $this->full_name || ! is_array($this->full_name)) {
+            return 'Не вказано';
+        }
+
+        return $this->full_name['uk'] ?: ($this->full_name['en'] ?: 'Не вказано');
     }
 
     /**
@@ -299,6 +313,10 @@ class User extends Authenticatable implements FilamentUser
      */
     public function getNameAttribute(): string
     {
-        return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'User';
+        if (! $this->full_name || ! is_array($this->full_name)) {
+            return 'User #'.$this->id;
+        }
+
+        return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'User #'.$this->id;
     }
 }
