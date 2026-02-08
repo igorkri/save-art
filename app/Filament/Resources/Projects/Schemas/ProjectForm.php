@@ -39,7 +39,11 @@ class ProjectForm
                             ->schema([
                                 Select::make('user_id')
                                     ->label('Автор')
-                                    ->relationship('user', 'name')
+                                    ->relationship(
+                                        'user',
+                                        modifyQueryUsing: fn ($query) => $query->orderBy('email')
+                                    )
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name ?: $record->email)
                                     ->searchable()
                                     ->preload()
                                     ->required(),
