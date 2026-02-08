@@ -26,6 +26,9 @@ class UserSeeder extends Seeder
                 'role' => UserRole::Admin->value,
                 'email_verified_at' => now(),
             ]);
+
+            \App\Models\ProfileLegal::factory()->create(['user_id' => $admin->id]);
+            \App\Models\ProfileSocial::factory()->create(['user_id' => $admin->id]);
         }
 
         // Створюємо модератора
@@ -50,6 +53,9 @@ class UserSeeder extends Seeder
                     'en' => 'Kyiv',
                 ],
             ]);
+
+            \App\Models\ProfileLegal::factory()->create(['user_id' => $moderator->id]);
+            \App\Models\ProfileSocial::factory()->create(['user_id' => $moderator->id]);
         }
 
         // Реалістичні власники проєктів (митці)
@@ -62,6 +68,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
                     'full_name' => ['uk' => 'Оксана Петренко', 'en' => 'Oksana Petrenko'],
                     'profession' => ['uk' => 'Художниця, майстриня портретного живопису', 'en' => 'Artist, Portrait Painter'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Львівська область', 'en' => 'Lviv Region'],
                     'city' => ['uk' => 'Львів', 'en' => 'Lviv'],
                     'description' => [
                         'uk' => 'Займаюсь живописом більше 15 років. Спеціалізуюсь на портретах та композиціях на теми української історії та культури.',
@@ -78,6 +86,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('man'),
                     'full_name' => ['uk' => 'Тарас Коваленко', 'en' => 'Taras Kovalenko'],
                     'profession' => ['uk' => 'Скульптор, монументаліст', 'en' => 'Sculptor, Monumentalist'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Київська область', 'en' => 'Kyiv Region'],
                     'city' => ['uk' => 'Київ', 'en' => 'Kyiv'],
                     'description' => [
                         'uk' => 'Створюю скульптури та монументи, що відображають історичні події та героїв України. Працюю з бронзою, камінем та сучасними матеріалами.',
@@ -94,6 +104,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
                     'full_name' => ['uk' => 'Марія Шевченко', 'en' => 'Maria Shevchenko'],
                     'profession' => ['uk' => 'Театральна режисерка', 'en' => 'Theatre Director'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Одеська область', 'en' => 'Odesa Region'],
                     'city' => ['uk' => 'Одеса', 'en' => 'Odesa'],
                     'description' => [
                         'uk' => 'Режисую сучасні театральні постановки, що торкаються актуальних соціальних тем та історії України. Поєдную класику з новітніми театральними формами.',
@@ -110,6 +122,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('man'),
                     'full_name' => ['uk' => 'Дмитро Литвин', 'en' => 'Dmytro Lytvyn'],
                     'profession' => ['uk' => 'Музикант, композитор', 'en' => 'Musician, Composer'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Харківська область', 'en' => 'Kharkiv Region'],
                     'city' => ['uk' => 'Харків', 'en' => 'Kharkiv'],
                     'description' => [
                         'uk' => 'Створюю музику на перетині традицій та сучасності. Працюю з українськими народними мелодіями, адаптуючи їх до сучасного звучання.',
@@ -126,6 +140,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
                     'full_name' => ['uk' => 'Анна Павленко', 'en' => 'Anna Pavlenko'],
                     'profession' => ['uk' => 'Фотографка-документалістка', 'en' => 'Documentary Photographer'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Дніпропетровська область', 'en' => 'Dnipropetrovsk Region'],
                     'city' => ['uk' => 'Дніпро', 'en' => 'Dnipro'],
                     'description' => [
                         'uk' => 'Документую життя українців у різних регіонах країни, фіксую історичні події та портрети сучасників. Мої роботи публікувались у провідних виданнях.',
@@ -139,7 +155,6 @@ class UserSeeder extends Seeder
         foreach ($artists as $artistData) {
             if (! User::where('email', $artistData['email'])->exists()) {
                 $user = User::factory()->create(array_merge([
-                    'name' => $artistData['name'],
                     'slug' => $artistData['slug'],
                     'email' => $artistData['email'],
                     'password' => Hash::make('password'),
@@ -163,6 +178,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('man'),
                     'full_name' => ['uk' => 'Петро Василенко', 'en' => 'Petro Vasylenko'],
                     'profession' => ['uk' => 'Підприємець, меценат', 'en' => 'Entrepreneur, Patron'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Київська область', 'en' => 'Kyiv Region'],
                     'city' => ['uk' => 'Київ', 'en' => 'Kyiv'],
                     'description' => [
                         'uk' => 'Підтримую українське мистецтво та культуру. Вірю, що через мистецтво ми зберігаємо нашу ідентичність.',
@@ -178,6 +195,8 @@ class UserSeeder extends Seeder
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
                     'full_name' => ['uk' => 'Олена Мельник', 'en' => 'Olena Melnyk'],
                     'profession' => ['uk' => 'Колекціонер, благодійниця', 'en' => 'Collector, Philanthropist'],
+                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
+                    'region' => ['uk' => 'Львівська область', 'en' => 'Lviv Region'],
                     'city' => ['uk' => 'Львів', 'en' => 'Lviv'],
                     'description' => [
                         'uk' => 'Колекціоную сучасне українське мистецтво. Регулярно підтримую талановитих митців на початку їхнього шляху.',
@@ -190,7 +209,6 @@ class UserSeeder extends Seeder
         foreach ($mecenats as $mecenatData) {
             if (! User::where('email', $mecenatData['email'])->exists()) {
                 $user = User::factory()->create(array_merge([
-                    'name' => $mecenatData['name'],
                     'slug' => $mecenatData['slug'],
                     'email' => $mecenatData['email'],
                     'password' => Hash::make('password'),
@@ -199,6 +217,7 @@ class UserSeeder extends Seeder
                     'email_verified_at' => now(),
                 ], $mecenatData['profile']));
 
+                \App\Models\ProfileLegal::factory()->create(['user_id' => $user->id]);
                 \App\Models\ProfileSocial::factory()->create(['user_id' => $user->id]);
             }
         }

@@ -18,6 +18,7 @@ class ProfileLegalFactory extends Factory
     {
         return [
             'user_id' => null,
+            'is_active' => true,
             'currency' => fake()->randomElement(['UAH', 'USD', 'EUR']),
             'logo' => fake()->imageUrl(400, 400, 'business'),
             'name' => [
