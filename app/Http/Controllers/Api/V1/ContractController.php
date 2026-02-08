@@ -449,6 +449,65 @@ class ContractController extends Controller
     }
 
     /**
+     * Delete a contract.
+     *
+     * DELETE /api/v1/contracts/{contract}
+     *
+     * @OA\Delete(
+     *     path="/v1/contracts/{contract}",
+     *     operationId="deleteContract",
+     *     tags={"Contracts"},
+     *     summary="Видалити контракт",
+     *     description="Видаляє контракт користувача. Можна видалити тільки контракти в статусі pending або expired.",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="contract", in="path", required=true, description="ID контракту", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Контракт успішно видалено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Контракт успішно видалено")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ"),
+     *     @OA\Response(response=403, description="Доступ заборонено (не власник)"),
+     *     @OA\Response(response=404, description="Контракт не знайдено"),
+     *     @OA\Response(response=422, description="Неможливо видалити підписаний контракт")
+     * )
+     */
+    public function destroy(Request $request, Contract $contract): JsonResponse
+    {
+        $this->authorizeContract($request, $contract);
+
+        // Не дозволяємо видаляти підписані контракти
+        if ($contract->isSigned()) {
+            return response()->json([
+                'message' => __('contracts.errors.cannot_delete_signed'),
+            ], 422);
+        }
+
+        // Видаляємо файл контракту, якщо він існує
+        if ($contract->file_path && Storage::disk('public')->exists($contract->file_path)) {
+            Storage::disk('public')->delete($contract->file_path);
+        }
+
+        // Видаляємо підписаний файл, якщо він існує
+        if ($contract->signed_file_path && Storage::disk('public')->exists($contract->signed_file_path)) {
+            Storage::disk('public')->delete($contract->signed_file_path);
+        }
+
+        $contract->delete();
+
+        return response()->json([
+            'message' => __('contracts.messages.deleted'),
+        ]);
+    }
+
+    /**
      * Get available sign services.
      *
      * @return array<string, array{value: string, label: string, enabled: bool}>

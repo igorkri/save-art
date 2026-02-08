@@ -13,6 +13,7 @@ return [
         'pending_exists' => 'You already have a pending contract.',
         'signed' => 'Contract signed successfully.',
         'no_active_contract' => 'You have no active signed contract.',
+        'deleted' => 'Contract deleted successfully.',
     ],
 
     'errors' => [
@@ -20,6 +21,8 @@ return [
         'expired' => 'Contract has expired. Please create a new one.',
         'file_not_found' => 'Contract file not found.',
         'not_owner' => 'You do not have access to this contract.',
+        'cannot_delete_signed' => 'Cannot delete a signed contract.',
+        'template_not_found' => 'Contract template not found.',
     ],
 
     'validation' => [

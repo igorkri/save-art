@@ -125,6 +125,29 @@ Route::prefix('v1')->group(function () {
 // ============================================
 
 Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () {
+    // Профіль користувача
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileApiController::class, 'getProfile']);
+        Route::put('/personal', [ProfileApiController::class, 'updatePersonal']);
+        Route::post('/personal', [ProfileApiController::class, 'createPersonal']);
+        Route::put('/legal', [ProfileApiController::class, 'updateLegal']);
+        Route::post('/legal', [ProfileApiController::class, 'createLegal']);
+        Route::put('/social', [ProfileApiController::class, 'updateSocial']);
+        Route::post('/social', [ProfileApiController::class, 'createSocial']);
+        Route::put('/password', [ProfileApiController::class, 'updatePassword']);
+        Route::post('/avatar', [ProfileApiController::class, 'uploadAvatar']);
+        Route::delete('/', [ProfileApiController::class, 'requestDeletion']);
+
+        // Документи профілю
+        Route::prefix('documents')->group(function () {
+            Route::get('/', [ProfileApiController::class, 'getDocuments']);
+            Route::post('/', [ProfileApiController::class, 'uploadDocument']);
+            Route::get('/{documentId}', [ProfileApiController::class, 'getDocument']);
+            Route::delete('/{documentId}', [ProfileApiController::class, 'deleteDocument']);
+            Route::get('/{documentId}/download', [ProfileApiController::class, 'downloadDocument']);
+        });
+    });
+
     // Мої проєкти
     Route::prefix('my/projects')->group(function () {
         Route::get('/', [MyProjectController::class, 'index']);
@@ -211,6 +234,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         Route::get('/{contract}', [ContractController::class, 'show']);
         Route::post('/{contract}/sign', [ContractController::class, 'sign']);
         Route::get('/{contract}/download', [ContractController::class, 'download']);
+        Route::delete('/{contract}', [ContractController::class, 'destroy']);
     });
 });
 
@@ -244,26 +268,4 @@ Route::prefix('content')->middleware('api.key')->group(function () {
     Route::get('/language/{language}', [ContentController::class, 'getByLanguage']);
     Route::get('/{slug}', [ContentController::class, 'show']);
     Route::get('/{slug}/{language}', [ContentController::class, 'showByLanguage']);
-});
-
-Route::middleware(['api.key', 'auth:sanctum'])->group(function () {
-    Route::get('/profile', [ProfileApiController::class, 'getProfile']);
-    Route::put('/profile/personal', [ProfileApiController::class, 'updatePersonal']);
-    Route::post('/profile/personal', [ProfileApiController::class, 'createPersonal']);
-    Route::put('/profile/legal', [ProfileApiController::class, 'updateLegal']);
-    Route::post('/profile/legal', [ProfileApiController::class, 'createLegal']);
-    Route::put('/profile/social', [ProfileApiController::class, 'updateSocial']);
-    Route::post('/profile/social', [ProfileApiController::class, 'createSocial']);
-    Route::put('/profile/password', [ProfileApiController::class, 'updatePassword']);
-    Route::post('/profile/avatar', [ProfileApiController::class, 'uploadAvatar']);
-    Route::delete('/profile', [ProfileApiController::class, 'requestDeletion']);
-
-    // Документы профиля
-    Route::prefix('profile/documents')->group(function () {
-        Route::get('/', [ProfileApiController::class, 'getDocuments']);
-        Route::post('/', [ProfileApiController::class, 'uploadDocument']);
-        Route::get('/{documentId}', [ProfileApiController::class, 'getDocument']);
-        Route::delete('/{documentId}', [ProfileApiController::class, 'deleteDocument']);
-        Route::get('/{documentId}/download', [ProfileApiController::class, 'downloadDocument']);
-    });
 });

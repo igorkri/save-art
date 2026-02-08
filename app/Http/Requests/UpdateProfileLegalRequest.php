@@ -15,6 +15,18 @@ class UpdateProfileLegalRequest extends FormRequest
     }
 
     /**
+     * Підготовка даних перед валідацією
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('currency') && $this->currency) {
+            $this->merge([
+                'currency' => strtoupper($this->currency),
+            ]);
+        }
+    }
+
+    /**
      * Правила валідації для оновлення юридичного профілю
      *
      * @return array<string, mixed>
@@ -22,8 +34,9 @@ class UpdateProfileLegalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'currency' => ['nullable', 'in:UAH,USD,EUR'],
-            'logo' => ['nullable', 'string', 'max:255'],
+            'currency' => ['nullable', 'string', 'in:UAH,USD,EUR'],
+            // logo може бути шляхом до файлу або base64 строкою
+            'logo' => ['nullable', 'string'],
             // Багатомовні JSON об'єкти
             'name' => ['nullable', 'array'],
             'name.en' => ['nullable', 'string', 'max:255'],

@@ -8098,6 +8098,871 @@
                     }
                 }
             }
+        },
+        "/v1/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Отримати повний профіль",
+                "description": "Повертає всі дані профілю: персональні, юридичні, соціальні та документи",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "Дані профілю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "slug": {
+                                                    "type": "string",
+                                                    "example": "ivan-petrenko"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "profilePersonal": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/ProfilePersonal"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        },
+                                        "profileLegal": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/ProfileLegal"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        },
+                                        "profileSocial": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/ProfileSocial"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        },
+                                        "profileDocuments": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProfileDocument"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/profile/personal": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Оновити персональні дані (03.7.2)",
+                "description": "Оновлює персональні дані профілю",
+                "operationId": "updateProfilePersonal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Шлях до аватара",
+                                        "type": "string",
+                                        "example": "avatars/user1.jpg",
+                                        "nullable": true
+                                    },
+                                    "full_name": {
+                                        "description": "Повне ім'я (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "profession": {
+                                        "description": "Професія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Художник"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Artist"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "description": "Теги/спеціалізації (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "живопис, графіка"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "painting, graphics"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "country": {
+                                        "description": "Країна (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Україна"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukraine"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "region": {
+                                        "description": "Регіон/область (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київська область"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv region"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "city": {
+                                        "description": "Місто (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київ"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "postal_code": {
+                                        "description": "Поштовий індекс",
+                                        "type": "string",
+                                        "example": "01001",
+                                        "nullable": true
+                                    },
+                                    "role": {
+                                        "description": "Роль користувача",
+                                        "type": "string",
+                                        "example": "artist",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "description": "Опис/біографія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Український художник, працюю в жанрі абстракції"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukrainian artist, working in abstract genre"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Профіль оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profilePersonal": {
+                                            "$ref": "#/components/schemas/ProfilePersonal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Створити персональні дані (03.7.2)",
+                "description": "Створює персональні дані профілю",
+                "operationId": "createProfilePersonal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Шлях до аватара",
+                                        "type": "string",
+                                        "example": "avatars/user1.jpg",
+                                        "nullable": true
+                                    },
+                                    "full_name": {
+                                        "description": "Повне ім'я (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "profession": {
+                                        "description": "Професія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Художник"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Artist"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "description": "Теги/спеціалізації (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "живопис, графіка"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "painting, graphics"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "country": {
+                                        "description": "Країна (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Україна"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukraine"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "region": {
+                                        "description": "Регіон/область (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київська область"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv region"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "city": {
+                                        "description": "Місто (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Київ"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "postal_code": {
+                                        "description": "Поштовий індекс",
+                                        "type": "string",
+                                        "example": "01001",
+                                        "nullable": true
+                                    },
+                                    "role": {
+                                        "description": "Роль користувача",
+                                        "type": "string",
+                                        "example": "artist",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "description": "Опис/біографія (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Український художник, працюю в жанрі абстракції"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ukrainian artist, working in abstract genre"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Профіль створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profilePersonal": {
+                                            "$ref": "#/components/schemas/ProfilePersonal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "409": {
+                        "description": "Профіль вже існує"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/profile/legal": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Оновити юридичні дані (03.7.1)",
+                "description": "Оновлює юридичні дані профілю (опціонально)",
+                "operationId": "updateProfileLegal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "currency": {
+                                        "description": "Валюта",
+                                        "type": "string",
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ],
+                                        "example": "UAH"
+                                    },
+                                    "is_legal": {
+                                        "description": "Чи є юридичною особою",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "logo": {
+                                        "description": "Логотип",
+                                        "type": "string",
+                                        "example": "logos/company.jpg",
+                                        "nullable": true
+                                    },
+                                    "name": {
+                                        "description": "Назва компанії (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "ТОВ Мистецтво"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Art LLC"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "edrpou": {
+                                        "description": "Код ЄДРПОУ",
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "authorized_person": {
+                                        "description": "Уповноважена особа (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "address": {
+                                        "description": "Адреса (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "м. Київ, вул. Хрещатик, 1"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv, Khreshchatyk str., 1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "phone": {
+                                        "description": "Телефон",
+                                        "type": "string",
+                                        "example": "+380501234567"
+                                    },
+                                    "email": {
+                                        "description": "Email",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "company@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Профіль оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profileLegal": {
+                                            "$ref": "#/components/schemas/ProfileLegal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Створити юридичні дані (03.7.1)",
+                "description": "Створює юридичні дані профілю",
+                "operationId": "createProfileLegal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "currency": {
+                                        "description": "Валюта",
+                                        "type": "string",
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ],
+                                        "example": "UAH"
+                                    },
+                                    "is_legal": {
+                                        "description": "Чи є юридичною особою",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "logo": {
+                                        "description": "Логотип",
+                                        "type": "string",
+                                        "example": "logos/company.jpg",
+                                        "nullable": true
+                                    },
+                                    "name": {
+                                        "description": "Назва компанії (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "ТОВ Мистецтво"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Art LLC"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "edrpou": {
+                                        "description": "Код ЄДРПОУ",
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "authorized_person": {
+                                        "description": "Уповноважена особа (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "Іван Петренко"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Ivan Petrenko"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "address": {
+                                        "description": "Адреса (мультимовне)",
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string",
+                                                "example": "м. Київ, вул. Хрещатик, 1"
+                                            },
+                                            "en": {
+                                                "type": "string",
+                                                "example": "Kyiv, Khreshchatyk str., 1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "phone": {
+                                        "description": "Телефон",
+                                        "type": "string",
+                                        "example": "+380501234567"
+                                    },
+                                    "email": {
+                                        "description": "Email",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "company@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Профіль створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "profileLegal": {
+                                            "$ref": "#/components/schemas/ProfileLegal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "409": {
+                        "description": "Профіль вже існує"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/profile/social": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Оновити соцмережі (03.7.3)",
+                "description": "Оновлює посилання на соціальні мережі",
+                "operationId": "updateProfileSocial",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://myart.com"
+                                    },
+                                    "instagram": {
+                                        "type": "string",
+                                        "example": "https://instagram.com/myart"
+                                    },
+                                    "facebook": {
+                                        "type": "string",
+                                        "example": "https://facebook.com/myart"
+                                    },
+                                    "youtube": {
+                                        "type": "string",
+                                        "example": "https://youtube.com/@myart"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Профіль оновлено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Створити соцмережі (03.7.3)",
+                "description": "Створює посилання на соціальні мережі",
+                "operationId": "createProfileSocial",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://myart.com"
+                                    },
+                                    "instagram": {
+                                        "type": "string",
+                                        "example": "https://instagram.com/myart"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Профіль створено"
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "409": {
+                        "description": "Профіль вже існує"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/profile/password": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Змінити пароль (03.7.4)",
+                "description": "Змінює пароль користувача. Екран 03.7.4 Safety.",
+                "operationId": "updateProfilePassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "current_password",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email користувача для підтвердження",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "current_password": {
+                                        "description": "Поточний пароль",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "oldPassword123"
+                                    },
+                                    "password": {
+                                        "description": "Новий пароль (мін. 8 символів, великі/малі літери, цифри)",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword456"
+                                    },
+                                    "password_confirmation": {
+                                        "description": "Підтвердження нового пароля",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Пароль змінено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Пароль успішно оновлено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизовано"
+                    },
+                    "422": {
+                        "description": "Невірний email, поточний пароль або помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -10017,6 +10882,94 @@
                     }
                 },
                 "type": "object"
+            },
+            "ProfileSocial": {
+                "title": "ProfileSocial",
+                "description": "Соціальні мережі профілю (03.7.3)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "website": {
+                        "type": "string",
+                        "example": "https://myart.com",
+                        "nullable": true
+                    },
+                    "facebook": {
+                        "type": "string",
+                        "example": "https://facebook.com/myart",
+                        "nullable": true
+                    },
+                    "twitter": {
+                        "type": "string",
+                        "example": "https://twitter.com/myart",
+                        "nullable": true
+                    },
+                    "instagram": {
+                        "type": "string",
+                        "example": "https://instagram.com/myart",
+                        "nullable": true
+                    },
+                    "linkedin": {
+                        "type": "string",
+                        "example": "https://linkedin.com/in/myart",
+                        "nullable": true
+                    },
+                    "youtube": {
+                        "type": "string",
+                        "example": "https://youtube.com/@myart",
+                        "nullable": true
+                    },
+                    "pinterest": {
+                        "type": "string",
+                        "example": "https://pinterest.com/myart",
+                        "nullable": true
+                    },
+                    "github": {
+                        "type": "string",
+                        "example": "https://github.com/myart",
+                        "nullable": true
+                    },
+                    "telegram": {
+                        "type": "string",
+                        "example": "https://t.me/myart",
+                        "nullable": true
+                    },
+                    "tiktok": {
+                        "type": "string",
+                        "example": "https://tiktok.com/@myart",
+                        "nullable": true
+                    },
+                    "youtube_channel": {
+                        "type": "string",
+                        "example": "https://youtube.com/channel/xxx",
+                        "nullable": true
+                    },
+                    "whatsapp": {
+                        "type": "string",
+                        "example": "https://wa.me/380501234567",
+                        "nullable": true
+                    },
+                    "deviantart": {
+                        "type": "string",
+                        "example": "https://deviantart.com/myart",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -10086,6 +11039,10 @@
         {
             "name": "Statistics",
             "description": "API для отримання статистики платформи"
+        },
+        {
+            "name": "Profile",
+            "description": "API для роботи з профілем користувача (03.7.1-03.7.4 Profile screens)"
         },
         {
             "name": "Auth",

@@ -9,6 +9,7 @@ use App\Http\Requests\UploadProfileDocumentRequest;
 use App\Http\Resources\ProfileDocumentResource;
 use App\Http\Resources\ProfileLegalResource;
 use App\Http\Resources\ProfilePersonalResource;
+use App\Http\Resources\ProfileSocialResource;
 use App\Models\ProfileDocument;
 use App\Models\ProfileLegal;
 use App\Models\ProfileSocial;
@@ -35,7 +36,7 @@ class ProfileApiController extends Controller
      * Отримати профіль поточного користувача
      *
      * @OA\Get(
-     *     path="/profile",
+     *     path="/v1/profile",
      *     operationId="getProfile",
      *     tags={"Profile"},
      *     summary="Отримати повний профіль",
@@ -50,12 +51,13 @@ class ProfileApiController extends Controller
      *
      *             @OA\Property(property="user", type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Іван Петренко"),
-     *                 @OA\Property(property="email", type="string", example="user@example.com")
+     *                 @OA\Property(property="slug", type="string", example="ivan-petrenko"),
+     *                 @OA\Property(property="email", type="string", example="user@example.com"),
+     *                 @OA\Property(property="role", type="string", example="user")
      *             ),
      *             @OA\Property(property="profilePersonal", ref="#/components/schemas/ProfilePersonal", nullable=true),
      *             @OA\Property(property="profileLegal", ref="#/components/schemas/ProfileLegal", nullable=true),
-     *             @OA\Property(property="profileSocial", type="object", nullable=true),
+     *             @OA\Property(property="profileSocial", ref="#/components/schemas/ProfileSocial", nullable=true),
      *             @OA\Property(property="profileDocuments", type="array",
      *
      *                 @OA\Items(ref="#/components/schemas/ProfileDocument")
@@ -73,10 +75,15 @@ class ProfileApiController extends Controller
         $user->load(['profileLegal', 'profileSocial', 'profileDocuments']);
 
         return response()->json([
-            'user' => $user,
+            'user' => [
+                'id' => $user->id,
+                'slug' => $user->slug,
+                'email' => $user->email,
+                'role' => $user->role?->value,
+            ],
             'profilePersonal' => new ProfilePersonalResource($user),
             'profileLegal' => $user->profileLegal ? new ProfileLegalResource($user->profileLegal) : null,
-            'profileSocial' => $user->profileSocial,
+            'profileSocial' => $user->profileSocial ? new ProfileSocialResource($user->profileSocial) : null,
             'profileDocuments' => ProfileDocumentResource::collection($user->profileDocuments),
         ]);
     }
@@ -85,7 +92,7 @@ class ProfileApiController extends Controller
      * Оновити особистий профіль користувача
      *
      * @OA\Put(
-     *     path="/profile/personal",
+     *     path="/v1/profile/personal",
      *     operationId="updateProfilePersonal",
      *     tags={"Profile"},
      *     summary="Оновити персональні дані (03.7.2)",
@@ -144,7 +151,14 @@ class ProfileApiController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        $user->fill($request->validated());
+        $validated = $request->validated();
+
+        // Обробка base64 аватара
+        if (! empty($validated['avatar']) && str_starts_with($validated['avatar'], 'data:image/')) {
+            $validated['avatar'] = $this->processBase64Avatar($validated['avatar'], $user);
+        }
+
+        $user->fill($validated);
         $user->save();
 
         return response()->json(['profilePersonal' => new ProfilePersonalResource($user)]);
@@ -154,7 +168,7 @@ class ProfileApiController extends Controller
      * Створити особистий профіль користувача
      *
      * @OA\Post(
-     *     path="/profile/personal",
+     *     path="/v1/profile/personal",
      *     operationId="createProfilePersonal",
      *     tags={"Profile"},
      *     summary="Створити персональні дані (03.7.2)",
@@ -214,9 +228,14 @@ class ProfileApiController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
+        $validated = $request->validated();
 
-        // Персональні дані тепер завжди в User, тому просто оновлюємо
-        $user->fill($request->validated());
+        // Обробка base64 аватара
+        if (! empty($validated['avatar']) && str_starts_with($validated['avatar'], 'data:image/')) {
+            $validated['avatar'] = $this->processBase64Avatar($validated['avatar'], $user);
+        }
+
+        $user->fill($validated);
         $user->save();
 
         return response()->json(['profilePersonal' => new ProfilePersonalResource($user)], 201);
@@ -226,7 +245,7 @@ class ProfileApiController extends Controller
      * Оновити юридичний профіль користувача
      *
      * @OA\Put(
-     *     path="/profile/legal",
+     *     path="/v1/profile/legal",
      *     operationId="updateProfileLegal",
      *     tags={"Profile"},
      *     summary="Оновити юридичні дані (03.7.1)",
@@ -271,7 +290,15 @@ class ProfileApiController extends Controller
         if (! $profile) {
             $profile = new ProfileLegal(['user_id' => $user->id]);
         }
-        $profile->fill($request->validated());
+
+        $validated = $request->validated();
+
+        // Обробка base64 logo
+        if (! empty($validated['logo']) && str_starts_with($validated['logo'], 'data:image/')) {
+            $validated['logo'] = $this->processBase64Logo($validated['logo'], $profile);
+        }
+
+        $profile->fill($validated);
         $profile->save();
 
         return response()->json(['profileLegal' => new ProfileLegalResource($profile)]);
@@ -281,7 +308,7 @@ class ProfileApiController extends Controller
      * Створити юридичний профіль користувача
      *
      * @OA\Post(
-     *     path="/profile/legal",
+     *     path="/v1/profile/legal",
      *     operationId="createProfileLegal",
      *     tags={"Profile"},
      *     summary="Створити юридичні дані (03.7.1)",
@@ -328,7 +355,14 @@ class ProfileApiController extends Controller
         }
 
         $profile = new ProfileLegal(['user_id' => $user->id]);
-        $profile->fill($request->validated());
+        $validated = $request->validated();
+
+        // Обробка base64 logo
+        if (! empty($validated['logo']) && str_starts_with($validated['logo'], 'data:image/')) {
+            $validated['logo'] = $this->processBase64Logo($validated['logo'], $profile);
+        }
+
+        $profile->fill($validated);
         $profile->save();
 
         return response()->json(['profileLegal' => new ProfileLegalResource($profile)], 201);
@@ -338,7 +372,7 @@ class ProfileApiController extends Controller
      * Оновити соціальний профіль користувача
      *
      * @OA\Put(
-     *     path="/profile/social",
+     *     path="/v1/profile/social",
      *     operationId="updateProfileSocial",
      *     tags={"Profile"},
      *     summary="Оновити соцмережі (03.7.3)",
@@ -368,14 +402,14 @@ class ProfileApiController extends Controller
         $profile->fill($request->validated());
         $profile->save();
 
-        return response()->json(['profileSocial' => $profile]);
+        return response()->json(['profileSocial' => new ProfileSocialResource($profile)]);
     }
 
     /**
      * Створити соціальний профіль користувача
      *
      * @OA\Post(
-     *     path="/profile/social",
+     *     path="/v1/profile/social",
      *     operationId="createProfileSocial",
      *     tags={"Profile"},
      *     summary="Створити соцмережі (03.7.3)",
@@ -404,7 +438,7 @@ class ProfileApiController extends Controller
         $profile->fill($request->validated());
         $profile->save();
 
-        return response()->json(['profileSocial' => $profile], 201);
+        return response()->json(['profileSocial' => new ProfileSocialResource($profile)], 201);
     }
 
     /**
@@ -583,7 +617,7 @@ class ProfileApiController extends Controller
      * Оновити пароль користувача
      *
      * @OA\Put(
-     *     path="/profile/password",
+     *     path="/v1/profile/password",
      *     operationId="updateProfilePassword",
      *     tags={"Profile"},
      *     summary="Змінити пароль (03.7.4)",
@@ -743,5 +777,65 @@ class ProfileApiController extends Controller
         return response()->json([
             'message' => 'Ваш профіль успішно видалено.',
         ]);
+    }
+
+    /**
+     * Обробка base64 аватара - зберігає зображення та повертає шлях
+     */
+    private function processBase64Avatar(string $base64Image, User $user): string
+    {
+        // Видаляємо старий аватар, якщо є
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        // Парсимо base64 дані
+        if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
+            $extension = $matches[1];
+            $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
+        } else {
+            $extension = 'jpg';
+        }
+
+        // Декодуємо base64
+        $imageData = base64_decode($base64Image);
+
+        // Генеруємо унікальне ім'я файлу
+        $filename = 'avatars/'.uniqid().'_'.time().'.'.$extension;
+
+        // Зберігаємо файл
+        Storage::disk('public')->put($filename, $imageData);
+
+        return $filename;
+    }
+
+    /**
+     * Обробка base64 logo - зберігає зображення та повертає шлях
+     */
+    private function processBase64Logo(string $base64Image, ?ProfileLegal $profile = null): string
+    {
+        // Видаляємо старий logo, якщо є
+        if ($profile && $profile->logo) {
+            Storage::disk('public')->delete($profile->logo);
+        }
+
+        // Парсимо base64 дані
+        if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
+            $extension = $matches[1];
+            $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
+        } else {
+            $extension = 'jpg';
+        }
+
+        // Декодуємо base64
+        $imageData = base64_decode($base64Image);
+
+        // Генеруємо унікальне ім'я файлу
+        $filename = 'logos/'.uniqid().'_'.time().'.'.$extension;
+
+        // Зберігаємо файл
+        Storage::disk('public')->put($filename, $imageData);
+
+        return $filename;
     }
 }

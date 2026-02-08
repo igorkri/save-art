@@ -22,7 +22,8 @@ class UpdateProfilePersonalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'avatar' => ['nullable', 'string', 'max:255'],
+            // avatar може бути шляхом до файлу (max:255) або base64 строкою
+            'avatar' => ['nullable', 'string'],
             // Багатомовні JSON об'єкти
             'full_name' => ['nullable', 'array'],
             'full_name.en' => ['nullable', 'string', 'max:255'],

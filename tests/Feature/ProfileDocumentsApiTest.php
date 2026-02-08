@@ -39,7 +39,7 @@ class ProfileDocumentsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson('/api/profile/documents');
+            ->getJson('/api/v1/profile/documents');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -63,7 +63,7 @@ class ProfileDocumentsApiTest extends TestCase
         $file = UploadedFile::fake()->create('document.pdf', 100);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->postJson('/api/profile/documents', [
+            ->postJson('/api/v1/profile/documents', [
                 'file' => $file,
                 'service' => 'diia',
             ]);
@@ -109,7 +109,7 @@ class ProfileDocumentsApiTest extends TestCase
         $duplicateFile = UploadedFile::fake()->createWithContent('document_copy.pdf', $content);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->postJson('/api/profile/documents', [
+            ->postJson('/api/v1/profile/documents', [
                 'file' => $duplicateFile,
             ]);
 
@@ -133,7 +133,7 @@ class ProfileDocumentsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson("/api/profile/documents/{$document->id}");
+            ->getJson("/api/v1/profile/documents/{$document->id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -160,7 +160,7 @@ class ProfileDocumentsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->deleteJson("/api/profile/documents/{$document->id}");
+            ->deleteJson("/api/v1/profile/documents/{$document->id}");
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -189,7 +189,7 @@ class ProfileDocumentsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson("/api/profile/documents/{$document->id}");
+            ->getJson("/api/v1/profile/documents/{$document->id}");
 
         $response->assertStatus(404);
     }
@@ -198,7 +198,7 @@ class ProfileDocumentsApiTest extends TestCase
     {
         $file = UploadedFile::fake()->create('document.pdf', 100);
 
-        $response = $this->postJson('/api/profile/documents', [
+        $response = $this->postJson('/api/v1/profile/documents', [
             'file' => $file,
         ]);
 
@@ -210,7 +210,7 @@ class ProfileDocumentsApiTest extends TestCase
         $file = UploadedFile::fake()->create('document.exe', 100);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->postJson('/api/profile/documents', [
+            ->postJson('/api/v1/profile/documents', [
                 'file' => $file,
             ]);
 
@@ -232,7 +232,7 @@ class ProfileDocumentsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson('/api/profile');
+            ->getJson('/api/v1/profile');
 
         $response->assertStatus(200)
             ->assertJsonStructure([

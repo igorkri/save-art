@@ -22,7 +22,7 @@ class ProfileApiTest extends TestCase
 
     public function test_get_profile_unauthenticated(): void
     {
-        $this->getJson('/api/profile')
+        $this->getJson('/api/v1/profile')
             ->assertUnauthorized();
     }
 
@@ -37,7 +37,7 @@ class ProfileApiTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $this->getJson('/api/profile')
+        $this->getJson('/api/v1/profile')
             ->assertOk()
             ->assertJsonStructure([
                 'user' => ['id', 'email'],
@@ -57,7 +57,7 @@ class ProfileApiTest extends TestCase
             'full_name' => ['en' => 'John Doe'],
         ];
 
-        $this->postJson('/api/profile/personal', $payload)
+        $this->postJson('/api/v1/profile/personal', $payload)
             ->assertCreated()
             ->assertJsonPath('profilePersonal.avatar', '/storage/path.jpg');
 
@@ -72,7 +72,7 @@ class ProfileApiTest extends TestCase
         $user = User::factory()->create(['avatar' => 'old.jpg']);
         Sanctum::actingAs($user);
 
-        $this->putJson('/api/profile/personal', ['avatar' => 'new.jpg'])
+        $this->putJson('/api/v1/profile/personal', ['avatar' => 'new.jpg'])
             ->assertOk()
             ->assertJsonPath('profilePersonal.avatar', '/storage/new.jpg');
 
@@ -91,16 +91,16 @@ class ProfileApiTest extends TestCase
             'currency' => 'USD',
             'name' => ['uk' => 'Тестова компанія', 'en' => 'Test Company'],
         ];
-        $this->postJson('/api/profile/legal', $payload)
+        $this->postJson('/api/v1/profile/legal', $payload)
             ->assertCreated()
             ->assertJson(['profileLegal' => ['currency' => 'USD']]);
 
         // conflict
-        $this->postJson('/api/profile/legal', $payload)
+        $this->postJson('/api/v1/profile/legal', $payload)
             ->assertStatus(409);
 
         // update
-        $this->putJson('/api/profile/legal', ['currency' => 'EUR'])
+        $this->putJson('/api/v1/profile/legal', ['currency' => 'EUR'])
             ->assertOk()
             ->assertJson(['profileLegal' => ['currency' => 'EUR']]);
     }
@@ -111,16 +111,16 @@ class ProfileApiTest extends TestCase
         Sanctum::actingAs($user);
 
         $payload = ['facebook' => 'https://fb.com/user'];
-        $this->postJson('/api/profile/social', $payload)
+        $this->postJson('/api/v1/profile/social', $payload)
             ->assertCreated()
             ->assertJson(['profileSocial' => ['facebook' => 'https://fb.com/user']]);
 
         // conflict
-        $this->postJson('/api/profile/social', $payload)
+        $this->postJson('/api/v1/profile/social', $payload)
             ->assertStatus(409);
 
         // update
-        $this->putJson('/api/profile/social', ['instagram' => 'https://insta.com/user'])
+        $this->putJson('/api/v1/profile/social', ['instagram' => 'https://insta.com/user'])
             ->assertOk()
             ->assertJson(['profileSocial' => ['instagram' => 'https://insta.com/user']]);
     }
