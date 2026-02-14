@@ -3308,6 +3308,14 @@
                                         "description": "Локальний ID для синхронізації",
                                         "type": "string"
                                     },
+                                    "user_type": {
+                                        "description": "Тип користувача",
+                                        "type": "string",
+                                        "enum": [
+                                            "personal",
+                                            "legal"
+                                        ]
+                                    },
                                     "title": {
                                         "properties": {
                                             "uk": {
@@ -3320,13 +3328,40 @@
                                         "type": "object"
                                     },
                                     "short_description": {
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string"
+                                            },
+                                            "en": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string"
+                                            },
+                                            "en": {
+                                                "type": "string"
+                                            }
+                                        },
                                         "type": "object"
                                     },
                                     "cover": {
                                         "type": "string"
                                     },
                                     "art_category": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "enum": [
+                                            "scenic",
+                                            "visual",
+                                            "fine_art",
+                                            "literature",
+                                            "music",
+                                            "other"
+                                        ]
                                     },
                                     "art_subcategory": {
                                         "type": "string"
@@ -3342,27 +3377,107 @@
                                             "EUR"
                                         ]
                                     },
+                                    "estimated_days": {
+                                        "description": "Орієнтовна кількість днів",
+                                        "type": "integer"
+                                    },
                                     "budget_items": {
                                         "type": "array",
                                         "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "object"
+                                                },
+                                                "amount": {
+                                                    "type": "number"
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     },
                                     "characteristics": {
                                         "type": "array",
                                         "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "object"
+                                                },
+                                                "value": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "content_blocks": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "heading",
+                                                        "paragraph",
+                                                        "image"
+                                                    ]
+                                                },
+                                                "heading_level": {
+                                                    "type": "string"
+                                                },
+                                                "heading_text": {
+                                                    "type": "object"
+                                                },
+                                                "paragraph_text": {
+                                                    "type": "object"
+                                                },
+                                                "image": {
+                                                    "type": "string"
+                                                },
+                                                "image_alt": {
+                                                    "type": "object"
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     },
                                     "stages": {
                                         "type": "array",
                                         "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "type": "object"
+                                                },
+                                                "description": {
+                                                    "type": "object"
+                                                },
+                                                "days_planned": {
+                                                    "type": "integer"
+                                                },
+                                                "budget_planned": {
+                                                    "type": "number"
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     },
                                     "bonuses": {
                                         "type": "array",
                                         "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "type": "object"
+                                                },
+                                                "description": {
+                                                    "type": "object"
+                                                },
+                                                "min_donation": {
+                                                    "type": "number"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     }

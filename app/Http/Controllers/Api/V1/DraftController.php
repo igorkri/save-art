@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Services\ImageProcessingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,10 @@ use OpenApi\Annotations as OA;
 
 class DraftController extends Controller
 {
+    public function __construct(
+        private ImageProcessingService $imageProcessor
+    ) {}
+
     /**
      * Отримати список чернеток користувача
      *
@@ -78,20 +83,53 @@ class DraftController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="local_id", type="string", description="Локальний ID для синхронізації"),
+     *             @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, description="Тип користувача"),
      *             @OA\Property(property="title", type="object",
      *                 @OA\Property(property="uk", type="string"),
      *                 @OA\Property(property="en", type="string")
      *             ),
-     *             @OA\Property(property="short_description", type="object"),
+     *             @OA\Property(property="short_description", type="object",
+     *                 @OA\Property(property="uk", type="string"),
+     *                 @OA\Property(property="en", type="string")
+     *             ),
+     *             @OA\Property(property="tags", type="object",
+     *                 @OA\Property(property="uk", type="string"),
+     *                 @OA\Property(property="en", type="string")
+     *             ),
      *             @OA\Property(property="cover", type="string"),
-     *             @OA\Property(property="art_category", type="string"),
+     *             @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}),
      *             @OA\Property(property="art_subcategory", type="string"),
      *             @OA\Property(property="budget_goal", type="number"),
      *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}),
-     *             @OA\Property(property="budget_items", type="array", @OA\Items(type="object")),
-     *             @OA\Property(property="characteristics", type="array", @OA\Items(type="object")),
-     *             @OA\Property(property="stages", type="array", @OA\Items(type="object")),
-     *             @OA\Property(property="bonuses", type="array", @OA\Items(type="object"))
+     *             @OA\Property(property="estimated_days", type="integer", description="Орієнтовна кількість днів"),
+     *             @OA\Property(property="budget_items", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="name", type="object"),
+     *                 @OA\Property(property="amount", type="number")
+     *             )),
+     *             @OA\Property(property="characteristics", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="name", type="object"),
+     *                 @OA\Property(property="value", type="object")
+     *             )),
+     *             @OA\Property(property="content_blocks", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}),
+     *                 @OA\Property(property="heading_level", type="string"),
+     *                 @OA\Property(property="heading_text", type="object"),
+     *                 @OA\Property(property="paragraph_text", type="object"),
+     *                 @OA\Property(property="image", type="string"),
+     *                 @OA\Property(property="image_alt", type="object")
+     *             )),
+     *             @OA\Property(property="stages", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="title", type="object"),
+     *                 @OA\Property(property="description", type="object"),
+     *                 @OA\Property(property="days_planned", type="integer"),
+     *                 @OA\Property(property="budget_planned", type="number")
+     *             )),
+     *             @OA\Property(property="bonuses", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="title", type="object"),
+     *                 @OA\Property(property="description", type="object"),
+     *                 @OA\Property(property="min_donation", type="number"),
+     *                 @OA\Property(property="quantity", type="integer", nullable=true)
+     *             ))
      *         )
      *     ),
      *
@@ -117,19 +155,25 @@ class DraftController extends Controller
 
         $validated = $request->validate([
             'local_id' => 'nullable|string|max:100',
+            'user_type' => 'nullable|string|in:personal,legal',
             'title' => 'nullable|array',
             'title.uk' => 'nullable|string|max:255',
             'title.en' => 'nullable|string|max:255',
             'short_description' => 'nullable|array',
             'short_description.uk' => 'nullable|string',
             'short_description.en' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.uk' => 'nullable|string',
+            'tags.en' => 'nullable|string',
             'cover' => 'nullable|string',
             'art_category' => 'nullable|string',
             'art_subcategory' => 'nullable|string',
             'budget_goal' => 'nullable|numeric|min:0',
             'currency' => 'nullable|string|in:UAH,USD,EUR',
+            'estimated_days' => 'nullable|integer|min:1',
             'budget_items' => 'nullable|array',
             'characteristics' => 'nullable|array',
+            'content_blocks' => 'nullable|array',
             'additional_info' => 'nullable|array',
             'stages' => 'nullable|array',
             'bonuses' => 'nullable|array',
@@ -160,17 +204,23 @@ class DraftController extends Controller
         }
 
         // Оновлюємо дані
+        if (isset($validated['user_type'])) {
+            $project->user_type = $validated['user_type'];
+        }
         if (isset($validated['title'])) {
             $project->title = $validated['title'];
         }
         if (isset($validated['short_description'])) {
             $project->short_description = $validated['short_description'];
         }
+        if (isset($validated['tags'])) {
+            $project->tags = $validated['tags'];
+        }
         if (isset($validated['cover'])) {
-            $project->cover = $validated['cover'];
+            $project->cover = $this->imageProcessor->processCover($validated['cover'], $project->cover);
         }
         if (isset($validated['art_category'])) {
-            $project->art_category = $validated['art_category'];
+            $project->art_category = $this->normalizeArtCategory($validated['art_category']);
         }
         if (isset($validated['art_subcategory'])) {
             $project->art_subcategory = $validated['art_subcategory'];
@@ -181,11 +231,20 @@ class DraftController extends Controller
         if (isset($validated['currency'])) {
             $project->currency = $validated['currency'];
         }
+        if (isset($validated['estimated_days'])) {
+            $project->estimated_days = $validated['estimated_days'];
+        }
         if (isset($validated['budget_items'])) {
             $project->budget_items = $validated['budget_items'];
         }
         if (isset($validated['characteristics'])) {
             $project->characteristics = $validated['characteristics'];
+        }
+        if (isset($validated['content_blocks'])) {
+            $project->content_blocks = $this->imageProcessor->processContentBlocks(
+                $validated['content_blocks'],
+                $project->content_blocks
+            );
         }
 
         // Зберігаємо local_id та інші дані в additional_info
@@ -318,15 +377,19 @@ class DraftController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
+            'user_type' => 'nullable|string|in:personal,legal',
             'title' => 'nullable|array',
             'short_description' => 'nullable|array',
+            'tags' => 'nullable|array',
             'cover' => 'nullable|string',
             'art_category' => 'nullable|string',
             'art_subcategory' => 'nullable|string',
             'budget_goal' => 'nullable|numeric|min:0',
             'currency' => 'nullable|string|in:UAH,USD,EUR',
+            'estimated_days' => 'nullable|integer|min:1',
             'budget_items' => 'nullable|array',
             'characteristics' => 'nullable|array',
+            'content_blocks' => 'nullable|array',
             'additional_info' => 'nullable|array',
             'stages' => 'nullable|array',
             'bonuses' => 'nullable|array',
@@ -526,13 +589,16 @@ class DraftController extends Controller
         return [
             'id' => $project->id,
             'local_id' => $project->additional_info['local_id'] ?? null,
+            'user_type' => $project->user_type?->value ?? 'personal',
             'title' => $project->title,
             'short_description' => $project->short_description,
+            'tags' => $project->tags,
             'cover' => $project->cover ? Storage::url($project->cover) : null,
-            'art_category' => $project->art_category,
+            'art_category' => $project->art_category instanceof \BackedEnum ? $project->art_category->value : $project->art_category,
             'art_subcategory' => $project->art_subcategory,
-            'budget_goal' => $project->budget_goal,
-            'currency' => $project->currency,
+            'budget_goal' => $project->budget_goal ? (float) $project->budget_goal : null,
+            'currency' => $project->currency?->value ?? 'UAH',
+            'estimated_days' => $project->estimated_days,
             'created_at' => $project->created_at->toIso8601String(),
             'updated_at' => $project->updated_at->toIso8601String(),
         ];
@@ -548,22 +614,21 @@ class DraftController extends Controller
         return array_merge($this->formatDraft($project), [
             'budget_items' => $project->budget_items,
             'characteristics' => $project->characteristics,
+            'content_blocks' => $project->content_blocks ?? [],
             'additional_info' => $project->additional_info,
             'stages' => $project->stages->map(fn ($stage) => [
                 'id' => $stage->id,
                 'title' => $stage->title,
                 'description' => $stage->description,
-                'budget' => $stage->budget,
-                'start_date' => $stage->start_date?->toDateString(),
-                'end_date' => $stage->end_date?->toDateString(),
+                'days_planned' => $stage->days_planned,
+                'budget_planned' => $stage->budget_planned ? (float) $stage->budget_planned : null,
                 'order' => $stage->order,
             ])->toArray(),
             'bonuses' => $project->bonuses->map(fn ($bonus) => [
                 'id' => $bonus->id,
                 'title' => $bonus->title,
                 'description' => $bonus->description,
-                'min_amount' => $bonus->min_amount,
-                'max_amount' => $bonus->max_amount,
+                'min_donation' => $bonus->min_donation ? (float) $bonus->min_donation : null,
                 'quantity' => $bonus->quantity,
                 'order' => $bonus->order,
             ])->toArray(),
@@ -583,11 +648,10 @@ class DraftController extends Controller
             $project->stages()->create([
                 'title' => $stageData['title'] ?? null,
                 'description' => $stageData['description'] ?? null,
-                'budget' => $stageData['budget'] ?? 0,
-                'start_date' => $stageData['start_date'] ?? null,
-                'end_date' => $stageData['end_date'] ?? null,
+                'days_planned' => $stageData['days_planned'] ?? null,
+                'budget_planned' => $stageData['budget_planned'] ?? $stageData['budget'] ?? 0,
                 'order' => $stageData['order'] ?? $index,
-                'status' => 'pending',
+                'status' => 'planned',
             ]);
         }
     }
@@ -605,8 +669,7 @@ class DraftController extends Controller
             $project->bonuses()->create([
                 'title' => $bonusData['title'] ?? null,
                 'description' => $bonusData['description'] ?? null,
-                'min_amount' => $bonusData['min_amount'] ?? $bonusData['from_amount'] ?? 0,
-                'max_amount' => $bonusData['max_amount'] ?? $bonusData['to_amount'] ?? null,
+                'min_donation' => $bonusData['min_donation'] ?? $bonusData['min_amount'] ?? 0,
                 'quantity' => $bonusData['quantity'] ?? null,
                 'order' => $bonusData['order'] ?? $index,
             ]);
@@ -620,17 +683,23 @@ class DraftController extends Controller
      */
     private function updateProjectFromData(Project $project, array $data): void
     {
+        if (isset($data['user_type'])) {
+            $project->user_type = $data['user_type'];
+        }
         if (isset($data['title'])) {
             $project->title = $data['title'];
         }
         if (isset($data['short_description'])) {
             $project->short_description = $data['short_description'];
         }
+        if (isset($data['tags'])) {
+            $project->tags = $data['tags'];
+        }
         if (isset($data['cover'])) {
-            $project->cover = $data['cover'];
+            $project->cover = $this->imageProcessor->processCover($data['cover'], $project->cover);
         }
         if (isset($data['art_category'])) {
-            $project->art_category = $data['art_category'];
+            $project->art_category = $this->normalizeArtCategory($data['art_category']);
         }
         if (isset($data['art_subcategory'])) {
             $project->art_subcategory = $data['art_subcategory'];
@@ -641,11 +710,20 @@ class DraftController extends Controller
         if (isset($data['currency'])) {
             $project->currency = $data['currency'];
         }
+        if (isset($data['estimated_days'])) {
+            $project->estimated_days = $data['estimated_days'];
+        }
         if (isset($data['budget_items'])) {
             $project->budget_items = $data['budget_items'];
         }
         if (isset($data['characteristics'])) {
             $project->characteristics = $data['characteristics'];
+        }
+        if (isset($data['content_blocks'])) {
+            $project->content_blocks = $this->imageProcessor->processContentBlocks(
+                $data['content_blocks'],
+                $project->content_blocks
+            );
         }
 
         $project->save();
@@ -674,14 +752,20 @@ class DraftController extends Controller
         $project->slug = Project::generateSlugFromTitle($title);
         $project->title = $title;
 
+        if (isset($data['user_type'])) {
+            $project->user_type = $data['user_type'];
+        }
         if (isset($data['short_description'])) {
             $project->short_description = $data['short_description'];
         }
+        if (isset($data['tags'])) {
+            $project->tags = $data['tags'];
+        }
         if (isset($data['cover'])) {
-            $project->cover = $data['cover'];
+            $project->cover = $this->imageProcessor->processCover($data['cover']);
         }
         if (isset($data['art_category'])) {
-            $project->art_category = $data['art_category'];
+            $project->art_category = $this->normalizeArtCategory($data['art_category']);
         }
         if (isset($data['art_subcategory'])) {
             $project->art_subcategory = $data['art_subcategory'];
@@ -692,11 +776,17 @@ class DraftController extends Controller
         if (isset($data['currency'])) {
             $project->currency = $data['currency'];
         }
+        if (isset($data['estimated_days'])) {
+            $project->estimated_days = $data['estimated_days'];
+        }
         if (isset($data['budget_items'])) {
             $project->budget_items = $data['budget_items'];
         }
         if (isset($data['characteristics'])) {
             $project->characteristics = $data['characteristics'];
+        }
+        if (isset($data['content_blocks'])) {
+            $project->content_blocks = $this->imageProcessor->processContentBlocks($data['content_blocks']);
         }
 
         $project->additional_info = ['local_id' => $localId];
@@ -710,5 +800,31 @@ class DraftController extends Controller
         }
 
         return $project;
+    }
+
+    /**
+     * Нормалізація значення art_category
+     * Перетворює варіанти з фронтенду в валідні значення enum
+     */
+    private function normalizeArtCategory(?string $category): ?string
+    {
+        if ($category === null) {
+            return null;
+        }
+
+        // Маппінг альтернативних значень
+        $mapping = [
+            'fine_arts' => 'fine_art',
+            'finearts' => 'fine_art',
+            'fineart' => 'fine_art',
+            'performing_arts' => 'scenic',
+            'performingarts' => 'scenic',
+            'visual_arts' => 'visual',
+            'visualarts' => 'visual',
+        ];
+
+        $normalized = strtolower(trim($category));
+
+        return $mapping[$normalized] ?? $category;
     }
 }

@@ -14,6 +14,7 @@ use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\ProjectStage;
+use App\Services\ImageProcessingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,6 +31,10 @@ use OpenApi\Annotations as OA;
  */
 class MyProjectController extends Controller
 {
+    public function __construct(
+        private ImageProcessingService $imageProcessor
+    ) {}
+
     /**
      * Отримати список власних проєктів
      *
@@ -315,9 +320,16 @@ class MyProjectController extends Controller
         $data['code'] = strtoupper(Str::random(8));
         $data['slug'] = Str::slug($data['title']['uk'] ?? 'project').'-'.Str::random(6);
 
-        // Обробка обкладинки
+        // Обробка обкладинки (файл або Base64)
         if ($request->hasFile('cover')) {
             $data['cover'] = $request->file('cover')->store('projects/covers', 'public');
+        } elseif (isset($data['cover'])) {
+            $data['cover'] = $this->imageProcessor->processCover($data['cover']);
+        }
+
+        // Обробка зображень у content_blocks (Base64 → файли)
+        if (isset($data['content_blocks'])) {
+            $data['content_blocks'] = $this->imageProcessor->processContentBlocks($data['content_blocks']);
         }
 
         // Встановлюємо початкові статуси
@@ -473,13 +485,23 @@ class MyProjectController extends Controller
         $bonusesData = $data['bonuses'] ?? null;
         unset($data['stages'], $data['bonuses']);
 
-        // Обробка обкладинки
+        // Обробка обкладинки (файл або Base64)
         if ($request->hasFile('cover')) {
             // Видаляємо стару обкладинку
             if ($project->cover) {
                 Storage::disk('public')->delete($project->cover);
             }
             $data['cover'] = $request->file('cover')->store('projects/covers', 'public');
+        } elseif (isset($data['cover'])) {
+            $data['cover'] = $this->imageProcessor->processCover($data['cover'], $project->cover);
+        }
+
+        // Обробка зображень у content_blocks (Base64 → файли)
+        if (isset($data['content_blocks'])) {
+            $data['content_blocks'] = $this->imageProcessor->processContentBlocks(
+                $data['content_blocks'],
+                $project->content_blocks
+            );
         }
 
         // Оновлюємо проєкт та зв'язані дані в транзакції
@@ -654,12 +676,22 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
-        // Обробка обкладинки
+        // Обробка обкладинки (файл або Base64)
         if ($request->hasFile('cover')) {
             if ($project->cover) {
                 Storage::disk('public')->delete($project->cover);
             }
             $data['cover'] = $request->file('cover')->store('projects/covers', 'public');
+        } elseif (isset($data['cover'])) {
+            $data['cover'] = $this->imageProcessor->processCover($data['cover'], $project->cover);
+        }
+
+        // Обробка зображень у content_blocks (Base64 → файли)
+        if (isset($data['content_blocks'])) {
+            $data['content_blocks'] = $this->imageProcessor->processContentBlocks(
+                $data['content_blocks'],
+                $project->content_blocks
+            );
         }
 
         $project->update($data);
