@@ -47,7 +47,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Тут можна додати відношення, якщо потрібно
         ];
     }
 

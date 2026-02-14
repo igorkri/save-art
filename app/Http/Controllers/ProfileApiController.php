@@ -129,9 +129,9 @@ class ProfileApiController extends Controller
      *                 @OA\Property(property="uk", type="string", example="Київ"),
      *                 @OA\Property(property="en", type="string", example="Kyiv")
      *             ),
-     *             @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
-     *             @OA\Property(property="role", type="string", nullable=true, example="artist", description="Роль користувача"),
-     *             @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
+     *              @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
+     *                 @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Тип профілю: artist або patron"),
+     *                 @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
      *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
      *                 @OA\Property(property="en", type="string", example="Ukrainian artist, working in abstract genre")
      *             )
@@ -206,7 +206,7 @@ class ProfileApiController extends Controller
      *                 @OA\Property(property="en", type="string", example="Kyiv")
      *             ),
      *             @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
-     *             @OA\Property(property="role", type="string", nullable=true, example="artist", description="Роль користувача"),
+     *             @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Роль користувача"),
      *             @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
      *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
      *                 @OA\Property(property="en", type="string", example="Ukrainian artist, working in abstract genre")

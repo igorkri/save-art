@@ -2644,6 +2644,61 @@
                         "apiKey": []
                     }
                 ]
+            },
+            "delete": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "Видалити контракт",
+                "description": "Видаляє контракт користувача. Можна видалити тільки контракти в статусі pending або expired.",
+                "operationId": "deleteContract",
+                "parameters": [
+                    {
+                        "name": "contract",
+                        "in": "path",
+                        "description": "ID контракту",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контракт успішно видалено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Контракт успішно видалено"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    },
+                    "403": {
+                        "description": "Доступ заборонено (не власник)"
+                    },
+                    "404": {
+                        "description": "Контракт не знайдено"
+                    },
+                    "422": {
+                        "description": "Неможливо видалити підписаний контракт"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/v1/contracts/{contract}/sign": {
@@ -8293,8 +8348,8 @@
                                         "example": "01001",
                                         "nullable": true
                                     },
-                                    "role": {
-                                        "description": "Роль користувача",
+                                    "profile_type": {
+                                        "description": "Тип профілю: artist або patron",
                                         "type": "string",
                                         "example": "artist",
                                         "nullable": true
@@ -8458,7 +8513,7 @@
                                         "example": "01001",
                                         "nullable": true
                                     },
-                                    "role": {
+                                    "profile_type": {
                                         "description": "Роль користувача",
                                         "type": "string",
                                         "example": "artist",

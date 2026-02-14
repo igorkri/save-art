@@ -45,9 +45,14 @@ class ProjectsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('user.name')
+                TextColumn::make('user.display_name')
                     ->label('Автор')
-                    ->searchable()
+                    ->searchable(query: function ($query, string $search) {
+                        return $query->whereHas('user', function ($q) use ($search) {
+                            $q->whereRaw("json_unquote(json_extract(full_name, '$.uk')) like ?", ["%{$search}%"])
+                                ->orWhereRaw("json_unquote(json_extract(full_name, '$.en')) like ?", ["%{$search}%"]);
+                        });
+                    })
                     ->sortable(),
 
                 TextColumn::make('status')
