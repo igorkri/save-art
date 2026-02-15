@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\ArtCategory;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ArtCategory;
 use App\Models\Donation;
 use App\Models\Project;
 use App\Models\User;
@@ -284,19 +284,20 @@ class StatisticsController extends Controller
 
         // По категоріях мистецтва
         $byCategory = [];
-        foreach (ArtCategory::cases() as $category) {
-            $categoryQuery = (clone $query)->where('art_category', $category->value);
+        foreach (ArtCategory::whereNull('parent_id')->orderBy('sort_order')->get() as $category) {
+            $categoryIds = [$category->id, ...$category->children()->pluck('id')];
+            $categoryQuery = (clone $query)->whereIn('art_category_id', $categoryIds);
             $count = $categoryQuery->count();
             $collected = (float) $categoryQuery->sum('budget_collected');
             $goal = (float) $categoryQuery->sum('budget_goal');
 
-            $byCategory[$category->value] = [
+            $byCategory[$category->slug] = [
                 'count' => $count,
                 'collected' => $collected,
                 'goal' => $goal,
                 'label' => [
-                    'uk' => $category->getLabel(),
-                    'en' => $category->value,
+                    'uk' => $category->getLabel('uk'),
+                    'en' => $category->getLabel('en'),
                 ],
             ];
         }
@@ -437,8 +438,9 @@ class StatisticsController extends Controller
     {
         $result = [];
 
-        foreach (ArtCategory::cases() as $category) {
-            $projects = Project::where('art_category', $category->value)
+        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $category) {
+            $categoryIds = [$category->id, ...$category->children->pluck('id')];
+            $projects = Project::whereIn('art_category_id', $categoryIds)
                 ->whereIn('status', ProjectStatus::publicStatuses());
 
             $count = $projects->count();
@@ -447,8 +449,8 @@ class StatisticsController extends Controller
             if ($count > 0) {
                 $result[] = [
                     'art_form' => [
-                        'uk' => $category->getLabel(),
-                        'en' => $category->value,
+                        'uk' => $category->getLabel('uk'),
+                        'en' => $category->getLabel('en'),
                     ],
                     'count' => $count,
                     'collected' => $collected,

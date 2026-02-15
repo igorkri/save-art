@@ -11,6 +11,7 @@ use App\Http\Requests\Api\V1\UpdateProjectRequest;
 use App\Http\Requests\Api\V1\UpdatePublishedProjectRequest;
 use App\Http\Resources\Api\V1\ProjectListResource;
 use App\Http\Resources\Api\V1\ProjectResource;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\ProjectStage;
@@ -316,6 +317,13 @@ class MyProjectController extends Controller
         $bonusesData = $data['bonuses'] ?? [];
         unset($data['stages'], $data['bonuses']);
 
+        // Розв'язуємо art_category + art_subcategory → art_category_id
+        $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+            $data['art_category'] ?? null,
+            $data['art_subcategory'] ?? null
+        );
+        unset($data['art_category'], $data['art_subcategory']);
+
         // Генеруємо унікальний код та slug
         $data['code'] = strtoupper(Str::random(8));
         $data['slug'] = Str::slug($data['title']['uk'] ?? 'project').'-'.Str::random(6);
@@ -339,6 +347,14 @@ class MyProjectController extends Controller
         $data['budget_collected'] = 0;
         $data['likes_count'] = 0;
         $data['donors_count'] = 0;
+
+        // Зберігаємо local_id у additional_info для синхронізації з клієнтом
+        if ($request->filled('local_id')) {
+            $data['additional_info'] = array_merge(is_array($data['additional_info'] ?? null) ? $data['additional_info'] : [], [
+                'local_id' => $data['local_id'],
+            ]);
+        }
+        unset($data['local_id']);
 
         // Створюємо проєкт та зв'язані дані в транзакції
         $project = DB::transaction(function () use ($data, $stagesData, $bonusesData) {
@@ -484,6 +500,15 @@ class MyProjectController extends Controller
         $stagesData = $data['stages'] ?? null;
         $bonusesData = $data['bonuses'] ?? null;
         unset($data['stages'], $data['bonuses']);
+
+        // Розв'язуємо art_category + art_subcategory → art_category_id (якщо передано)
+        if (array_key_exists('art_category', $data)) {
+            $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+                $data['art_category'] ?? null,
+                $data['art_subcategory'] ?? null
+            );
+            unset($data['art_category'], $data['art_subcategory']);
+        }
 
         // Обробка обкладинки (файл або Base64)
         if ($request->hasFile('cover')) {
@@ -792,7 +817,7 @@ class MyProjectController extends Controller
         if (empty($project->title['uk'])) {
             $errors['title'] = ['Назва проєкту є обов\'язковою'];
         }
-        if (empty($project->art_category)) {
+        if (empty($project->art_category_id)) {
             $errors['art_category'] = ['Оберіть галузь мистецтва'];
         }
         if (empty($project->budget_goal)) {

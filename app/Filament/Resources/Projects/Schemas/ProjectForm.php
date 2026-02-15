@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Projects\Schemas;
 
-use App\Enums\ArtCategory;
+use App\Models\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
@@ -76,24 +76,23 @@ class ProjectForm
                         Tabs\Tab::make('Категорія')
                             ->icon('heroicon-o-tag')
                             ->schema([
-                                Select::make('art_category')
+                                Select::make('art_category_id')
                                     ->label('Галузь мистецтва')
-                                    ->options(ArtCategory::getOptions())
-                                    ->reactive()
-                                    ->required(),
-
-                                Select::make('art_subcategory')
-                                    ->label('Підкатегорія')
-                                    ->options(function (callable $get) {
-                                        $category = $get('art_category');
-                                        if (! $category) {
-                                            return [];
+                                    ->options(function () {
+                                        $options = [];
+                                        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
+                                            $options[$root->getLabel('uk')] = [
+                                                (string) $root->id => $root->getLabel('uk'),
+                                            ];
+                                            foreach ($root->children as $child) {
+                                                $options[$root->getLabel('uk')][(string) $child->id] = '  ' . $child->getLabel('uk');
+                                            }
                                         }
-                                        $artCategory = ArtCategory::tryFrom($category);
 
-                                        return $artCategory?->getSubcategories() ?? [];
+                                        return $options;
                                     })
-                                    ->visible(fn (callable $get) => filled($get('art_category'))),
+                                    ->searchable()
+                                    ->required(),
 
                                 LanguageTabs::make([
                                     TextInput::make('tags')

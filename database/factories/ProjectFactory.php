@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Enums\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
+use App\Models\ArtCategory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -23,9 +23,9 @@ class ProjectFactory extends Factory
      */
     public function definition(): array
     {
-        $artCategory = $this->faker->randomElement(ArtCategory::cases());
-        $subcategories = $artCategory->getSubcategories();
-        $subcategory = ! empty($subcategories) ? $this->faker->randomElement(array_keys($subcategories)) : null;
+        $root = ArtCategory::whereNull('parent_id')->inRandomOrder()->first();
+        $child = $root?->children()->inRandomOrder()->first();
+        $artCategoryId = $child?->id ?? $root?->id;
 
         return [
             'user_id' => User::factory(),
@@ -48,8 +48,7 @@ class ProjectFactory extends Factory
                 'uk' => $this->faker->words(3),
                 'en' => $this->faker->words(3),
             ],
-            'art_category' => $artCategory,
-            'art_subcategory' => $subcategory,
+            'art_category_id' => $artCategoryId,
             'currency' => $this->faker->randomElement(Currency::cases()),
             'budget_goal' => $this->faker->randomFloat(2, 1000, 100000),
             'budget_collected' => 0,

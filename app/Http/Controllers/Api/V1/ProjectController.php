@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\ArtCategory;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\ProjectListResource;
 use App\Http\Resources\Api\V1\ProjectResource;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -84,21 +84,35 @@ class ProjectController extends Controller
             ];
         });
 
-        // Будуємо запит для проєктів
+        // Будуємо запит для проєктів (artCategory.parent для коректних лейблів батько/нащадок)
         $query = Project::query()
-            ->with(['user.profileLegal'])
+            ->with(['user.profileLegal', 'artCategory.parent'])
             ->whereIn('status', ProjectStatus::publicStatuses());
 
-        // Фільтр по категорії (підтримує множинні значення через кому)
+        // Фільтр по категорії (slug кореня або підкатегорії; множинні значення через кому)
         if ($request->filled('art_category')) {
-            $categories = array_map('trim', explode(',', $request->input('art_category')));
-            $query->whereIn('art_category', $categories);
+            $slugs = array_map('trim', explode(',', $request->input('art_category')));
+            $categoryIds = ArtCategory::whereIn('slug', $slugs)
+                ->get()
+                ->flatMap(fn (ArtCategory $c) => $c->parent_id
+                    ? [$c->id]
+                    : [$c->id, ...$c->children()->pluck('id')]
+                )
+                ->unique()
+                ->values()
+                ->all();
+            if (! empty($categoryIds)) {
+                $query->whereIn('art_category_id', $categoryIds);
+            }
         }
 
-        // Фільтр по підкатегорії (підтримує множинні значення через кому)
+        // Фільтр по підкатегорії (slug підкатегорії; множинні значення через кому)
         if ($request->filled('art_subcategory')) {
-            $subcategories = array_map('trim', explode(',', $request->input('art_subcategory')));
-            $query->whereIn('art_subcategory', $subcategories);
+            $subSlugs = array_map('trim', explode(',', $request->input('art_subcategory')));
+            $subIds = ArtCategory::whereNotNull('parent_id')->whereIn('slug', $subSlugs)->pluck('id')->all();
+            if (! empty($subIds)) {
+                $query->whereIn('art_category_id', $subIds);
+            }
         }
 
         // Фільтр по статусу (підтримує множинні значення через кому)
@@ -466,25 +480,21 @@ class ProjectController extends Controller
         $categories = [];
         $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
 
-        foreach (ArtCategory::cases() as $category) {
+        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
             $subcategories = [];
 
-            foreach ($category->getSubcategories() as $slug => $nameUk) {
-                $count = Project::whereIn('status', $publicStatuses)
-                    ->where('art_category', $category->value)
-                    ->where('art_subcategory', $slug)
-                    ->count();
-
+            foreach ($root->children as $child) {
+                $count = Project::whereIn('status', $publicStatuses)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
-                    'slug' => $slug,
-                    'name' => $this->getFilterTranslation($this->getSubcategoryTranslations($slug, $nameUk), $language),
+                    'slug' => $child->slug,
+                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
                     'projects_count' => $count,
                 ];
             }
 
             $categories[] = [
-                'slug' => $category->value,
-                'name' => $this->getFilterTranslation($this->getCategoryTranslations($category), $language),
+                'slug' => $root->slug,
+                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
                 'subcategories' => $subcategories,
             ];
         }
@@ -581,39 +591,6 @@ class ProjectController extends Controller
         $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
 
         return Project::whereIn('status', $publicStatuses)->count();
-    }
-
-    private function getCategoryTranslations(ArtCategory $category): array
-    {
-        return match ($category) {
-            ArtCategory::Scenic => ['uk' => 'Сценічне мистецтво', 'en' => 'Performing Arts'],
-            ArtCategory::Visual => ['uk' => 'Візуальне мистецтво', 'en' => 'Visual Arts'],
-            ArtCategory::FineArt => ['uk' => 'Образотворче мистецтво', 'en' => 'Fine Arts'],
-            ArtCategory::Literature => ['uk' => 'Література', 'en' => 'Literature'],
-            ArtCategory::Music => ['uk' => 'Музичне мистецтво', 'en' => 'Music'],
-            ArtCategory::Other => ['uk' => 'Інше', 'en' => 'Other'],
-        };
-    }
-
-    private function getSubcategoryTranslations(string $slug, string $nameUk): array
-    {
-        $translations = [
-            'directing' => ['uk' => 'Режисура', 'en' => 'Directing'],
-            'acting' => ['uk' => 'Акторське мистецтво', 'en' => 'Acting'],
-            'choreography' => ['uk' => 'Хореографічне мистецтво', 'en' => 'Choreography'],
-            'original_genre' => ['uk' => 'Оригінальний жанр', 'en' => 'Original Genre'],
-            'photography' => ['uk' => 'Художня фотографія', 'en' => 'Art Photography'],
-            'video' => ['uk' => 'Відеозйомка та монтаж', 'en' => 'Video Production'],
-            'cinema' => ['uk' => 'Повнометражний кінематограф', 'en' => 'Feature Film'],
-            'ar' => ['uk' => 'Доповнена реальність', 'en' => 'Augmented Reality'],
-            'painting' => ['uk' => 'Живопис', 'en' => 'Painting'],
-            'sculpture' => ['uk' => 'Скульптура', 'en' => 'Sculpture'],
-            'digital' => ['uk' => 'Діджитал', 'en' => 'Digital'],
-            'poetry' => ['uk' => 'Поезія', 'en' => 'Poetry'],
-            'prose' => ['uk' => 'Проза', 'en' => 'Prose'],
-        ];
-
-        return $translations[$slug] ?? ['uk' => $nameUk, 'en' => ucfirst(str_replace('_', ' ', $slug))];
     }
 
     private function getStatusTranslations(ProjectStatus $status): array

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
@@ -27,8 +26,7 @@ use Illuminate\Support\Str;
  * @property array|null $short_description
  * @property string|null $cover
  * @property array|null $tags
- * @property string|null $art_category
- * @property string|null $art_subcategory
+ * @property int|null $art_category_id
  * @property string $currency
  * @property float $budget_goal
  * @property float $budget_collected
@@ -46,6 +44,7 @@ use Illuminate\Support\Str;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon|null $deleted_at
  * @property-read \App\Models\User $user
+ * @property-read \App\Models\ArtCategory|null $artCategory
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectStage[] $stages
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectBonus[] $bonuses
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Donation[] $donations
@@ -69,8 +68,7 @@ class Project extends Model
         'short_description',
         'cover',
         'tags',
-        'art_category',
-        'art_subcategory',
+        'art_category_id',
         'currency',
         'budget_goal',
         'budget_collected',
@@ -108,7 +106,6 @@ class Project extends Model
             'status_moderation' => ModerationStatus::class,
             'user_type' => UserType::class,
             'currency' => Currency::class,
-            'art_category' => ArtCategory::class,
             'announced_at' => 'datetime',
             'planned_completion_at' => 'datetime',
             'completed_at' => 'datetime',
@@ -169,6 +166,14 @@ class Project extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Категорія мистецтва (з БД, корінь або підкатегорія)
+     */
+    public function artCategory(): BelongsTo
+    {
+        return $this->belongsTo(ArtCategory::class, 'art_category_id');
     }
 
     /**
@@ -256,11 +261,34 @@ class Project extends Model
     }
 
     /**
-     * Отримати назву категорії мистецтва
+     * Отримати назву батьківської (кореневої) категорії мистецтва.
+     * Якщо обрано підкатегорію — повертає назву кореня; інакше — назву самої категорії.
      */
-    public function getArtCategoryLabel(): ?string
+    public function getArtCategoryLabel(?string $language = 'uk'): ?string
     {
-        return $this->art_category?->getLabel();
+        if (! $this->artCategory) {
+            return null;
+        }
+
+        $root = $this->artCategory->parent_id ? $this->artCategory->parent : $this->artCategory;
+
+        return $root->getLabel($language);
+    }
+
+    /**
+     * Slug галузі для API (корінь)
+     */
+    public function getArtCategorySlug(): ?string
+    {
+        return $this->artCategory?->getRootSlug() ?: null;
+    }
+
+    /**
+     * Slug підкатегорії для API (null якщо обрано тільки корінь)
+     */
+    public function getArtSubcategorySlug(): ?string
+    {
+        return $this->artCategory?->getSubSlug();
     }
 
     /**
@@ -268,11 +296,11 @@ class Project extends Model
      */
     public function getArtSubcategoryLabel(?string $language = 'uk'): ?string
     {
-        if (! $this->art_category || ! $this->art_subcategory) {
+        if (! $this->artCategory || ! $this->artCategory->getSubSlug()) {
             return null;
         }
 
-        return $this->art_category->getSubcategoryLabel($this->art_subcategory, $language);
+        return $this->artCategory->getLabel($language);
     }
 
     /**

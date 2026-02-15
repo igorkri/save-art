@@ -65,9 +65,9 @@ class ProjectListResource extends JsonResource
             'short_description' => $this->localizeField($this->short_description, $language),
             'cover_url' => $this->cover ? Storage::url($this->cover) : null,
 
-            'art_category' => $this->art_category?->value,
-            'art_category_label' => $this->art_category?->getLabel($language ?? 'uk'),
-            'art_subcategory' => $this->art_subcategory,
+            'art_category' => $this->getArtCategorySlug(),
+            'art_category_label' => $this->getArtCategoryLabel($language ?? 'uk'),
+            'art_subcategory' => $this->getArtSubcategorySlug(),
             'art_subcategory_label' => $this->getArtSubcategoryLabel($language ?? 'uk'),
 
             'currency' => $this->currency->value,

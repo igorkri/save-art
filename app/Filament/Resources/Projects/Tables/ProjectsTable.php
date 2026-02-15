@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Projects\Tables;
 
-use App\Enums\ArtCategory;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -82,9 +82,9 @@ class ProjectsTable
                     })
                     ->sortable(),
 
-                TextColumn::make('art_category')
+                TextColumn::make('artCategory.id')
                     ->label('Категорія')
-                    ->formatStateUsing(fn (?ArtCategory $state): string => $state?->getLabel() ?? '-')
+                    ->formatStateUsing(fn ($record): string => $record->artCategory?->getLabel('uk') ?? '-')
                     ->sortable()
                     ->toggleable(),
 
@@ -132,9 +132,19 @@ class ProjectsTable
                     ->label('Модерація')
                     ->options(ModerationStatus::getOptions()),
 
-                SelectFilter::make('art_category')
+                SelectFilter::make('art_category_id')
                     ->label('Категорія')
-                    ->options(ArtCategory::getOptions()),
+                    ->options(function () {
+                        $opts = [];
+                        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
+                            $opts[(string) $root->id] = $root->getLabel('uk');
+                            foreach ($root->children as $child) {
+                                $opts[(string) $child->id] = '  ' . $child->getLabel('uk');
+                            }
+                        }
+
+                        return $opts;
+                    }),
 
                 TrashedFilter::make(),
             ])

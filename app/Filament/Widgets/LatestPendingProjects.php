@@ -37,9 +37,9 @@ class LatestPendingProjects extends TableWidget
                 TextColumn::make('user.name')
                     ->label('Автор'),
 
-                TextColumn::make('art_category')
+                TextColumn::make('artCategory.id')
                     ->label('Категорія')
-                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? '-'),
+                    ->formatStateUsing(fn (Project $record) => $record->artCategory?->getLabel('uk') ?? '-'),
 
                 TextColumn::make('budget_goal')
                     ->label('Бюджет')

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Api\V1;
 
-use App\Enums\ArtCategory;
+use App\Models\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,8 +42,8 @@ class StoreFullProjectRequest extends FormRequest
 
             'cover' => ['nullable', 'image', 'max:15360'], // 15MB
 
-            // Категорія
-            'art_category' => ['required', Rule::enum(ArtCategory::class)],
+            // Категорія (slug з БД)
+            'art_category' => ['required', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
             'tags' => ['nullable', 'array'],

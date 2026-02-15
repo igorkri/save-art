@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Services\ImageProcessingService;
 use Illuminate\Http\JsonResponse;
@@ -220,10 +221,10 @@ class DraftController extends Controller
             $project->cover = $this->imageProcessor->processCover($validated['cover'], $project->cover);
         }
         if (isset($validated['art_category'])) {
-            $project->art_category = $this->normalizeArtCategory($validated['art_category']);
-        }
-        if (isset($validated['art_subcategory'])) {
-            $project->art_subcategory = $validated['art_subcategory'];
+            $project->art_category_id = ArtCategory::resolveIdFromSlugs(
+                $this->normalizeArtCategory($validated['art_category']),
+                $validated['art_subcategory'] ?? null
+            );
         }
         if (isset($validated['budget_goal'])) {
             $project->budget_goal = $validated['budget_goal'];
@@ -594,8 +595,8 @@ class DraftController extends Controller
             'short_description' => $project->short_description,
             'tags' => $project->tags,
             'cover' => $project->cover ? Storage::url($project->cover) : null,
-            'art_category' => $project->art_category instanceof \BackedEnum ? $project->art_category->value : $project->art_category,
-            'art_subcategory' => $project->art_subcategory,
+            'art_category' => $project->getArtCategorySlug(),
+            'art_subcategory' => $project->getArtSubcategorySlug(),
             'budget_goal' => $project->budget_goal ? (float) $project->budget_goal : null,
             'currency' => $project->currency?->value ?? 'UAH',
             'estimated_days' => $project->estimated_days,
@@ -614,7 +615,7 @@ class DraftController extends Controller
         return array_merge($this->formatDraft($project), [
             'budget_items' => $project->budget_items,
             'characteristics' => $project->characteristics,
-            'content_blocks' => $project->content_blocks ?? [],
+            'content_blocks' => $this->contentBlocksWithImageUrls($project->content_blocks ?? []),
             'additional_info' => $project->additional_info,
             'stages' => $project->stages->map(fn ($stage) => [
                 'id' => $stage->id,
@@ -633,6 +634,28 @@ class DraftController extends Controller
                 'order' => $bonus->order,
             ])->toArray(),
         ]);
+    }
+
+    /**
+     * Повертає content_blocks з повними URL для зображень (щоб працювало в іншому браузері/пристрої).
+     *
+     * @param  array<int, array<string, mixed>>  $blocks
+     * @return array<int, array<string, mixed>>
+     */
+    private function contentBlocksWithImageUrls(array $blocks): array
+    {
+        return array_map(function (array $block) {
+            if (isset($block['type']) && $block['type'] === 'image' && ! empty($block['image'])) {
+                $img = $block['image'];
+                if (is_string($img) && ! str_starts_with($img, 'http') && ! str_starts_with($img, 'data:')) {
+                    $block['image'] = Storage::url($img);
+                }
+                if (isset($block['image_url']) && is_string($block['image_url']) && ! str_starts_with($block['image_url'], 'http')) {
+                    $block['image_url'] = Storage::url($block['image_url']);
+                }
+            }
+            return $block;
+        }, $blocks);
     }
 
     /**
@@ -699,10 +722,10 @@ class DraftController extends Controller
             $project->cover = $this->imageProcessor->processCover($data['cover'], $project->cover);
         }
         if (isset($data['art_category'])) {
-            $project->art_category = $this->normalizeArtCategory($data['art_category']);
-        }
-        if (isset($data['art_subcategory'])) {
-            $project->art_subcategory = $data['art_subcategory'];
+            $project->art_category_id = ArtCategory::resolveIdFromSlugs(
+                $this->normalizeArtCategory($data['art_category']),
+                $data['art_subcategory'] ?? null
+            );
         }
         if (isset($data['budget_goal'])) {
             $project->budget_goal = $data['budget_goal'];
@@ -765,10 +788,10 @@ class DraftController extends Controller
             $project->cover = $this->imageProcessor->processCover($data['cover']);
         }
         if (isset($data['art_category'])) {
-            $project->art_category = $this->normalizeArtCategory($data['art_category']);
-        }
-        if (isset($data['art_subcategory'])) {
-            $project->art_subcategory = $data['art_subcategory'];
+            $project->art_category_id = ArtCategory::resolveIdFromSlugs(
+                $this->normalizeArtCategory($data['art_category']),
+                $data['art_subcategory'] ?? null
+            );
         }
         if (isset($data['budget_goal'])) {
             $project->budget_goal = $data['budget_goal'];

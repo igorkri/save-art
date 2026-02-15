@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Api\V1;
 
-use App\Enums\ArtCategory;
+use App\Models\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
@@ -43,8 +43,8 @@ class CreateProjectRequest extends FormRequest
 
             'cover' => ['nullable', 'image', 'max:15360'], // 15MB
 
-            // Категорія
-            'art_category' => ['required', Rule::enum(ArtCategory::class)],
+            // Категорія (slug з БД)
+            'art_category' => ['required', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
             'tags' => ['nullable', 'array'],
@@ -71,6 +71,9 @@ class CreateProjectRequest extends FormRequest
             'characteristics.*.value' => ['required_with:characteristics', 'array'],
             'characteristics.*.value.uk' => ['required_with:characteristics', 'string', 'max:500'],
             'characteristics.*.value.en' => ['nullable', 'string', 'max:500'],
+
+            // Локальний ID для синхронізації чернетки з клієнта (опційно)
+            'local_id' => ['nullable', 'string', 'max:255'],
 
             // Додаткова інформація
             'additional_info' => ['nullable', 'array'],

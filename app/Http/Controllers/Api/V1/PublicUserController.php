@@ -164,8 +164,8 @@ class PublicUserController extends Controller
                     'uk' => $project->status->getLabel('uk'),
                     'en' => $project->status->getLabel('en'),
                 ],
-                'art_form' => $project->art_category,
-                'art_subform' => $project->art_subcategory,
+                'art_form' => $project->getArtCategorySlug(),
+                'art_subform' => $project->getArtSubcategorySlug(),
                 'date_of_announcement' => $project->announced_at?->toDateString(),
             ];
         });

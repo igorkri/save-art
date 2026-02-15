@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\ArtCategory;
+use App\Models\ArtCategory as ArtCategoryModel;
 use App\Enums\Region;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -120,15 +120,35 @@ class CatalogController extends Controller
     {
         $language = request('language', 'uk');
 
+        $roots = ArtCategoryModel::with('children')->whereNull('parent_id')->orderBy('sort_order')->get();
+
+        $list = $roots->map(fn (ArtCategoryModel $cat) => [
+            'value' => $cat->slug,
+            'label' => $cat->getLabel($language),
+            'subcategories' => $cat->children->map(fn (ArtCategoryModel $sub) => [
+                'value' => $sub->slug,
+                'label' => $sub->getLabel($language),
+            ])->values()->all(),
+        ]);
+
+        $categories = $roots->map(fn (ArtCategoryModel $cat) => [
+            'slug' => $cat->slug,
+            'name' => [
+                'uk' => $cat->getLabel('uk'),
+                'en' => $cat->getLabel('en'),
+            ],
+            'subcategories' => $cat->children->map(fn (ArtCategoryModel $sub) => [
+                'slug' => $sub->slug,
+                'name' => [
+                    'uk' => $sub->getLabel('uk'),
+                    'en' => $sub->getLabel('en'),
+                ],
+            ])->values()->all(),
+        ])->all();
+
         return response()->json([
-            'data' => collect(ArtCategory::cases())->map(fn (ArtCategory $cat) => [
-                'value' => $cat->value,
-                'label' => $cat->getLabel($language),
-                'subcategories' => collect($cat->getSubcategoriesWithTranslations())->map(fn ($translations, $value) => [
-                    'value' => $value,
-                    'label' => $translations[$language] ?? $translations['uk'],
-                ])->values(),
-            ]),
+            'data' => $list,
+            'categories' => $categories,
         ]);
     }
 

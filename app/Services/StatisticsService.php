@@ -228,16 +228,21 @@ class StatisticsService
      */
     public function getCategoryStatistics(): array
     {
-        return Project::query()
+        $rows = Project::query()
             ->whereIn('status', ProjectStatus::publicStatuses())
-            ->select('art_category')
+            ->select('art_category_id')
             ->selectRaw('COUNT(*) as projects_count')
             ->selectRaw('SUM(budget_collected) as total_raised')
-            ->groupBy('art_category')
-            ->get()
+            ->groupBy('art_category_id')
+            ->get();
+
+        $categoryIds = $rows->pluck('art_category_id')->filter()->unique()->all();
+        $categories = \App\Models\ArtCategory::whereIn('id', $categoryIds)->get()->keyBy('id');
+
+        return $rows->filter(fn ($row) => $row->art_category_id)
             ->mapWithKeys(fn ($row) => [
-                $row->art_category->value => [
-                    'label' => $row->art_category->getLabel(),
+                $categories->get($row->art_category_id)?->getRootSlug() ?? (string) $row->art_category_id => [
+                    'label' => $categories->get($row->art_category_id)?->getLabel('uk') ?? '',
                     'projects_count' => $row->projects_count,
                     'total_raised' => round($row->total_raised ?? 0, 2),
                 ],
