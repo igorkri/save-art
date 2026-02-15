@@ -18,7 +18,6 @@ use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
 use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DonationController;
-use App\Http\Controllers\Api\V1\DraftController;
 use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MessageController;
@@ -26,6 +25,7 @@ use App\Http\Controllers\Api\V1\MyProjectController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectDraftController;
 use App\Http\Controllers\Api\V1\ProjectStageController;
 use App\Http\Controllers\Api\V1\PublicUserController;
 use App\Http\Controllers\Api\V1\ReportController;
@@ -184,12 +184,12 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
 
     // Чернетки проєктів
     Route::prefix('my/drafts')->group(function () {
-        Route::get('/', [DraftController::class, 'index']);
-        Route::post('/', [DraftController::class, 'store']);
-        Route::get('/{id}', [DraftController::class, 'show']);
-        Route::put('/{id}', [DraftController::class, 'update']);
-        Route::delete('/{id}', [DraftController::class, 'destroy']);
-        Route::post('/sync', [DraftController::class, 'sync']);
+        Route::get('/', [ProjectDraftController::class, 'index']);
+        Route::post('/', [ProjectDraftController::class, 'store']);
+        Route::get('/{id}', [ProjectDraftController::class, 'show'])->where('id', '[0-9]+');
+        Route::put('/{id}', [ProjectDraftController::class, 'update'])->where('id', '[0-9]+');
+        Route::delete('/{id}', [ProjectDraftController::class, 'destroy'])->where('id', '[0-9]+');
+        Route::post('/{id}/archive', [ProjectDraftController::class, 'archive'])->where('id', '[0-9]+');
     });
 
     // Етапи проєкту
