@@ -3241,6 +3241,751 @@
                 }
             }
         },
+        "/v1/my/drafts": {
+            "get": {
+                "tags": [
+                    "Drafts"
+                ],
+                "summary": "Список чернеток користувача",
+                "description": "Повертає список всіх чернеток (проектів зі статусом Draft) поточного користувача",
+                "operationId": "getDrafts",
+                "responses": {
+                    "200": {
+                        "description": "Список чернеток",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "drafts": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 80
+                                                            },
+                                                            "local_id": {
+                                                                "type": "string",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            },
+                                                            "user_type": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "personal",
+                                                                    "legal"
+                                                                ],
+                                                                "example": "legal"
+                                                            },
+                                                            "profile": {
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "personal",
+                                                                            "legal",
+                                                                            "user_fallback",
+                                                                            "fallback",
+                                                                            "default"
+                                                                        ],
+                                                                        "example": "legal"
+                                                                    },
+                                                                    "logo": {
+                                                                        "type": "string",
+                                                                        "example": "/storage/logos/6990be72d04ea_1771093618.jpeg",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "name": {
+                                                                        "properties": {
+                                                                            "uk": {
+                                                                                "type": "string",
+                                                                                "example": "ФОП Кривошей І.О."
+                                                                            },
+                                                                            "en": {
+                                                                                "type": "string",
+                                                                                "example": "IE Kryvoshey I.O."
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "description": {
+                                                                        "type": "string",
+                                                                        "nullable": true
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "kartina-svitanok-nad-dniprom2"
+                                                            },
+                                                            "title": {
+                                                                "properties": {
+                                                                    "uk": {
+                                                                        "type": "string",
+                                                                        "example": "Картина 'Світанок над Дніпром'"
+                                                                    },
+                                                                    "en": {
+                                                                        "type": "string",
+                                                                        "example": "Painting 'Dawn over Dnipro'"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "short_description": {
+                                                                "properties": {
+                                                                    "uk": {
+                                                                        "type": "string",
+                                                                        "example": "Олійний живопис на полотні, присвячений красі українських пейзажів"
+                                                                    },
+                                                                    "en": {
+                                                                        "type": "string",
+                                                                        "example": "Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "tags": {
+                                                                "properties": {
+                                                                    "uk": {
+                                                                        "type": "string",
+                                                                        "example": "живопис, пейзаж, Україна"
+                                                                    },
+                                                                    "en": {
+                                                                        "type": "string",
+                                                                        "example": "painting, landscape, Ukraine"
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "cover": {
+                                                                "type": "string",
+                                                                "example": "/storage/projects/covers/01KHGV8N5FCWRB9AJEJ4BD02GZ.jpg",
+                                                                "nullable": true
+                                                            },
+                                                            "category": {
+                                                                "properties": {
+                                                                    "parent_slug": {
+                                                                        "type": "string",
+                                                                        "example": "fine_art"
+                                                                    },
+                                                                    "label_uk": {
+                                                                        "type": "string",
+                                                                        "example": "Образотворче мистецтво"
+                                                                    },
+                                                                    "label_en": {
+                                                                        "type": "string",
+                                                                        "example": "Fine Arts"
+                                                                    },
+                                                                    "subcategory_slug": {
+                                                                        "type": "string",
+                                                                        "example": "painting",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "subcategory_label_uk": {
+                                                                        "type": "string",
+                                                                        "example": "Живопис",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "subcategory_label_en": {
+                                                                        "type": "string",
+                                                                        "example": "Painting",
+                                                                        "nullable": true
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "budget_goal": {
+                                                                "type": "number",
+                                                                "format": "float",
+                                                                "example": 75000
+                                                            },
+                                                            "budget_collected": {
+                                                                "type": "number",
+                                                                "format": "float",
+                                                                "example": 0
+                                                            },
+                                                            "currency": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "UAH",
+                                                                    "USD",
+                                                                    "EUR"
+                                                                ],
+                                                                "example": "EUR"
+                                                            },
+                                                            "estimated_days": {
+                                                                "type": "integer",
+                                                                "example": 90,
+                                                                "nullable": true
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2026-02-14T12:54:35+00:00"
+                                                            },
+                                                            "updated_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2026-02-15T14:41:45+00:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "count": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": [],
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Drafts"
+                ],
+                "summary": "Створити або оновити чернетку",
+                "description": "Створює нову чернетку або оновлює існуючу за local_id",
+                "operationId": "storeDraft",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "local_id": {
+                                        "description": "Локальний ID для синхронізації",
+                                        "type": "string"
+                                    },
+                                    "user_type": {
+                                        "description": "Тип користувача",
+                                        "type": "string",
+                                        "enum": [
+                                            "personal",
+                                            "legal"
+                                        ]
+                                    },
+                                    "title": {
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string"
+                                            },
+                                            "en": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "short_description": {
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string"
+                                            },
+                                            "en": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "properties": {
+                                            "uk": {
+                                                "type": "string"
+                                            },
+                                            "en": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "cover": {
+                                        "type": "string"
+                                    },
+                                    "art_category": {
+                                        "type": "string",
+                                        "enum": [
+                                            "scenic",
+                                            "visual",
+                                            "fine_art",
+                                            "literature",
+                                            "music",
+                                            "other"
+                                        ]
+                                    },
+                                    "art_subcategory": {
+                                        "type": "string"
+                                    },
+                                    "budget_goal": {
+                                        "type": "number"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "enum": [
+                                            "UAH",
+                                            "USD",
+                                            "EUR"
+                                        ]
+                                    },
+                                    "estimated_days": {
+                                        "description": "Орієнтовна кількість днів",
+                                        "type": "integer"
+                                    },
+                                    "budget_items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "object"
+                                                },
+                                                "amount": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "characteristics": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "object"
+                                                },
+                                                "value": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "content_blocks": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "heading",
+                                                        "paragraph",
+                                                        "image"
+                                                    ]
+                                                },
+                                                "heading_level": {
+                                                    "type": "string"
+                                                },
+                                                "heading_text": {
+                                                    "type": "object"
+                                                },
+                                                "paragraph_text": {
+                                                    "type": "object"
+                                                },
+                                                "image": {
+                                                    "type": "string"
+                                                },
+                                                "image_alt": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "stages": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "type": "object"
+                                                },
+                                                "description": {
+                                                    "type": "object"
+                                                },
+                                                "days_planned": {
+                                                    "type": "integer"
+                                                },
+                                                "budget_planned": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "bonuses": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "type": "object"
+                                                },
+                                                "description": {
+                                                    "type": "object"
+                                                },
+                                                "min_donation": {
+                                                    "type": "number"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Чернетку створено/оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": [],
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/drafts/{id}": {
+            "get": {
+                "tags": [
+                    "Drafts"
+                ],
+                "summary": "Отримати чернетку",
+                "description": "Повертає детальну інформацію про чернетку",
+                "operationId": "showDraft",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID чернетки",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Дані чернетки",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": [],
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Drafts"
+                ],
+                "summary": "Оновити чернетку",
+                "description": "Оновлює існуючу чернетку",
+                "operationId": "updateDraft",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID чернетки",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "object"
+                                    },
+                                    "short_description": {
+                                        "type": "object"
+                                    },
+                                    "cover": {
+                                        "type": "string"
+                                    },
+                                    "art_category": {
+                                        "type": "string"
+                                    },
+                                    "budget_goal": {
+                                        "type": "number"
+                                    },
+                                    "stages": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "bonuses": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Чернетку оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": [],
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Drafts"
+                ],
+                "summary": "Видалити чернетку",
+                "description": "Видаляє чернетку користувача",
+                "operationId": "deleteDraft",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID чернетки",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Чернетку видалено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": [],
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/v1/my/drafts/sync": {
+            "post": {
+                "tags": [
+                    "Drafts"
+                ],
+                "summary": "Синхронізувати чернетки",
+                "description": "Синхронізує локальні чернетки з сервером",
+                "operationId": "syncDrafts",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "drafts": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "local_id": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "data": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Результат синхронізації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "synced": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "conflicts": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": [],
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/v1/faq": {
             "get": {
                 "tags": [
@@ -6486,389 +7231,6 @@
                         "description": "Проект не знайдено"
                     }
                 }
-            }
-        },
-        "/v1/my/drafts": {
-            "get": {
-                "tags": [
-                    "Drafts"
-                ],
-                "summary": "Список чернеток користувача",
-                "description": "Повертає список всіх чернеток поточного користувача",
-                "operationId": "getDrafts",
-                "responses": {
-                    "200": {
-                        "description": "Список чернеток",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "drafts": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer"
-                                                            },
-                                                            "project_id": {
-                                                                "type": "integer",
-                                                                "nullable": true
-                                                            },
-                                                            "status": {
-                                                                "type": "string"
-                                                            },
-                                                            "data": {
-                                                                "type": "object"
-                                                            },
-                                                            "created_at": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                            },
-                                                            "updated_at": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "count": {
-                                                    "type": "integer",
-                                                    "example": 5
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Drafts"
-                ],
-                "summary": "Створити чернетку",
-                "description": "Створює нову чернетку з переданими даними",
-                "operationId": "storeDraft",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "data": {
-                                        "description": "Дані чернетки (довільний JSON)",
-                                        "type": "object"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Чернетку створено",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "draft": {
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/v1/my/drafts/{id}": {
-            "get": {
-                "tags": [
-                    "Drafts"
-                ],
-                "summary": "Отримати чернетку",
-                "description": "Повертає детальну інформацію про чернетку",
-                "operationId": "showDraft",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID чернетки",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Дані чернетки",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "draft": {
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not found"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Drafts"
-                ],
-                "summary": "Оновити чернетку",
-                "description": "Оновлює існуючу чернетку",
-                "operationId": "updateDraft",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID чернетки",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "data": {
-                                        "description": "Дані чернетки (довільний JSON)",
-                                        "type": "object"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Чернетку оновлено",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "draft": {
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not found"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Drafts"
-                ],
-                "summary": "Видалити чернетку",
-                "description": "Видаляє чернетку користувача (soft delete)",
-                "operationId": "deleteDraft",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID чернетки",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Чернетку видалено",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not found"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/v1/my/drafts/{id}/archive": {
-            "post": {
-                "tags": [
-                    "Drafts"
-                ],
-                "summary": "Архівувати чернетку",
-                "description": "Змінює статус чернетки на archived",
-                "operationId": "archiveDraft",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID чернетки",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Чернетку архівовано",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "result": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "draft": {
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not found"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
             }
         },
         "/v1/my/projects/{project}/stages": {
@@ -11039,6 +11401,10 @@
             "description": "Auth"
         },
         {
+            "name": "Drafts",
+            "description": "Drafts"
+        },
+        {
             "name": "Likes",
             "description": "Likes"
         },
@@ -11053,10 +11419,6 @@
         {
             "name": "Projects",
             "description": "Projects"
-        },
-        {
-            "name": "Drafts",
-            "description": "Drafts"
         },
         {
             "name": "Project Stages",

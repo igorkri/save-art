@@ -48,6 +48,9 @@ return new class extends Migration
             // Бюджет деталі (JSON масив: [{name, cost}])
             $table->json('budget_items')->nullable()->comment('Деталі бюджету');
 
+            // Контентні блоки (текст, заголовки, зображення)
+            $table->json('content_blocks')->nullable()->comment('Контентні блоки проєкту');
+
             // Додаткова інформація (JSON масив блоків контенту)
             $table->json('additional_info')->nullable()->comment('Додаткова інформація про проєкт');
 
