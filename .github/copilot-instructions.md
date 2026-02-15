@@ -469,4 +469,29 @@ document.addEventListener('livewire:init', function () {
 
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
+
+=== project-specific rules ===
+
+## Documentation Policy
+
+- **DO NOT** write markdown documentation files unless explicitly requested by the user.
+- Focus on code implementation rather than documentation unless the user specifically asks for documentation.
+- Comments in code should be concise and only explain complex business logic, not obvious functionality.
+
+## Testing Policy
+
+- **DO NOT** write tests automatically for every feature unless explicitly requested by the user.
+- Write tests only when:
+  - The user explicitly requests tests for a specific feature
+  - The user asks to "write tests for this"
+  - The user mentions testing requirements
+- When writing tests, focus on critical functionality and edge cases.
+- Always ask the user if they want tests written for a specific feature before implementing them.
+
+## Development Priorities
+
+1. **Code Implementation First** - Focus on implementing working functionality
+2. **Code Quality** - Follow existing patterns and conventions
+3. **Documentation Only When Asked** - Don't create .md files unless requested  
+4. **Tests Only When Requested** - Don't assume tests are needed unless specified
 </laravel-boost-guidelines>
