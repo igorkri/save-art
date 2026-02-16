@@ -73,13 +73,16 @@ class ModerationService
             return false;
         }
 
-        $project->update([
-            'status' => ProjectStatus::Draft,
-            'status_moderation' => null,
-            'moderation_comment' => $comment,
-        ]);
+        // Используем workflow service для правильного перехода статуса
+        $success = $this->workflowService->returnToDraft($project);
 
-        return true;
+        if ($success && $comment) {
+            $project->update([
+                'moderation_comment' => $comment,
+            ]);
+        }
+
+        return $success;
     }
 
     /**

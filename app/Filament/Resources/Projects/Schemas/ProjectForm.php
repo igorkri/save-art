@@ -2,25 +2,24 @@
 
 namespace App\Filament\Resources\Projects\Schemas;
 
-use App\Models\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Enums\UserType;
+use App\Models\ArtCategory;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
-use Filament\Forms\Components\Toggle;
 
 class ProjectForm
 {
@@ -37,31 +36,62 @@ class ProjectForm
                         Tabs\Tab::make('Загальне')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
-                                Select::make('user_id')
-                                    ->label('Автор')
-                                    ->relationship(
-                                        'user',
-                                        modifyQueryUsing: fn ($query) => $query->orderBy('email')
-                                    )
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name ?: $record->email)
-                                    ->searchable()
-                                    ->preload()
-                                    ->required(),
+                                Section::make('Автор та назва')
+                                    ->schema([
+                                        Select::make('user_id')
+                                            ->label('Автор')
+                                            ->relationship(
+                                                'user',
+                                                modifyQueryUsing: fn ($query) => $query->orderBy('email')
+                                            )
+                                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name ?: $record->email)
+                                            ->searchable()
+                                            ->preload()
+                                            ->required(),
 
-                                Select::make('user_type')
-                                    ->label('Тип власника')
-                                    ->options(UserType::getOptions())
-                                    ->default(UserType::Personal->value)
-                                    ->required(),
+                                        Select::make('user_type')
+                                            ->label('Тип власника')
+                                            ->options(UserType::getOptions())
+                                            ->default(UserType::Personal->value)
+                                            ->required(),
+                                    ])
+                                    ->columns(2),
+
+                                Section::make('Категорія')
+                                    ->schema([
+                                        Select::make('art_category_id')
+                                            ->label('Галузь мистецтва')
+                                            ->options(function () {
+                                                $options = [];
+                                                foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
+                                                    $options[$root->getLabel('uk')] = [
+                                                        (string) $root->id => $root->getLabel('uk'),
+                                                    ];
+                                                    foreach ($root->children as $child) {
+                                                        $options[$root->getLabel('uk')][(string) $child->id] = '  '.$child->getLabel('uk');
+                                                    }
+                                                }
+
+                                                return $options;
+                                            })
+                                            ->searchable()
+                                            ->required(),
+                                    ]),
 
                                 LanguageTabs::make([
+
                                     TextInput::make('title')
                                         ->label('Назва проєкту')
                                         ->required()
                                         ->maxLength(255),
+
                                     Textarea::make('short_description')
                                         ->label('Короткий опис')
                                         ->rows(3),
+
+                                    TextInput::make('tags')
+                                        ->label('Теги (через кому)'),
+
                                 ])->columnSpanFull(),
 
                                 FileUpload::make('cover')
@@ -73,32 +103,12 @@ class ProjectForm
                                     ->columnSpanFull(),
                             ]),
 
-                        Tabs\Tab::make('Категорія')
-                            ->icon('heroicon-o-tag')
-                            ->schema([
-                                Select::make('art_category_id')
-                                    ->label('Галузь мистецтва')
-                                    ->options(function () {
-                                        $options = [];
-                                        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
-                                            $options[$root->getLabel('uk')] = [
-                                                (string) $root->id => $root->getLabel('uk'),
-                                            ];
-                                            foreach ($root->children as $child) {
-                                                $options[$root->getLabel('uk')][(string) $child->id] = '  ' . $child->getLabel('uk');
-                                            }
-                                        }
-
-                                        return $options;
-                                    })
-                                    ->searchable()
-                                    ->required(),
-
-                                LanguageTabs::make([
-                                    TextInput::make('tags')
-                                        ->label('Теги (через кому)'),
-                                ])->columnSpanFull(),
-                            ]),
+                        //                        Tabs\Tab::make('Категорія')
+                        //                            ->icon('heroicon-o-tag')
+                        //                            ->schema([
+                        //
+                        //                                ])->columnSpanFull(),
+                        //                            ]),
 
                         Tabs\Tab::make('Бюджет')
                             ->icon('heroicon-o-currency-dollar')
@@ -136,14 +146,13 @@ class ProjectForm
                                     ->minValue(1),
 
                                 Repeater::make('budget_items')
-                                    ->label('Статті бюджету')
+                                    ->label('Деталі бюджету')
                                     ->schema([
                                         LanguageTabs::make([
                                             TextInput::make('name')
                                                 ->label('Назва')
                                                 ->required(),
-                                        ])->columnSpan(1),
-
+                                        ])->columnSpan(2),
                                         TextInput::make('amount')
                                             ->label('Сума')
                                             ->numeric()
@@ -154,11 +163,15 @@ class ProjectForm
                                                 default => '₴',
                                             }),
                                     ])
-                                    ->columns(2)
+                                    ->columns(3)
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()
-                                    ->collapsible(),
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->itemLabel(fn (array $state): ?string => ($state['name']['uk'] ?? 'Без назви').
+                                        (isset($state['amount']) ? ' — '.number_format($state['amount'], 2).' ₴' : '')
+                                    ),
                             ]),
 
                         Tabs\Tab::make('Характеристики')
@@ -173,24 +186,28 @@ class ProjectForm
                                                 ->label('Назва')
                                                 ->placeholder('Тривалість, Жанр, Режисер...')
                                                 ->required(),
-                                        ])->columnSpan(1),
 
-                                        LanguageTabs::make([
                                             TextInput::make('value')
                                                 ->label('Значення')
                                                 ->required(),
                                         ])->columnSpan(1),
 
                                     ])
-                                    ->columns(2)
+                                    ->columns(1)
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()
-                                    ->collapsible(),
+                                    ->collapsed()
+                                    ->itemLabel(fn (array $state): ?string => ($state['name']['uk'] ?? 'Без назви').': '.($state['value']['uk'] ?? 'Без значення')),
+                            ]),
 
+                        Tabs\Tab::make('Додаткова інформація')
+                            ->icon('heroicon-o-ellipsis-horizontal')
+                            ->schema([
                                 LanguageTabs::make([
-                                    RichEditor::make('additional_info')
+                                    Textarea::make('additional_info')
                                         ->label('Додаткова інформація')
+                                        ->rows(5)
                                         ->columnSpanFull(),
                                 ])->columnSpanFull(),
                             ]),
@@ -260,27 +277,27 @@ class ProjectForm
                                             ->visible(fn (callable $get) => $get('type') === 'image')
                                             ->columnSpanFull(),
 
-                                        LanguageTabs::make([
-                                            TextInput::make('image_alt')
-                                                ->label('Alt текст (опис зображення)')
-                                                ->helperText('Важливо для доступності та SEO'),
-                                        ])
-                                            ->visible(fn (callable $get) => $get('type') === 'image')
-                                            ->columnSpanFull(),
-
-                                        LanguageTabs::make([
-                                            TextInput::make('image_caption')
-                                                ->label('Підпис під зображенням')
-                                                ->helperText('Необов\'язково'),
-                                        ])
-                                            ->visible(fn (callable $get) => $get('type') === 'image')
-                                            ->columnSpanFull(),
+//                                        LanguageTabs::make([
+//                                            TextInput::make('image_alt')
+//                                                ->label('Alt текст (опис зображення)')
+//                                                ->helperText('Важливо для доступності та SEO'),
+//                                        ])
+//                                            ->visible(fn (callable $get) => $get('type') === 'image')
+//                                            ->columnSpanFull(),
+//
+//                                        LanguageTabs::make([
+//                                            TextInput::make('image_caption')
+//                                                ->label('Підпис під зображенням')
+//                                                ->helperText('Необов\'язково'),
+//                                        ])
+//                                            ->visible(fn (callable $get) => $get('type') === 'image')
+//                                            ->columnSpanFull(),
                                     ])
                                     ->columns(1)
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()
-                                    ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(fn (array $state): ?string => match ($state['type'] ?? null) {
                                         'heading' => strtoupper($state['heading_level'] ?? 'h2').': '.($state['heading_text']['uk'] ?? 'Новий заголовок'),
                                         'paragraph' => 'Параграф: '.\Illuminate\Support\Str::limit($state['paragraph_text']['uk'] ?? 'Новий параграф', 50),
@@ -371,14 +388,14 @@ class ProjectForm
                                             ->columns(2)
                                             ->columnSpanFull()
                                             ->defaultItems(0)
-                                            ->collapsible()
+                                            ->collapsed()
                                             ->itemLabel(fn (array $state): ?string => $state['description']['uk'] ?? ($state['type'] === 'photo' ? 'Фото' : 'Документ')),
                                     ])
                                     ->columns(3)
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()
-                                    ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(fn (array $state): ?string => $state['title']['uk'] ?? 'Новий етап'),
                             ]),
 
@@ -427,10 +444,10 @@ class ProjectForm
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()
-                                    ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(fn (array $state): ?string => $state['title']['uk'] ?? 'Новий бонус'),
                             ]),
-                    ]),
+                    ]), // Закриваємо tabs()
 
                 // Права колонка - статуси та дати
                 Section::make('Статус')

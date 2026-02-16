@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\ProjectStage;
 use App\Services\ImageProcessingService;
+use App\Services\ProjectWorkflowService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -33,7 +34,8 @@ use OpenApi\Annotations as OA;
 class MyProjectController extends Controller
 {
     public function __construct(
-        private ImageProcessingService $imageProcessor
+        private ImageProcessingService $imageProcessor,
+        private ProjectWorkflowService $workflowService
     ) {}
 
     /**
@@ -831,10 +833,14 @@ class MyProjectController extends Controller
             ], 422);
         }
 
-        $project->update([
-            'status' => ProjectStatus::Moderation,
-            'status_moderation' => ModerationStatus::Pending,
-        ]);
+        // Используем workflow service для отправки на модерацию
+        $success = $this->workflowService->submitForModeration($project);
+
+        if (! $success) {
+            return response()->json([
+                'message' => 'Неможливо відправити проєкт на модерацію.',
+            ], 422);
+        }
 
         return response()->json([
             'message' => 'Проєкт відправлено на модерацію.',

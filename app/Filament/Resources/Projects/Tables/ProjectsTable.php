@@ -6,6 +6,7 @@ use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\ArtCategory;
 use App\Models\Project;
+use App\Services\ModerationService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -139,7 +140,7 @@ class ProjectsTable
                         foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
                             $opts[(string) $root->id] = $root->getLabel('uk');
                             foreach ($root->children as $child) {
-                                $opts[(string) $child->id] = '  ' . $child->getLabel('uk');
+                                $opts[(string) $child->id] = '  '.$child->getLabel('uk');
                             }
                         }
 
@@ -163,16 +164,20 @@ class ProjectsTable
                         ->modalSubmitActionLabel('Так, схвалити')
                         ->visible(fn (Project $record): bool => $record->status === ProjectStatus::Moderation)
                         ->action(function (Project $record): void {
-                            $record->update([
-                                'status' => ProjectStatus::Announced,
-                                'status_moderation' => ModerationStatus::Approved,
-                                'announced_at' => now(),
-                            ]);
+                            $moderationService = app(ModerationService::class);
+                            $success = $moderationService->approveProject($record, auth()->user());
 
-                            Notification::make()
-                                ->title('Проєкт схвалено')
-                                ->success()
-                                ->send();
+                            if ($success) {
+                                Notification::make()
+                                    ->title('Проєкт схвалено')
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Помилка схвалення проєкту')
+                                    ->danger()
+                                    ->send();
+                            }
                         }),
 
                     Action::make('reject')
@@ -185,15 +190,20 @@ class ProjectsTable
                         ->modalSubmitActionLabel('Так, відхилити')
                         ->visible(fn (Project $record): bool => $record->status === ProjectStatus::Moderation)
                         ->action(function (Project $record): void {
-                            $record->update([
-                                'status' => ProjectStatus::Rejected,
-                                'status_moderation' => ModerationStatus::Rejected,
-                            ]);
+                            $moderationService = app(ModerationService::class);
+                            $success = $moderationService->rejectProject($record, auth()->user());
 
-                            Notification::make()
-                                ->title('Проєкт відхилено')
-                                ->warning()
-                                ->send();
+                            if ($success) {
+                                Notification::make()
+                                    ->title('Проєкт відхилено')
+                                    ->warning()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Помилка відхилення проєкту')
+                                    ->danger()
+                                    ->send();
+                            }
                         }),
 
                     DeleteAction::make(),
@@ -210,18 +220,20 @@ class ProjectsTable
                         ->requiresConfirmation()
                         ->modalHeading('Схвалити обрані проєкти')
                         ->action(function (Collection $records): void {
-                            $records->each(function (Project $record): void {
+                            $moderationService = app(ModerationService::class);
+                            $approvedCount = 0;
+
+                            $records->each(function (Project $record) use ($moderationService, &$approvedCount): void {
                                 if ($record->status === ProjectStatus::Moderation) {
-                                    $record->update([
-                                        'status' => ProjectStatus::Announced,
-                                        'status_moderation' => ModerationStatus::Approved,
-                                        'announced_at' => now(),
-                                    ]);
+                                    $success = $moderationService->approveProject($record, auth()->user());
+                                    if ($success) {
+                                        $approvedCount++;
+                                    }
                                 }
                             });
 
                             Notification::make()
-                                ->title('Проєкти схвалено')
+                                ->title("Схвалено проектів: {$approvedCount}")
                                 ->success()
                                 ->send();
                         }),
@@ -233,17 +245,20 @@ class ProjectsTable
                         ->requiresConfirmation()
                         ->modalHeading('Відхилити обрані проєкти')
                         ->action(function (Collection $records): void {
-                            $records->each(function (Project $record): void {
+                            $moderationService = app(ModerationService::class);
+                            $rejectedCount = 0;
+
+                            $records->each(function (Project $record) use ($moderationService, &$rejectedCount): void {
                                 if ($record->status === ProjectStatus::Moderation) {
-                                    $record->update([
-                                        'status' => ProjectStatus::Rejected,
-                                        'status_moderation' => ModerationStatus::Rejected,
-                                    ]);
+                                    $success = $moderationService->rejectProject($record, auth()->user());
+                                    if ($success) {
+                                        $rejectedCount++;
+                                    }
                                 }
                             });
 
                             Notification::make()
-                                ->title('Проєкти відхилено')
+                                ->title("Відхилено проектів: {$rejectedCount}")
                                 ->warning()
                                 ->send();
                         }),

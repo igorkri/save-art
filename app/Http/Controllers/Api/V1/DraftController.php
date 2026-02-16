@@ -416,13 +416,11 @@ class DraftController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        \Log::info('Оновлення чернетки', ['user_id' => Auth::id(), 'draft_id' => $id, 'payload' => $request->all()]);
-
         $user = Auth::user();
 
         $project = Project::query()
             ->where('user_id', $user->id)
-            ->where('status', ProjectStatus::Draft)
+            ->whereIn('status', [ProjectStatus::Draft, ProjectStatus::Moderation])
             ->findOrFail($id);
 
         // Перевіряємо чи приходять дані в форматі фронтенду (в об'єкті data)
@@ -652,7 +650,7 @@ class DraftController extends Controller
     private function formatCategory(Project $project): ?array
     {
         // Проверяем есть ли загруженная связь artCategory
-        if (!$project->relationLoaded('artCategory') || !$project->artCategory) {
+        if (! $project->relationLoaded('artCategory') || ! $project->artCategory) {
             return null;
         }
 
@@ -670,22 +668,19 @@ class DraftController extends Controller
 
     /**
      * Форматирование content_blocks с storage URL для изображений
-     *
-     * @param array $contentBlocks
-     * @return array
      */
     private function formatContentBlocks(array $contentBlocks): array
     {
         return array_map(function ($block) {
             // Если это блок с изображением - добавляем storage URL
-            if (isset($block['type']) && $block['type'] === 'image' && !empty($block['image'])) {
+            if (isset($block['type']) && $block['type'] === 'image' && ! empty($block['image'])) {
                 // Если image не содержит полный URL - добавляем storage URL
-                if (!str_starts_with($block['image'], 'http') && !str_starts_with($block['image'], '/storage/')) {
+                if (! str_starts_with($block['image'], 'http') && ! str_starts_with($block['image'], '/storage/')) {
                     $block['image'] = Storage::url($block['image']);
                 }
 
                 // То же для image_url если есть
-                if (!empty($block['image_url']) && !str_starts_with($block['image_url'], 'http') && !str_starts_with($block['image_url'], '/storage/')) {
+                if (! empty($block['image_url']) && ! str_starts_with($block['image_url'], 'http') && ! str_starts_with($block['image_url'], '/storage/')) {
                     $block['image_url'] = Storage::url($block['image_url']);
                 }
             }
@@ -926,6 +921,11 @@ class DraftController extends Controller
     {
         $normalized = [];
 
+        // Логуємо статус від фронтенду (не змінюємо, просто для відладки)
+        if (isset($frontendData['status'])) {
+            $normalized['status'] = $frontendData['status']; // Залишаємо статус як є, для відладки
+        }
+
         // Основні поля проекту
         if (isset($frontendData['ownerType'])) {
             $normalized['user_type'] = $frontendData['ownerType']; // legal/personal
@@ -1037,6 +1037,7 @@ class DraftController extends Controller
             ];
         }
 
+        \Log::info('normalizeProjectData: frontend', ['frontend' => $normalized]);
         return $normalized;
     }
 
@@ -1138,10 +1139,10 @@ class DraftController extends Controller
         if ($project->user_type === UserType::Legal) {
             // Спочатку намагаємося отримати профіль юр. особи
             $legalProfile = $project->user->profileLegal ?? null;
-            if ($legalProfile && $legalProfile->is_active && !empty($legalProfile->name)) {
+            if ($legalProfile && $legalProfile->is_active && ! empty($legalProfile->name)) {
                 return [
                     'type' => 'legal',
-                    'logo' => !empty($legalProfile->logo) ? Storage::url($legalProfile->logo) : null,
+                    'logo' => ! empty($legalProfile->logo) ? Storage::url($legalProfile->logo) : null,
                     'name' => $legalProfile->name,
                 ];
             }
@@ -1189,7 +1190,7 @@ class DraftController extends Controller
     private function updateProjectWithNormalizedData(Project $project, array $normalizedData, array $frontendData): void
     {
         // Основні поля
-        foreach (['user_type', 'title', 'short_description', 'tags', 'budget_goal', 'currency', 'estimated_days', 'budget_items', 'characteristics'] as $field) {
+        foreach (['user_type', 'title', 'short_description', 'tags', 'budget_goal', 'currency', 'estimated_days', 'budget_items', 'characteristics', 'status'] as $field) {
             if (isset($normalizedData[$field])) {
                 $project->$field = $normalizedData[$field];
             }

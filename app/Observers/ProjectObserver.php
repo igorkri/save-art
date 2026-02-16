@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Services\NotificationService;
@@ -14,10 +15,15 @@ class ProjectObserver
 
     /**
      * Handle the Project "updated" event.
-     * Надсилаємо сповіщення при зміні статусу
+     * Надсилаємо сповіщення при зміні статусу та синхронізуємо статуси
      */
     public function updated(Project $project): void
     {
+        // Обрабатываем изменения статуса модерации
+        if ($project->wasChanged('status_moderation')) {
+            $this->handleModerationStatusChange($project);
+        }
+
         // Перевіряємо чи змінився статус
         if (! $project->wasChanged('status')) {
             return;
@@ -41,6 +47,52 @@ class ProjectObserver
             ProjectStatus::Completed => $this->notificationService->notifyProjectCompleted($project),
             default => null,
         };
+    }
+
+    /**
+     * Обробка зміни статусу модерації
+     * Синхронізує основний статус проекту зі статусом модерації
+     */
+    private function handleModerationStatusChange(Project $project): void
+    {
+        $oldModerationStatus = $project->getOriginal('status_moderation');
+        $newModerationStatus = $project->status_moderation;
+
+        // Конвертуємо в enum якщо це рядок
+        if (is_string($newModerationStatus)) {
+            $newModerationStatus = ModerationStatus::tryFrom($newModerationStatus);
+        }
+
+        if (! $newModerationStatus) {
+            return;
+        }
+
+        // Если проект находится на модерации, то изменяем основной статус согласно результату модерации
+        if ($project->status === ProjectStatus::Moderation) {
+            match ($newModerationStatus) {
+                ModerationStatus::Approved => $this->updateProjectStatus($project, ProjectStatus::Announced),
+                ModerationStatus::Rejected => $this->updateProjectStatus($project, ProjectStatus::Rejected),
+                default => null,
+            };
+        }
+    }
+
+    /**
+     * Обновить статус проекта без triggering observer снова
+     */
+    private function updateProjectStatus(Project $project, ProjectStatus $newStatus): void
+    {
+        // Используем query builder чтобы избежать рекурсивного вызова observer
+        Project::where('id', $project->id)->update([
+            'status' => $newStatus,
+            'announced_at' => $newStatus === ProjectStatus::Announced ? now() : null,
+        ]);
+
+        // Обновляем модель в памяти
+        $project->status = $newStatus;
+        if ($newStatus === ProjectStatus::Announced) {
+            $project->announced_at = now();
+        }
     }
 
     /**
