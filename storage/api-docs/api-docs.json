@@ -15,16 +15,12 @@
     },
     "servers": [
         {
-            "url": "https://idart.dev2025.ingsot.com/api",
-            "description": "Production Server (temporary)"
-        },
-        {
-            "url": "https://save-art.in.ua/api",
-            "description": "Production Server (main)"
-        },
-        {
             "url": "http://save-art.local/api",
             "description": "Local Development"
+        },
+        {
+            "url": "https://idart.dev2025.ingsot.com/api",
+            "description": "Production Server (temporary)"
         }
     ],
     "paths": {

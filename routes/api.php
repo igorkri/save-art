@@ -161,6 +161,16 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
     });
 
+    // Чернетки проєктів
+    Route::prefix('my/drafts')->group(function () {
+        Route::get('/', [DraftController::class, 'index']);
+        Route::post('/', [DraftController::class, 'store']);
+        Route::get('/{id}', [DraftController::class, 'show']);
+        Route::put('/{id}', [DraftController::class, 'update']);
+        Route::delete('/{id}', [DraftController::class, 'destroy']);
+        Route::post('/sync', [DraftController::class, 'sync']);
+    });
+
     // Лайки
     Route::post('/projects/{project}/like', [LikeController::class, 'store']);
     Route::delete('/projects/{project}/like', [LikeController::class, 'destroy']);
@@ -180,16 +190,6 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
             ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
         Route::delete('/{source}/{id}', [NotificationController::class, 'destroy'])
             ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
-    });
-
-    // Чернетки проєктів
-    Route::prefix('my/drafts')->group(function () {
-        Route::get('/', [DraftController::class, 'index']);
-        Route::post('/', [DraftController::class, 'store']);
-        Route::get('/{id}', [DraftController::class, 'show']);
-        Route::put('/{id}', [DraftController::class, 'update']);
-        Route::delete('/{id}', [DraftController::class, 'destroy']);
-        Route::post('/sync', [DraftController::class, 'sync']);
     });
 
     // Етапи проєкту

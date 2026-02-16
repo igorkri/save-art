@@ -5,9 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Openplain\FilamentTreeView\Concerns\HasTreeStructure;
+use Spatie\Translatable\HasTranslations;
 
 class ArtCategory extends Model
 {
+    use HasTranslations;
+    use HasTreeStructure;
+
+    public array $translatable = ['name'];
+
     protected $fillable = [
         'parent_id',
         'slug',
@@ -17,9 +24,31 @@ class ArtCategory extends Model
 
     protected function casts(): array
     {
-        return [
-            'name' => 'array',
-        ];
+        return [];
+    }
+
+    /**
+     * Повертає назву колонки для сортування в дереві.
+     */
+    public function getOrderKeyName(): string
+    {
+        return 'sort_order';
+    }
+
+    /**
+     * Значення parent_id для кореневих елементів (null замість -1).
+     */
+    public function getParentKeyDefaultValue(): mixed
+    {
+        return null;
+    }
+
+    /**
+     * Accessor для title — використовується filament-tree-view.
+     */
+    public function getTitleAttribute(): string
+    {
+        return $this->getTranslation('name', 'uk') ?: '';
     }
 
     public function parent(): BelongsTo
@@ -39,12 +68,7 @@ class ArtCategory extends Model
 
     public function getLabel(?string $language = 'uk'): string
     {
-        $name = $this->name;
-        if (! is_array($name)) {
-            return (string) $name;
-        }
-
-        return $name[$language] ?? $name['uk'] ?? $name['en'] ?? '';
+        return $this->getTranslation('name', $language) ?: '';
     }
 
     /** Slug категорії для API (корінь — свій slug, нащадок — slug батька) */

@@ -8,12 +8,16 @@ use App\Filament\Resources\ArtCategories\Pages\ListArtCategories;
 use App\Filament\Resources\ArtCategories\Schemas\ArtCategoryForm;
 use App\Filament\Resources\ArtCategories\Tables\ArtCategoriesTable;
 use App\Models\ArtCategory;
+use BackedEnum;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Openplain\FilamentTreeView\Fields\TextField;
+use Openplain\FilamentTreeView\Tree;
 use UnitEnum;
-use BackedEnum;
 
 class ArtCategoryResource extends Resource
 {
@@ -39,6 +43,20 @@ class ArtCategoryResource extends Resource
     public static function table(Table $table): Table
     {
         return ArtCategoriesTable::configure($table);
+    }
+
+    public static function tree(Tree $tree): Tree
+    {
+        return $tree
+            ->fields([
+                TextField::make('name')
+                    ->formatStateUsing(fn (mixed $state, ArtCategory $record): string => $record->getLabel('uk')),
+            ])
+            ->recordActions([
+                EditAction::make()
+                    ->url(fn (ArtCategory $record): string => static::getUrl('edit', ['record' => $record])),
+                DeleteAction::make(),
+            ]);
     }
 
     public static function getRelations(): array

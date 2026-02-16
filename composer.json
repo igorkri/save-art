@@ -19,6 +19,7 @@
         "livewire/livewire": "^3.6",
         "mcamara/laravel-localization": "^2.3",
         "mobiledetect/mobiledetectlib": "^4.8",
+        "openplain/filament-tree-view": "^0.5.0",
         "pixelpeter/filament-language-tabs": "^3.0",
         "spatie/laravel-translatable": "^6.11"
     },
