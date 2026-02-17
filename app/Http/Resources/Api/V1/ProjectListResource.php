@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Enums\UserType;
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -54,7 +55,7 @@ class ProjectListResource extends JsonResource
     {
         $language = $this->getLanguage($request);
 
-        return [
+        $data = [
             'id' => $this->id,
             'slug' => $this->slug,
 
@@ -91,6 +92,8 @@ class ProjectListResource extends JsonResource
 
             'can_donate' => $this->canReceiveDonations(),
         ];
+
+        return $data;
     }
 
     /**
@@ -101,7 +104,7 @@ class ProjectListResource extends JsonResource
     private function formatAuthor(User $user, ?string $language): array
     {
         // Перевіряємо чи це юридична особа за полем проєкту
-        $isLegal = $this->is_legal;
+        $isLegal = $this->user_type == UserType::Legal;
 
         if ($isLegal && $user->profileLegal) {
             // Юридична особа - дані з ProfileLegal
@@ -111,7 +114,7 @@ class ProjectListResource extends JsonResource
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->profileLegal->logo ? Storage::url($user->profileLegal->logo) : null,
                 'profession' => $this->localizeField($user->profession, $language),
-                'type' => 'legal',
+                'type' => UserType::Legal,
             ];
         } else {
             // Фізична особа - дані з User
@@ -121,7 +124,7 @@ class ProjectListResource extends JsonResource
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
                 'profession' => $this->localizeField($user->profession, $language),
-                'type' => 'personal',
+                'type' => UserType::Personal,
             ];
         }
     }
