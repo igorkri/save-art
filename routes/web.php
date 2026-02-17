@@ -11,7 +11,7 @@ Route::get('/', function () {
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
-], function() {
+], function () {
     // Публичная часть закрыта
     // Route::get('/', [HomeController::class, 'index']);
 
@@ -19,20 +19,20 @@ Route::group([
     Route::post('/profile/new', [App\Http\Controllers\ProfileController::class, 'store'])->name('profile.new.store');
     Route::get('/profile/legal', [App\Http\Controllers\ProfileController::class, 'legal'])->name('profile.legal');
 
-
-    Route::get('/profile/personal', function() {
+    Route::get('/profile/personal', function () {
         return view('profile.personal');
     })->name('profile.personal');
-    Route::get('/profile/social', function() {
+    Route::get('/profile/social', function () {
         return view('profile.social');
     })->name('profile.social');
-    Route::get('/profile/safety', function() {
+    Route::get('/profile/safety', function () {
         return view('profile.safety');
     })->name('profile.safety');
     // logout
     Route::get('/logout', function () {
         auth()->logout();
         session()->forget('api_token');
+
         return redirect('/admin/login');
     })->name('logout');
 

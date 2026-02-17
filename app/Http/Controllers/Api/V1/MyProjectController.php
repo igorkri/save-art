@@ -403,7 +403,7 @@ class MyProjectController extends Controller
      *     description="Повертає повну інформацію про власний проєкт",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
@@ -438,7 +438,7 @@ class MyProjectController extends Controller
      *     description="Оновлює дані проєкту. Доступно тільки для чернеток та відхилених. Підтримує завантаження обкладинки через multipart/form-data.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -637,7 +637,7 @@ class MyProjectController extends Controller
      *     description="Дозволяє редагувати назву, опис, теги та обкладинку опублікованого проєкту. Бюджет та категорію змінити не можна. Підтримує завантаження обкладинки через multipart/form-data.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -737,7 +737,7 @@ class MyProjectController extends Controller
      *     description="Видаляє проєкт. Доступно тільки для чернеток.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *
      *     @OA\Response(
      *         response=200,
@@ -784,7 +784,7 @@ class MyProjectController extends Controller
      *     description="Відправляє проєкт на розгляд модераторам. Доступно для чернеток та відхилених.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *
      *     @OA\Response(
      *         response=200,
@@ -859,7 +859,7 @@ class MyProjectController extends Controller
      *     description="Завантажує файли фінального результату: зображення, галерею, відео або документ. Доступно для проєктів в роботі або завершених.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -994,7 +994,7 @@ class MyProjectController extends Controller
      *     description="Позначає проєкт як завершений. Перед викликом потрібно завантажити фінальний результат через /final-result/upload.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="integer"), example=1),
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
      *
      *     @OA\Response(
      *         response=200,

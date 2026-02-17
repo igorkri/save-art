@@ -325,4 +325,12 @@ class Project extends Model
         // Якщо дата вже пройшла - повертаємо 0
         return max(0, (int) $daysLeft);
     }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }

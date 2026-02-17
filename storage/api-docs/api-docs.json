@@ -5485,9 +5485,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     },
                     {
                         "name": "language",
@@ -5548,9 +5548,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     }
                 ],
                 "requestBody": {
@@ -5729,9 +5729,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     }
                 ],
                 "responses": {
@@ -5781,9 +5781,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     }
                 ],
                 "requestBody": {
@@ -5956,9 +5956,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     }
                 ],
                 "responses": {
@@ -6013,9 +6013,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     }
                 ],
                 "requestBody": {
@@ -6110,9 +6110,9 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1
+                        "example": "cernetka-16022026-1245"
                     }
                 ],
                 "responses": {
