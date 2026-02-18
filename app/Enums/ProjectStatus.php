@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum ProjectStatus: string
 {
+    case New = 'new';
     case Draft = 'draft';
     case Moderation = 'moderation';
     case Announced = 'announced';
@@ -20,6 +21,7 @@ enum ProjectStatus: string
     {
         $labels = [
             'uk' => match ($this) {
+                self::New => 'Новий',
                 self::Draft => 'Чернетка',
                 self::Moderation => 'На модерації',
                 self::Announced => 'Оголошений',
@@ -30,6 +32,7 @@ enum ProjectStatus: string
                 self::Rejected => 'Відхилений',
             },
             'en' => match ($this) {
+                self::New => 'New',
                 self::Draft => 'Draft',
                 self::Moderation => 'Under Review',
                 self::Announced => 'Announced',
@@ -83,6 +86,7 @@ enum ProjectStatus: string
     public static function privateStatuses(): array
     {
         return [
+            self::New,
             self::Draft,
             self::Moderation,
             self::Rejected,
@@ -102,7 +106,7 @@ enum ProjectStatus: string
      */
     public function isEditable(): bool
     {
-        return in_array($this, [self::Draft, self::Rejected]);
+        return in_array($this, [self::New, self::Draft, self::Rejected]);
     }
 
     /**

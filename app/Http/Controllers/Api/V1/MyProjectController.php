@@ -6,7 +6,7 @@ use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\CreateProjectRequest;
+use App\Http\Requests\Api\V1\StoreProjectRequest;
 use App\Http\Requests\Api\V1\UpdateProjectRequest;
 use App\Http\Requests\Api\V1\UpdatePublishedProjectRequest;
 use App\Http\Resources\Api\V1\ProjectListResource;
@@ -54,7 +54,7 @@ class MyProjectController extends Controller
      *         in="query",
      *         description="Фільтр по статусу",
      *
-     *         @OA\Schema(type="string", enum={"draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"}),
+     *         @OA\Schema(type="string", enum={"new", "draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"}),
      *         example="draft"
      *     ),
      *
@@ -96,14 +96,14 @@ class MyProjectController extends Controller
     }
 
     /**
-     * Створити новий проєкт (чернетку)
+     * Створити або оновити проєкт з різними статусами
      *
      * @OA\Post(
      *     path="/v1/my/projects",
-     *     operationId="createProject",
+     *     operationId="storeProject",
      *     tags={"My Projects"},
-     *     summary="Створити проєкт з етапами та бонусами",
-     *     description="Створює новий проєкт у статусі чернетки разом з етапами реалізації та бонусами для меценатів.",
+     *     summary="Створити проєкт з різними статусами",
+     *     description="Створює новий проєкт або оновлює існуючий по local_id. Підтримує статуси: new (за замовчуванням), draft, moderation. Валідація залежить від статусу - для draft/new поля опціональні.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
@@ -310,25 +310,66 @@ class MyProjectController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
      * )
      */
-    public function store(CreateProjectRequest $request): ProjectResource
+    public function store(StoreProjectRequest $request): ProjectResource
     {
         $data = $request->validated();
+        $projectStatus = $request->getProjectStatus();
+
+        // Проверяем, существует ли проект с таким local_id (для обновления черновиков)
+        $project = null;
+        if ($request->filled('local_id')) {
+            $project = Project::query()
+                ->where('user_id', $request->user()->id)
+                ->whereIn('status', [ProjectStatus::New, ProjectStatus::Draft])
+                ->where('additional_info->local_id', $request->input('local_id'))
+                ->first();
+        }
 
         // Витягуємо stages та bonuses з даних
         $stagesData = $data['stages'] ?? [];
         $bonusesData = $data['bonuses'] ?? [];
         unset($data['stages'], $data['bonuses']);
 
+        if ($project) {
+            // Обновляем существующий проект
+            $this->updateExistingProject($project, $data, $projectStatus);
+        } else {
+            // Создаем новый проект
+            $project = $this->createNewProject($data, $projectStatus, $request);
+        }
+
+        // Обновляем этапы и бонусы
+        $this->updateProjectStagesAndBonuses($project, $stagesData, $bonusesData);
+
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
+    }
+
+    /**
+     * Создать новый проект
+     */
+    private function createNewProject(array $data, ProjectStatus $status, StoreProjectRequest $request): Project
+    {
         // Розв'язуємо art_category + art_subcategory → art_category_id
-        $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
-            $data['art_category'] ?? null,
-            $data['art_subcategory'] ?? null
-        );
+        if (isset($data['art_category'])) {
+            $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+                $data['art_category'] ?? null,
+                $data['art_subcategory'] ?? null
+            );
+        }
         unset($data['art_category'], $data['art_subcategory']);
 
         // Генеруємо унікальний код та slug
         $data['code'] = strtoupper(Str::random(8));
-        $data['slug'] = Str::slug($data['title']['uk'] ?? 'project').'-'.Str::random(6);
+
+        // Генеруємо slug з назви або випадковий для новых проектов
+        if (isset($data['title']['uk'])) {
+            $data['slug'] = Str::slug($data['title']['uk']).'-'.Str::random(6);
+        } else {
+            $titleText = $status === ProjectStatus::New ? 'Новий проект' : 'Чернетка';
+            $data['slug'] = Str::slug($titleText).'-'.now()->format('dmY-Hi').'-'.Str::random(4);
+            // Встановлюємо дефолтну назву, якщо не передана
+            $data['title'] = $data['title'] ?? ['uk' => $titleText.' '.now()->format('d.m.Y H:i')];
+        }
 
         // Обробка обкладинки (файл або Base64)
         if ($request->hasFile('cover')) {
@@ -342,9 +383,9 @@ class MyProjectController extends Controller
             $data['content_blocks'] = $this->imageProcessor->processContentBlocks($data['content_blocks']);
         }
 
-        // Встановлюємо початкові статуси
+        // Встановлюємо статуси
         $data['user_id'] = $request->user()->id;
-        $data['status'] = ProjectStatus::Draft;
+        $data['status'] = $status;
         $data['status_moderation'] = ModerationStatus::Pending;
         $data['budget_collected'] = 0;
         $data['likes_count'] = 0;
@@ -352,44 +393,88 @@ class MyProjectController extends Controller
 
         // Зберігаємо local_id у additional_info для синхронізації з клієнтом
         if ($request->filled('local_id')) {
-            $data['additional_info'] = array_merge(is_array($data['additional_info'] ?? null) ? $data['additional_info'] : [], [
-                'local_id' => $data['local_id'],
-            ]);
+            $additionalInfo = is_array($data['additional_info'] ?? null) ? $data['additional_info'] : [];
+            $additionalInfo['local_id'] = $data['local_id'];
+            $data['additional_info'] = $additionalInfo;
         }
         unset($data['local_id']);
 
-        // Створюємо проєкт та зв'язані дані в транзакції
-        $project = DB::transaction(function () use ($data, $stagesData, $bonusesData) {
-            $project = Project::create($data);
+        return Project::create($data);
+    }
 
-            // Створюємо етапи
-            foreach ($stagesData as $index => $stageData) {
-                $project->stages()->create([
-                    'title' => $stageData['title'],
-                    'description' => $stageData['description'] ?? null,
-                    'days_planned' => $stageData['days_planned'] ?? null,
-                    'budget_planned' => $stageData['budget_planned'] ?? 0,
-                    'order' => $stageData['order'] ?? $index,
-                    'status' => StageStatus::Planned,
-                ]);
+    /**
+     * Обновить существующий проект
+     */
+    private function updateExistingProject(Project $project, array $data, ProjectStatus $status): void
+    {
+        // Обновляем статус
+        $project->status = $status;
+
+        // Обновляем остальные поля, если они переданы
+        foreach ($data as $key => $value) {
+            if ($key === 'local_id') {
+                continue;
+            } // local_id не сохраняем в основных полях
+
+            if ($value !== null) {
+                if ($key === 'cover') {
+                    $project->cover = $this->imageProcessor->processCover($value, $project->cover);
+                } elseif ($key === 'content_blocks') {
+                    $project->content_blocks = $this->imageProcessor->processContentBlocks(
+                        $value,
+                        $project->content_blocks
+                    );
+                } elseif ($key === 'art_category') {
+                    $project->art_category_id = ArtCategory::resolveIdFromSlugs(
+                        $data['art_category'] ?? null,
+                        $data['art_subcategory'] ?? null
+                    );
+                } elseif ($key !== 'art_subcategory') {
+                    $project->$key = $value;
+                }
+            }
+        }
+
+        $project->save();
+    }
+
+    /**
+     * Обновить этапы и бонусы проекта
+     */
+    private function updateProjectStagesAndBonuses(Project $project, array $stagesData, array $bonusesData): void
+    {
+        DB::transaction(function () use ($project, $stagesData, $bonusesData) {
+            // Удаляем старые этапы и бонусы только если переданы новые
+            if (! empty($stagesData)) {
+                $project->stages()->delete();
+
+                foreach ($stagesData as $index => $stageData) {
+                    $project->stages()->create([
+                        'title' => $stageData['title'] ?? ['uk' => 'Этап '.($index + 1)],
+                        'description' => $stageData['description'] ?? null,
+                        'days_planned' => $stageData['days_planned'] ?? null,
+                        'budget_planned' => $stageData['budget_planned'] ?? 0,
+                        'order' => $stageData['order'] ?? $index,
+                        'status' => StageStatus::Planned,
+                    ]);
+                }
             }
 
-            // Створюємо бонуси
-            foreach ($bonusesData as $index => $bonusData) {
-                $project->bonuses()->create([
-                    'title' => $bonusData['title'],
-                    'description' => $bonusData['description'] ?? null,
-                    'min_donation' => $bonusData['min_donation'],
-                    'quantity' => $bonusData['quantity'] ?? null,
-                    'quantity_claimed' => 0,
-                    'order' => $bonusData['order'] ?? $index,
-                ]);
-            }
+            if (! empty($bonusesData)) {
+                $project->bonuses()->delete();
 
-            return $project;
+                foreach ($bonusesData as $index => $bonusData) {
+                    $project->bonuses()->create([
+                        'title' => $bonusData['title'] ?? ['uk' => 'Бонус '.($index + 1)],
+                        'description' => $bonusData['description'] ?? null,
+                        'min_donation' => $bonusData['min_donation'] ?? 1,
+                        'quantity' => $bonusData['quantity'] ?? null,
+                        'quantity_claimed' => 0,
+                        'order' => $bonusData['order'] ?? $index,
+                    ]);
+                }
+            }
         });
-
-        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
     }
 
     /**

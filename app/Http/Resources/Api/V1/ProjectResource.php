@@ -137,10 +137,10 @@ class ProjectResource extends JsonResource
 
             'tags' => $this->localizeField($this->tags, $language),
 
-            'currency' => $this->currency->value,
-            'budget_goal' => (float) $this->budget_goal,
+            'currency' => $this->currency?->value,
+            'budget_goal' => $this->budget_goal ? (float) $this->budget_goal : null,
             'budget_collected' => (float) $this->budget_collected,
-            'progress_percentage' => round($this->getProgressPercentage(), 2),
+            'progress_percentage' => $this->budget_goal ? round($this->getProgressPercentage(), 2) : 0,
 
             'estimated_days' => $this->estimated_days,
 

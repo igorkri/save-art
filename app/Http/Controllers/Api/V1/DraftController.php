@@ -20,100 +20,6 @@ class DraftController extends Controller
     ) {}
 
     /**
-     * Отримати список чернеток користувача
-     *
-     * @OA\Get(
-     *     path="/v1/my/drafts",
-     *     operationId="getDrafts",
-     *     tags={"Drafts"},
-     *     summary="Список чернеток користувача",
-     *     description="Повертає список всіх чернеток (проектів зі статусом Draft) поточного користувача",
-     *     security={{"apiKey": {}, "sanctum": {}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Список чернеток",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="result", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="drafts", type="array",
-     *
-     *                     @OA\Items(type="object",
-     *
-     *                         @OA\Property(property="id", type="integer", example=80),
-     *                         @OA\Property(property="local_id", type="string", nullable=true, example=null),
-     *                         @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, example="legal"),
-     *                         @OA\Property(property="profile", type="object", nullable=true,
-     *                             @OA\Property(property="type", type="string", enum={"personal", "legal", "user_fallback", "fallback", "default"}, example="legal"),
-     *                             @OA\Property(property="logo", type="string", nullable=true, example="/storage/logos/6990be72d04ea_1771093618.jpeg"),
-     *                             @OA\Property(property="name", type="object", nullable=true,
-     *                                 @OA\Property(property="uk", type="string", example="ФОП Кривошей І.О."),
-     *                                 @OA\Property(property="en", type="string", example="IE Kryvoshey I.O.")
-     *                             ),
-     *                             @OA\Property(property="description", type="string", nullable=true)
-     *                         ),
-     *                         @OA\Property(property="slug", type="string", example="kartina-svitanok-nad-dniprom2"),
-     *                         @OA\Property(property="title", type="object",
-     *                             @OA\Property(property="uk", type="string", example="Картина 'Світанок над Дніпром'"),
-     *                             @OA\Property(property="en", type="string", example="Painting 'Dawn over Dnipro'")
-     *                         ),
-     *                         @OA\Property(property="short_description", type="object", nullable=true,
-     *                             @OA\Property(property="uk", type="string", example="Олійний живопис на полотні, присвячений красі українських пейзажів"),
-     *                             @OA\Property(property="en", type="string", example="Oil painting on canvas dedicated to the beauty of Ukrainian landscapes")
-     *                         ),
-     *                         @OA\Property(property="tags", type="object", nullable=true,
-     *                             @OA\Property(property="uk", type="string", example="живопис, пейзаж, Україна"),
-     *                             @OA\Property(property="en", type="string", example="painting, landscape, Ukraine")
-     *                         ),
-     *                         @OA\Property(property="cover", type="string", nullable=true, example="/storage/projects/covers/01KHGV8N5FCWRB9AJEJ4BD02GZ.jpg"),
-     *                         @OA\Property(property="category", type="object", nullable=true,
-     *                             @OA\Property(property="parent_slug", type="string", example="fine_art"),
-     *                             @OA\Property(property="label_uk", type="string", example="Образотворче мистецтво"),
-     *                             @OA\Property(property="label_en", type="string", example="Fine Arts"),
-     *                             @OA\Property(property="subcategory_slug", type="string", nullable=true, example="painting"),
-     *                             @OA\Property(property="subcategory_label_uk", type="string", nullable=true, example="Живопис"),
-     *                             @OA\Property(property="subcategory_label_en", type="string", nullable=true, example="Painting")
-     *                         ),
-     *                         @OA\Property(property="budget_goal", type="number", format="float", example=75000.0),
-     *                         @OA\Property(property="budget_collected", type="number", format="float", example=0.0),
-     *                         @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="EUR"),
-     *                         @OA\Property(property="estimated_days", type="integer", nullable=true, example=90),
-     *                         @OA\Property(property="created_at", type="string", format="date-time", example="2026-02-14T12:54:35+00:00"),
-     *                         @OA\Property(property="updated_at", type="string", format="date-time", example="2026-02-15T14:41:45+00:00")
-     *                     )
-     *                 ),
-     *                 @OA\Property(property="count", type="integer", example=1)
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(response=401, description="Unauthorized")
-     * )
-     */
-    public function index(Request $request): JsonResponse
-    {
-        $user = Auth::user();
-
-        $drafts = Project::query()
-            ->where('user_id', $user->id)
-            ->where('status', ProjectStatus::Draft)
-            ->with(['artCategory.parent', 'user.profileLegal'])
-            ->orderBy('updated_at', 'desc')
-            ->get()
-            ->map(fn (Project $project) => $this->formatDraft($project));
-
-        return response()->json([
-            'result' => true,
-            'data' => [
-                'drafts' => $drafts,
-                'count' => $drafts->count(),
-            ],
-        ]);
-    }
-
-    /**
      * Зберегти або оновити чернетку
      *
      * @OA\Post(
@@ -1038,6 +944,7 @@ class DraftController extends Controller
         }
 
         \Log::info('normalizeProjectData: frontend', ['frontend' => $normalized]);
+
         return $normalized;
     }
 

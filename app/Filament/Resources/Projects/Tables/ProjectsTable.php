@@ -61,6 +61,7 @@ class ProjectsTable
                     ->badge()
                     ->formatStateUsing(fn (ProjectStatus $state): string => $state->getLabel())
                     ->color(fn (ProjectStatus $state): string => match ($state) {
+                        ProjectStatus::New => 'gray',
                         ProjectStatus::Draft => 'gray',
                         ProjectStatus::Moderation => 'warning',
                         ProjectStatus::Announced => 'info',
