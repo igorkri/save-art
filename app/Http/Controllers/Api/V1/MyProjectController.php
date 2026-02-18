@@ -79,14 +79,27 @@ class MyProjectController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
+
         $query = Project::query()
             ->with(['user.profileLegal'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
 
+
         // Фільтр по статусу
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
+        } else {
+            $query->whereIn('status', [
+                ProjectStatus::Moderation,
+                ProjectStatus::Announced,
+                ProjectStatus::InProgress,
+                ProjectStatus::Paused,
+                ProjectStatus::Completed,
+                ProjectStatus::Sold,
+                ProjectStatus::Rejected
+            ]);
+
         }
 
         $perPage = min($request->input('per_page', 15), 50);

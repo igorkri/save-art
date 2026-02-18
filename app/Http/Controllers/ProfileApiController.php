@@ -443,6 +443,30 @@ class ProfileApiController extends Controller
 
     /**
      * Отримати всі документи користувача
+     *
+     * @OA\Get(
+     *     path="/v1/profile/documents",
+     *     operationId="getProfileDocuments",
+     *     tags={"Profile"},
+     *     summary="Отримати всі документи профілю (03.7.4)",
+     *     description="Повертає список всіх документів користувача",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список документів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="documents", type="array",
+     *
+     *                 @OA\Items(ref="#/components/schemas/ProfileDocument")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ")
+     * )
      */
     public function getDocuments(Request $request): \Illuminate\Http\JsonResponse
     {
@@ -457,6 +481,65 @@ class ProfileApiController extends Controller
 
     /**
      * Завантажити новий документ
+     *
+     * @OA\Post(
+     *     path="/v1/profile/documents",
+     *     operationId="uploadProfileDocument",
+     *     tags={"Profile"},
+     *     summary="Завантажити документ профілю (03.7.4)",
+     *     description="Завантажує новий документ до профілю користувача",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *
+     *             @OA\Schema(
+     *                 required={"file"},
+     *
+     *                 @OA\Property(property="file", type="string", format="binary", description="Файл документа (PDF, max 10MB)"),
+     *                 @OA\Property(property="service", type="string", enum={"diia", "vchasno", "iit", "manual"}, example="diia", description="Сервіс для підпису")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Документ успішно завантажено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Документ успішно завантажено."),
+     *             @OA\Property(property="document", ref="#/components/schemas/ProfileDocument")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ"),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Документ з таким вмістом вже існує",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Документ з таким вмістом вже існує."),
+     *             @OA\Property(property="document", ref="#/components/schemas/ProfileDocument")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=422, description="Помилка валідації"),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Помилка при завантаженні документа",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Помилка при завантаженні документа."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function uploadDocument(UploadProfileDocumentRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -516,6 +599,56 @@ class ProfileApiController extends Controller
 
     /**
      * Видалити документ
+     *
+     * @OA\Delete(
+     *     path="/v1/profile/documents/{documentId}",
+     *     operationId="deleteProfileDocument",
+     *     tags={"Profile"},
+     *     summary="Видалити документ профілю (03.7.4)",
+     *     description="Видаляє документ користувача",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="documentId",
+     *         in="path",
+     *         required=true,
+     *         description="ID документа",
+     *
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Документ успішно видалено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Документ успішно видалено.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ"),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Документ не знайдено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Документ не знайдено.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Помилка при видаленні документа",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Помилка при видаленні документа."),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function deleteDocument(Request $request, int $documentId): \Illuminate\Http\JsonResponse
     {
@@ -563,6 +696,46 @@ class ProfileApiController extends Controller
 
     /**
      * Завантажити документ
+     *
+     * @OA\Get(
+     *     path="/v1/profile/documents/{documentId}/download",
+     *     operationId="downloadProfileDocument",
+     *     tags={"Profile"},
+     *     summary="Завантажити файл документа (03.7.4)",
+     *     description="Завантажує файл документа користувача",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="documentId",
+     *         in="path",
+     *         required=true,
+     *         description="ID документа",
+     *
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Файл документа",
+     *
+     *         @OA\MediaType(
+     *             mediaType="application/octet-stream",
+     *
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ"),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Документ або файл не знайдено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Документ не знайдено.")
+     *         )
+     *     )
+     * )
      */
     public function downloadDocument(Request $request, int $documentId): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
     {
@@ -592,6 +765,45 @@ class ProfileApiController extends Controller
 
     /**
      * Отримати інформацію про конкретний документ
+     *
+     * @OA\Get(
+     *     path="/v1/profile/documents/{documentId}",
+     *     operationId="getProfileDocument",
+     *     tags={"Profile"},
+     *     summary="Отримати документ профілю (03.7.4)",
+     *     description="Повертає інформацію про конкретний документ користувача",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="documentId",
+     *         in="path",
+     *         required=true,
+     *         description="ID документа",
+     *
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Інформація про документ",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="document", ref="#/components/schemas/ProfileDocument")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ"),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Документ не знайдено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Документ не знайдено.")
+     *         )
+     *     )
+     * )
      */
     public function getDocument(Request $request, int $documentId): \Illuminate\Http\JsonResponse
     {

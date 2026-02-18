@@ -201,8 +201,20 @@ class ProjectResource extends JsonResource
      */
     private function localizeContentBlocks($contentBlocks, ?string $language): mixed
     {
-        if ($language === null || ! is_array($contentBlocks)) {
+        if (! is_array($contentBlocks)) {
             return $contentBlocks;
+        }
+
+        // Якщо мова не вказана - повертаємо як є, але з перетворенням image в URL
+        if ($language === null) {
+            return array_map(function ($block) {
+                if (is_array($block) && isset($block['image'])) {
+                    $block['image'] = Storage::url($block['image']);
+                    $block['image_url'] = $block['image'];
+                }
+
+                return $block;
+            }, $contentBlocks);
         }
 
         return array_map(function ($block) use ($language) {

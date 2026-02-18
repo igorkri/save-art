@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Enums\Currency;
+use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Models\ArtCategory;
 use App\Models\Project;
@@ -31,6 +32,13 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // ========== Статус проекту ==========
+            'status' => ['sometimes', Rule::in([
+                ProjectStatus::New->value,
+                ProjectStatus::Draft->value,
+                ProjectStatus::Moderation->value,
+            ])],
+
             // ========== Основні поля проекту ==========
             'user_type' => ['sometimes', Rule::enum(UserType::class)],
             'is_legal' => ['sometimes', 'boolean'],

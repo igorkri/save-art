@@ -8889,6 +8889,361 @@
                 ]
             }
         },
+        "/v1/profile/documents": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Отримати всі документи профілю (03.7.4)",
+                "description": "Повертає список всіх документів користувача",
+                "operationId": "getProfileDocuments",
+                "responses": {
+                    "200": {
+                        "description": "Список документів",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "documents": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProfileDocument"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Завантажити документ профілю (03.7.4)",
+                "description": "Завантажує новий документ до профілю користувача",
+                "operationId": "uploadProfileDocument",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "Файл документа (PDF, max 10MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "service": {
+                                        "description": "Сервіс для підпису",
+                                        "type": "string",
+                                        "enum": [
+                                            "diia",
+                                            "vchasno",
+                                            "iit",
+                                            "manual"
+                                        ],
+                                        "example": "diia"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Документ успішно завантажено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Документ успішно завантажено."
+                                        },
+                                        "document": {
+                                            "$ref": "#/components/schemas/ProfileDocument"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    },
+                    "409": {
+                        "description": "Документ з таким вмістом вже існує",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Документ з таким вмістом вже існує."
+                                        },
+                                        "document": {
+                                            "$ref": "#/components/schemas/ProfileDocument"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    },
+                    "500": {
+                        "description": "Помилка при завантаженні документа",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Помилка при завантаженні документа."
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/profile/documents/{documentId}": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Отримати документ профілю (03.7.4)",
+                "description": "Повертає інформацію про конкретний документ користувача",
+                "operationId": "getProfileDocument",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "description": "ID документа",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Інформація про документ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "document": {
+                                            "$ref": "#/components/schemas/ProfileDocument"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    },
+                    "404": {
+                        "description": "Документ не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Документ не знайдено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Видалити документ профілю (03.7.4)",
+                "description": "Видаляє документ користувача",
+                "operationId": "deleteProfileDocument",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "description": "ID документа",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Документ успішно видалено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Документ успішно видалено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    },
+                    "404": {
+                        "description": "Документ не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Документ не знайдено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Помилка при видаленні документа",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Помилка при видаленні документа."
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/profile/documents/{documentId}/download": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Завантажити файл документа (03.7.4)",
+                "description": "Завантажує файл документа користувача",
+                "operationId": "downloadProfileDocument",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "description": "ID документа",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Файл документа",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизований доступ"
+                    },
+                    "404": {
+                        "description": "Документ або файл не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Документ не знайдено."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
         "/v1/profile/password": {
             "put": {
                 "tags": [
