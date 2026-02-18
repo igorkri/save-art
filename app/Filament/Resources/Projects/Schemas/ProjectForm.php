@@ -201,16 +201,16 @@ class ProjectForm
                                     ->itemLabel(fn (array $state): ?string => ($state['name']['uk'] ?? 'Без назви').': '.($state['value']['uk'] ?? 'Без значення')),
                             ]),
 
-                        Tabs\Tab::make('Додаткова інформація')
-                            ->icon('heroicon-o-ellipsis-horizontal')
-                            ->schema([
-                                LanguageTabs::make([
-                                    Textarea::make('additional_info')
-                                        ->label('Додаткова інформація')
-                                        ->rows(5)
-                                        ->columnSpanFull(),
-                                ])->columnSpanFull(),
-                            ]),
+//                        Tabs\Tab::make('Додаткова інформація')
+//                            ->icon('heroicon-o-ellipsis-horizontal')
+//                            ->schema([
+//                                LanguageTabs::make([
+//                                    Textarea::make('additional_info')
+//                                        ->label('Додаткова інформація')
+//                                        ->rows(5)
+//                                        ->columnSpanFull(),
+//                                ])->columnSpanFull(),
+//                            ]),
 
                         Tabs\Tab::make('Контент')
                             ->icon('heroicon-o-document-text')
@@ -455,10 +455,10 @@ class ProjectForm
                     ->schema([
 
                         // is_legal - відображається тільки для адмінів, тому що це поле проєкту, а не користувача
-                        Toggle::make('is_legal')
-                            ->label('Юридична особа')
-                            ->helperText('Проєкт буде відображатися з юридичним статусом, незалежно від статусу користувача-автора')
-                            ->default(false),
+//                        Toggle::make('is_legal')
+//                            ->label('Юридична особа')
+//                            ->helperText('Проєкт буде відображатися з юридичним статусом, незалежно від статусу користувача-автора')
+//                            ->default(false),
 
                         Select::make('status')
                             ->label('Статус проєкту')
