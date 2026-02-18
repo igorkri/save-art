@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Models\Project;
+use App\Rules\ImageOrBase64Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -45,7 +46,7 @@ class UpdatePublishedProjectRequest extends FormRequest
             'short_description.en' => ['nullable', 'string', 'max:1000'],
 
             // Обкладинка
-            'cover' => ['nullable', 'image', 'max:15360'], // 15MB
+            'cover' => ['nullable', new ImageOrBase64Rule(15360)], // 15MB, підтримує файл, Base64, URL
 
             // Теги
             'tags' => ['sometimes', 'array'],
@@ -67,7 +68,7 @@ class UpdatePublishedProjectRequest extends FormRequest
             'content_blocks.*.paragraph_text' => ['nullable', 'array'],
             'content_blocks.*.paragraph_text.uk' => ['nullable', 'string', 'max:10000'],
             'content_blocks.*.paragraph_text.en' => ['nullable', 'string', 'max:10000'],
-            'content_blocks.*.image' => ['nullable', 'string', 'max:500'],
+            'content_blocks.*.image' => ['nullable', new ImageOrBase64Rule(15360)],
             'content_blocks.*.image_alt' => ['nullable', 'array'],
             'content_blocks.*.image_alt.uk' => ['nullable', 'string', 'max:255'],
             'content_blocks.*.image_alt.en' => ['nullable', 'string', 'max:255'],

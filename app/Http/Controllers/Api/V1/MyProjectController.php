@@ -102,212 +102,139 @@ class MyProjectController extends Controller
      *     path="/v1/my/projects",
      *     operationId="storeProject",
      *     tags={"My Projects"},
-     *     summary="Створити проєкт з різними статусами",
-     *     description="Створює новий проєкт або оновлює існуючий по local_id. Підтримує статуси: new (за замовчуванням), draft, moderation. Валідація залежить від статусу - для draft/new поля опціональні.",
+     *     summary="Створити проєкт (від порожнього {} до повного)",
+     *     description="Створює новий проєкт або оновлює існуючий по local_id. Мінімальний запит: {} (порожній об'єкт) створює проєкт зі статусом 'new'. Статуси: 'new'/'draft' - мінімальна валідація, 'moderation' - повна валідація. Повна документація: docs/api/project-create-examples.json",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *
-     *             @OA\Schema(
-     *                 required={"title[uk]", "user_type", "art_category", "currency", "budget_goal"},
-     *
-     *                 @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, example="personal", description="Тип автора"),
-     *                 @OA\Property(property="title[uk]", type="string", example="Картина 'Світанок над Дніпром'", description="Назва українською (обов'язкова)"),
-     *                 @OA\Property(property="title[en]", type="string", example="Painting 'Dawn over Dnipro'", description="Назва англійською"),
-     *                 @OA\Property(property="short_description[uk]", type="string", example="Олійний живопис на полотні, присвячений красі українських пейзажів"),
-     *                 @OA\Property(property="short_description[en]", type="string", example="Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"),
-     *                 @OA\Property(property="cover", type="string", format="binary", description="Обкладинка проєкту (JPG, PNG, до 15MB)"),
-     *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="fine_art"),
-     *                 @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
-     *                 @OA\Property(property="tags[uk]", type="string", example="живопис, пейзаж, Україна, олія"),
-     *                 @OA\Property(property="tags[en]", type="string", example="painting, landscape, Ukraine, oil"),
-     *                 @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
-     *                 @OA\Property(property="budget_goal", type="number", format="float", minimum=100, example=75000),
-     *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, example=90),
-     *                 @OA\Property(property="content_blocks", type="string", description="JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image. Приклад: [{""type"":""heading"",""heading_level"":""h2"",""heading_text"":{""uk"":""Заголовок""}}]")
-     *             )
-     *         ),
-     *
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *
-     *             @OA\Schema(
-     *                 required={"title", "user_type", "art_category", "currency", "budget_goal"},
-     *                 example={
-     *                     "user_type": "personal",
-     *                     "title": {"uk": "Картина 'Світанок над Дніпром'", "en": "Painting 'Dawn over Dnipro'"},
-     *                     "short_description": {"uk": "Олійний живопис на полотні, присвячений красі українських пейзажів", "en": "Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"},
-     *                     "art_category": "fine_art",
-     *                     "art_subcategory": "painting",
-     *                     "tags": {"uk": "живопис, пейзаж, Україна", "en": "painting, landscape, Ukraine"},
-     *                     "currency": "UAH",
-     *                     "budget_goal": 75000,
-     *                     "estimated_days": 90,
-     *                     "budget_items": {
-     *                         {"name": {"uk": "Фарби та матеріали", "en": "Paints and materials"}, "amount": 15000},
-     *                         {"name": {"uk": "Полотно та підрамник", "en": "Canvas and stretcher"}, "amount": 8000},
-     *                         {"name": {"uk": "Рама для картини", "en": "Picture frame"}, "amount": 12000},
-     *                         {"name": {"uk": "Оренда студії", "en": "Studio rent"}, "amount": 20000},
-     *                         {"name": {"uk": "Доставка та пакування", "en": "Delivery and packaging"}, "amount": 5000},
-     *                         {"name": {"uk": "Комісія платформи", "en": "Platform commission"}, "amount": 15000}
-     *                     },
-     *                     "characteristics": {
-     *                         {"name": {"uk": "Розмір", "en": "Size"}, "value": {"uk": "100x150 см", "en": "100x150 cm"}},
-     *                         {"name": {"uk": "Техніка", "en": "Technique"}, "value": {"uk": "Олія на полотні", "en": "Oil on canvas"}},
-     *                         {"name": {"uk": "Рік створення", "en": "Year"}, "value": {"uk": "2024", "en": "2024"}}
-     *                     },
-     *                     "additional_info": {"uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.", "en": "The painting will be ready within 3 months. Free delivery within Ukraine."},
-     *                     "content_blocks": {
-     *                         {"type": "heading", "heading_level": "h2", "heading_text": {"uk": "Про проєкт", "en": "About the project"}},
-     *                         {"type": "paragraph", "paragraph_text": {"uk": "Опис проєкту...", "en": "Project description..."}},
-     *                         {"type": "image", "image": "projects/content/img.jpg", "image_alt": {"uk": "Опис", "en": "Description"}}
-     *                     },
-     *                     "stages": {
-     *                         {"title": {"uk": "Підготовка ескізів", "en": "Sketch preparation"}, "description": {"uk": "Створення детальних ескізів та вибір композиції", "en": "Creating detailed sketches and choosing the composition"}, "days_planned": 14, "budget_planned": 5000},
-     *                         {"title": {"uk": "Підготовка полотна", "en": "Canvas preparation"}, "description": {"uk": "Натягування полотна, ґрунтування", "en": "Stretching canvas, priming"}, "days_planned": 7, "budget_planned": 8000},
-     *                         {"title": {"uk": "Основна робота", "en": "Main work"}, "description": {"uk": "Нанесення фарб, робота над деталями", "en": "Applying paints, working on details"}, "days_planned": 45, "budget_planned": 35000},
-     *                         {"title": {"uk": "Завершення та оформлення", "en": "Finishing and framing"}, "description": {"uk": "Лакування, оформлення в раму", "en": "Varnishing, framing"}, "days_planned": 14, "budget_planned": 17000},
-     *                         {"title": {"uk": "Доставка", "en": "Delivery"}, "description": {"uk": "Пакування та відправка покупцю", "en": "Packaging and shipping to buyer"}, "days_planned": 10, "budget_planned": 10000}
-     *                     },
-     *                     "bonuses": {
-     *                         {"title": {"uk": "Подяка на сайті", "en": "Thanks on website"}, "description": {"uk": "Ваше ім'я буде вказано у списку меценатів проєкту", "en": "Your name will be listed among project patrons"}, "min_donation": 100, "quantity": null},
-     *                         {"title": {"uk": "Листівка з репродукцією", "en": "Postcard with reproduction"}, "description": {"uk": "Авторська листівка з репродукцією картини", "en": "Author's postcard with painting reproduction"}, "min_donation": 500, "quantity": 100},
-     *                         {"title": {"uk": "Підписаний принт А4", "en": "Signed A4 print"}, "description": {"uk": "Якісний принт картини з підписом автора", "en": "Quality print of the painting with author's signature"}, "min_donation": 1500, "quantity": 50},
-     *                         {"title": {"uk": "Підписаний принт А3", "en": "Signed A3 print"}, "description": {"uk": "Великий принт картини з підписом та сертифікатом", "en": "Large print with signature and certificate"}, "min_donation": 3000, "quantity": 25},
-     *                         {"title": {"uk": "Відвідування студії", "en": "Studio visit"}, "description": {"uk": "Особиста екскурсія до студії та спостереження за процесом створення", "en": "Personal studio tour and watching the creation process"}, "min_donation": 5000, "quantity": 10},
-     *                         {"title": {"uk": "Оригінальний ескіз", "en": "Original sketch"}, "description": {"uk": "Один з оригінальних ескізів до картини з підписом", "en": "One of the original sketches with signature"}, "min_donation": 10000, "quantity": 5}
-     *                     }
-     *                 },
-     *
-     *                 @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, description="Тип автора"),
-     *                 @OA\Property(property="title", type="object", description="Назва проєкту",
-     *                     @OA\Property(property="uk", type="string", description="Українською (обов'язково)"),
-     *                     @OA\Property(property="en", type="string", description="Англійською")
-     *                 ),
-     *                 @OA\Property(property="short_description", type="object", description="Короткий опис",
-     *                     @OA\Property(property="uk", type="string", maxLength=1000),
-     *                     @OA\Property(property="en", type="string", maxLength=1000)
-     *                 ),
-     *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, description="Галузь мистецтва"),
-     *                 @OA\Property(property="art_subcategory", type="string", nullable=true, description="Підкатегорія"),
-     *                 @OA\Property(property="tags", type="object", description="Теги через кому",
-     *                     @OA\Property(property="uk", type="string"),
-     *                     @OA\Property(property="en", type="string")
-     *                 ),
-     *                 @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, description="Валюта"),
-     *                 @OA\Property(property="budget_goal", type="number", minimum=100, description="Ціль збору"),
-     *                 @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365, description="Термін реалізації (днів)"),
-     *                 @OA\Property(property="budget_items", type="array", description="Статті бюджету",
-     *
-     *                     @OA\Items(type="object",
-     *
-     *                         @OA\Property(property="name", type="object",
-     *                             @OA\Property(property="uk", type="string"),
-     *                             @OA\Property(property="en", type="string")
-     *                         ),
-     *                         @OA\Property(property="amount", type="number", description="Сума")
-     *                     )
-     *                 ),
-     *                 @OA\Property(property="characteristics", type="array", description="Характеристики проєкту",
-     *
-     *                     @OA\Items(type="object",
-     *
-     *                         @OA\Property(property="name", type="object",
-     *                             @OA\Property(property="uk", type="string"),
-     *                             @OA\Property(property="en", type="string")
-     *                         ),
-     *                         @OA\Property(property="value", type="object",
-     *                             @OA\Property(property="uk", type="string"),
-     *                             @OA\Property(property="en", type="string")
-     *                         )
-     *                     )
-     *                 ),
-     *                 @OA\Property(property="additional_info", type="object", description="Додаткова інформація",
-     *                     @OA\Property(property="uk", type="string", maxLength=10000),
-     *                     @OA\Property(property="en", type="string", maxLength=10000)
-     *                 ),
-     *                 @OA\Property(property="content_blocks", type="array", description="Контент-блоки проєкту (до 50)", maxItems=50,
-     *
-     *                     @OA\Items(type="object",
-     *                         required={"type"},
-     *
-     *                         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}, description="Тип блоку"),
-     *                         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}, description="Рівень заголовка (для type=heading)"),
-     *                         @OA\Property(property="heading_text", type="object", description="Текст заголовка (для type=heading)",
-     *                             @OA\Property(property="uk", type="string", maxLength=255),
-     *                             @OA\Property(property="en", type="string", maxLength=255)
-     *                         ),
-     *                         @OA\Property(property="paragraph_text", type="object", description="Текст параграфа (для type=paragraph)",
-     *                             @OA\Property(property="uk", type="string", maxLength=10000),
-     *                             @OA\Property(property="en", type="string", maxLength=10000)
-     *                         ),
-     *                         @OA\Property(property="image", type="string", maxLength=500, description="Шлях до зображення (для type=image)"),
-     *                         @OA\Property(property="image_alt", type="object", description="Alt текст (для type=image)",
-     *                             @OA\Property(property="uk", type="string", maxLength=255),
-     *                             @OA\Property(property="en", type="string", maxLength=255)
-     *                         ),
-     *                         @OA\Property(property="image_caption", type="object", description="Підпис (для type=image)",
-     *                             @OA\Property(property="uk", type="string", maxLength=500),
-     *                             @OA\Property(property="en", type="string", maxLength=500)
-     *                         )
-     *                     )
-     *                 ),
-     *                 @OA\Property(property="stages", type="array", description="Етапи реалізації (до 20)",
-     *
-     *                     @OA\Items(type="object",
-     *                         required={"title"},
-     *
-     *                         @OA\Property(property="title", type="object", required={"uk"},
-     *                             @OA\Property(property="uk", type="string", description="Назва українською (обов'язково)"),
-     *                             @OA\Property(property="en", type="string")
-     *                         ),
-     *                         @OA\Property(property="description", type="object",
-     *                             @OA\Property(property="uk", type="string", maxLength=2000),
-     *                             @OA\Property(property="en", type="string", maxLength=2000)
-     *                         ),
-     *                         @OA\Property(property="days_planned", type="integer", minimum=1, description="Планова тривалість (днів)"),
-     *                         @OA\Property(property="budget_planned", type="number", minimum=0, description="Плановий бюджет"),
-     *                         @OA\Property(property="order", type="integer", minimum=0, description="Порядок (автоматично якщо не вказано)")
-     *                     )
-     *                 ),
-     *                 @OA\Property(property="bonuses", type="array", description="Бонуси для меценатів (до 20)",
-     *
-     *                     @OA\Items(type="object",
-     *                         required={"title", "min_donation"},
-     *
-     *                         @OA\Property(property="title", type="object", required={"uk"},
-     *                             @OA\Property(property="uk", type="string", description="Назва українською (обов'язково)"),
-     *                             @OA\Property(property="en", type="string")
-     *                         ),
-     *                         @OA\Property(property="description", type="object",
-     *                             @OA\Property(property="uk", type="string", maxLength=2000),
-     *                             @OA\Property(property="en", type="string", maxLength=2000)
-     *                         ),
-     *                         @OA\Property(property="min_donation", type="number", minimum=10, description="Мінімальна сума підтримки"),
-     *                         @OA\Property(property="quantity", type="integer", nullable=true, minimum=1, description="Кількість (null = необмежено)"),
-     *                         @OA\Property(property="order", type="integer", minimum=0, description="Порядок (автоматично якщо не вказано)")
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Проєкт створено",
+     *         required=false,
+     *         description="Дані проєкту. Мінімальний запит: {} створює проєкт зі статусом 'new'. Для статусу 'moderation' обов'язкові: user_type, title.uk, art_category, currency, budget_goal",
      *
      *         @OA\JsonContent(
+     *             type="object",
+     *             example={
+     *                 "status": "moderation",
+     *                 "local_id": "mobile-draft-12345",
+     *                 "user_type": "personal",
+     *                 "title": {
+     *                     "uk": "Картина 'Світанок над Дніпром'",
+     *                     "en": "Painting 'Dawn over Dnipro'"
+     *                 },
+     *                 "short_description": {
+     *                     "uk": "Олійний живопис на полотні розміром 100x150 см, присвячений красі українських пейзажів",
+     *                     "en": "Oil painting on canvas 100x150 cm, dedicated to the beauty of Ukrainian landscapes"
+     *                 },
+     *                 "cover": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+     *                 "art_category": "fine_art",
+     *                 "art_subcategory": "painting",
+     *                 "tags": {
+     *                     "uk": "живопис, пейзаж, Україна, олія, природа",
+     *                     "en": "painting, landscape, Ukraine, oil, nature"
+     *                 },
+     *                 "currency": "UAH",
+     *                 "budget_goal": 75000,
+     *                 "estimated_days": 90,
+     *                 "budget_items": {
+     *                     {"name": {"uk": "Фарби та пензлі", "en": "Paints and brushes"}, "amount": 15000},
+     *                     {"name": {"uk": "Полотно та підрамник", "en": "Canvas and stretcher"}, "amount": 8000},
+     *                     {"name": {"uk": "Рама для картини", "en": "Picture frame"}, "amount": 12000},
+     *                     {"name": {"uk": "Оренда студії (3 міс)", "en": "Studio rent (3 months)"}, "amount": 20000},
+     *                     {"name": {"uk": "Доставка та пакування", "en": "Delivery and packaging"}, "amount": 5000},
+     *                     {"name": {"uk": "Комісія платформи (13%)", "en": "Platform commission (13%)"}, "amount": 10000}
+     *                 },
+     *                 "characteristics": {
+     *                     {"name": {"uk": "Розмір", "en": "Size"}, "value": {"uk": "100×150 см", "en": "100×150 cm"}},
+     *                     {"name": {"uk": "Техніка", "en": "Technique"}, "value": {"uk": "Олія на полотні", "en": "Oil on canvas"}},
+     *                     {"name": {"uk": "Рік створення", "en": "Year"}, "value": {"uk": "2026", "en": "2026"}},
+     *                     {"name": {"uk": "Стиль", "en": "Style"}, "value": {"uk": "Імпресіонізм", "en": "Impressionism"}}
+     *                 },
+     *                 "additional_info": {
+     *                     "uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.",
+     *                     "en": "The painting will be ready within 3 months. Free delivery within Ukraine."
+     *                 },
+     *                 "content_blocks": {
+     *                     {"type": "heading", "heading_level": "h2", "heading_text": {"uk": "Про проєкт", "en": "About the Project"}},
+     *                     {"type": "paragraph", "paragraph_text": {"uk": "Цей проєкт народився з мого глибокого захоплення українськими пейзажами...", "en": "This project was born from my deep fascination with Ukrainian landscapes..."}},
+     *                     {"type": "image", "image": "data:image/jpeg;base64,/9j/4AAQ...", "image_alt": {"uk": "Ескіз картини", "en": "Sketch"}}
+     *                 },
+     *                 "stages": {
+     *                     {"title": {"uk": "Підготовка ескізів", "en": "Sketch preparation"}, "description": {"uk": "Створення детальних ескізів", "en": "Creating detailed sketches"}, "days_planned": 14, "budget_planned": 5000, "order": 1},
+     *                     {"title": {"uk": "Підготовка полотна", "en": "Canvas preparation"}, "description": {"uk": "Натягування полотна, ґрунтування", "en": "Stretching canvas, priming"}, "days_planned": 7, "budget_planned": 8000, "order": 2},
+     *                     {"title": {"uk": "Основна робота", "en": "Main work"}, "description": {"uk": "Написання картини олійними фарбами", "en": "Painting with oil paints"}, "days_planned": 45, "budget_planned": 35000, "order": 3},
+     *                     {"title": {"uk": "Завершення та фіксація", "en": "Finishing"}, "description": {"uk": "Лакування, підготовка до оформлення", "en": "Varnishing, preparation for framing"}, "days_planned": 14, "budget_planned": 17000, "order": 4},
+     *                     {"title": {"uk": "Доставка", "en": "Delivery"}, "description": {"uk": "Пакування та доставка", "en": "Packaging and delivery"}, "days_planned": 10, "budget_planned": 10000, "order": 5}
+     *                 },
+     *                 "bonuses": {
+     *                     {"title": {"uk": "Подяка на сайті", "en": "Thanks on website"}, "description": {"uk": "Ваше ім'я у списку меценатів", "en": "Your name in patrons list"}, "min_donation": 100, "quantity": null, "order": 1},
+     *                     {"title": {"uk": "Листівка з репродукцією", "en": "Postcard"}, "description": {"uk": "Авторська листівка з репродукцією", "en": "Author's postcard with reproduction"}, "min_donation": 500, "quantity": 100, "order": 2},
+     *                     {"title": {"uk": "Підписаний принт А4", "en": "Signed A4 print"}, "description": {"uk": "Принт з підписом автора", "en": "Print with author's signature"}, "min_donation": 1500, "quantity": 50, "order": 3},
+     *                     {"title": {"uk": "Принт А3 + сертифікат", "en": "A3 print + certificate"}, "description": {"uk": "Принт А3 з сертифікатом", "en": "A3 print with certificate"}, "min_donation": 3000, "quantity": 25, "order": 4},
+     *                     {"title": {"uk": "Відвідування студії", "en": "Studio visit"}, "description": {"uk": "Екскурсія до студії", "en": "Studio tour"}, "min_donation": 5000, "quantity": 10, "order": 5},
+     *                     {"title": {"uk": "Оригінальний ескіз", "en": "Original sketch"}, "description": {"uk": "Ескіз з підписом", "en": "Sketch with signature"}, "min_donation": 10000, "quantity": 5, "order": 6}
+     *                 }
+     *             },
      *
-     *             @OA\Property(property="data", ref="#/components/schemas/Project")
+     *             @OA\Property(property="status", type="string", enum={"new", "draft", "moderation"}, description="new - мінімальний (default), draft - чернетка, moderation - на модерацію"),
+     *             @OA\Property(property="local_id", type="string", maxLength=100, description="ID для синхронізації з клієнтом"),
+     *             @OA\Property(property="user_type", type="string", enum={"personal", "legal"}, description="Тип автора (обов'язково для moderation)"),
+     *             @OA\Property(property="title", type="object",
+     *                 @OA\Property(property="uk", type="string", maxLength=255, description="Українською (обов'язково для moderation)"),
+     *                 @OA\Property(property="en", type="string", maxLength=255, description="Англійською (опціонально)")
+     *             ),
+     *             @OA\Property(property="short_description", type="object",
+     *                 @OA\Property(property="uk", type="string", maxLength=1000),
+     *                 @OA\Property(property="en", type="string", maxLength=1000)
+     *             ),
+     *             @OA\Property(property="cover", type="string", description="Base64 зображення або URL"),
+     *             @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, description="Обов'язково для moderation"),
+     *             @OA\Property(property="art_subcategory", type="string", maxLength=100),
+     *             @OA\Property(property="tags", type="object",
+     *                 @OA\Property(property="uk", type="string", maxLength=500, description="Теги через кому"),
+     *                 @OA\Property(property="en", type="string", maxLength=500)
+     *             ),
+     *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, description="Обов'язково для moderation"),
+     *             @OA\Property(property="budget_goal", type="number", minimum=100, maximum=999999999, description="Обов'язково для moderation"),
+     *             @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365),
+     *             @OA\Property(property="budget_items", type="array", maxItems=50, @OA\Items(type="object",
+     *                 @OA\Property(property="name", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="amount", type="number", minimum=0)
+     *             )),
+     *             @OA\Property(property="characteristics", type="array", maxItems=20, @OA\Items(type="object",
+     *                 @OA\Property(property="name", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="value", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string"))
+     *             )),
+     *             @OA\Property(property="additional_info", type="object",
+     *                 @OA\Property(property="uk", type="string", maxLength=5000),
+     *                 @OA\Property(property="en", type="string", maxLength=5000)
+     *             ),
+     *             @OA\Property(property="content_blocks", type="array", maxItems=50, @OA\Items(type="object",
+     *                 @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}),
+     *                 @OA\Property(property="heading_level", type="string", enum={"h1", "h2", "h3", "h4", "h5", "h6"}),
+     *                 @OA\Property(property="heading_text", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="paragraph_text", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="image", type="string"),
+     *                 @OA\Property(property="image_alt", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string"))
+     *             )),
+     *             @OA\Property(property="stages", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="title", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="description", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="days_planned", type="integer", minimum=1),
+     *                 @OA\Property(property="budget_planned", type="number", minimum=0),
+     *                 @OA\Property(property="order", type="integer", minimum=0)
+     *             )),
+     *             @OA\Property(property="bonuses", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="title", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="description", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
+     *                 @OA\Property(property="min_donation", type="number", minimum=1),
+     *                 @OA\Property(property="quantity", type="integer", nullable=true, minimum=1, description="null = необмежено"),
+     *                 @OA\Property(property="order", type="integer", minimum=0)
+     *             ))
      *         )
      *     ),
      *
-     *     @OA\Response(response=401, description="Не авторизовано"),
-     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     *     @OA\Response(response=200, description="Проєкт створено або оновлено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Project"))),
+     *     @OA\Response(response=401, description="Не авторизований"),
+     *     @OA\Response(response=422, description="Помилка валідації (для status=moderation)", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
      * )
      */
     public function store(StoreProjectRequest $request): ProjectResource

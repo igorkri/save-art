@@ -4469,120 +4469,32 @@
                 "tags": [
                     "My Projects"
                 ],
-                "summary": "Створити проєкт з різними статусами",
-                "description": "Створює новий проєкт або оновлює існуючий по local_id. Підтримує статуси: new (за замовчуванням), draft, moderation. Валідація залежить від статусу - для draft/new поля опціональні.",
+                "summary": "Створити проєкт (від порожнього {} до повного)",
+                "description": "Створює новий проєкт або оновлює існуючий по local_id. Мінімальний запит: {} (порожній об'єкт) створює проєкт зі статусом 'new'. Статуси: 'new'/'draft' - мінімальна валідація, 'moderation' - повна валідація. Повна документація: docs/api/project-create-examples.json",
                 "operationId": "storeProject",
                 "requestBody": {
-                    "required": true,
+                    "description": "Дані проєкту. Мінімальний запит: {} створює проєкт зі статусом 'new'. Для статусу 'moderation' обов'язкові: user_type, title.uk, art_category, currency, budget_goal",
+                    "required": false,
                     "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "title[uk]",
-                                    "user_type",
-                                    "art_category",
-                                    "currency",
-                                    "budget_goal"
-                                ],
-                                "properties": {
-                                    "user_type": {
-                                        "description": "Тип автора",
-                                        "type": "string",
-                                        "enum": [
-                                            "personal",
-                                            "legal"
-                                        ],
-                                        "example": "personal"
-                                    },
-                                    "title[uk]": {
-                                        "description": "Назва українською (обов'язкова)",
-                                        "type": "string",
-                                        "example": "Картина 'Світанок над Дніпром'"
-                                    },
-                                    "title[en]": {
-                                        "description": "Назва англійською",
-                                        "type": "string",
-                                        "example": "Painting 'Dawn over Dnipro'"
-                                    },
-                                    "short_description[uk]": {
-                                        "type": "string",
-                                        "example": "Олійний живопис на полотні, присвячений красі українських пейзажів"
-                                    },
-                                    "short_description[en]": {
-                                        "type": "string",
-                                        "example": "Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"
-                                    },
-                                    "cover": {
-                                        "description": "Обкладинка проєкту (JPG, PNG, до 15MB)",
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "art_category": {
-                                        "type": "string",
-                                        "enum": [
-                                            "scenic",
-                                            "visual",
-                                            "fine_art",
-                                            "literature",
-                                            "music",
-                                            "other"
-                                        ],
-                                        "example": "fine_art"
-                                    },
-                                    "art_subcategory": {
-                                        "type": "string",
-                                        "example": "painting",
-                                        "nullable": true
-                                    },
-                                    "tags[uk]": {
-                                        "type": "string",
-                                        "example": "живопис, пейзаж, Україна, олія"
-                                    },
-                                    "tags[en]": {
-                                        "type": "string",
-                                        "example": "painting, landscape, Ukraine, oil"
-                                    },
-                                    "currency": {
-                                        "type": "string",
-                                        "enum": [
-                                            "UAH",
-                                            "USD",
-                                            "EUR"
-                                        ],
-                                        "example": "UAH"
-                                    },
-                                    "budget_goal": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "minimum": 100,
-                                        "example": 75000
-                                    },
-                                    "estimated_days": {
-                                        "type": "integer",
-                                        "maximum": 365,
-                                        "minimum": 1,
-                                        "example": 90
-                                    },
-                                    "content_blocks": {
-                                        "description": "JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image. Приклад: [{\"type\":\"heading\",\"heading_level\":\"h2\",\"heading_text\":{\"uk\":\"Заголовок\"}}]",
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "user_type",
-                                    "art_category",
-                                    "currency",
-                                    "budget_goal"
-                                ],
                                 "properties": {
+                                    "status": {
+                                        "description": "new - мінімальний (default), draft - чернетка, moderation - на модерацію",
+                                        "type": "string",
+                                        "enum": [
+                                            "new",
+                                            "draft",
+                                            "moderation"
+                                        ]
+                                    },
+                                    "local_id": {
+                                        "description": "ID для синхронізації з клієнтом",
+                                        "type": "string",
+                                        "maxLength": 100
+                                    },
                                     "user_type": {
-                                        "description": "Тип автора",
+                                        "description": "Тип автора (обов'язково для moderation)",
                                         "type": "string",
                                         "enum": [
                                             "personal",
@@ -4590,21 +4502,21 @@
                                         ]
                                     },
                                     "title": {
-                                        "description": "Назва проєкту",
                                         "properties": {
                                             "uk": {
-                                                "description": "Українською (обов'язково)",
-                                                "type": "string"
+                                                "description": "Українською (обов'язково для moderation)",
+                                                "type": "string",
+                                                "maxLength": 255
                                             },
                                             "en": {
-                                                "description": "Англійською",
-                                                "type": "string"
+                                                "description": "Англійською (опціонально)",
+                                                "type": "string",
+                                                "maxLength": 255
                                             }
                                         },
                                         "type": "object"
                                     },
                                     "short_description": {
-                                        "description": "Короткий опис",
                                         "properties": {
                                             "uk": {
                                                 "type": "string",
@@ -4617,8 +4529,12 @@
                                         },
                                         "type": "object"
                                     },
+                                    "cover": {
+                                        "description": "Base64 зображення або URL",
+                                        "type": "string"
+                                    },
                                     "art_category": {
-                                        "description": "Галузь мистецтва",
+                                        "description": "Обов'язково для moderation",
                                         "type": "string",
                                         "enum": [
                                             "scenic",
@@ -4630,24 +4546,25 @@
                                         ]
                                     },
                                     "art_subcategory": {
-                                        "description": "Підкатегорія",
                                         "type": "string",
-                                        "nullable": true
+                                        "maxLength": 100
                                     },
                                     "tags": {
-                                        "description": "Теги через кому",
                                         "properties": {
                                             "uk": {
-                                                "type": "string"
+                                                "description": "Теги через кому",
+                                                "type": "string",
+                                                "maxLength": 500
                                             },
                                             "en": {
-                                                "type": "string"
+                                                "type": "string",
+                                                "maxLength": 500
                                             }
                                         },
                                         "type": "object"
                                     },
                                     "currency": {
-                                        "description": "Валюта",
+                                        "description": "Обов'язково для moderation",
                                         "type": "string",
                                         "enum": [
                                             "UAH",
@@ -4656,18 +4573,17 @@
                                         ]
                                     },
                                     "budget_goal": {
-                                        "description": "Ціль збору",
+                                        "description": "Обов'язково для moderation",
                                         "type": "number",
+                                        "maximum": 999999999,
                                         "minimum": 100
                                     },
                                     "estimated_days": {
-                                        "description": "Термін реалізації (днів)",
                                         "type": "integer",
                                         "maximum": 365,
                                         "minimum": 1
                                     },
                                     "budget_items": {
-                                        "description": "Статті бюджету",
                                         "type": "array",
                                         "items": {
                                             "properties": {
@@ -4683,15 +4599,15 @@
                                                     "type": "object"
                                                 },
                                                 "amount": {
-                                                    "description": "Сума",
-                                                    "type": "number"
+                                                    "type": "number",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "type": "object"
-                                        }
+                                        },
+                                        "maxItems": 50
                                     },
                                     "characteristics": {
-                                        "description": "Характеристики проєкту",
                                         "type": "array",
                                         "items": {
                                             "properties": {
@@ -4719,32 +4635,27 @@
                                                 }
                                             },
                                             "type": "object"
-                                        }
+                                        },
+                                        "maxItems": 20
                                     },
                                     "additional_info": {
-                                        "description": "Додаткова інформація",
                                         "properties": {
                                             "uk": {
                                                 "type": "string",
-                                                "maxLength": 10000
+                                                "maxLength": 5000
                                             },
                                             "en": {
                                                 "type": "string",
-                                                "maxLength": 10000
+                                                "maxLength": 5000
                                             }
                                         },
                                         "type": "object"
                                     },
                                     "content_blocks": {
-                                        "description": "Контент-блоки проєкту (до 50)",
                                         "type": "array",
                                         "items": {
-                                            "required": [
-                                                "type"
-                                            ],
                                             "properties": {
                                                 "type": {
-                                                    "description": "Тип блоку",
                                                     "type": "string",
                                                     "enum": [
                                                         "heading",
@@ -4753,9 +4664,9 @@
                                                     ]
                                                 },
                                                 "heading_level": {
-                                                    "description": "Рівень заголовка (для type=heading)",
                                                     "type": "string",
                                                     "enum": [
+                                                        "h1",
                                                         "h2",
                                                         "h3",
                                                         "h4",
@@ -4764,62 +4675,37 @@
                                                     ]
                                                 },
                                                 "heading_text": {
-                                                    "description": "Текст заголовка (для type=heading)",
                                                     "properties": {
                                                         "uk": {
-                                                            "type": "string",
-                                                            "maxLength": 255
+                                                            "type": "string"
                                                         },
                                                         "en": {
-                                                            "type": "string",
-                                                            "maxLength": 255
+                                                            "type": "string"
                                                         }
                                                     },
                                                     "type": "object"
                                                 },
                                                 "paragraph_text": {
-                                                    "description": "Текст параграфа (для type=paragraph)",
                                                     "properties": {
                                                         "uk": {
-                                                            "type": "string",
-                                                            "maxLength": 10000
+                                                            "type": "string"
                                                         },
                                                         "en": {
-                                                            "type": "string",
-                                                            "maxLength": 10000
+                                                            "type": "string"
                                                         }
                                                     },
                                                     "type": "object"
                                                 },
                                                 "image": {
-                                                    "description": "Шлях до зображення (для type=image)",
-                                                    "type": "string",
-                                                    "maxLength": 500
+                                                    "type": "string"
                                                 },
                                                 "image_alt": {
-                                                    "description": "Alt текст (для type=image)",
                                                     "properties": {
                                                         "uk": {
-                                                            "type": "string",
-                                                            "maxLength": 255
+                                                            "type": "string"
                                                         },
                                                         "en": {
-                                                            "type": "string",
-                                                            "maxLength": 255
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "image_caption": {
-                                                    "description": "Підпис (для type=image)",
-                                                    "properties": {
-                                                        "uk": {
-                                                            "type": "string",
-                                                            "maxLength": 500
-                                                        },
-                                                        "en": {
-                                                            "type": "string",
-                                                            "maxLength": 500
+                                                            "type": "string"
                                                         }
                                                     },
                                                     "type": "object"
@@ -4830,20 +4716,12 @@
                                         "maxItems": 50
                                     },
                                     "stages": {
-                                        "description": "Етапи реалізації (до 20)",
                                         "type": "array",
                                         "items": {
-                                            "required": [
-                                                "title"
-                                            ],
                                             "properties": {
                                                 "title": {
-                                                    "required": [
-                                                        "uk"
-                                                    ],
                                                     "properties": {
                                                         "uk": {
-                                                            "description": "Назва українською (обов'язково)",
                                                             "type": "string"
                                                         },
                                                         "en": {
@@ -4855,28 +4733,23 @@
                                                 "description": {
                                                     "properties": {
                                                         "uk": {
-                                                            "type": "string",
-                                                            "maxLength": 2000
+                                                            "type": "string"
                                                         },
                                                         "en": {
-                                                            "type": "string",
-                                                            "maxLength": 2000
+                                                            "type": "string"
                                                         }
                                                     },
                                                     "type": "object"
                                                 },
                                                 "days_planned": {
-                                                    "description": "Планова тривалість (днів)",
                                                     "type": "integer",
                                                     "minimum": 1
                                                 },
                                                 "budget_planned": {
-                                                    "description": "Плановий бюджет",
                                                     "type": "number",
                                                     "minimum": 0
                                                 },
                                                 "order": {
-                                                    "description": "Порядок (автоматично якщо не вказано)",
                                                     "type": "integer",
                                                     "minimum": 0
                                                 }
@@ -4885,21 +4758,12 @@
                                         }
                                     },
                                     "bonuses": {
-                                        "description": "Бонуси для меценатів (до 20)",
                                         "type": "array",
                                         "items": {
-                                            "required": [
-                                                "title",
-                                                "min_donation"
-                                            ],
                                             "properties": {
                                                 "title": {
-                                                    "required": [
-                                                        "uk"
-                                                    ],
                                                     "properties": {
                                                         "uk": {
-                                                            "description": "Назва українською (обов'язково)",
                                                             "type": "string"
                                                         },
                                                         "en": {
@@ -4911,29 +4775,25 @@
                                                 "description": {
                                                     "properties": {
                                                         "uk": {
-                                                            "type": "string",
-                                                            "maxLength": 2000
+                                                            "type": "string"
                                                         },
                                                         "en": {
-                                                            "type": "string",
-                                                            "maxLength": 2000
+                                                            "type": "string"
                                                         }
                                                     },
                                                     "type": "object"
                                                 },
                                                 "min_donation": {
-                                                    "description": "Мінімальна сума підтримки",
                                                     "type": "number",
-                                                    "minimum": 10
+                                                    "minimum": 1
                                                 },
                                                 "quantity": {
-                                                    "description": "Кількість (null = необмежено)",
+                                                    "description": "null = необмежено",
                                                     "type": "integer",
                                                     "minimum": 1,
                                                     "nullable": true
                                                 },
                                                 "order": {
-                                                    "description": "Порядок (автоматично якщо не вказано)",
                                                     "type": "integer",
                                                     "minimum": 0
                                                 }
@@ -4942,275 +4802,299 @@
                                         }
                                     }
                                 },
-                                "type": "object",
-                                "example": {
-                                    "user_type": "personal",
-                                    "title": {
-                                        "uk": "Картина 'Світанок над Дніпром'",
-                                        "en": "Painting 'Dawn over Dnipro'"
+                                "type": "object"
+                            },
+                            "example": {
+                                "status": "moderation",
+                                "local_id": "mobile-draft-12345",
+                                "user_type": "personal",
+                                "title": {
+                                    "uk": "Картина 'Світанок над Дніпром'",
+                                    "en": "Painting 'Dawn over Dnipro'"
+                                },
+                                "short_description": {
+                                    "uk": "Олійний живопис на полотні розміром 100x150 см, присвячений красі українських пейзажів",
+                                    "en": "Oil painting on canvas 100x150 cm, dedicated to the beauty of Ukrainian landscapes"
+                                },
+                                "cover": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+                                "art_category": "fine_art",
+                                "art_subcategory": "painting",
+                                "tags": {
+                                    "uk": "живопис, пейзаж, Україна, олія, природа",
+                                    "en": "painting, landscape, Ukraine, oil, nature"
+                                },
+                                "currency": "UAH",
+                                "budget_goal": 75000,
+                                "estimated_days": 90,
+                                "budget_items": [
+                                    {
+                                        "name": {
+                                            "uk": "Фарби та пензлі",
+                                            "en": "Paints and brushes"
+                                        },
+                                        "amount": 15000
                                     },
-                                    "short_description": {
-                                        "uk": "Олійний живопис на полотні, присвячений красі українських пейзажів",
-                                        "en": "Oil painting on canvas dedicated to the beauty of Ukrainian landscapes"
+                                    {
+                                        "name": {
+                                            "uk": "Полотно та підрамник",
+                                            "en": "Canvas and stretcher"
+                                        },
+                                        "amount": 8000
                                     },
-                                    "art_category": "fine_art",
-                                    "art_subcategory": "painting",
-                                    "tags": {
-                                        "uk": "живопис, пейзаж, Україна",
-                                        "en": "painting, landscape, Ukraine"
+                                    {
+                                        "name": {
+                                            "uk": "Рама для картини",
+                                            "en": "Picture frame"
+                                        },
+                                        "amount": 12000
                                     },
-                                    "currency": "UAH",
-                                    "budget_goal": 75000,
-                                    "estimated_days": 90,
-                                    "budget_items": [
-                                        {
-                                            "name": {
-                                                "uk": "Фарби та матеріали",
-                                                "en": "Paints and materials"
-                                            },
-                                            "amount": 15000
+                                    {
+                                        "name": {
+                                            "uk": "Оренда студії (3 міс)",
+                                            "en": "Studio rent (3 months)"
                                         },
-                                        {
-                                            "name": {
-                                                "uk": "Полотно та підрамник",
-                                                "en": "Canvas and stretcher"
-                                            },
-                                            "amount": 8000
-                                        },
-                                        {
-                                            "name": {
-                                                "uk": "Рама для картини",
-                                                "en": "Picture frame"
-                                            },
-                                            "amount": 12000
-                                        },
-                                        {
-                                            "name": {
-                                                "uk": "Оренда студії",
-                                                "en": "Studio rent"
-                                            },
-                                            "amount": 20000
-                                        },
-                                        {
-                                            "name": {
-                                                "uk": "Доставка та пакування",
-                                                "en": "Delivery and packaging"
-                                            },
-                                            "amount": 5000
-                                        },
-                                        {
-                                            "name": {
-                                                "uk": "Комісія платформи",
-                                                "en": "Platform commission"
-                                            },
-                                            "amount": 15000
-                                        }
-                                    ],
-                                    "characteristics": [
-                                        {
-                                            "name": {
-                                                "uk": "Розмір",
-                                                "en": "Size"
-                                            },
-                                            "value": {
-                                                "uk": "100x150 см",
-                                                "en": "100x150 cm"
-                                            }
-                                        },
-                                        {
-                                            "name": {
-                                                "uk": "Техніка",
-                                                "en": "Technique"
-                                            },
-                                            "value": {
-                                                "uk": "Олія на полотні",
-                                                "en": "Oil on canvas"
-                                            }
-                                        },
-                                        {
-                                            "name": {
-                                                "uk": "Рік створення",
-                                                "en": "Year"
-                                            },
-                                            "value": {
-                                                "uk": "2024",
-                                                "en": "2024"
-                                            }
-                                        }
-                                    ],
-                                    "additional_info": {
-                                        "uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.",
-                                        "en": "The painting will be ready within 3 months. Free delivery within Ukraine."
+                                        "amount": 20000
                                     },
-                                    "content_blocks": [
-                                        {
-                                            "type": "heading",
-                                            "heading_level": "h2",
-                                            "heading_text": {
-                                                "uk": "Про проєкт",
-                                                "en": "About the project"
-                                            }
+                                    {
+                                        "name": {
+                                            "uk": "Доставка та пакування",
+                                            "en": "Delivery and packaging"
                                         },
-                                        {
-                                            "type": "paragraph",
-                                            "paragraph_text": {
-                                                "uk": "Опис проєкту...",
-                                                "en": "Project description..."
-                                            }
+                                        "amount": 5000
+                                    },
+                                    {
+                                        "name": {
+                                            "uk": "Комісія платформи (13%)",
+                                            "en": "Platform commission (13%)"
                                         },
-                                        {
-                                            "type": "image",
-                                            "image": "projects/content/img.jpg",
-                                            "image_alt": {
-                                                "uk": "Опис",
-                                                "en": "Description"
-                                            }
+                                        "amount": 10000
+                                    }
+                                ],
+                                "characteristics": [
+                                    {
+                                        "name": {
+                                            "uk": "Розмір",
+                                            "en": "Size"
+                                        },
+                                        "value": {
+                                            "uk": "100×150 см",
+                                            "en": "100×150 cm"
                                         }
-                                    ],
-                                    "stages": [
-                                        {
-                                            "title": {
-                                                "uk": "Підготовка ескізів",
-                                                "en": "Sketch preparation"
-                                            },
-                                            "description": {
-                                                "uk": "Створення детальних ескізів та вибір композиції",
-                                                "en": "Creating detailed sketches and choosing the composition"
-                                            },
-                                            "days_planned": 14,
-                                            "budget_planned": 5000
+                                    },
+                                    {
+                                        "name": {
+                                            "uk": "Техніка",
+                                            "en": "Technique"
                                         },
-                                        {
-                                            "title": {
-                                                "uk": "Підготовка полотна",
-                                                "en": "Canvas preparation"
-                                            },
-                                            "description": {
-                                                "uk": "Натягування полотна, ґрунтування",
-                                                "en": "Stretching canvas, priming"
-                                            },
-                                            "days_planned": 7,
-                                            "budget_planned": 8000
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Основна робота",
-                                                "en": "Main work"
-                                            },
-                                            "description": {
-                                                "uk": "Нанесення фарб, робота над деталями",
-                                                "en": "Applying paints, working on details"
-                                            },
-                                            "days_planned": 45,
-                                            "budget_planned": 35000
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Завершення та оформлення",
-                                                "en": "Finishing and framing"
-                                            },
-                                            "description": {
-                                                "uk": "Лакування, оформлення в раму",
-                                                "en": "Varnishing, framing"
-                                            },
-                                            "days_planned": 14,
-                                            "budget_planned": 17000
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Доставка",
-                                                "en": "Delivery"
-                                            },
-                                            "description": {
-                                                "uk": "Пакування та відправка покупцю",
-                                                "en": "Packaging and shipping to buyer"
-                                            },
-                                            "days_planned": 10,
-                                            "budget_planned": 10000
+                                        "value": {
+                                            "uk": "Олія на полотні",
+                                            "en": "Oil on canvas"
                                         }
-                                    ],
-                                    "bonuses": [
-                                        {
-                                            "title": {
-                                                "uk": "Подяка на сайті",
-                                                "en": "Thanks on website"
-                                            },
-                                            "description": {
-                                                "uk": "Ваше ім'я буде вказано у списку меценатів проєкту",
-                                                "en": "Your name will be listed among project patrons"
-                                            },
-                                            "min_donation": 100,
-                                            "quantity": null
+                                    },
+                                    {
+                                        "name": {
+                                            "uk": "Рік створення",
+                                            "en": "Year"
                                         },
-                                        {
-                                            "title": {
-                                                "uk": "Листівка з репродукцією",
-                                                "en": "Postcard with reproduction"
-                                            },
-                                            "description": {
-                                                "uk": "Авторська листівка з репродукцією картини",
-                                                "en": "Author's postcard with painting reproduction"
-                                            },
-                                            "min_donation": 500,
-                                            "quantity": 100
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Підписаний принт А4",
-                                                "en": "Signed A4 print"
-                                            },
-                                            "description": {
-                                                "uk": "Якісний принт картини з підписом автора",
-                                                "en": "Quality print of the painting with author's signature"
-                                            },
-                                            "min_donation": 1500,
-                                            "quantity": 50
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Підписаний принт А3",
-                                                "en": "Signed A3 print"
-                                            },
-                                            "description": {
-                                                "uk": "Великий принт картини з підписом та сертифікатом",
-                                                "en": "Large print with signature and certificate"
-                                            },
-                                            "min_donation": 3000,
-                                            "quantity": 25
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Відвідування студії",
-                                                "en": "Studio visit"
-                                            },
-                                            "description": {
-                                                "uk": "Особиста екскурсія до студії та спостереження за процесом створення",
-                                                "en": "Personal studio tour and watching the creation process"
-                                            },
-                                            "min_donation": 5000,
-                                            "quantity": 10
-                                        },
-                                        {
-                                            "title": {
-                                                "uk": "Оригінальний ескіз",
-                                                "en": "Original sketch"
-                                            },
-                                            "description": {
-                                                "uk": "Один з оригінальних ескізів до картини з підписом",
-                                                "en": "One of the original sketches with signature"
-                                            },
-                                            "min_donation": 10000,
-                                            "quantity": 5
+                                        "value": {
+                                            "uk": "2026",
+                                            "en": "2026"
                                         }
-                                    ]
-                                }
+                                    },
+                                    {
+                                        "name": {
+                                            "uk": "Стиль",
+                                            "en": "Style"
+                                        },
+                                        "value": {
+                                            "uk": "Імпресіонізм",
+                                            "en": "Impressionism"
+                                        }
+                                    }
+                                ],
+                                "additional_info": {
+                                    "uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.",
+                                    "en": "The painting will be ready within 3 months. Free delivery within Ukraine."
+                                },
+                                "content_blocks": [
+                                    {
+                                        "type": "heading",
+                                        "heading_level": "h2",
+                                        "heading_text": {
+                                            "uk": "Про проєкт",
+                                            "en": "About the Project"
+                                        }
+                                    },
+                                    {
+                                        "type": "paragraph",
+                                        "paragraph_text": {
+                                            "uk": "Цей проєкт народився з мого глибокого захоплення українськими пейзажами...",
+                                            "en": "This project was born from my deep fascination with Ukrainian landscapes..."
+                                        }
+                                    },
+                                    {
+                                        "type": "image",
+                                        "image": "data:image/jpeg;base64,/9j/4AAQ...",
+                                        "image_alt": {
+                                            "uk": "Ескіз картини",
+                                            "en": "Sketch"
+                                        }
+                                    }
+                                ],
+                                "stages": [
+                                    {
+                                        "title": {
+                                            "uk": "Підготовка ескізів",
+                                            "en": "Sketch preparation"
+                                        },
+                                        "description": {
+                                            "uk": "Створення детальних ескізів",
+                                            "en": "Creating detailed sketches"
+                                        },
+                                        "days_planned": 14,
+                                        "budget_planned": 5000,
+                                        "order": 1
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Підготовка полотна",
+                                            "en": "Canvas preparation"
+                                        },
+                                        "description": {
+                                            "uk": "Натягування полотна, ґрунтування",
+                                            "en": "Stretching canvas, priming"
+                                        },
+                                        "days_planned": 7,
+                                        "budget_planned": 8000,
+                                        "order": 2
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Основна робота",
+                                            "en": "Main work"
+                                        },
+                                        "description": {
+                                            "uk": "Написання картини олійними фарбами",
+                                            "en": "Painting with oil paints"
+                                        },
+                                        "days_planned": 45,
+                                        "budget_planned": 35000,
+                                        "order": 3
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Завершення та фіксація",
+                                            "en": "Finishing"
+                                        },
+                                        "description": {
+                                            "uk": "Лакування, підготовка до оформлення",
+                                            "en": "Varnishing, preparation for framing"
+                                        },
+                                        "days_planned": 14,
+                                        "budget_planned": 17000,
+                                        "order": 4
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Доставка",
+                                            "en": "Delivery"
+                                        },
+                                        "description": {
+                                            "uk": "Пакування та доставка",
+                                            "en": "Packaging and delivery"
+                                        },
+                                        "days_planned": 10,
+                                        "budget_planned": 10000,
+                                        "order": 5
+                                    }
+                                ],
+                                "bonuses": [
+                                    {
+                                        "title": {
+                                            "uk": "Подяка на сайті",
+                                            "en": "Thanks on website"
+                                        },
+                                        "description": {
+                                            "uk": "Ваше ім'я у списку меценатів",
+                                            "en": "Your name in patrons list"
+                                        },
+                                        "min_donation": 100,
+                                        "quantity": null,
+                                        "order": 1
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Листівка з репродукцією",
+                                            "en": "Postcard"
+                                        },
+                                        "description": {
+                                            "uk": "Авторська листівка з репродукцією",
+                                            "en": "Author's postcard with reproduction"
+                                        },
+                                        "min_donation": 500,
+                                        "quantity": 100,
+                                        "order": 2
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Підписаний принт А4",
+                                            "en": "Signed A4 print"
+                                        },
+                                        "description": {
+                                            "uk": "Принт з підписом автора",
+                                            "en": "Print with author's signature"
+                                        },
+                                        "min_donation": 1500,
+                                        "quantity": 50,
+                                        "order": 3
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Принт А3 + сертифікат",
+                                            "en": "A3 print + certificate"
+                                        },
+                                        "description": {
+                                            "uk": "Принт А3 з сертифікатом",
+                                            "en": "A3 print with certificate"
+                                        },
+                                        "min_donation": 3000,
+                                        "quantity": 25,
+                                        "order": 4
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Відвідування студії",
+                                            "en": "Studio visit"
+                                        },
+                                        "description": {
+                                            "uk": "Екскурсія до студії",
+                                            "en": "Studio tour"
+                                        },
+                                        "min_donation": 5000,
+                                        "quantity": 10,
+                                        "order": 5
+                                    },
+                                    {
+                                        "title": {
+                                            "uk": "Оригінальний ескіз",
+                                            "en": "Original sketch"
+                                        },
+                                        "description": {
+                                            "uk": "Ескіз з підписом",
+                                            "en": "Sketch with signature"
+                                        },
+                                        "min_donation": 10000,
+                                        "quantity": 5,
+                                        "order": 6
+                                    }
+                                ]
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Проєкт створено",
+                        "description": "Проєкт створено або оновлено",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5225,10 +5109,10 @@
                         }
                     },
                     "401": {
-                        "description": "Не авторизовано"
+                        "description": "Не авторизований"
                     },
                     "422": {
-                        "description": "Помилка валідації",
+                        "description": "Помилка валідації (для status=moderation)",
                         "content": {
                             "application/json": {
                                 "schema": {
