@@ -24,3 +24,10 @@ Schedule::command('donations:collect-chart-data')
     ->withoutOverlapping()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/donations-chart.log'));
+
+// Генерація звітів з проєктів щодня о 2:00
+Schedule::command('reports:generate --all')
+    ->dailyAt('02:00')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/reports-generate.log'));

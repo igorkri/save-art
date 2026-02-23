@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array|null $images
  * @property array|null $attachments
  * @property float $collected_amount
+ * @property float $goal_amount
  * @property float $spent_amount
  * @property \Carbon\Carbon $report_date
  * @property string $status
@@ -37,6 +38,7 @@ class Report extends Model
         'images',
         'attachments',
         'collected_amount',
+        'goal_amount',
         'spent_amount',
         'report_date',
         'status',
@@ -53,6 +55,7 @@ class Report extends Model
             'images' => 'array',
             'attachments' => 'array',
             'collected_amount' => 'decimal:2',
+            'goal_amount' => 'decimal:2',
             'spent_amount' => 'decimal:2',
             'report_date' => 'date',
         ];

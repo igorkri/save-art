@@ -39,6 +39,7 @@ class ReportFactory extends Factory
             ],
             'attachments' => null,
             'collected_amount' => $this->faker->randomFloat(2, 10000, 500000),
+            'goal_amount' => $this->faker->randomFloat(2, 50000, 1000000),
             'spent_amount' => $this->faker->randomFloat(2, 5000, 400000),
             'report_date' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'status' => 'published',

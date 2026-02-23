@@ -46,11 +46,10 @@ class ReportController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $language = $this->getLanguage($request);
+        $language = $this->getLanguage($request) ?? 'uk';
 
         $query = Report::query()
-            ->with(['project:id,title,slug,cover', 'user:id,name'])
-            ->published()
+            ->with(['project:id,title,slug,cover', 'user:id,full_name'])
             ->orderBy('report_date', 'desc');
 
         // Фільтр по проєкту
@@ -227,6 +226,7 @@ class ReportController extends Controller
             'images' => $report->images,
             'attachments' => $report->attachments,
             'collected_amount' => (float) $report->collected_amount,
+            'goal_amount' => (float) $report->goal_amount,
             'spent_amount' => (float) $report->spent_amount,
             'report_date' => $report->report_date?->toDateString(),
             'status' => $report->status,

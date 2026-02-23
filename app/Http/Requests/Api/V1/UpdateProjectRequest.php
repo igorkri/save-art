@@ -27,10 +27,22 @@ class UpdateProjectRequest extends FormRequest
     }
 
     /**
+     * Перевіряємо чи проект має статус "new" — тоді валідація послаблена
+     */
+    private function isNewProject(): bool
+    {
+        $project = $this->route('project');
+
+        return $project instanceof Project && $project->status === ProjectStatus::New;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array
     {
+        $isNew = $this->isNewProject();
+
         return [
             // ========== Статус проекту ==========
             'status' => ['sometimes', Rule::in([
@@ -44,7 +56,7 @@ class UpdateProjectRequest extends FormRequest
             'is_legal' => ['sometimes', 'boolean'],
 
             'title' => ['sometimes', 'array'],
-            'title.uk' => ['required_with:title', 'string', 'max:255'],
+            'title.uk' => [$isNew ? 'nullable' : 'required_with:title', 'string', 'max:255'],
             'title.en' => ['nullable', 'string', 'max:255'],
 
             'short_description' => ['nullable', 'array'],
@@ -54,7 +66,7 @@ class UpdateProjectRequest extends FormRequest
             'cover' => ['nullable', new ImageOrBase64Rule(15360)], // 15MB, підтримує файл, Base64, URL
 
             // Категорія (slug з БД)
-            'art_category' => ['sometimes', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
+            'art_category' => ['nullable', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
             'tags' => ['nullable', 'array'],
@@ -63,8 +75,8 @@ class UpdateProjectRequest extends FormRequest
 
             // Бюджет
             'currency' => ['sometimes', Rule::enum(Currency::class)],
-            'budget_goal' => ['sometimes', 'numeric', 'min:100'],
-            'estimated_days' => ['nullable', 'integer', 'min:1', 'max:365'],
+            'budget_goal' => ['nullable', 'numeric', $isNew ? 'min:0' : 'min:100'],
+            'estimated_days' => ['nullable', 'integer', $isNew ? 'min:0' : 'min:1', 'max:365'],
 
             // Статті бюджету
             'budget_items' => ['nullable', 'array'],
@@ -116,8 +128,8 @@ class UpdateProjectRequest extends FormRequest
             // ========== Етапи проекту ==========
             'stages' => ['nullable', 'array', 'max:20'],
             'stages.*.id' => ['nullable', 'integer', 'exists:project_stages,id'],
-            'stages.*.title' => ['required', 'array'],
-            'stages.*.title.uk' => ['required', 'string', 'max:255'],
+            'stages.*.title' => [$isNew ? 'nullable' : 'required', 'array'],
+            'stages.*.title.uk' => [$isNew ? 'nullable' : 'required', 'string', 'max:255'],
             'stages.*.title.en' => ['nullable', 'string', 'max:255'],
             'stages.*.description' => ['nullable', 'array'],
             'stages.*.description.uk' => ['nullable', 'string', 'max:2000'],
@@ -129,13 +141,13 @@ class UpdateProjectRequest extends FormRequest
             // ========== Бонуси для меценатів ==========
             'bonuses' => ['nullable', 'array', 'max:20'],
             'bonuses.*.id' => ['nullable', 'integer', 'exists:project_bonuses,id'],
-            'bonuses.*.title' => ['required', 'array'],
-            'bonuses.*.title.uk' => ['required', 'string', 'max:255'],
+            'bonuses.*.title' => [$isNew ? 'nullable' : 'required', 'array'],
+            'bonuses.*.title.uk' => [$isNew ? 'nullable' : 'required', 'string', 'max:255'],
             'bonuses.*.title.en' => ['nullable', 'string', 'max:255'],
             'bonuses.*.description' => ['nullable', 'array'],
             'bonuses.*.description.uk' => ['nullable', 'string', 'max:2000'],
             'bonuses.*.description.en' => ['nullable', 'string', 'max:2000'],
-            'bonuses.*.min_donation' => ['required', 'numeric', 'min:10'],
+            'bonuses.*.min_donation' => [$isNew ? 'nullable' : 'required', 'numeric', 'min:10'],
             'bonuses.*.quantity' => ['nullable', 'integer', 'min:1'],
             'bonuses.*.order' => ['nullable', 'integer', 'min:0'],
         ];
