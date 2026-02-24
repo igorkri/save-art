@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use OpenApi\Annotations as OA;
 
@@ -935,19 +936,25 @@ class MyProjectController extends Controller
             ], 422);
         }
 
-        $request->validate([
+        // Нормалізація: multipart з кількома "files" (без []) дає один файл; curl -F files=@a -F files=@b теж може дати один або масив — завжди приводимо до масиву
+        $rawFiles = $request->file('files');
+        $files = $rawFiles === null ? [] : (is_array($rawFiles) ? $rawFiles : [$rawFiles]);
+
+        $rules = [
             'type' => ['required', 'in:image,gallery,video,document'],
             'files' => ['required', 'array', 'min:1', 'max:10'],
             'files.*' => ['required', 'file', 'max:51200'], // 50MB max
             'description' => ['nullable', 'array'],
             'description.uk' => ['nullable', 'string', 'max:2000'],
             'description.en' => ['nullable', 'string', 'max:2000'],
-        ], [
+        ];
+        $messages = [
             'files.required' => 'Завантажте хоча б один файл',
             'files.min' => 'Завантажте хоча б один файл',
             'files.max' => 'Максимум 10 файлів',
             'files.*.max' => 'Максимальний розмір файлу 50MB',
-        ]);
+        ];
+        Validator::make(array_merge($request->all(), ['files' => $files]), $rules, $messages)->validate();
 
         $type = $request->input('type');
 
@@ -959,7 +966,7 @@ class MyProjectController extends Controller
             'document' => ['pdf', 'doc', 'docx'],
         };
 
-        foreach ($request->file('files') as $file) {
+        foreach ($files as $file) {
             $extension = strtolower($file->getClientOriginalExtension());
             if (! in_array($extension, $allowedMimes)) {
                 $allowedList = implode(', ', array_map('strtoupper', $allowedMimes));
@@ -979,11 +986,12 @@ class MyProjectController extends Controller
 
         // Обробка файлів
         $uploadedFiles = [];
-        foreach ($request->file('files') as $file) {
+        foreach ($files as $file) {
             $path = $file->store("projects/{$project->id}/final-result", 'public');
             $uploadedFiles[] = [
                 'path' => $path,
-                'url' => Storage::disk('public')->url($path),
+                // Зберігаємо відносний шлях, без домену. Домен додається на рівні API/клієнта.
+                'url' => '/storage/'.$path,
                 'original_name' => $file->getClientOriginalName(),
                 'mime_type' => $file->getMimeType(),
                 'size' => $file->getSize(),
