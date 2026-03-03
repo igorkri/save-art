@@ -7,6 +7,7 @@ enum ModerationStatus: string
     case Pending = 'pending';
     case Approved = 'approved';
     case Rejected = 'rejected';
+    case Processing = 'processing';
 
     /**
      * Отримати назву статусу українською
@@ -17,6 +18,7 @@ enum ModerationStatus: string
             self::Pending => 'Очікує',
             self::Approved => 'Схвалено',
             self::Rejected => 'Відхилено',
+            self::Processing => 'Обробляється',
         };
     }
 
