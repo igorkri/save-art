@@ -20,10 +20,29 @@ class UpdateProjectRequest extends FormRequest
     {
         $project = $this->route('project');
 
-        return $this->user() !== null
-            && $project instanceof Project
-            && $project->user_id === $this->user()->id
-            && $project->isEditable();
+        // Перевірка, чи користувач автентифікований
+        if ($this->user() === null) {
+            abort(401, 'User not authenticated');
+        }
+
+        // Перевірка, чи проект знайдено
+        if (! $project instanceof Project) {
+            abort(404, 'Project not found');
+        }
+
+        // Перевірка, чи проект належить користувачу
+        if ($project->user_id !== $this->user()->id) {
+            abort(403, 'You do not own this project');
+        }
+
+        // Перевірка, чи проект можна редагувати
+        $canBeFullyEdited = $project->isEditable() || $project->status === ProjectStatus::Moderation;
+
+        if (! $canBeFullyEdited) {
+            abort(403, "Project with status '{$project->status->value}' cannot be edited. Only projects with status 'new', 'draft', 'rejected', or 'moderation' can be fully edited.");
+        }
+
+        return true;
     }
 
     /**

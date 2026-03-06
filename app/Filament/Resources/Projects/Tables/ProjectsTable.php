@@ -79,6 +79,7 @@ class ProjectsTable
                     ->formatStateUsing(fn (ModerationStatus $state): string => $state->getLabel())
                     ->color(fn (ModerationStatus $state): string => match ($state) {
                         ModerationStatus::Pending => 'warning',
+                        ModerationStatus::Processing => 'info',
                         ModerationStatus::Approved => 'success',
                         ModerationStatus::Rejected => 'danger',
                     })

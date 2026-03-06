@@ -23,10 +23,27 @@ class UpdatePublishedProjectRequest extends FormRequest
     {
         $project = $this->route('project');
 
-        return $this->user() !== null
-            && $project instanceof Project
-            && $project->user_id === $this->user()->id
-            && $project->isPartiallyEditable();
+        // Перевірка, чи користувач автентифікований
+        if ($this->user() === null) {
+            abort(401, 'User not authenticated');
+        }
+
+        // Перевірка, чи проект знайдено
+        if (! $project instanceof Project) {
+            abort(404, 'Project not found');
+        }
+
+        // Перевірка, чи проект належить користувачу
+        if ($project->user_id !== $this->user()->id) {
+            abort(403, 'You do not own this project');
+        }
+
+        // Перевірка, чи проект можна редагувати частково
+        if (! $project->isPartiallyEditable()) {
+            abort(403, "Project with status '{$project->status->value}' cannot be partially edited. Only projects with status 'announced', 'in_progress', or 'paused' can be partially edited.");
+        }
+
+        return true;
     }
 
     /**

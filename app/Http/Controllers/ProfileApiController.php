@@ -350,11 +350,13 @@ class ProfileApiController extends Controller
     public function createLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
-        if ($user->profileLegal()->exists()) {
-            return response()->json(['message' => __('api.profile.legal_exists')], 409);
+        $profile = $user->profileLegal;
+
+        $isNewProfile = ! $profile;
+        if (! $profile) {
+            $profile = new ProfileLegal(['user_id' => $user->id]);
         }
 
-        $profile = new ProfileLegal(['user_id' => $user->id]);
         $validated = $request->validated();
 
         // Обробка base64 logo
@@ -365,7 +367,9 @@ class ProfileApiController extends Controller
         $profile->fill($validated);
         $profile->save();
 
-        return response()->json(['profileLegal' => new ProfileLegalResource($profile)], 201);
+        $statusCode = $isNewProfile ? 201 : 200;
+
+        return response()->json(['profileLegal' => new ProfileLegalResource($profile)], $statusCode);
     }
 
     /**

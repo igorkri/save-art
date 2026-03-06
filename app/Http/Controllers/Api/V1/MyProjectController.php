@@ -86,7 +86,6 @@ class MyProjectController extends Controller
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
 
-
         // Фільтр по статусу
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -98,7 +97,7 @@ class MyProjectController extends Controller
                 ProjectStatus::Paused,
                 ProjectStatus::Completed,
                 ProjectStatus::Sold,
-                ProjectStatus::Rejected
+                ProjectStatus::Rejected,
             ]);
 
         }
@@ -524,6 +523,10 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
+        // Якщо проект на модерації — зберігаємо статус moderation, інакше завжди скидаємо на draft,
+        // щоб не допустити випадкового переходу в moderation без явного виклику submit
+        $data['status'] = ProjectStatus::Draft->value;
+
         // Витягуємо stages та bonuses з даних
         $stagesData = $data['stages'] ?? null;
         $bonusesData = $data['bonuses'] ?? null;
@@ -834,7 +837,12 @@ class MyProjectController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if (! in_array($project->status, [ProjectStatus::Draft, ProjectStatus::Rejected])) {
+        if (! in_array($project->status, [ProjectStatus::Draft, ProjectStatus::Rejected, ProjectStatus::New, ProjectStatus::Moderation])) {
+            \Log::info('Спроба відправити на модерацію проєкт з недопустимим статусом', [
+                'project_id' => $project->id,
+                'current_status' => $project->status,
+            ]);
+
             return response()->json([
                 'message' => 'На модерацію можна відправити лише чернетку або відхилений проєкт.',
             ], 422);
