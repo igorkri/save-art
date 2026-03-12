@@ -26,7 +26,7 @@ class MessageFactory extends Factory
             'admin_id' => null,
             'project_id' => null,
             'content' => fake()->paragraph(),
-            'direction' => 'user_to_admin',
+            'direction' => Message::DIRECTION_USER_TO_ADMIN,
             'subject' => fake()->optional(0.5)->sentence(),
             'read_at' => null,
         ];
@@ -39,7 +39,18 @@ class MessageFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'admin_id' => $admin?->id ?? User::factory()->admin(),
-            'direction' => 'admin_to_user',
+            'direction' => Message::DIRECTION_ADMIN_TO_USER,
+        ]);
+    }
+
+    /**
+     * Системне повідомлення до користувача
+     */
+    public function fromSystem(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'admin_id' => null,
+            'direction' => Message::DIRECTION_SYSTEM_TO_USER,
         ]);
     }
 
@@ -49,7 +60,7 @@ class MessageFactory extends Factory
     public function fromUser(): static
     {
         return $this->state(fn (array $attributes) => [
-            'direction' => 'user_to_admin',
+            'direction' => Message::DIRECTION_USER_TO_ADMIN,
         ]);
     }
 

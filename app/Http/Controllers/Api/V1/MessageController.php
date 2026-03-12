@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\SendMessageRequest;
 use App\Http\Resources\Api\V1\MessageResource;
 use App\Models\Message;
+use App\Models\Project;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class MessageController extends Controller
      *     tags={"Messages"},
      *     summary="Список повідомлень",
      *     description="Повертає всі повідомлення користувача з адміністрацією",
-     *     security={{"sanctum": {}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -63,7 +64,7 @@ class MessageController extends Controller
      *     tags={"Messages"},
      *     summary="Надіслати повідомлення",
      *     description="Надсилає повідомлення адміністрації платформи",
-     *     security={{"sanctum": {}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -116,7 +117,7 @@ class MessageController extends Controller
      *     tags={"Messages"},
      *     summary="Отримати повідомлення",
      *     description="Повертає деталі конкретного повідомлення",
-     *     security={{"sanctum": {}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="message", in="path", required=true, description="ID повідомлення", @OA\Schema(type="integer")),
      *
@@ -156,7 +157,7 @@ class MessageController extends Controller
      *     tags={"Messages"},
      *     summary="Позначити всі як прочитані",
      *     description="Позначає всі вхідні повідомлення від адміністрації як прочитані",
-     *     security={{"sanctum": {}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -194,7 +195,7 @@ class MessageController extends Controller
      *     tags={"Messages"},
      *     summary="Кількість непрочитаних",
      *     description="Повертає кількість непрочитаних повідомлень від адміністрації",
-     *     security={{"sanctum": {}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -226,19 +227,20 @@ class MessageController extends Controller
      * Це створює запит до адміністрації, який вони передадуть автору
      *
      * @OA\Post(
-     *     path="/v1/messages/contact-author",
+     *     path="/v1/projects/{project}/contact-author",
      *     operationId="contactProjectAuthor",
      *     tags={"Messages"},
      *     summary="Зв'язатися з автором проекту",
      *     description="Надсилає повідомлення автору проекту через адміністрацію",
-     *     security={{"sanctum": {}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, description="ID проекту", @OA\Schema(type="integer")),
      *
      *     @OA\RequestBody(
      *         required=true,
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="project_id", type="integer", description="ID проекту"),
      *             @OA\Property(property="content", type="string", description="Текст повідомлення"),
      *             @OA\Property(property="subject", type="string", description="Тема повідомлення")
      *         )
@@ -259,19 +261,11 @@ class MessageController extends Controller
      *     @OA\Response(response=422, description="Validation error")
      * )
      */
-    public function contactProjectAuthor(SendMessageRequest $request): JsonResponse
+    public function contactProjectAuthor(SendMessageRequest $request, Project $project): JsonResponse
     {
-        $projectId = $request->input('project_id');
-
-        if (! $projectId) {
-            return response()->json([
-                'message' => 'Необхідно вказати project_id',
-            ], 422);
-        }
-
         $message = Message::create([
             'user_id' => $request->user()->id,
-            'project_id' => $projectId,
+            'project_id' => $project->id,
             'content' => $request->input('content'),
             'subject' => $request->input('subject', 'Питання щодо проєкту'),
             'direction' => 'user_to_admin',

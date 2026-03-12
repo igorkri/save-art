@@ -3598,7 +3598,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             },
@@ -3661,7 +3662,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3708,7 +3710,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3746,7 +3749,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
@@ -3781,12 +3785,13 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }
         },
-        "/v1/messages/contact-author": {
+        "/v1/projects/{project}/contact-author": {
             "post": {
                 "tags": [
                     "Messages"
@@ -3794,16 +3799,23 @@
                 "summary": "Зв'язатися з автором проекту",
                 "description": "Надсилає повідомлення автору проекту через адміністрацію",
                 "operationId": "contactProjectAuthor",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "description": "ID проекту",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "project_id": {
-                                        "description": "ID проекту",
-                                        "type": "integer"
-                                    },
                                     "content": {
                                         "description": "Текст повідомлення",
                                         "type": "string"
@@ -3846,7 +3858,8 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sanctum": [],
+                        "apiKey": []
                     }
                 ]
             }

@@ -28,6 +28,12 @@ class Message extends Model
     /** @use HasFactory<\Database\Factories\MessageFactory> */
     use HasFactory;
 
+    public const DIRECTION_USER_TO_ADMIN = 'user_to_admin';
+
+    public const DIRECTION_ADMIN_TO_USER = 'admin_to_user';
+
+    public const DIRECTION_SYSTEM_TO_USER = 'system_to_user';
+
     /**
      * @var array<int, string>
      */
@@ -95,7 +101,7 @@ class Message extends Model
      */
     public function isFromUser(): bool
     {
-        return $this->direction === 'user_to_admin';
+        return $this->direction === self::DIRECTION_USER_TO_ADMIN;
     }
 
     /**
@@ -103,7 +109,15 @@ class Message extends Model
      */
     public function isFromAdmin(): bool
     {
-        return $this->direction === 'admin_to_user';
+        return in_array($this->direction, [self::DIRECTION_ADMIN_TO_USER, self::DIRECTION_SYSTEM_TO_USER], true);
+    }
+
+    /**
+     * Чи системне повідомлення до користувача
+     */
+    public function isFromSystem(): bool
+    {
+        return $this->direction === self::DIRECTION_SYSTEM_TO_USER;
     }
 
     /**
@@ -125,7 +139,18 @@ class Message extends Model
      */
     public function scopeFromAdmin($query)
     {
-        return $query->where('direction', 'admin_to_user');
+        return $query->whereIn('direction', [self::DIRECTION_ADMIN_TO_USER, self::DIRECTION_SYSTEM_TO_USER]);
+    }
+
+    /**
+     * Scope для системних повідомлень
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<Message>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<Message>
+     */
+    public function scopeFromSystem($query)
+    {
+        return $query->where('direction', self::DIRECTION_SYSTEM_TO_USER);
     }
 
     /**
@@ -136,6 +161,6 @@ class Message extends Model
      */
     public function scopeFromUser($query)
     {
-        return $query->where('direction', 'user_to_admin');
+        return $query->where('direction', self::DIRECTION_USER_TO_ADMIN);
     }
 }

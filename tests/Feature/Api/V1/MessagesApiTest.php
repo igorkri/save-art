@@ -148,29 +148,38 @@ class MessagesApiTest extends ApiTestCase
             'user_id' => $author->id,
         ]);
 
-        // Контролер очікує project_id в request body
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/projects/{$project->id}/contact-author", [
                 'content' => 'Маю питання щодо вашого проекту, будь ласка, допоможіть',
-                'project_id' => $project->id,
             ]);
 
         $response->assertCreated();
+
+        $this->assertDatabaseHas('messages', [
+            'user_id' => $this->user->id,
+            'project_id' => $project->id,
+            'direction' => 'user_to_admin',
+        ]);
     }
 
-    public function test_cannot_contact_without_project_id(): void
+    public function test_can_contact_without_project_id_in_body(): void
     {
         $author = User::factory()->create();
         $project = Project::factory()->create([
             'user_id' => $author->id,
         ]);
 
-        // Без project_id в body - контролер повертає 422
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/projects/{$project->id}/contact-author", [
                 'content' => 'Повідомлення без project_id в body',
             ]);
 
-        $response->assertUnprocessable();
+        $response->assertCreated();
+
+        $this->assertDatabaseHas('messages', [
+            'user_id' => $this->user->id,
+            'project_id' => $project->id,
+            'content' => 'Повідомлення без project_id в body',
+        ]);
     }
 }
