@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('projects', 'content_blocks')) {
+            return;
+        }
+
         Schema::table('projects', function (Blueprint $table) {
             $table->json('content_blocks')
                 ->nullable()
