@@ -1,0 +1,30 @@
+<?php
+
+// Copy to deploy.local.php and fill in real values.
+// deploy.local.php is gitignored — never commit credentials.
+
+// ─── Remote server ────────────────────────────────────────────────────────────
+const DEP_HOST         = '95.67.62.235';
+const DEP_PORT         = 22;
+const DEP_USER         = 'developer';
+
+// SSH key path. Empty string = use password via sshpass instead.
+const DEP_SSH_KEY      = '~/.ssh/id_rsa';
+const DEP_PASSWORD     = '';
+
+// ─── Paths ────────────────────────────────────────────────────────────────────
+const DEP_PROJECT_PATH = '/home/developer/web/idart.dev2025.ingsot.com/public_html';
+const DEP_STORAGE_PATH = '/home/developer/web/idart.dev2025.ingsot.com/public_html/storage/app/public';
+const DEP_SITE_DOMAIN  = 'idart.dev2025.ingsot.com';
+const DEP_PHP_VERSION  = '8.4';
+
+// ─── Database (Docker MySQL on server, reachable via 127.0.0.1 from DEP_USER) ─
+const DEP_DB_NAME      = 'save-art';
+const DEP_DB_USER      = 'root';
+const DEP_DB_PASSWORD  = 'your-db-password';
+const DEP_DB_HOST      = '127.0.0.1';
+const DEP_DB_PORT      = 13308;
+
+// ─── Options ──────────────────────────────────────────────────────────────────
+const DEP_BACKUP_BEFORE_RESTORE = true;
+const DEP_VERIFY_AFTER_RESTORE  = true;
