@@ -286,6 +286,7 @@ class EditUser extends EditRecord
                 'region' => $record->region ?? ['uk' => '', 'en' => ''],
                 'city' => $record->city ?? ['uk' => '', 'en' => ''],
                 'postal_code' => $record->postal_code,
+                'phone' => $record->phone,
                 'profile_type' => $record->profile_type instanceof \BackedEnum ? $record->profile_type->value : $record->profile_type,
                 'description' => $record->description ?? ['uk' => '', 'en' => ''],
 

@@ -104,6 +104,7 @@ class UserForm
                                                     ->options(ProfileType::getOptions())
                                                     ->helperText('Митець — створює проєкти, Меценат — підтримує проєкти'),
                                                 TextInput::make('postal_code')->label('Поштовий індекс'),
+                                                TextInput::make('phone')->label('Персональній телефон'),
                                             ])
                                             ->columns(1),
                                     ]),

@@ -29,6 +29,7 @@ use Illuminate\Notifications\Notifiable;
  * @property array|null $region Область/регіон (мультимовне)
  * @property array|null $city Місто (мультимовне)
  * @property string|null $postal_code Поштовий індекс
+ * @property string|null $phone Персональний телефон
  * @property ProfileType|null $profile_type Тип профілю (artist/patron)
  * @property array|null $description Опис/біографія (мультимовне)
  * @property bool $is_blocked Чи заблокований
@@ -62,6 +63,7 @@ class User extends Authenticatable implements FilamentUser
         'region',
         'city',
         'postal_code',
+        'phone',
         'profile_type',
         'description',
         'is_blocked',

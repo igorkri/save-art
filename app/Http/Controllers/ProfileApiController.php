@@ -130,6 +130,7 @@ class ProfileApiController extends Controller
      *                 @OA\Property(property="en", type="string", example="Kyiv")
      *             ),
      *              @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
+     *              @OA\Property(property="phone", type="string", nullable=true, example="+380501234567", description="Персональний телефон"),
      *                 @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Тип профілю: artist або patron"),
      *                 @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
      *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
@@ -153,9 +154,10 @@ class ProfileApiController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        // Обробка base64 аватара
-        if (! empty($validated['avatar']) && str_starts_with($validated['avatar'], 'data:image/')) {
-            $validated['avatar'] = $this->processBase64Avatar($validated['avatar'], $user);
+        if (! empty($validated['avatar'])) {
+            $validated['avatar'] = str_starts_with($validated['avatar'], 'data:image/')
+                ? $this->processBase64Avatar($validated['avatar'], $user)
+                : $this->normalizeAvatarPath($validated['avatar']);
         }
 
         $user->fill($validated);
@@ -206,6 +208,7 @@ class ProfileApiController extends Controller
      *                 @OA\Property(property="en", type="string", example="Kyiv")
      *             ),
      *             @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
+     *             @OA\Property(property="phone", type="string", nullable=true, example="+380501234567", description="Персональний телефон"),
      *             @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Роль користувача"),
      *             @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
      *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
@@ -230,9 +233,10 @@ class ProfileApiController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        // Обробка base64 аватара
-        if (! empty($validated['avatar']) && str_starts_with($validated['avatar'], 'data:image/')) {
-            $validated['avatar'] = $this->processBase64Avatar($validated['avatar'], $user);
+        if (! empty($validated['avatar'])) {
+            $validated['avatar'] = str_starts_with($validated['avatar'], 'data:image/')
+                ? $this->processBase64Avatar($validated['avatar'], $user)
+                : $this->normalizeAvatarPath($validated['avatar']);
         }
 
         $user->fill($validated);
@@ -993,6 +997,27 @@ class ProfileApiController extends Controller
         return response()->json([
             'message' => 'Ваш профіль успішно видалено.',
         ]);
+    }
+
+    /**
+     * Нормалізує шлях до аватара: якщо прийшов повний URL (напр. з попереднього
+     * GET-відповіді, де ProfilePersonalResource повертає Storage::url()),
+     * повертає відносний шлях диска "public", щоб уникнути подвоєння /storage/
+     * при повторному збереженні.
+     */
+    private function normalizeAvatarPath(string $avatar): string
+    {
+        $storageUrl = Storage::disk('public')->url('');
+
+        if (str_starts_with($avatar, $storageUrl)) {
+            return ltrim(substr($avatar, strlen($storageUrl)), '/');
+        }
+
+        if (str_starts_with($avatar, '/storage/')) {
+            return ltrim(substr($avatar, strlen('/storage/')), '/');
+        }
+
+        return $avatar;
     }
 
     /**

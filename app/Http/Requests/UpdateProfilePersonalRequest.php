@@ -44,6 +44,7 @@ class UpdateProfilePersonalRequest extends FormRequest
             'city.en' => ['nullable', 'string', 'max:255'],
             'city.uk' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20'],
             'profile_type' => ['nullable', 'string', 'in:artist,patron'],
             'description' => ['nullable', 'array'],
             'description.en' => ['nullable', 'string'],
