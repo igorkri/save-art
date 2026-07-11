@@ -8,6 +8,7 @@ use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Enums\UserType;
 use App\Models\ArtCategory;
+use App\UserRole;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -19,10 +20,20 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ProjectForm
 {
+    /**
+     * Тільки Developer може повністю редагувати проєкт.
+     * Інші адміни (Admin) можуть лише змінювати статуси.
+     */
+    public static function canFullyEdit(): bool
+    {
+        return Auth::user()?->role === UserRole::Developer;
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -32,6 +43,7 @@ class ProjectForm
                 Tabs::make('Основна інформація')
                     ->columnSpan(2)
                     ->persistTabInQueryString()
+                    ->disabled(fn (): bool => ! self::canFullyEdit())
                     ->tabs([
                         Tabs\Tab::make('Загальне')
                             ->icon('heroicon-o-information-circle')
@@ -201,16 +213,16 @@ class ProjectForm
                                     ->itemLabel(fn (array $state): ?string => ($state['name']['uk'] ?? 'Без назви').': '.($state['value']['uk'] ?? 'Без значення')),
                             ]),
 
-//                        Tabs\Tab::make('Додаткова інформація')
-//                            ->icon('heroicon-o-ellipsis-horizontal')
-//                            ->schema([
-//                                LanguageTabs::make([
-//                                    Textarea::make('additional_info')
-//                                        ->label('Додаткова інформація')
-//                                        ->rows(5)
-//                                        ->columnSpanFull(),
-//                                ])->columnSpanFull(),
-//                            ]),
+                        //                        Tabs\Tab::make('Додаткова інформація')
+                        //                            ->icon('heroicon-o-ellipsis-horizontal')
+                        //                            ->schema([
+                        //                                LanguageTabs::make([
+                        //                                    Textarea::make('additional_info')
+                        //                                        ->label('Додаткова інформація')
+                        //                                        ->rows(5)
+                        //                                        ->columnSpanFull(),
+                        //                                ])->columnSpanFull(),
+                        //                            ]),
 
                         Tabs\Tab::make('Контент')
                             ->icon('heroicon-o-document-text')
@@ -277,21 +289,21 @@ class ProjectForm
                                             ->visible(fn (callable $get) => $get('type') === 'image')
                                             ->columnSpanFull(),
 
-//                                        LanguageTabs::make([
-//                                            TextInput::make('image_alt')
-//                                                ->label('Alt текст (опис зображення)')
-//                                                ->helperText('Важливо для доступності та SEO'),
-//                                        ])
-//                                            ->visible(fn (callable $get) => $get('type') === 'image')
-//                                            ->columnSpanFull(),
-//
-//                                        LanguageTabs::make([
-//                                            TextInput::make('image_caption')
-//                                                ->label('Підпис під зображенням')
-//                                                ->helperText('Необов\'язково'),
-//                                        ])
-//                                            ->visible(fn (callable $get) => $get('type') === 'image')
-//                                            ->columnSpanFull(),
+                                        //                                        LanguageTabs::make([
+                                        //                                            TextInput::make('image_alt')
+                                        //                                                ->label('Alt текст (опис зображення)')
+                                        //                                                ->helperText('Важливо для доступності та SEO'),
+                                        //                                        ])
+                                        //                                            ->visible(fn (callable $get) => $get('type') === 'image')
+                                        //                                            ->columnSpanFull(),
+                                        //
+                                        //                                        LanguageTabs::make([
+                                        //                                            TextInput::make('image_caption')
+                                        //                                                ->label('Підпис під зображенням')
+                                        //                                                ->helperText('Необов\'язково'),
+                                        //                                        ])
+                                        //                                            ->visible(fn (callable $get) => $get('type') === 'image')
+                                        //                                            ->columnSpanFull(),
                                     ])
                                     ->columns(1)
                                     ->columnSpanFull()
@@ -455,10 +467,10 @@ class ProjectForm
                     ->schema([
 
                         // is_legal - відображається тільки для адмінів, тому що це поле проєкту, а не користувача
-//                        Toggle::make('is_legal')
-//                            ->label('Юридична особа')
-//                            ->helperText('Проєкт буде відображатися з юридичним статусом, незалежно від статусу користувача-автора')
-//                            ->default(false),
+                        //                        Toggle::make('is_legal')
+                        //                            ->label('Юридична особа')
+                        //                            ->helperText('Проєкт буде відображатися з юридичним статусом, незалежно від статусу користувача-автора')
+                        //                            ->default(false),
 
                         Select::make('status')
                             ->label('Статус проєкту')
@@ -485,6 +497,7 @@ class ProjectForm
                             ->placeholder('Генерується автоматично'),
 
                         Fieldset::make('Дати')
+                            ->disabled(fn (): bool => ! self::canFullyEdit())
                             ->schema([
                                 DatePicker::make('announced_at')
                                     ->label('Дата оголошення')->columnSpanFull(),
