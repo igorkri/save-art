@@ -22,6 +22,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
  *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString"),
  *     @OA\Property(property="min_donation", type="number", format="float", example=500.00),
+ *     @OA\Property(property="max_donation", type="number", format="float", nullable=true, example=1500.00),
  *     @OA\Property(property="quantity", type="integer", nullable=true, example=10),
  *     @OA\Property(property="quantity_claimed", type="integer", example=3),
  *     @OA\Property(property="remaining", type="integer", nullable=true, example=7),
@@ -50,6 +51,7 @@ class ProjectBonusResource extends JsonResource
             'description' => $this->localizeField($this->description, $language),
 
             'min_donation' => (float) $this->min_donation,
+            'max_donation' => $this->max_donation !== null ? (float) $this->max_donation : null,
 
             'quantity' => $this->quantity,
             'quantity_claimed' => $this->quantity_claimed,

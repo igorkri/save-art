@@ -133,6 +133,7 @@ class UpdateFullProjectRequest extends FormRequest
             'bonuses.*.description.uk' => ['nullable', 'string', 'max:2000'],
             'bonuses.*.description.en' => ['nullable', 'string', 'max:2000'],
             'bonuses.*.min_donation' => ['required', 'numeric', 'min:10'],
+            'bonuses.*.max_donation' => ['nullable', 'numeric', 'gt:bonuses.*.min_donation'],
             'bonuses.*.quantity' => ['nullable', 'integer', 'min:1'],
             'bonuses.*.order' => ['nullable', 'integer', 'min:0'],
         ];
@@ -164,6 +165,7 @@ class UpdateFullProjectRequest extends FormRequest
             'bonuses.*.title.uk.required' => 'Назва бонусу українською є обов\'язковою',
             'bonuses.*.min_donation.required' => 'Мінімальна сума підтримки для бонусу є обов\'язковою',
             'bonuses.*.min_donation.min' => 'Мінімальна сума підтримки — 10',
+            'bonuses.*.max_donation.gt' => 'Максимальна сума підтримки має бути більшою за мінімальну',
             'bonuses.*.id.exists' => 'Бонус не знайдено',
         ];
     }
@@ -181,6 +183,7 @@ class UpdateFullProjectRequest extends FormRequest
             'bonuses.*.title.uk' => 'назва бонусу',
             'bonuses.*.description.uk' => 'опис бонусу',
             'bonuses.*.min_donation' => 'мінімальна сума підтримки',
+            'bonuses.*.max_donation' => 'максимальна сума підтримки',
         ];
     }
 }

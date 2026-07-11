@@ -111,6 +111,7 @@ class StoreProjectRequest extends FormRequest
             'bonuses.*.description.uk' => ['sometimes', 'string'],
             'bonuses.*.description.en' => ['nullable', 'string'],
             'bonuses.*.min_donation' => ['sometimes', 'numeric', 'min:1'],
+            'bonuses.*.max_donation' => ['nullable', 'numeric', 'gt:bonuses.*.min_donation'],
             'bonuses.*.quantity' => ['nullable', 'integer', 'min:1'],
             'bonuses.*.order' => ['nullable', 'integer', 'min:0'],
         ];

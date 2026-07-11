@@ -430,6 +430,12 @@ class ProjectForm
                                             ->required()
                                             ->columnSpan(1),
 
+                                        TextInput::make('max_donation')
+                                            ->label('Макс. донат')
+                                            ->numeric()
+                                            ->gt('min_donation')
+                                            ->columnSpan(1),
+
                                         TextInput::make('quantity')
                                             ->label('Кількість')
                                             ->numeric()
@@ -452,7 +458,7 @@ class ProjectForm
                                             ->default(0)
                                             ->disabled(),
                                     ])
-                                    ->columns(3)
+                                    ->columns(4)
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()

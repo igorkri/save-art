@@ -30,7 +30,7 @@ class ProjectBonusesApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->getJson("/api/v1/my/projects/{$project->id}/bonuses");
+            ->getJson("/api/v1/my/projects/{$project->slug}/bonuses");
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -55,7 +55,7 @@ class ProjectBonusesApiTest extends ApiTestCase
         ];
 
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$project->id}/bonuses", $data);
+            ->postJson("/api/v1/my/projects/{$project->slug}/bonuses", $data);
 
         $response->assertCreated()
             ->assertJsonPath('data.min_donation', 500);
@@ -74,10 +74,55 @@ class ProjectBonusesApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$project->id}/bonuses", []);
+            ->postJson("/api/v1/my/projects/{$project->slug}/bonuses", []);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['title', 'min_donation']);
+    }
+
+    public function test_can_create_bonus_with_max_donation(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        $data = [
+            'title' => ['uk' => 'Бонус', 'en' => 'Bonus'],
+            'min_donation' => 500,
+            'max_donation' => 1500,
+        ];
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/bonuses", $data);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.max_donation', 1500);
+
+        $this->assertDatabaseHas('project_bonuses', [
+            'project_id' => $project->id,
+            'max_donation' => 1500,
+        ]);
+    }
+
+    public function test_cannot_create_bonus_with_max_donation_not_greater_than_min(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        $data = [
+            'title' => ['uk' => 'Бонус', 'en' => 'Bonus'],
+            'min_donation' => 500,
+            'max_donation' => 500,
+        ];
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/bonuses", $data);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['max_donation']);
     }
 
     // ==========================================
@@ -97,7 +142,7 @@ class ProjectBonusesApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/projects/{$project->id}/bonuses/{$bonus->id}", [
+            ->putJson("/api/v1/my/projects/{$project->slug}/bonuses/{$bonus->id}", [
                 'title' => ['uk' => 'Оновлений бонус', 'en' => 'Updated bonus'],
                 'min_donation' => 1000,
             ]);
@@ -126,7 +171,7 @@ class ProjectBonusesApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->deleteJson("/api/v1/my/projects/{$project->id}/bonuses/{$bonus->id}");
+            ->deleteJson("/api/v1/my/projects/{$project->slug}/bonuses/{$bonus->id}");
 
         $response->assertOk();
 
@@ -144,7 +189,7 @@ class ProjectBonusesApiTest extends ApiTestCase
         $project = Project::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$project->id}/bonuses", [
+            ->postJson("/api/v1/my/projects/{$project->slug}/bonuses", [
                 'title' => ['uk' => 'Бонус', 'en' => 'Bonus'],
                 'min_donation' => 500,
             ]);
@@ -157,7 +202,7 @@ class ProjectBonusesApiTest extends ApiTestCase
         $project = Project::factory()->create();
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->getJson("/api/v1/my/projects/{$project->id}/bonuses");
+            ->getJson("/api/v1/my/projects/{$project->slug}/bonuses");
 
         $response->assertUnauthorized();
     }

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array $title
  * @property array|null $description
  * @property float $min_donation
+ * @property float|null $max_donation
  * @property int|null $quantity
  * @property int $quantity_claimed
  * @property int $order
@@ -30,6 +31,7 @@ class ProjectBonus extends Model
         'title',
         'description',
         'min_donation',
+        'max_donation',
         'quantity',
         'quantity_claimed',
         'order',
@@ -44,6 +46,7 @@ class ProjectBonus extends Model
             'title' => 'array',
             'description' => 'array',
             'min_donation' => 'decimal:2',
+            'max_donation' => 'decimal:2',
         ];
     }
 

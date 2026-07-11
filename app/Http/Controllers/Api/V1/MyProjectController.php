@@ -178,12 +178,12 @@ class MyProjectController extends Controller
      *                     {"title": {"uk": "Доставка", "en": "Delivery"}, "description": {"uk": "Пакування та доставка", "en": "Packaging and delivery"}, "days_planned": 10, "budget_planned": 10000, "order": 5}
      *                 },
      *                 "bonuses": {
-     *                     {"title": {"uk": "Подяка на сайті", "en": "Thanks on website"}, "description": {"uk": "Ваше ім'я у списку меценатів", "en": "Your name in patrons list"}, "min_donation": 100, "quantity": null, "order": 1},
-     *                     {"title": {"uk": "Листівка з репродукцією", "en": "Postcard"}, "description": {"uk": "Авторська листівка з репродукцією", "en": "Author's postcard with reproduction"}, "min_donation": 500, "quantity": 100, "order": 2},
-     *                     {"title": {"uk": "Підписаний принт А4", "en": "Signed A4 print"}, "description": {"uk": "Принт з підписом автора", "en": "Print with author's signature"}, "min_donation": 1500, "quantity": 50, "order": 3},
-     *                     {"title": {"uk": "Принт А3 + сертифікат", "en": "A3 print + certificate"}, "description": {"uk": "Принт А3 з сертифікатом", "en": "A3 print with certificate"}, "min_donation": 3000, "quantity": 25, "order": 4},
-     *                     {"title": {"uk": "Відвідування студії", "en": "Studio visit"}, "description": {"uk": "Екскурсія до студії", "en": "Studio tour"}, "min_donation": 5000, "quantity": 10, "order": 5},
-     *                     {"title": {"uk": "Оригінальний ескіз", "en": "Original sketch"}, "description": {"uk": "Ескіз з підписом", "en": "Sketch with signature"}, "min_donation": 10000, "quantity": 5, "order": 6}
+     *                     {"title": {"uk": "Подяка на сайті", "en": "Thanks on website"}, "description": {"uk": "Ваше ім'я у списку меценатів", "en": "Your name in patrons list"}, "min_donation": 100, "max_donation": 499, "quantity": null, "order": 1},
+     *                     {"title": {"uk": "Листівка з репродукцією", "en": "Postcard"}, "description": {"uk": "Авторська листівка з репродукцією", "en": "Author's postcard with reproduction"}, "min_donation": 500, "max_donation": 1499, "quantity": 100, "order": 2},
+     *                     {"title": {"uk": "Підписаний принт А4", "en": "Signed A4 print"}, "description": {"uk": "Принт з підписом автора", "en": "Print with author's signature"}, "min_donation": 1500, "max_donation": 2999, "quantity": 50, "order": 3},
+     *                     {"title": {"uk": "Принт А3 + сертифікат", "en": "A3 print + certificate"}, "description": {"uk": "Принт А3 з сертифікатом", "en": "A3 print with certificate"}, "min_donation": 3000, "max_donation": 4999, "quantity": 25, "order": 4},
+     *                     {"title": {"uk": "Відвідування студії", "en": "Studio visit"}, "description": {"uk": "Екскурсія до студії", "en": "Studio tour"}, "min_donation": 5000, "max_donation": 9999, "quantity": 10, "order": 5},
+     *                     {"title": {"uk": "Оригінальний ескіз", "en": "Original sketch"}, "description": {"uk": "Ескіз з підписом", "en": "Sketch with signature"}, "min_donation": 10000, "max_donation": null, "quantity": 5, "order": 6}
      *                 }
      *             },
      *
@@ -239,6 +239,7 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="title", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
      *                 @OA\Property(property="description", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
      *                 @OA\Property(property="min_donation", type="number", minimum=1),
+     *                 @OA\Property(property="max_donation", type="number", nullable=true, minimum=1),
      *                 @OA\Property(property="quantity", type="integer", nullable=true, minimum=1, description="null = необмежено"),
      *                 @OA\Property(property="order", type="integer", minimum=0)
      *             ))
@@ -408,6 +409,7 @@ class MyProjectController extends Controller
                         'title' => $bonusData['title'] ?? ['uk' => 'Бонус '.($index + 1)],
                         'description' => $bonusData['description'] ?? null,
                         'min_donation' => $bonusData['min_donation'] ?? 1,
+                        'max_donation' => $bonusData['max_donation'] ?? null,
                         'quantity' => $bonusData['quantity'] ?? null,
                         'quantity_claimed' => 0,
                         'order' => $bonusData['order'] ?? $index,
@@ -625,6 +627,7 @@ class MyProjectController extends Controller
                                 'title' => $bonusData['title'],
                                 'description' => $bonusData['description'] ?? $bonus->description,
                                 'min_donation' => $bonusData['min_donation'],
+                                'max_donation' => $bonusData['max_donation'] ?? $bonus->max_donation,
                                 'quantity' => $bonusData['quantity'] ?? $bonus->quantity,
                                 'order' => $bonusData['order'] ?? $index,
                             ]);
@@ -636,6 +639,7 @@ class MyProjectController extends Controller
                             'title' => $bonusData['title'],
                             'description' => $bonusData['description'] ?? null,
                             'min_donation' => $bonusData['min_donation'],
+                            'max_donation' => $bonusData['max_donation'] ?? null,
                             'quantity' => $bonusData['quantity'] ?? null,
                             'quantity_claimed' => 0,
                             'order' => $bonusData['order'] ?? $index,
