@@ -4,13 +4,19 @@
 // deploy.local.php is gitignored — never commit credentials.
 
 // ─── Remote server ────────────────────────────────────────────────────────────
-const DEP_HOST         = '95.67.62.235';
-const DEP_PORT         = 22;
-const DEP_USER         = 'developer';
+const DEP_HOST          = '95.67.62.235';
+const DEP_PORT          = 22;
+const DEP_USER          = 'developer';
+
+// Пользователь с sudo-правами — нужен для chown / systemctl / supervisorctl.
+// Это ДРУГОЙ пользователь на сервере, не DEP_USER (Hestia: developer владеет
+// сайтом, но не в sudoers; admin — в sudoers).
+const DEP_USER_ROOT     = 'admin';
+const DEP_PASSWORD_ROOT = 'your-admin-password'; // предварительно нужен sudo
 
 // SSH key path. Empty string = use password via sshpass instead.
-const DEP_SSH_KEY      = '~/.ssh/id_rsa';
-const DEP_PASSWORD     = '';
+const DEP_SSH_KEY       = '~/.ssh/id_rsa';
+const DEP_PASSWORD      = '';
 
 // ─── Paths ────────────────────────────────────────────────────────────────────
 const DEP_PROJECT_PATH = '/home/developer/web/idart.dev2025.ingsot.com/public_html';

@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 // ─── Options ──────────────────────────────────────────────────────────────────
 option('dump', null, InputOption::VALUE_OPTIONAL, 'SQL dump file path (for db:push / db:import)');
+option('skip-perms', null, InputOption::VALUE_NONE, 'Skip chown/chmod steps (use when DEP_USER_ROOT is not available)');
 
 // ─── Credentials (deploy.local.php is gitignored) ────────────────────────────
 if (! file_exists(__DIR__.'/deploy.local.php')) {
@@ -44,6 +45,23 @@ function runAs(string $cmd, array $opts = []): string
     return runLocally(
         sshBin().' '.DEP_USER.'@'.DEP_HOST.' '.escapeshellarg($cmd),
         array_merge(['timeout' => 300], $opts)
+    );
+}
+
+function sshBinRoot(): string
+{
+    return 'sshpass -p '.escapeshellarg(DEP_PASSWORD_ROOT)
+        .' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -p '.DEP_PORT;
+}
+
+/** Run privileged command on remote via sudo (DEP_USER_ROOT) */
+function runPriv(string $cmd, array $opts = []): string
+{
+    $remoteCmd = 'echo '.escapeshellarg(DEP_PASSWORD_ROOT).' | sudo -S -p \'\' bash -c '.escapeshellarg($cmd);
+
+    return runLocally(
+        sshBinRoot().' '.DEP_USER_ROOT.'@'.DEP_HOST.' '.escapeshellarg($remoteCmd),
+        array_merge(['timeout' => 120], $opts)
     );
 }
 
@@ -119,10 +137,17 @@ task('deploy', function (): void {
     $path = DEP_PROJECT_PATH;
     $php = 'php'.DEP_PHP_VERSION;
 
-    writeln('<comment>▶ 1/6 Sync code</comment>');
+    if (! input()->getOption('skip-perms')) {
+        writeln('<comment>▶ 1/7 Fix permissions</comment>');
+        runPriv('chown -R '.DEP_USER.':'.DEP_USER." $path && chmod -R u+rwX $path");
+    } else {
+        writeln('<comment>▶ 1/7 Fix permissions — skipped (--skip-perms)</comment>');
+    }
+
+    writeln('<comment>▶ 2/7 Sync code</comment>');
     rsyncTo(__DIR__.'/', "$path/", SYNC_EXCLUDE, delete: true);
 
-    writeln('<comment>▶ 2/6 .env</comment>');
+    writeln('<comment>▶ 3/7 .env</comment>');
     $hasEnv = trim(runAs("[ -f $path/.env ] && echo 1 || echo 0")) === '1';
     if ($hasEnv) {
         writeln('  .env already on server, skipping');
@@ -134,16 +159,19 @@ task('deploy', function (): void {
         writeln('  <warning>No .env.production — skipping Artisan steps</warning>');
     }
 
-    writeln('<comment>▶ 3/6 Storage dirs</comment>');
+    writeln('<comment>▶ 4/7 Storage dirs</comment>');
     runAs("mkdir -p $path/storage/app/public $path/storage/framework/{cache,sessions,views} $path/storage/logs $path/bootstrap/cache");
+    if (! input()->getOption('skip-perms')) {
+        runPriv('chown -R '.DEP_USER.":www-data $path/storage $path/bootstrap/cache && chmod -R 775 $path/storage $path/bootstrap/cache");
+    }
 
-    writeln('<comment>▶ 4/6 Dependencies</comment>');
+    writeln('<comment>▶ 5/7 Dependencies</comment>');
     runAs("cd $path && $php /usr/bin/composer install --no-interaction --no-dev --optimize-autoloader", ['timeout' => 300]);
     runAs("cd $path && npm ci --prefer-offline && npm run build", ['timeout' => 300]);
     runAs("cd $path && rm -f public/hot");
 
     if ($hasEnv) {
-        writeln('<comment>▶ 5/6 Artisan</comment>');
+        writeln('<comment>▶ 6/7 Artisan</comment>');
         runAs("cd $path && $php artisan migrate --force --no-interaction");
         runAs("cd $path && $php artisan storage:link --force --no-interaction 2>/dev/null || true");
         runAs("cd $path && $php artisan filament:assets --no-interaction 2>/dev/null || true");
@@ -151,7 +179,7 @@ task('deploy', function (): void {
         runAs("cd $path && $php artisan config:cache && $php artisan route:cache && $php artisan view:cache");
         runAs("cd $path && $php artisan queue:restart");
 
-        writeln('<comment>▶ 6/6 Scheduler</comment>');
+        writeln('<comment>▶ 7/7 Scheduler</comment>');
         invoke('scheduler:ensure');
     }
 
@@ -332,6 +360,25 @@ task('logs:queue', function (): void {
     $p = DEP_PROJECT_PATH;
     passthru(sshBin().' '.DEP_USER.'@'.DEP_HOST." 'tail -f $p/storage/logs/queue.log 2>/dev/null || tail -f $p/storage/logs/laravel.log'");
 })->desc('Tail queue worker log');
+
+// ─── RESTART ──────────────────────────────────────────────────────────────────
+// ⚠ Сервер общий (Hestia, несколько доменов на одной машине). php{VERSION}-fpm.service
+// один на все сайты с этой версией PHP — restart/reload затронет их все, не только этот проект.
+task('restart:php', function (): void {
+    runPriv('systemctl reload-or-restart php'.DEP_PHP_VERSION.'-fpm');
+    writeln('<info>✓  PHP-FPM '.DEP_PHP_VERSION.' reloaded (shared with other sites on this server!)</info>');
+})->desc('Reload PHP-FPM (⚠ affects all sites on this PHP version)');
+
+task('restart:nginx', function (): void {
+    runPriv('nginx -t && systemctl reload nginx');
+    writeln('<info>✓  Nginx reloaded (shared with other sites on this server!)</info>');
+})->desc('Reload Nginx (⚠ affects all sites on this server)');
+
+task('restart:queue', function (): void {
+    $php = 'php'.DEP_PHP_VERSION;
+    runAs('cd '.DEP_PROJECT_PATH." && $php artisan queue:restart");
+    writeln('<info>✓  Queue workers signalled to restart</info>');
+})->desc('Graceful queue:restart (no supervisor program configured for this project yet)');
 
 // ─── STATUS ───────────────────────────────────────────────────────────────────
 task('status', function (): void {
