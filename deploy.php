@@ -124,6 +124,10 @@ const SYNC_EXCLUDE = [
     'storage/app/', 'storage/logs/', 'storage/debugbar/',
     'storage/framework/cache/', 'storage/framework/sessions/', 'storage/framework/views/',
     'public/build/', 'public/hot',
+    // symlink на storage/app/public — rsync (-a) копіює його "як є", з локальним
+    // шляхом (DDEV-контейнер або хост), і затирає правильний symlink на сервері.
+    // Ніколи не синхронізуємо — його відновлює artisan storage:link (крок 6).
+    'public/storage',
     'backups/', 'dump/', 'config-files/', 'scripts/',
     'docs/', 'src-figma/',
     '.idea/', '.vscode/', '.junie/', '.ai/', '.claude/',
@@ -191,10 +195,13 @@ task('deploy:quick', function (): void {
     $path = DEP_PROJECT_PATH;
     $php = 'php'.DEP_PHP_VERSION;
 
-    writeln('<comment>▶ 1/2 Sync code</comment>');
+    writeln('<comment>▶ 1/3 Sync code</comment>');
     rsyncTo(__DIR__.'/', "$path/", SYNC_EXCLUDE);
 
-    writeln('<comment>▶ 2/2 Clear cache</comment>');
+    writeln('<comment>▶ 2/3 Storage symlink</comment>');
+    runAs("cd $path && $php artisan storage:link --force --no-interaction 2>/dev/null || true");
+
+    writeln('<comment>▶ 3/3 Clear cache</comment>');
     runAs("cd $path && $php artisan config:clear && $php artisan cache:clear && $php artisan view:clear && $php artisan queue:restart");
 
     writeln('<info>✓  Quick deploy done → https://'.DEP_SITE_DOMAIN.'</info>');
