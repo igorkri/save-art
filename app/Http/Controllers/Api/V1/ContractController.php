@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\DocumentType;
 use App\Enums\SignService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SignContractRequest;
 use App\Http\Resources\ContractResource;
+use App\Http\Resources\DocumentResource;
 use App\Models\Contract;
+use App\Models\Document;
 use App\Services\ContractService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -72,9 +75,21 @@ class ContractController extends Controller
     {
         $templateInfo = $this->contractService->getTemplateInfo();
 
+        $contractDocuments = Document::where('type', DocumentType::Contract)
+            ->where('is_active', true)
+            ->latest('created_at')
+            ->get();
+
+        // Якщо в БД є активний документ-шаблон контракту, використовуємо його URL замість файлового
+        $latestContractDocument = $contractDocuments->first();
+        if ($latestContractDocument) {
+            $templateInfo['file_url'] = Storage::disk('public')->url($latestContractDocument->file_path);
+        }
+
         return response()->json([
             'data' => $templateInfo,
             'sign_services' => $this->getAvailableSignServices(),
+            'contract_documents' => DocumentResource::collection($contractDocuments),
         ]);
     }
 
@@ -108,6 +123,20 @@ class ContractController extends Controller
      */
     public function downloadTemplate(): StreamedResponse|JsonResponse
     {
+        // Спочатку намагаємось отримати шаблон контракту з БД документів
+        $contractTemplate = Document::where('type', DocumentType::Contract)
+            ->where('is_active', true)
+            ->latest('created_at')
+            ->first();
+
+        if ($contractTemplate && Storage::disk('public')->exists($contractTemplate->file_path)) {
+            return Storage::disk('public')->download(
+                $contractTemplate->file_path,
+                'contract_template.pdf'
+            );
+        }
+
+        // Fallback на старий шаблон з конфіга
         $templatePath = $this->contractService->getTemplatePath();
 
         if (! Storage::disk('public')->exists($templatePath)) {
