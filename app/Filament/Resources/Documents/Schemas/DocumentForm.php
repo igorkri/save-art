@@ -4,11 +4,14 @@ namespace App\Filament\Resources\Documents\Schemas;
 
 use App\Enums\DocumentType;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class DocumentForm
 {
@@ -16,35 +19,59 @@ class DocumentForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->label('Назва документа')
-                    ->required()
-                    ->maxLength(255),
+                Grid::make(3)
+                    ->columnSpanFull()
+                    ->schema([
+                        Section::make('Переводи')
+                            ->description('Назва та опис мовами')
+                            ->schema([
+                                LanguageTabs::make([
+                                    TextInput::make('name')
+                                        ->label('Назва')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->placeholder('Введіть назву документа')
+                                        ->columnSpanFull(),
 
-                Select::make('type')
-                    ->label('Тип документа')
-                    ->options(DocumentType::class)
-                    ->required(),
+                                    RichEditor::make('description')
+                                        ->label('Опис')
+                                        ->columnSpanFull(),
+                                ]),
+                            ])
+                            ->columnSpan(2),
 
-                Textarea::make('description')
-                    ->label('Опис')
-                    ->rows(3)
-                    ->maxLength(65535),
+                        Section::make('Параметри')
+                            ->schema([
+                                Select::make('type')
+                                    ->label('Тип документа')
+                                    ->options(DocumentType::class)
+                                    ->required()
+                                    ->native(false)
+                                    ->columnSpanFull(),
 
-                FileUpload::make('file_path')
-                    ->label('Файл')
-                    ->required()
-                    ->disk('public')
-                    ->directory('documents')
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        if ($state) {
-                            $set('file_name', basename($state));
-                        }
-                    }),
+                                FileUpload::make('file_path')
+                                    ->label('Файл')
+                                    ->required()
+                                    ->disk('public')
+                                    ->directory('documents')
+                                    ->acceptedFileTypes([
+                                        'application/pdf',
+                                        'application/msword',
+                                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                        'application/vnd.ms-excel',
+                                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                    ])
+                                    ->maxSize(10240)
+                                    ->hint('Максимум 10 МБ')
+                                    ->columnSpanFull(),
 
-                Toggle::make('is_active')
-                    ->label('Активен')
-                    ->default(true),
+                                Toggle::make('is_active')
+                                    ->label('Активен')
+                                    ->default(true)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columnSpan(1),
+                    ]),
             ]);
     }
 }

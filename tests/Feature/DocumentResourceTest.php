@@ -21,19 +21,22 @@ class DocumentResourceTest extends TestCase
     public function test_document_can_be_created(): void
     {
         $document = Document::create([
-            'name' => 'Test Contract',
+            'name' => ['uk' => 'Контракт', 'en' => 'Contract'],
             'type' => DocumentType::Contract,
-            'description' => 'Test document description',
+            'description' => ['uk' => 'Тестовий опис', 'en' => 'Test description'],
             'file_path' => 'documents/test.pdf',
             'is_active' => true,
         ]);
 
         $this->assertDatabaseHas('documents', [
-            'name' => 'Test Contract',
             'type' => DocumentType::Contract->value,
         ]);
 
         $this->assertEquals(DocumentType::Contract, $document->type);
+        $this->assertEquals('Контракт', $document->getTranslation('name', 'uk'));
+        $this->assertEquals('Contract', $document->getTranslation('name', 'en'));
+        $this->assertEquals('Тестовий опис', $document->getTranslation('description', 'uk'));
+        $this->assertEquals('Test description', $document->getTranslation('description', 'en'));
     }
 
     public function test_document_file_metadata_is_updated_on_creation(): void
