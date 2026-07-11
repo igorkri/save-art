@@ -38,6 +38,15 @@ class UpdateFullProjectRequest extends FormRequest
     }
 
     /**
+     * Валюта проєкту наразі підтримується лише USD — примусово перезаписуємо
+     * будь-яке значення, що прийшло з клієнта.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge(['currency' => Currency::USD->value]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>

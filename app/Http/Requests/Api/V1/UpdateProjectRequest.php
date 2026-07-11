@@ -56,6 +56,15 @@ class UpdateProjectRequest extends FormRequest
     }
 
     /**
+     * Валюта проєкту наразі підтримується лише USD — примусово перезаписуємо
+     * будь-яке значення, що прийшло з клієнта.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge(['currency' => Currency::USD->value]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array

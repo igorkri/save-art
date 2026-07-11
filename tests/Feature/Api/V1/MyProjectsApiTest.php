@@ -91,6 +91,57 @@ class MyProjectsApiTest extends ApiTestCase
             ->assertJsonValidationErrors(['title', 'art_category', 'budget_goal']);
     }
 
+    public function test_currency_is_forced_to_usd_on_create_regardless_of_input(): void
+    {
+        $data = [
+            'user_type' => 'personal',
+            'title' => ['uk' => 'Мій проект', 'en' => 'My project'],
+            'short_description' => ['uk' => 'Короткий опис', 'en' => 'Short description'],
+            'art_category' => 'music',
+            'budget_goal' => 10000,
+            'currency' => 'EUR',
+            'estimated_days' => 30,
+        ];
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson('/api/v1/my/projects', $data);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.currency', 'USD');
+
+        $this->assertDatabaseHas('projects', [
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
+        ]);
+    }
+
+    public function test_currency_is_forced_to_usd_on_update_regardless_of_input(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+            'currency' => 'USD',
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", [
+                'title' => ['uk' => 'Назва', 'en' => 'Title'],
+                'short_description' => ['uk' => 'Опис', 'en' => 'Description'],
+                'art_category' => 'fine_art',
+                'budget_goal' => 20000,
+                'currency' => 'UAH',
+                'estimated_days' => 60,
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.currency', 'USD');
+
+        $this->assertDatabaseHas('projects', [
+            'id' => $project->id,
+            'currency' => 'USD',
+        ]);
+    }
+
     // ==========================================
     // Перегляд проекту
     // ==========================================
