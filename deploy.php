@@ -351,6 +351,12 @@ task('storage:push', function (): void {
     writeln('<info>✓  Storage synced to server</info>');
 })->desc('Sync local storage/app/public → remote');
 
+task('sync:all', function (): void {
+    invoke('db:sync');
+    invoke('storage:pull');
+    writeln('<info>✓  DB + storage synced from server</info>');
+})->desc('Pull DB and storage from server → import/sync to local DDEV');
+
 // ─── LOGS ─────────────────────────────────────────────────────────────────────
 task('logs:laravel', function (): void {
     passthru(sshBin().' '.DEP_USER.'@'.DEP_HOST." 'tail -f ".DEP_PROJECT_PATH."/storage/logs/laravel.log'");
