@@ -116,6 +116,36 @@ class PublicProjectsApiTest extends ApiTestCase
         $this->assertCount(1, $response->json('data'));
     }
 
+    public function test_status_filter_counts_reflect_other_applied_filters(): void
+    {
+        Project::factory()->count(2)->create([
+            'status' => ProjectStatus::InProgress,
+            'currency' => 'EUR',
+        ]);
+        Project::factory()->create([
+            'status' => ProjectStatus::Completed,
+            'currency' => 'EUR',
+        ]);
+        Project::factory()->count(2)->create([
+            'status' => ProjectStatus::InProgress,
+            'currency' => 'USD',
+        ]);
+
+        // Без фільтра по валюті - лічильник статусу враховує всі проєкти
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/projects');
+        $statuses = collect($response->json('filters.statuses'))->keyBy('slug');
+        $this->assertSame(4, $statuses['in_progress']['projects_count']);
+        $this->assertSame(1, $statuses['completed']['projects_count']);
+
+        // З фільтром по валюті EUR - лічильник статусу перераховується під цей фільтр
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/projects?currency=EUR');
+        $statuses = collect($response->json('filters.statuses'))->keyBy('slug');
+        $this->assertSame(2, $statuses['in_progress']['projects_count']);
+        $this->assertSame(1, $statuses['completed']['projects_count']);
+    }
+
     public function test_can_search_projects(): void
     {
         Project::factory()->create([

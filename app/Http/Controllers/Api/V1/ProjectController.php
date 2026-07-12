@@ -8,6 +8,7 @@ use App\Http\Resources\Api\V1\ProjectListResource;
 use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\ArtCategory;
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use OpenApi\Annotations as OA;
@@ -71,12 +72,10 @@ class ProjectController extends Controller
             $language = 'uk';
         }
 
-        // Отримуємо опції фільтрації з кешу
-        $cacheKey = $language ? "project_filters_{$language}" : 'project_filters';
-        $filters = Cache::remember($cacheKey, 300, function () use ($language) {
+        // Статичні опції фільтрації (не залежать від застосованих фільтрів) — кешуємо
+        $cacheKey = $language ? "project_filters_static_{$language}" : 'project_filters_static';
+        $staticFilters = Cache::remember($cacheKey, 300, function () use ($language) {
             return [
-                'categories' => $this->getFilterCategories($language),
-                'statuses' => $this->getFilterStatuses($language),
                 'budget_range' => $this->getFilterBudgetRange(),
                 'currencies' => $this->getFilterCurrencies($language),
                 'sort_options' => $this->getFilterSortOptions($language),
@@ -84,121 +83,17 @@ class ProjectController extends Controller
             ];
         });
 
+        // Категорії та статуси рахуємо кожного разу facet-методом: кількість проєктів
+        // для кожного варіанту враховує решту вже застосованих фільтрів (окрім фільтра
+        // цього ж виміру), щоб чекбокси з 0 результатів можна було позначити неактивними.
+        $filters = array_merge($staticFilters, [
+            'categories' => $this->getFilterCategories($language, $request),
+            'statuses' => $this->getFilterStatuses($language, $request),
+        ]);
+
         // Будуємо запит для проєктів (artCategory.parent для коректних лейблів батько/нащадок)
-        $query = Project::query()
-            ->with(['user.profileLegal', 'artCategory.parent'])
-            ->whereIn('status', ProjectStatus::publicStatuses());
-
-        // Фільтр по категорії (slug кореня або підкатегорії; множинні значення через кому)
-        if ($request->filled('art_category')) {
-            $slugs = array_map('trim', explode(',', $request->input('art_category')));
-            $categoryIds = ArtCategory::whereIn('slug', $slugs)
-                ->get()
-                ->flatMap(fn (ArtCategory $c) => $c->parent_id
-                    ? [$c->id]
-                    : [$c->id, ...$c->children()->pluck('id')]
-                )
-                ->unique()
-                ->values()
-                ->all();
-            if (! empty($categoryIds)) {
-                $query->whereIn('art_category_id', $categoryIds);
-            }
-        }
-
-        // Фільтр по підкатегорії (slug підкатегорії; множинні значення через кому)
-        if ($request->filled('art_subcategory')) {
-            $subSlugs = array_map('trim', explode(',', $request->input('art_subcategory')));
-            $subIds = ArtCategory::whereNotNull('parent_id')->whereIn('slug', $subSlugs)->pluck('id')->all();
-            if (! empty($subIds)) {
-                $query->whereIn('art_category_id', $subIds);
-            }
-        }
-
-        // Фільтр по статусу (підтримує множинні значення через кому)
-        if ($request->filled('status')) {
-            $statuses = array_map('trim', explode(',', $request->input('status')));
-            $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
-            $validStatuses = array_intersect($statuses, $publicStatuses);
-            if (! empty($validStatuses)) {
-                $query->whereIn('status', $validStatuses);
-            }
-        }
-
-        // Фільтр по валюті (підтримує множинні значення через кому)
-        if ($request->filled('currency')) {
-            $currencies = array_map('trim', explode(',', $request->input('currency')));
-            $query->whereIn('currency', $currencies);
-        }
-
-        // Фільтр по цільовому бюджету
-        if ($request->filled('budget_min')) {
-            $query->where('budget_goal', '>=', $request->input('budget_min'));
-        }
-        if ($request->filled('budget_max')) {
-            $query->where('budget_goal', '<=', $request->input('budget_max'));
-        }
-
-        // Фільтр по зібраному бюджету
-        if ($request->filled('budget_collected_min')) {
-            $query->where('budget_collected', '>=', $request->input('budget_collected_min'));
-        }
-        if ($request->filled('budget_collected_max')) {
-            $query->where('budget_collected', '<=', $request->input('budget_collected_max'));
-        }
-
-        // Фільтр по прогресу збору коштів (відсотки)
-        if ($request->filled('progress_min') || $request->filled('progress_max')) {
-            $progressMin = $request->input('progress_min', 0);
-            $progressMax = $request->input('progress_max', 100);
-            $query->whereRaw('(budget_collected / budget_goal * 100) >= ?', [$progressMin])
-                ->whereRaw('(budget_collected / budget_goal * 100) <= ?', [$progressMax]);
-        }
-
-        // Фільтр по тегах (множинні значення)
-        if ($request->filled('tags')) {
-            $tags = array_map('trim', explode(',', $request->input('tags')));
-            foreach ($tags as $tag) {
-                $query->whereRaw('JSON_CONTAINS(tags, ?)', [json_encode($tag)]);
-            }
-        }
-
-        // Фільтр по автору
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->input('user_id'));
-        }
-
-        // Фільтр по даті оголошення
-        if ($request->filled('announced_from')) {
-            $query->whereDate('announced_at', '>=', $request->input('announced_from'));
-        }
-        if ($request->filled('announced_to')) {
-            $query->whereDate('announced_at', '<=', $request->input('announced_to'));
-        }
-
-        // Фільтр по кількості днів до завершення
-        if ($request->filled('days_left_min') || $request->filled('days_left_max')) {
-            $now = now();
-            if ($request->filled('days_left_min')) {
-                $minDate = $now->copy()->addDays($request->input('days_left_min'));
-                $query->where('planned_completion_at', '>=', $minDate);
-            }
-            if ($request->filled('days_left_max')) {
-                $maxDate = $now->copy()->addDays($request->input('days_left_max'));
-                $query->where('planned_completion_at', '<=', $maxDate);
-            }
-        }
-
-        // Пошук по назві та опису
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("JSON_EXTRACT(title, '$.uk') LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_EXTRACT(title, '$.en') LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_EXTRACT(short_description, '$.uk') LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_EXTRACT(short_description, '$.en') LIKE ?", ["%{$search}%"]);
-            });
-        }
+        $query = $this->buildFilteredQuery($request)
+            ->with(['user.profileLegal', 'artCategory.parent']);
 
         // Сортування (конвертуємо slug в поле БД)
         $sortBy = $request->input('sort_by', 'newest');
@@ -321,6 +216,133 @@ class ProjectController extends Controller
         }
 
         return $filters;
+    }
+
+    /**
+     * Будує запит проєктів із застосованими фільтрами запиту.
+     * $except дозволяє пропустити фільтр(и) певного виміру (наприклад ['status']),
+     * щоб порахувати facet-кількість для варіантів цього виміру з урахуванням решти фільтрів.
+     *
+     * @param  string[]  $except
+     */
+    private function buildFilteredQuery(Request $request, array $except = []): Builder
+    {
+        $query = Project::query()->whereIn('status', ProjectStatus::publicStatuses());
+
+        // Фільтр по категорії (slug кореня або підкатегорії; множинні значення через кому)
+        if (! in_array('art_category', $except, true) && $request->filled('art_category')) {
+            $slugs = array_map('trim', explode(',', $request->input('art_category')));
+            $categoryIds = ArtCategory::whereIn('slug', $slugs)
+                ->get()
+                ->flatMap(fn (ArtCategory $c) => $c->parent_id
+                    ? [$c->id]
+                    : [$c->id, ...$c->children()->pluck('id')]
+                )
+                ->unique()
+                ->values()
+                ->all();
+            if (! empty($categoryIds)) {
+                $query->whereIn('art_category_id', $categoryIds);
+            }
+        }
+
+        // Фільтр по підкатегорії (slug підкатегорії; множинні значення через кому)
+        if (! in_array('art_subcategory', $except, true) && $request->filled('art_subcategory')) {
+            $subSlugs = array_map('trim', explode(',', $request->input('art_subcategory')));
+            $subIds = ArtCategory::whereNotNull('parent_id')->whereIn('slug', $subSlugs)->pluck('id')->all();
+            if (! empty($subIds)) {
+                $query->whereIn('art_category_id', $subIds);
+            }
+        }
+
+        // Фільтр по статусу (підтримує множинні значення через кому)
+        if (! in_array('status', $except, true) && $request->filled('status')) {
+            $statuses = array_map('trim', explode(',', $request->input('status')));
+            $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
+            $validStatuses = array_intersect($statuses, $publicStatuses);
+            if (! empty($validStatuses)) {
+                $query->whereIn('status', $validStatuses);
+            }
+        }
+
+        // Фільтр по валюті (підтримує множинні значення через кому)
+        if (! in_array('currency', $except, true) && $request->filled('currency')) {
+            $currencies = array_map('trim', explode(',', $request->input('currency')));
+            $query->whereIn('currency', $currencies);
+        }
+
+        // Фільтр по цільовому бюджету
+        if (! in_array('budget', $except, true)) {
+            if ($request->filled('budget_min')) {
+                $query->where('budget_goal', '>=', $request->input('budget_min'));
+            }
+            if ($request->filled('budget_max')) {
+                $query->where('budget_goal', '<=', $request->input('budget_max'));
+            }
+        }
+
+        // Фільтр по зібраному бюджету
+        if ($request->filled('budget_collected_min')) {
+            $query->where('budget_collected', '>=', $request->input('budget_collected_min'));
+        }
+        if ($request->filled('budget_collected_max')) {
+            $query->where('budget_collected', '<=', $request->input('budget_collected_max'));
+        }
+
+        // Фільтр по прогресу збору коштів (відсотки)
+        if ($request->filled('progress_min') || $request->filled('progress_max')) {
+            $progressMin = $request->input('progress_min', 0);
+            $progressMax = $request->input('progress_max', 100);
+            $query->whereRaw('(budget_collected / budget_goal * 100) >= ?', [$progressMin])
+                ->whereRaw('(budget_collected / budget_goal * 100) <= ?', [$progressMax]);
+        }
+
+        // Фільтр по тегах (множинні значення)
+        if ($request->filled('tags')) {
+            $tags = array_map('trim', explode(',', $request->input('tags')));
+            foreach ($tags as $tag) {
+                $query->whereRaw('JSON_CONTAINS(tags, ?)', [json_encode($tag)]);
+            }
+        }
+
+        // Фільтр по автору
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->input('user_id'));
+        }
+
+        // Фільтр по даті оголошення
+        if ($request->filled('announced_from')) {
+            $query->whereDate('announced_at', '>=', $request->input('announced_from'));
+        }
+        if ($request->filled('announced_to')) {
+            $query->whereDate('announced_at', '<=', $request->input('announced_to'));
+        }
+
+        // Фільтр по кількості днів до завершення
+        if ($request->filled('days_left_min') || $request->filled('days_left_max')) {
+            $now = now();
+            if ($request->filled('days_left_min')) {
+                $minDate = $now->copy()->addDays($request->input('days_left_min'));
+                $query->where('planned_completion_at', '>=', $minDate);
+            }
+            if ($request->filled('days_left_max')) {
+                $maxDate = $now->copy()->addDays($request->input('days_left_max'));
+                $query->where('planned_completion_at', '<=', $maxDate);
+            }
+        }
+
+        // Пошук по назві та опису
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw("JSON_EXTRACT(title, '$.uk') LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("JSON_EXTRACT(title, '$.en') LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("JSON_EXTRACT(short_description, '$.uk') LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("JSON_EXTRACT(short_description, '$.en') LIKE ?", ["%{$search}%"]);
+            });
+        }
+
+        return $query;
     }
 
     /**
@@ -475,16 +497,19 @@ class ProjectController extends Controller
     // Приватні методи для фільтрів
     // ==========================================
 
-    private function getFilterCategories(?string $language = null): array
+    private function getFilterCategories(?string $language, Request $request): array
     {
         $categories = [];
-        $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
+
+        // Виключаємо фільтр підкатегорії з базового запиту: кожен варіант рахуємо
+        // окремо з урахуванням решти застосованих фільтрів (статус, бюджет, валюта тощо).
+        $baseQuery = $this->buildFilteredQuery($request, ['art_subcategory']);
 
         foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
             $subcategories = [];
 
             foreach ($root->children as $child) {
-                $count = Project::whereIn('status', $publicStatuses)->where('art_category_id', $child->id)->count();
+                $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
                     'slug' => $child->slug,
                     'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
@@ -502,12 +527,16 @@ class ProjectController extends Controller
         return $categories;
     }
 
-    private function getFilterStatuses(?string $language = null): array
+    private function getFilterStatuses(?string $language, Request $request): array
     {
         $statuses = [];
 
+        // Виключаємо фільтр статусу з базового запиту: кожен варіант рахуємо окремо
+        // з урахуванням решти застосованих фільтрів (категорія, бюджет, валюта тощо).
+        $baseQuery = $this->buildFilteredQuery($request, ['status']);
+
         foreach (ProjectStatus::publicStatuses() as $status) {
-            $count = Project::where('status', $status->value)->count();
+            $count = (clone $baseQuery)->where('status', $status->value)->count();
 
             $statuses[] = [
                 'slug' => $status->value,
