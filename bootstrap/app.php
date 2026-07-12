@@ -25,6 +25,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'api.key' => \App\Http\Middleware\VerifyApiKey::class,
         ]);
+
+        // Логування кожного API-запиту (свій файл на день для кожного ендпоінту в storage/logs/)
+        $middleware->api(append: [
+            \App\Http\Middleware\LogApiRequest::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Перевірка, чи це API запит

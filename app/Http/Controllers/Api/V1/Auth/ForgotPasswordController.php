@@ -48,9 +48,12 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLink(Request $request): JsonResponse
     {
-        $request->validate([
+        $data = $request->validate([
             'email' => ['required', 'email'],
+            'locale' => ['nullable', 'string', 'in:uk,en'],
         ]);
+
+        app()->setLocale($data['locale'] ?? app()->getLocale());
 
         $status = Password::sendResetLink(
             $request->only('email')

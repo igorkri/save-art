@@ -321,4 +321,13 @@ class User extends Authenticatable implements FilamentUser
 
         return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'User #'.$this->id;
     }
+
+    /**
+     * Надсилає лист скидання пароля з брендованим шаблоном мовою поточного запиту
+     * (App::setLocale виставляється в ForgotPasswordController за локаллю з фронтенду).
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }
