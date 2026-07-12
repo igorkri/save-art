@@ -22,7 +22,7 @@ class CreateDonationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => ['required', 'numeric', 'min:10'],
+            'amount' => ['required', 'numeric', 'min:1'],
             'currency' => ['required', Rule::enum(Currency::class)],
 
             'bonus_id' => ['nullable', 'exists:project_bonuses,id'],
@@ -51,7 +51,7 @@ class CreateDonationRequest extends FormRequest
     {
         return [
             'amount.required' => 'Вкажіть суму донату',
-            'amount.min' => 'Мінімальна сума донату — 10',
+            'amount.min' => 'Мінімальна сума донату — 1',
             'donor_name.required' => "Вкажіть ваше ім'я",
             'donor_email.required' => 'Вкажіть вашу email адресу',
         ];

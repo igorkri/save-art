@@ -211,6 +211,8 @@ class DonationController extends Controller
             'donor_email' => $data['donor_email'] ?? $donor?->email,
         ]);
 
+        $this->donationService->registerPendingAsCollected($donation);
+
         // Ініціалізуємо платіж через PaymentService
         $paymentData = null;
         $paymentConfigured = $this->paymentService->isConfigured();
@@ -293,7 +295,7 @@ class DonationController extends Controller
     {
         try {
             $data = $request->validate([
-                'amount' => ['required', 'numeric', 'min:10'],
+                'amount' => ['required', 'numeric', 'min:1'],
                 'currency' => ['required', 'string', 'in:UAH,USD,EUR'],
                 'donor_type' => ['required', 'string', 'in:personal,legal'],
                 'donor_name' => ['nullable', 'string', 'max:255'],

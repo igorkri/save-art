@@ -18,6 +18,41 @@ class DonationService
     }
 
     /**
+     * Врахувати донат у зібраній сумі проєкту одразу при створенні,
+     * не чекаючи підтвердження реальної оплати (фронтенд поки не
+     * має інтеграції з платіжною системою). Якщо пізніше підключиться
+     * реальний webhook і processPaidDonation() почне викликатись для
+     * цих же донатів — там потрібно буде прибрати повторний increment,
+     * інакше сума порахується двічі.
+     */
+    public function registerPendingAsCollected(Donation $donation): void
+    {
+        if (! $donation->project_id) {
+            return;
+        }
+
+        DB::transaction(function () use ($donation) {
+            $project = $donation->project;
+            $project->increment('budget_collected', $donation->amount);
+
+            $existingDonor = Donation::where('project_id', $project->id)
+                ->where('id', '!=', $donation->id)
+                ->where(function ($q) use ($donation) {
+                    if ($donation->user_id) {
+                        $q->where('user_id', $donation->user_id);
+                    } else {
+                        $q->where('donor_email', $donation->donor_email);
+                    }
+                })
+                ->exists();
+
+            if (! $existingDonor) {
+                $project->increment('donors_count');
+            }
+        });
+    }
+
+    /**
      * Обробити успішну оплату донату
      */
     public function processPaidDonation(Donation $donation): void
