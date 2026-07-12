@@ -4,7 +4,9 @@ namespace App\Http\Requests\Api\V1;
 
 use App\Enums\Currency;
 use App\Enums\UserType;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class CreateDonationRequest extends FormRequest
@@ -53,5 +55,33 @@ class CreateDonationRequest extends FormRequest
             'donor_name.required' => "Вкажіть ваше ім'я",
             'donor_email.required' => 'Вкажіть вашу email адресу',
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        Log::channel('donations')->warning('Донат: валідацію не пройдено', [
+            'route' => $this->route()?->getName() ?? $this->path(),
+            'project' => $this->route('project')?->slug,
+            'user_id' => $this->user('sanctum')?->id,
+            'is_guest' => ! $this->user('sanctum'),
+            'input' => $this->except(['donor_edrpou', 'donor_company_name']),
+            'errors' => $validator->errors()->toArray(),
+        ]);
+
+        parent::failedValidation($validator);
+    }
+
+    protected function passedValidation(): void
+    {
+        Log::channel('donations')->info('Донат: валідацію пройдено', [
+            'project' => $this->route('project')?->slug,
+            'user_id' => $this->user('sanctum')?->id,
+            'is_guest' => ! $this->user('sanctum'),
+            'donor_type' => $this->input('donor_type'),
+            'is_anonymous' => $this->boolean('is_anonymous'),
+            'amount' => $this->input('amount'),
+            'currency' => $this->input('currency'),
+            'bonus_id' => $this->input('bonus_id'),
+        ]);
     }
 }

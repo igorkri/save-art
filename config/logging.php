@@ -123,6 +123,14 @@ return [
             'handler' => NullHandler::class,
         ],
 
+        'donations' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/donations.log'),
+            'level' => 'debug',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],

@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Annotations as OA;
 
 /**
@@ -137,6 +138,11 @@ class DonationController extends Controller
     {
         // Перевіряємо, чи проєкт може приймати донати
         if (! $project->canReceiveDonations()) {
+            Log::channel('donations')->warning('Донат проєкту: проєкт не приймає донати', [
+                'project' => $project->slug,
+                'status' => $project->status,
+            ]);
+
             return response()->json([
                 'message' => 'Цей проєкт не приймає донати.',
             ], 422);
@@ -152,18 +158,35 @@ class DonationController extends Controller
                 ->first();
 
             if (! $bonus) {
+                Log::channel('donations')->warning('Донат проєкту: бонус не знайдено', [
+                    'project' => $project->slug,
+                    'bonus_id' => $data['bonus_id'],
+                ]);
+
                 return response()->json([
                     'message' => 'Бонус не знайдено.',
                 ], 422);
             }
 
             if (! $bonus->isAvailable()) {
+                Log::channel('donations')->warning('Донат проєкту: бонус недоступний', [
+                    'project' => $project->slug,
+                    'bonus_id' => $bonus->id,
+                ]);
+
                 return response()->json([
                     'message' => 'Цей бонус вже недоступний.',
                 ], 422);
             }
 
             if ($data['amount'] < $bonus->min_donation) {
+                Log::channel('donations')->warning('Донат проєкту: сума менша за мінімум бонусу', [
+                    'project' => $project->slug,
+                    'bonus_id' => $bonus->id,
+                    'amount' => $data['amount'],
+                    'min_donation' => $bonus->min_donation,
+                ]);
+
                 return response()->json([
                     'message' => "Мінімальна сума для цього бонусу — {$bonus->min_donation}",
                 ], 422);
@@ -190,12 +213,27 @@ class DonationController extends Controller
 
         // Ініціалізуємо платіж через PaymentService
         $paymentData = null;
-        if ($this->paymentService->isConfigured()) {
+        $paymentConfigured = $this->paymentService->isConfigured();
+        if ($paymentConfigured) {
             $callbackUrl = route('api.v1.payments.webhook');
             $resultUrl = config('app.frontend_url', config('app.url')).'/payment/result';
 
             $paymentData = $this->paymentService->createPayment($donation, $callbackUrl, $resultUrl);
         }
+
+        Log::channel('donations')->info('Донат проєкту створено', [
+            'donation_id' => $donation->id,
+            'project' => $project->slug,
+            'user_id' => $donor?->id,
+            'is_guest' => ! $donor,
+            'donor_type' => $donation->donor_type,
+            'is_anonymous' => $donation->is_anonymous,
+            'amount' => $donation->amount,
+            'currency' => $donation->currency,
+            'bonus_id' => $bonus?->id,
+            'payment_configured' => $paymentConfigured,
+            'payment_initialized' => (bool) $paymentData,
+        ]);
 
         return response()->json([
             'message' => 'Донат створено. Очікуємо на оплату.',
@@ -253,17 +291,37 @@ class DonationController extends Controller
      */
     public function storePlatformDonation(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'amount' => ['required', 'numeric', 'min:10'],
-            'currency' => ['required', 'string', 'in:UAH,USD,EUR'],
-            'donor_type' => ['required', 'string', 'in:personal,legal'],
-            'donor_name' => ['nullable', 'string', 'max:255'],
-            'donor_email' => ['nullable', 'email', 'max:255'],
-            'donor_phone' => ['nullable', 'string', 'max:20'],
-            'donor_company_name' => ['nullable', 'string', 'max:255'],
-            'donor_edrpou' => ['nullable', 'string', 'max:10'],
-            'is_anonymous' => ['nullable', 'boolean'],
-            'message' => ['nullable', 'string', 'max:1000'],
+        try {
+            $data = $request->validate([
+                'amount' => ['required', 'numeric', 'min:10'],
+                'currency' => ['required', 'string', 'in:UAH,USD,EUR'],
+                'donor_type' => ['required', 'string', 'in:personal,legal'],
+                'donor_name' => ['nullable', 'string', 'max:255'],
+                'donor_email' => ['nullable', 'email', 'max:255'],
+                'donor_phone' => ['nullable', 'string', 'max:20'],
+                'donor_company_name' => ['nullable', 'string', 'max:255'],
+                'donor_edrpou' => ['nullable', 'string', 'max:10'],
+                'is_anonymous' => ['nullable', 'boolean'],
+                'message' => ['nullable', 'string', 'max:1000'],
+            ]);
+        } catch (ValidationException $e) {
+            Log::channel('donations')->warning('Донат платформі: валідацію не пройдено', [
+                'user_id' => $request->user('sanctum')?->id,
+                'is_guest' => ! $request->user('sanctum'),
+                'input' => $request->except(['donor_edrpou', 'donor_company_name']),
+                'errors' => $e->errors(),
+            ]);
+
+            throw $e;
+        }
+
+        Log::channel('donations')->info('Донат платформі: валідацію пройдено', [
+            'user_id' => $request->user('sanctum')?->id,
+            'is_guest' => ! $request->user('sanctum'),
+            'donor_type' => $data['donor_type'],
+            'is_anonymous' => $data['is_anonymous'] ?? false,
+            'amount' => $data['amount'],
+            'currency' => $data['currency'],
         ]);
 
         // Створюємо донат на платформу
@@ -285,12 +343,25 @@ class DonationController extends Controller
 
         // Ініціалізуємо платіж через PaymentService
         $paymentData = null;
-        if ($this->paymentService->isConfigured()) {
+        $paymentConfigured = $this->paymentService->isConfigured();
+        if ($paymentConfigured) {
             $callbackUrl = route('api.v1.payments.webhook');
             $resultUrl = config('app.frontend_url', config('app.url')).'/payment/result';
 
             $paymentData = $this->paymentService->createPayment($donation, $callbackUrl, $resultUrl);
         }
+
+        Log::channel('donations')->info('Донат платформі створено', [
+            'donation_id' => $donation->id,
+            'user_id' => $donor?->id,
+            'is_guest' => ! $donor,
+            'donor_type' => $donation->donor_type,
+            'is_anonymous' => $donation->is_anonymous,
+            'amount' => $donation->amount,
+            'currency' => $donation->currency,
+            'payment_configured' => $paymentConfigured,
+            'payment_initialized' => (bool) $paymentData,
+        ]);
 
         return response()->json([
             'message' => 'Донат на платформу створено. Очікуємо на оплату.',
