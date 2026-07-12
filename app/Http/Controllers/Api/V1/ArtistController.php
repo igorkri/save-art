@@ -80,12 +80,12 @@ class ArtistController extends Controller
             ->whereHas('projects', fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()))
             ->orderByDesc('projects_count');
 
-        // Пошук по імені (full_name — JSON поле)
+        // Пошук по імені (full_name — JSON поле; LOWER — щоб не залежати від регістру)
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = mb_strtolower($request->input('search'));
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk')) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en')) LIKE ?", ["%{$search}%"]);
+                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk'))) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en'))) LIKE ?", ["%{$search}%"]);
             });
         }
 

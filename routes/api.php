@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectStageController;
 use App\Http\Controllers\Api\V1\PublicUserController;
 use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\StatisticsController;
 use App\Http\Controllers\ProfileApiController;
 
@@ -63,6 +64,9 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
         Route::get('/{slug}', [ProjectController::class, 'show']);
         Route::get('/{slug}/donors', [ProjectController::class, 'donors']);
     });
+
+    // Пошук з підказками (автори + проєкти)
+    Route::get('/search/suggest', [SearchController::class, 'suggest']);
 
     // Категорії мистецтва
     Route::get('/categories', [CatalogController::class, 'categories']);

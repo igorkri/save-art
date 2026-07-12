@@ -331,14 +331,14 @@ class ProjectController extends Controller
             }
         }
 
-        // Пошук по назві та опису
+        // Пошук по назві та опису (LOWER — щоб не залежати від регістру, бо JSON_EXTRACT повертає бінарне значення)
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = mb_strtolower($request->input('search'));
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("JSON_EXTRACT(title, '$.uk') LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_EXTRACT(title, '$.en') LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_EXTRACT(short_description, '$.uk') LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_EXTRACT(short_description, '$.en') LIKE ?", ["%{$search}%"]);
+                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.uk'))) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.en'))) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(short_description, '$.uk'))) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(short_description, '$.en'))) LIKE ?", ["%{$search}%"]);
             });
         }
 
