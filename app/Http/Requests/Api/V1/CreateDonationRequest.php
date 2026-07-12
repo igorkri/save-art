@@ -29,8 +29,8 @@ class CreateDonationRequest extends FormRequest
             'donor_type' => ['required', Rule::enum(UserType::class)],
 
             // Для неавторизованих користувачів
-            'donor_name' => [Rule::requiredIf(fn () => ! $this->user()), 'nullable', 'string', 'max:255'],
-            'donor_email' => [Rule::requiredIf(fn () => ! $this->user()), 'nullable', 'email', 'max:255'],
+            'donor_name' => [Rule::requiredIf(fn () => ! $this->user('sanctum')), 'nullable', 'string', 'max:255'],
+            'donor_email' => [Rule::requiredIf(fn () => ! $this->user('sanctum')), 'nullable', 'email', 'max:255'],
             'donor_phone' => ['nullable', 'string', 'max:20'],
 
             // Повідомлення від донатера

@@ -171,9 +171,10 @@ class DonationController extends Controller
         }
 
         // Створюємо донат
+        $donor = $request->user('sanctum');
         $donation = Donation::create([
             'project_id' => $project->id,
-            'user_id' => $request->user()?->id,
+            'user_id' => $donor?->id,
             'project_bonus_id' => $bonus?->id,
             'donation_type' => Donation::TYPE_PROJECT,
 
@@ -183,8 +184,8 @@ class DonationController extends Controller
 
             'is_anonymous' => $data['is_anonymous'] ?? false,
             'donor_type' => $data['donor_type'],
-            'donor_name' => $data['donor_name'] ?? $request->user()?->name,
-            'donor_email' => $data['donor_email'] ?? $request->user()?->email,
+            'donor_name' => $data['donor_name'] ?? $donor?->name,
+            'donor_email' => $data['donor_email'] ?? $donor?->email,
         ]);
 
         // Ініціалізуємо платіж через PaymentService
@@ -266,9 +267,10 @@ class DonationController extends Controller
         ]);
 
         // Створюємо донат на платформу
+        $donor = $request->user('sanctum');
         $donation = Donation::create([
             'project_id' => null,
-            'user_id' => $request->user()?->id,
+            'user_id' => $donor?->id,
             'donation_type' => Donation::TYPE_PLATFORM,
 
             'amount' => $data['amount'],
@@ -277,8 +279,8 @@ class DonationController extends Controller
 
             'is_anonymous' => $data['is_anonymous'] ?? false,
             'donor_type' => $data['donor_type'],
-            'donor_name' => $data['donor_name'] ?? $request->user()?->name,
-            'donor_email' => $data['donor_email'] ?? $request->user()?->email,
+            'donor_name' => $data['donor_name'] ?? $donor?->name,
+            'donor_email' => $data['donor_email'] ?? $donor?->email,
         ]);
 
         // Ініціалізуємо платіж через PaymentService
