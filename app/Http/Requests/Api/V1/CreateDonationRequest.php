@@ -29,8 +29,8 @@ class CreateDonationRequest extends FormRequest
             'donor_type' => ['required', Rule::enum(UserType::class)],
 
             // Для неавторизованих користувачів
-            'donor_name' => ['required_without:user_id', 'nullable', 'string', 'max:255'],
-            'donor_email' => ['required_without:user_id', 'nullable', 'email', 'max:255'],
+            'donor_name' => [Rule::requiredIf(fn () => ! $this->user()), 'nullable', 'string', 'max:255'],
+            'donor_email' => [Rule::requiredIf(fn () => ! $this->user()), 'nullable', 'email', 'max:255'],
             'donor_phone' => ['nullable', 'string', 'max:20'],
 
             // Повідомлення від донатера
@@ -50,8 +50,8 @@ class CreateDonationRequest extends FormRequest
         return [
             'amount.required' => 'Вкажіть суму донату',
             'amount.min' => 'Мінімальна сума донату — 10',
-            'donor_name.required_without' => "Вкажіть ваше ім'я",
-            'donor_email.required_without' => 'Вкажіть вашу email адресу',
+            'donor_name.required' => "Вкажіть ваше ім'я",
+            'donor_email.required' => 'Вкажіть вашу email адресу',
         ];
     }
 }
