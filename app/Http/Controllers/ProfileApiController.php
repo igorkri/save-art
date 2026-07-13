@@ -297,9 +297,11 @@ class ProfileApiController extends Controller
 
         $validated = $request->validated();
 
-        // Обробка base64 logo
-        if (! empty($validated['logo']) && str_starts_with($validated['logo'], 'data:image/')) {
-            $validated['logo'] = $this->processBase64Logo($validated['logo'], $profile);
+        // Обробка logo
+        if (! empty($validated['logo'])) {
+            $validated['logo'] = str_starts_with($validated['logo'], 'data:image/')
+                ? $this->processBase64Logo($validated['logo'], $profile)
+                : $this->normalizeLogoPath($validated['logo']);
         }
 
         $profile->fill($validated);
@@ -363,9 +365,11 @@ class ProfileApiController extends Controller
 
         $validated = $request->validated();
 
-        // Обробка base64 logo
-        if (! empty($validated['logo']) && str_starts_with($validated['logo'], 'data:image/')) {
-            $validated['logo'] = $this->processBase64Logo($validated['logo'], $profile);
+        // Обробка logo
+        if (! empty($validated['logo'])) {
+            $validated['logo'] = str_starts_with($validated['logo'], 'data:image/')
+                ? $this->processBase64Logo($validated['logo'], $profile)
+                : $this->normalizeLogoPath($validated['logo']);
         }
 
         $profile->fill($validated);
@@ -1018,6 +1022,27 @@ class ProfileApiController extends Controller
         }
 
         return $avatar;
+    }
+
+    /**
+     * Нормалізує шлях до логотипа: якщо прийшов повний URL (напр. з попереднього
+     * GET-відповіді, де ProfileLegalResource повертає Storage::url()),
+     * повертає відносний шлях диска "public", щоб уникнути подвоєння /storage/
+     * при повторному збереженні.
+     */
+    private function normalizeLogoPath(string $logo): string
+    {
+        $storageUrl = Storage::disk('public')->url('');
+
+        if (str_starts_with($logo, $storageUrl)) {
+            return ltrim(substr($logo, strlen($storageUrl)), '/');
+        }
+
+        if (str_starts_with($logo, '/storage/')) {
+            return ltrim(substr($logo, strlen('/storage/')), '/');
+        }
+
+        return $logo;
     }
 
     /**
