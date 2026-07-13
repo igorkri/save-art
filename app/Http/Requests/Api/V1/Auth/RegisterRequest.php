@@ -37,6 +37,8 @@ class RegisterRequest extends FormRequest
             'password.required' => 'Вкажіть пароль',
             'password.confirmed' => 'Паролі не співпадають',
             'password.min' => 'Пароль має бути не менше 8 символів',
+            'password.mixed' => 'Пароль має містити хоча б одну велику та одну малу літеру',
+            'password.numbers' => 'Пароль має містити хоча б одну цифру',
         ];
     }
 }
