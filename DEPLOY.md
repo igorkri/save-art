@@ -136,11 +136,14 @@ dep sync:all production
 
 ## Сервисы
 
-> На сервере нет supervisor-программ для этого проекта — очередь просто перезапускается
-> сигналом (`artisan queue:restart`), без выделенных воркер-процессов под управлением supervisor.
+> Очередь (`QUEUE_CONNECTION=database`) обрабатывается двумя воркер-процессами под
+> supervisor-программой `idart-queue` (`/etc/supervisor/conf.d/idart-queue.conf`,
+> `queue:work database --sleep=3 --tries=3 --max-time=3600`, лог: `storage/logs/queue.log`).
+> `dep restart:queue` просто сигналит воркерам штатно перечитать код (graceful), supervisor
+> сам поддерживает процессы живыми (`autorestart=true`).
 
 ```bash
-dep restart:queue production   # artisan queue:restart
+dep restart:queue production   # artisan queue:restart — воркеры idart-queue перечитают код
 dep restart:php production     # ⚠ перезапуск PHP-FPM — общий для всех доменов на PHP 8.4
 dep restart:nginx production   # ⚠ reload Nginx — общий для всех доменов на сервере
 ```

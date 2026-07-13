@@ -187,6 +187,9 @@ task('deploy', function (): void {
         invoke('scheduler:ensure');
     }
 
+    writeln('<comment>▶ Reload PHP-FPM (clear OPcache)</comment>');
+    invoke('restart:php');
+
     writeln('<info>✓  Deploy complete → https://'.DEP_SITE_DOMAIN.'</info>');
 })->desc('Full deploy: sync code, install deps, migrate, restart queue');
 
@@ -391,7 +394,7 @@ task('restart:queue', function (): void {
     $php = 'php'.DEP_PHP_VERSION;
     runAs('cd '.DEP_PROJECT_PATH." && $php artisan queue:restart");
     writeln('<info>✓  Queue workers signalled to restart</info>');
-})->desc('Graceful queue:restart (no supervisor program configured for this project yet)');
+})->desc('Graceful queue:restart (supervisor program "idart-queue" picks workers back up automatically)');
 
 // ─── STATUS ───────────────────────────────────────────────────────────────────
 task('status', function (): void {
