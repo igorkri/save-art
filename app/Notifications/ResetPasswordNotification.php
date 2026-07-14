@@ -14,6 +14,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
 
     public function __construct(
         #[SensitiveParameter] private readonly string $token,
+        private readonly ?string $frontendUrl = null,
     ) {}
 
     /**
@@ -42,7 +43,9 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
 
     private function resetUrl(mixed $notifiable): string
     {
-        return rtrim(config('app.frontend_url'), '/')
+        $base = $this->frontendUrl ?? config('app.frontend_url');
+
+        return rtrim($base, '/')
             .'/reset-password?token='.$this->token
             .'&email='.urlencode($notifiable->getEmailForPasswordReset());
     }
