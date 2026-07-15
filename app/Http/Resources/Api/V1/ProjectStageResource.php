@@ -48,7 +48,7 @@ use OpenApi\Annotations as OA;
  *
  *     @OA\Property(property="type", type="string", enum={"photo", "document"}, example="photo", description="Тип: photo або document"),
  *     @OA\Property(property="file", type="string", example="projects/1/stages/1/receipt.jpg", description="Шлях до файлу"),
- *     @OA\Property(property="file_url", type="string", example="http://save-art.local/storage/projects/1/stages/1/receipt.jpg", description="Повний URL файлу"),
+ *     @OA\Property(property="file_url", type="string", example="http://save-art-web.ddev.site/storage/projects/1/stages/1/receipt.jpg", description="Повний URL файлу"),
  *     @OA\Property(property="original_name", type="string", example="чек_матеріали.jpg", description="Оригінальна назва файлу"),
  *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true, description="Опис документа (uk, en)"),
  *     @OA\Property(property="uploaded_at", type="string", format="date-time", description="Дата завантаження")

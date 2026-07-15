@@ -15,7 +15,7 @@
     },
     "servers": [
         {
-            "url": "http://save-art.local/api",
+            "url": "https://save-art.ddev.site/api",
             "description": "Local Development"
         },
         {
@@ -979,7 +979,12 @@
                     "404": {
                         "description": "Головна сторінка не налаштована"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/home/statistics": {
@@ -1033,7 +1038,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/home/chart": {
@@ -1105,7 +1115,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/site/settings": {
@@ -4281,6 +4296,11 @@
                                                     "type": "number",
                                                     "minimum": 1
                                                 },
+                                                "max_donation": {
+                                                    "type": "number",
+                                                    "minimum": 1,
+                                                    "nullable": true
+                                                },
                                                 "quantity": {
                                                     "description": "null = необмежено",
                                                     "type": "integer",
@@ -4513,6 +4533,7 @@
                                             "en": "Your name in patrons list"
                                         },
                                         "min_donation": 100,
+                                        "max_donation": 499,
                                         "quantity": null,
                                         "order": 1
                                     },
@@ -4526,6 +4547,7 @@
                                             "en": "Author's postcard with reproduction"
                                         },
                                         "min_donation": 500,
+                                        "max_donation": 1499,
                                         "quantity": 100,
                                         "order": 2
                                     },
@@ -4539,6 +4561,7 @@
                                             "en": "Print with author's signature"
                                         },
                                         "min_donation": 1500,
+                                        "max_donation": 2999,
                                         "quantity": 50,
                                         "order": 3
                                     },
@@ -4552,6 +4575,7 @@
                                             "en": "A3 print with certificate"
                                         },
                                         "min_donation": 3000,
+                                        "max_donation": 4999,
                                         "quantity": 25,
                                         "order": 4
                                     },
@@ -4565,6 +4589,7 @@
                                             "en": "Studio tour"
                                         },
                                         "min_donation": 5000,
+                                        "max_donation": 9999,
                                         "quantity": 10,
                                         "order": 5
                                     },
@@ -4578,6 +4603,7 @@
                                             "en": "Sketch with signature"
                                         },
                                         "min_donation": 10000,
+                                        "max_donation": null,
                                         "quantity": 5,
                                         "order": 6
                                     }
@@ -7354,6 +7380,66 @@
                 ]
             }
         },
+        "/v1/search/suggest": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Підказки пошуку (автори + проєкти)",
+                "description": "Повертає до 5 проєктів і до 5 митців, що відповідають запиту",
+                "operationId": "searchSuggest",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Пошуковий запит (мінімум 2 символи)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Іван"
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Підказки",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "projects": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "artists": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/statistics": {
             "get": {
                 "tags": [
@@ -7794,6 +7880,12 @@
                                         "example": "01001",
                                         "nullable": true
                                     },
+                                    "phone": {
+                                        "description": "Персональний телефон",
+                                        "type": "string",
+                                        "example": "+380501234567",
+                                        "nullable": true
+                                    },
                                     "profile_type": {
                                         "description": "Тип профілю: artist або patron",
                                         "type": "string",
@@ -7957,6 +8049,12 @@
                                         "description": "Поштовий індекс",
                                         "type": "string",
                                         "example": "01001",
+                                        "nullable": true
+                                    },
+                                    "phone": {
+                                        "description": "Персональний телефон",
+                                        "type": "string",
+                                        "example": "+380501234567",
                                         "nullable": true
                                     },
                                     "profile_type": {
@@ -9581,6 +9679,12 @@
                         "format": "float",
                         "example": 500
                     },
+                    "max_donation": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500,
+                        "nullable": true
+                    },
                     "quantity": {
                         "type": "integer",
                         "example": 10,
@@ -9771,7 +9875,7 @@
                     },
                     "cover_url": {
                         "type": "string",
-                        "example": "http://save-art.local/storage/projects/covers/1.jpg",
+                        "example": "http://save-art-web.ddev.site/storage/projects/covers/1.jpg",
                         "nullable": true
                     },
                     "art_category": {
@@ -10033,7 +10137,7 @@
                             },
                             "url": {
                                 "type": "string",
-                                "example": "http://save-art.local/storage/projects/1/final-result/artwork.jpg"
+                                "example": "http://save-art-web.ddev.site/storage/projects/1/final-result/artwork.jpg"
                             },
                             "original_name": {
                                 "type": "string",
@@ -10194,7 +10298,7 @@
                     "file_url": {
                         "description": "Повний URL файлу",
                         "type": "string",
-                        "example": "http://save-art.local/storage/projects/1/stages/1/receipt.jpg"
+                        "example": "http://save-art-web.ddev.site/storage/projects/1/stages/1/receipt.jpg"
                     },
                     "original_name": {
                         "description": "Оригінальна назва файлу",
@@ -10444,7 +10548,7 @@
                     },
                     "file_url": {
                         "type": "string",
-                        "example": "http://save-art.local/storage/profile_documents/doc1.pdf"
+                        "example": "http://save-art-web.ddev.site/storage/profile_documents/doc1.pdf"
                     },
                     "hash": {
                         "description": "Хеш файлу",
@@ -10707,6 +10811,12 @@
                         "example": "01001",
                         "nullable": true
                     },
+                    "phone": {
+                        "description": "Персональний телефон",
+                        "type": "string",
+                        "example": "+380501234567",
+                        "nullable": true
+                    },
                     "profile_type": {
                         "description": "Тип профілю: artist або patron",
                         "type": "string",
@@ -10891,6 +11001,10 @@
         {
             "name": "Notifications",
             "description": "API для роботи зі сповіщеннями (03.2.4)"
+        },
+        {
+            "name": "Search",
+            "description": "Швидкий пошук з підказками (автори + проєкти)"
         },
         {
             "name": "Statistics",

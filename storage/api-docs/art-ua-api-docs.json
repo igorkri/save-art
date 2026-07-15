@@ -19,7 +19,7 @@
             "description": "Production Server"
         },
         {
-            "url": "http://art-ua.local/api/v1",
+            "url": "https://save-art.ddev.site/api/v1",
             "description": "Local Development"
         }
     ],

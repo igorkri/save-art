@@ -27,7 +27,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="status_moderation", type="string", enum={"pending", "approved", "rejected"}, example="approved"),
  *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
  *     @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
- *     @OA\Property(property="cover_url", type="string", nullable=true, example="http://save-art.local/storage/projects/covers/1.jpg"),
+ *     @OA\Property(property="cover_url", type="string", nullable=true, example="http://save-art-web.ddev.site/storage/projects/covers/1.jpg"),
  *     @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="visual"),
  *     @OA\Property(property="art_category_label", type="string", example="Візуальне мистецтво"),
  *     @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
@@ -85,7 +85,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true, description="Опис результату"),
  *     @OA\Property(property="file", type="object", nullable=true, description="Один файл (для type=image або document або video з одним файлом)",
  *         @OA\Property(property="path", type="string", example="projects/1/final-result/artwork.jpg"),
- *         @OA\Property(property="url", type="string", example="http://save-art.local/storage/projects/1/final-result/artwork.jpg"),
+ *         @OA\Property(property="url", type="string", example="http://save-art-web.ddev.site/storage/projects/1/final-result/artwork.jpg"),
  *         @OA\Property(property="original_name", type="string", example="my-artwork.jpg"),
  *         @OA\Property(property="mime_type", type="string", example="image/jpeg"),
  *         @OA\Property(property="size", type="integer", example=1024000, description="Розмір у байтах")

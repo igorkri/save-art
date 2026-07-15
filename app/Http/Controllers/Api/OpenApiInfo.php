@@ -22,7 +22,7 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\Server(
- *     url="http://save-art.local/api",
+ *     url="https://save-art.ddev.site/api",
  *     description="Local Development"
  * )
  * @OA\Server(

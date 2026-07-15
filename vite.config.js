@@ -11,6 +11,6 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        allowedHosts: ['save-art-f.local', 'save-art.local'],
+        allowedHosts: ['save-art-f.local', 'save-art-web.ddev.site'],
     },
 });

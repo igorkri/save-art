@@ -30,6 +30,7 @@ class HomePageController extends Controller
      *     tags={"HomePage"},
      *     summary="Дані головної сторінки",
      *     description="Повертає всі дані для рендерингу головної сторінки, включаючи hero-секцію, статистику, партнерів та рекомендовані проекти",
+     *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(
      *         name="language",
@@ -200,6 +201,7 @@ class HomePageController extends Controller
      *     tags={"HomePage"},
      *     summary="Статистика платформи",
      *     description="Повертає актуальну статистику платформи (загальна сума зборів, кількість проектів)",
+     *     security={{"apiKey": {}}},
      *
      *     @OA\Response(
      *         response=200,
@@ -271,6 +273,7 @@ class HomePageController extends Controller
      *     tags={"HomePage"},
      *     summary="Дані для графіка зборів",
      *     description="Повертає дані для графіка зборів за обраний період (день, тиждень, місяць, рік, все)",
+     *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(
      *         name="period",

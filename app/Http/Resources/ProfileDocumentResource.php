@@ -16,7 +16,7 @@ use OpenApi\Annotations as OA;
  *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="file_path", type="string", example="profile_documents/doc1.pdf"),
- *     @OA\Property(property="file_url", type="string", example="http://save-art.local/storage/profile_documents/doc1.pdf"),
+ *     @OA\Property(property="file_url", type="string", example="http://save-art-web.ddev.site/storage/profile_documents/doc1.pdf"),
  *     @OA\Property(property="hash", type="string", example="sha256hash...", description="Хеш файлу"),
  *     @OA\Property(property="signed_file_path", type="string", nullable=true, example="profile_documents/doc1_signed.pdf"),
  *     @OA\Property(property="signed_file_url", type="string", nullable=true),
