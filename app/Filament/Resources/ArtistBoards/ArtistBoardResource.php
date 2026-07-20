@@ -32,6 +32,8 @@ class ArtistBoardResource extends Resource
 
     protected static ?string $modelLabel = 'Дошка художників';
 
+    protected static ?int $navigationSort = 30;
+
     public static function getRecordTitle($record): ?string
     {
         if ($record->title && is_array($record->title)) {

@@ -22,7 +22,8 @@ class MessageForm
                     ->schema([
                         Select::make('user_id')
                             ->label('Користувач')
-                            ->relationship('user', 'name')
+                            ->relationship('user')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                             ->required()
                             ->searchable()
                             ->preload(),

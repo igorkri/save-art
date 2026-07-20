@@ -31,6 +31,8 @@ class ContentResource extends Resource
 
     protected static ?string $modelLabel = 'Контент';
 
+    protected static ?int $navigationSort = 40;
+
     public static function form(Schema $schema): Schema
     {
         return ContentForm::configure($schema);

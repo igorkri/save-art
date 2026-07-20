@@ -14,7 +14,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -37,16 +36,19 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Комунікація')
+                    ->label('Проєкти')
                     ->collapsible(),
                 NavigationGroup::make()
-                    ->label('Проєкти')
+                    ->label('Контент')
+                    ->collapsible(),
+                NavigationGroup::make()
+                    ->label('FAQ')
                     ->collapsible(),
                 NavigationGroup::make()
                     ->label('Користувачі')
                     ->collapsible(),
                 NavigationGroup::make()
-                    ->label('Контент')
+                    ->label('Налаштування')
                     ->collapsible(),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
@@ -56,7 +58,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
                 MessagesOverview::class,
             ])
             ->renderHook('panels::head.end', fn () => new HtmlString('

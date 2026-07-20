@@ -21,7 +21,7 @@ class ReportResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Контент';
+    protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
 
     protected static ?string $navigationLabel = 'Звіти';
 
@@ -29,7 +29,7 @@ class ReportResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Звіти';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema
     {

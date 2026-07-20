@@ -25,7 +25,7 @@ class ArtCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Каталог';
+    protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
 
     protected static ?string $navigationLabel = 'Категорії мистецтва';
 
@@ -33,7 +33,7 @@ class ArtCategoryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Категорії мистецтва';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {

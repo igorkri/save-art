@@ -31,6 +31,8 @@ class DonationChartDataResource extends Resource
 
     protected static ?string $modelLabel = 'Дані графіку';
 
+    protected static ?int $navigationSort = 40;
+
     public static function form(Schema $schema): Schema
     {
         return DonationChartDataForm::configure($schema);

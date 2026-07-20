@@ -31,6 +31,8 @@ class ProfileDocumentResource extends Resource
 
     protected static ?string $modelLabel = 'Документ профілю';
 
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return ProfileDocumentForm::configure($schema);

@@ -31,6 +31,8 @@ class AboutResource extends Resource
 
     protected static ?string $modelLabel = 'Про нас';
 
+    protected static ?int $navigationSort = 20;
+
     public static function getRecordTitle($record): ?string
     {
         if ($record->title && is_array($record->title)) {

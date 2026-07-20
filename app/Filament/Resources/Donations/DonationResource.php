@@ -28,7 +28,7 @@ class DonationResource extends Resource
 
     protected static ?string $modelLabel = 'Донат';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {
