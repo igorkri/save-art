@@ -282,6 +282,34 @@ class ProjectWorkflowService
     }
 
     /**
+     * Перевести проєкт у вказаний статус, підібравши відповідний бізнес-метод
+     * (для канбан-дошки та інших місць, де статус обирається довільно).
+     *
+     * Примітка: для Paused -> Announced/InProgress завжди викликається resume(),
+     * оскільки сама resume() вирішує, куди повернути проєкт, залежно від зібраного бюджету —
+     * фактичний результуючий статус може відрізнятись від запитаного.
+     */
+    public function moveTo(Project $project, ProjectStatus $newStatus): bool
+    {
+        if ($project->status === ProjectStatus::Paused
+            && in_array($newStatus, [ProjectStatus::Announced, ProjectStatus::InProgress], true)) {
+            return $this->resume($project);
+        }
+
+        return match ($newStatus) {
+            ProjectStatus::Moderation => $this->submitForModeration($project),
+            ProjectStatus::Announced => $this->approve($project),
+            ProjectStatus::Rejected => $this->reject($project),
+            ProjectStatus::Draft => $this->returnToDraft($project),
+            ProjectStatus::InProgress => $this->startWork($project),
+            ProjectStatus::Paused => $this->pause($project),
+            ProjectStatus::Completed => $this->complete($project),
+            ProjectStatus::Sold => $this->markAsSold($project),
+            default => false,
+        };
+    }
+
+    /**
      * Створити сповіщення
      */
     private function createNotification(
