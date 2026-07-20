@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Enums\Currency;
+use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Models\ArtCategory;
@@ -35,11 +36,24 @@ class UpdateProjectRequest extends FormRequest
             abort(403, 'You do not own this project');
         }
 
-        // Перевірка, чи проект можна редагувати
-        $canBeFullyEdited = $project->isEditable() || $project->status === ProjectStatus::Moderation;
+        // Перевірка, чи проект можна редагувати.
+        // Поки проєкт стоїть у черзі на модерацію (status_moderation = pending) — він ще
+        // редагується (і автоматично повертається у чернетку). Але щойно модератор взяв
+        // проєкт у розгляд (status_moderation = processing) — редагування блокується.
+        $isBeingReviewed = $project->status === ProjectStatus::Moderation && $project->status_moderation === ModerationStatus::Processing;
+        $canBeFullyEdited = $project->isEditable()
+            || ($project->status === ProjectStatus::Moderation && ! $isBeingReviewed);
 
         if (! $canBeFullyEdited) {
-            abort(403, "Project with status '{$project->status->value}' cannot be edited. Only projects with status 'new', 'draft', 'rejected', or 'moderation' can be fully edited.");
+            if ($isBeingReviewed) {
+                abort(403, 'Project is currently being reviewed by a moderator and cannot be edited until a decision is made.');
+            }
+
+            if ($project->isPartiallyEditable()) {
+                abort(403, "Project with status '{$project->status->value}' cannot be fully edited. Use PATCH /api/v1/my/projects/{$project->slug} to update title, short description, tags, cover and content blocks instead.");
+            }
+
+            abort(403, "Project with status '{$project->status->value}' cannot be edited.");
         }
 
         return true;

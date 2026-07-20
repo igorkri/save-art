@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\Pages\ProjectsKanban;
 use App\Models\Project;
@@ -92,5 +93,33 @@ class ProjectsKanbanTest extends TestCase
             ->assertNotified();
 
         $this->assertSame(ProjectStatus::Announced, $project->fresh()->status);
+    }
+
+    public function test_start_review_moves_pending_project_to_processing(): void
+    {
+        $project = Project::factory()->moderation()->create();
+
+        $this->actingAs($this->admin);
+
+        Livewire::test(ProjectsKanban::class)
+            ->call('startReview', $project->id)
+            ->assertNotified();
+
+        $this->assertSame(ModerationStatus::Processing, $project->fresh()->status_moderation);
+    }
+
+    public function test_start_review_fails_for_already_processing_project(): void
+    {
+        $project = Project::factory()->moderation()->create([
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
+
+        $this->actingAs($this->admin);
+
+        Livewire::test(ProjectsKanban::class)
+            ->call('startReview', $project->id)
+            ->assertNotified();
+
+        $this->assertSame(ModerationStatus::Processing, $project->fresh()->status_moderation);
     }
 }

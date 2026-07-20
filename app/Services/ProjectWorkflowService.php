@@ -102,6 +102,27 @@ class ProjectWorkflowService
     }
 
     /**
+     * Модератор бере проєкт у розгляд: переводить з черги (Pending) у активну
+     * модерацію (Processing), після чого проєкт стає недоступним для редагування.
+     */
+    public function startReview(Project $project): bool
+    {
+        if ($project->status !== ProjectStatus::Moderation) {
+            return false;
+        }
+
+        if ($project->status_moderation !== ModerationStatus::Pending) {
+            return false;
+        }
+
+        $project->update([
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
+
+        return true;
+    }
+
+    /**
      * Схвалити проєкт (модератором)
      */
     public function approve(Project $project): bool
@@ -173,7 +194,9 @@ class ProjectWorkflowService
 
         $project->update([
             'status' => ProjectStatus::Draft,
-            'status_moderation' => null,
+            // Колонка status_moderation в БД NOT NULL (без дефолтного null) — при поверненні
+            // в чернетку скидаємо на 'pending', як і у всіх інших чернеток, а не на null.
+            'status_moderation' => ModerationStatus::Pending,
         ]);
 
         return true;

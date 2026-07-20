@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
@@ -195,6 +196,75 @@ class MyProjectsApiTest extends ApiTestCase
         $this->assertDatabaseHas('projects', [
             'id' => $project->id,
             'budget_goal' => 20000,
+        ]);
+    }
+
+    public function test_can_update_project_pending_moderation_and_it_reverts_to_draft(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Pending,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", [
+                'title' => ['uk' => 'Оновлена назва', 'en' => 'Updated title'],
+                'short_description' => ['uk' => 'Опис', 'en' => 'Description'],
+                'art_category' => 'fine_art',
+                'budget_goal' => 20000,
+                'currency' => 'UAH',
+                'estimated_days' => 60,
+            ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('projects', [
+            'id' => $project->id,
+            'status' => ProjectStatus::Draft->value,
+        ]);
+    }
+
+    public function test_cannot_update_project_being_actively_reviewed(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", [
+                'title' => ['uk' => 'Спроба редагування', 'en' => 'Edit attempt'],
+            ]);
+
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('projects', [
+            'id' => $project->id,
+            'status' => ProjectStatus::Moderation->value,
+            'status_moderation' => ModerationStatus::Processing->value,
+        ]);
+
+        $response->assertJsonFragment([
+            'message' => 'Project is currently being reviewed by a moderator and cannot be edited until a decision is made.',
+        ]);
+    }
+
+    public function test_cannot_fully_update_announced_project_and_gets_a_helpful_message(): void
+    {
+        $project = Project::factory()->announced()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", [
+                'title' => ['uk' => 'Спроба редагування', 'en' => 'Edit attempt'],
+            ]);
+
+        $response->assertForbidden();
+        $response->assertJsonFragment([
+            'message' => "Project with status 'announced' cannot be fully edited. Use PATCH /api/v1/my/projects/{$project->slug} to update title, short description, tags, cover and content blocks instead.",
         ]);
     }
 

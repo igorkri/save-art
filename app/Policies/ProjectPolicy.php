@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
@@ -52,11 +53,18 @@ class ProjectPolicy
     }
 
     /**
-     * Тільки власник може редагувати проєкт, і тільки якщо він редагований
+     * Тільки власник може редагувати проєкт, і тільки якщо він редагований.
+     * Проєкт у черзі на модерацію (status_moderation = pending) все ще редагується,
+     * але щойно модератор бере його в розгляд (processing) — редагування блокується.
      */
     public function update(User $user, Project $project): bool
     {
-        return $project->user_id === $user->id && $project->isEditable();
+        if ($project->user_id !== $user->id) {
+            return false;
+        }
+
+        return $project->isEditable()
+            || ($project->status === ProjectStatus::Moderation && $project->status_moderation !== ModerationStatus::Processing);
     }
 
     /**

@@ -159,4 +159,53 @@ class ProjectWorkflowServiceTest extends TestCase
         $this->assertContains(ProjectStatus::Paused, $allowed);
         $this->assertContains(ProjectStatus::Sold, $allowed);
     }
+
+    public function test_start_review_moves_pending_to_processing(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Pending,
+        ]);
+
+        $result = $this->service->startReview($project);
+
+        $this->assertTrue($result);
+        $project->refresh();
+        $this->assertEquals(ModerationStatus::Processing, $project->status_moderation);
+    }
+
+    public function test_start_review_fails_when_not_pending(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
+
+        $this->assertFalse($this->service->startReview($project));
+    }
+
+    public function test_start_review_fails_when_not_in_moderation(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Draft,
+            'status_moderation' => ModerationStatus::Pending,
+        ]);
+
+        $this->assertFalse($this->service->startReview($project));
+    }
+
+    public function test_return_to_draft_does_not_violate_not_null_constraint(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
+
+        $result = $this->service->returnToDraft($project);
+
+        $this->assertTrue($result);
+        $project->refresh();
+        $this->assertEquals(ProjectStatus::Draft, $project->status);
+        $this->assertEquals(ModerationStatus::Pending, $project->status_moderation);
+    }
 }

@@ -525,8 +525,10 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
-        // Якщо проект на модерації — зберігаємо статус moderation, інакше завжди скидаємо на draft,
-        // щоб не допустити випадкового переходу в moderation без явного виклику submit
+        // Будь-яке редагування (в т.ч. проєкту, що стоїть у черзі на модерацію) повертає
+        // проєкт у чернетку — щоб знову потрапити на модерацію, треба явно викликати submit.
+        // Модерацію, що вже в обробці (status_moderation = processing), сюди не пускає
+        // UpdateProjectRequest::authorize(), тож цей код виконується лише для pending.
         $data['status'] = ProjectStatus::Draft->value;
 
         // Витягуємо stages та bonuses з даних

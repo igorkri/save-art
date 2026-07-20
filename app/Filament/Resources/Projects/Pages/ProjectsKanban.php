@@ -58,7 +58,9 @@ class ProjectsKanban extends Page
 
     private function findProject(array $arguments): Project
     {
-        return Project::query()->with(['user', 'artCategory'])->findOrFail($arguments['project']);
+        return Project::query()
+            ->with(['user', 'artCategory', 'stages', 'bonuses', 'donations.user', 'donations.bonus'])
+            ->findOrFail($arguments['project']);
     }
 
     /**
@@ -114,6 +116,24 @@ class ProjectsKanban extends Page
         $project = Project::query()->findOrFail($projectId);
 
         $this->applyStatusChange($project, ProjectStatus::from($newStatus));
+    }
+
+    public function startReview(int $projectId): void
+    {
+        $project = Project::query()->findOrFail($projectId);
+
+        if (app(ProjectWorkflowService::class)->startReview($project)) {
+            Notification::make()
+                ->title('Проєкт взято в розгляд')
+                ->body('Редагування проєкту заблоковано на час модерації.')
+                ->success()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Не вдалося взяти проєкт у розгляд')
+                ->danger()
+                ->send();
+        }
     }
 
     private function applyStatusChange(Project $project, ProjectStatus $newStatus): void
