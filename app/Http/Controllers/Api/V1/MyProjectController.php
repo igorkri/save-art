@@ -371,7 +371,37 @@ class MyProjectController extends Controller
             }
         }
 
+        if (isset($data['title']['uk'])) {
+            $newSlug = $this->regenerateSlugFromTitle($project, $data['title']['uk']);
+            if ($newSlug !== null) {
+                $project->slug = $newSlug;
+            }
+        }
+
         $project->save();
+    }
+
+    /**
+     * Якщо назва українською щойно вперше задана (а slug ще є автогенерованим placeholder'ом
+     * на кшталт "novii-proekt-21072026-1836-fws5" чи "chernetka-..."), перегенеровує slug
+     * на основі реальної назви. Після заміни placeholder'a на змістовний slug — далі не чіпаємо,
+     * щоб не ламати вже роздані посилання на чернетку.
+     */
+    private function regenerateSlugFromTitle(Project $project, string $titleUk): ?string
+    {
+        if (trim($titleUk) === '') {
+            return null;
+        }
+
+        if (! preg_match('/^(?:novii-proekt|chernetka)-\d{8}-\d{4}-[A-Za-z0-9]{4}$/', (string) $project->slug)) {
+            return null;
+        }
+
+        do {
+            $slug = Str::slug($titleUk).'-'.Str::random(6);
+        } while (Project::where('slug', $slug)->where('id', '!=', $project->getKey())->exists());
+
+        return $slug;
     }
 
     /**
@@ -558,6 +588,14 @@ class MyProjectController extends Controller
                 $data['content_blocks'],
                 $project->content_blocks
             );
+        }
+
+        // Якщо назву щойно вперше задано — заміняємо автогенерований placeholder-slug на змістовний
+        if (isset($data['title']['uk'])) {
+            $newSlug = $this->regenerateSlugFromTitle($project, $data['title']['uk']);
+            if ($newSlug !== null) {
+                $data['slug'] = $newSlug;
+            }
         }
 
         // Оновлюємо проєкт та зв'язані дані в транзакції
