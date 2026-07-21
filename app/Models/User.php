@@ -69,6 +69,7 @@ class User extends Authenticatable implements FilamentUser
         'is_blocked',
         'blocked_until',
         'deletion_requested_at',
+        'has_seen_new_project_hint',
     ];
 
     /**
@@ -112,6 +113,7 @@ class User extends Authenticatable implements FilamentUser
             'is_blocked' => 'boolean',
             'blocked_until' => 'datetime',
             'deletion_requested_at' => 'datetime',
+            'has_seen_new_project_hint' => 'boolean',
         ];
     }
 

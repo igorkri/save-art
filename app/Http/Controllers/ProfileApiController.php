@@ -53,7 +53,8 @@ class ProfileApiController extends Controller
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="slug", type="string", example="ivan-petrenko"),
      *                 @OA\Property(property="email", type="string", example="user@example.com"),
-     *                 @OA\Property(property="role", type="string", example="user")
+     *                 @OA\Property(property="role", type="string", example="user"),
+     *                 @OA\Property(property="has_seen_new_project_hint", type="boolean", example=false)
      *             ),
      *             @OA\Property(property="profilePersonal", ref="#/components/schemas/ProfilePersonal", nullable=true),
      *             @OA\Property(property="profileLegal", ref="#/components/schemas/ProfileLegal", nullable=true),
@@ -80,11 +81,51 @@ class ProfileApiController extends Controller
                 'slug' => $user->slug,
                 'email' => $user->email,
                 'role' => $user->role?->value,
+                'has_seen_new_project_hint' => $user->has_seen_new_project_hint,
             ],
             'profilePersonal' => new ProfilePersonalResource($user),
             'profileLegal' => $user->profileLegal ? new ProfileLegalResource($user->profileLegal) : null,
             'profileSocial' => $user->profileSocial ? new ProfileSocialResource($user->profileSocial) : null,
             'profileDocuments' => ProfileDocumentResource::collection($user->profileDocuments),
+        ]);
+    }
+
+    /**
+     * Позначити підказку "Настисніть, щоб створити проєкт" переглянутою.
+     * Стан прив'язаний до акаунту (не до localStorage браузера), тож підказка
+     * не з'явиться знову на іншому пристрої після першого закриття.
+     *
+     * @OA\Post(
+     *     path="/v1/profile/new-project-hint-seen",
+     *     operationId="markNewProjectHintSeen",
+     *     tags={"Profile"},
+     *     summary="Позначити підказку створення проєкту переглянутою",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Підказку позначено переглянутою",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="has_seen_new_project_hint", type="boolean", example=true)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Неавторизований доступ")
+     * )
+     */
+    public function markNewProjectHintSeen(Request $request): \Illuminate\Http\JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        if (! $user->has_seen_new_project_hint) {
+            $user->update(['has_seen_new_project_hint' => true]);
+        }
+
+        return response()->json([
+            'has_seen_new_project_hint' => true,
         ]);
     }
 

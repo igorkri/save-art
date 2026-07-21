@@ -162,6 +162,7 @@ class LoginController extends Controller
      *                 @OA\Property(property="slug", type="string", example="ivan-petrenko"),
      *                 @OA\Property(property="role", type="string", example="user"),
      *                 @OA\Property(property="avatar_url", type="string", nullable=true),
+     *                 @OA\Property(property="has_seen_new_project_hint", type="boolean", example=false),
      *                 @OA\Property(property="created_at", type="string", format="date-time")
      *             )
      *         )
@@ -183,6 +184,7 @@ class LoginController extends Controller
                 'role' => $user->role->value,
                 'profile_type' => $user->profile_type?->value,
                 'avatar_url' => $user->avatar ? \Storage::url($user->avatar) : null,
+                'has_seen_new_project_hint' => $user->has_seen_new_project_hint,
                 'created_at' => $user->created_at->toISOString(),
             ],
         ]);

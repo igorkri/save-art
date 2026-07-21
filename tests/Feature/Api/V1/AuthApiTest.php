@@ -109,7 +109,8 @@ class AuthApiTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonPath('user.id', $user->id)
-            ->assertJsonPath('user.email', $user->email);
+            ->assertJsonPath('user.email', $user->email)
+            ->assertJsonPath('user.has_seen_new_project_hint', false);
     }
 
     public function test_can_logout(): void

@@ -124,4 +124,37 @@ class ProfileApiTest extends TestCase
             ->assertOk()
             ->assertJson(['profileSocial' => ['instagram' => 'https://insta.com/user']]);
     }
+
+    public function test_new_project_hint_is_unseen_by_default(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/profile')
+            ->assertOk()
+            ->assertJson(['user' => ['has_seen_new_project_hint' => false]]);
+    }
+
+    public function test_can_mark_new_project_hint_as_seen(): void
+    {
+        $user = User::factory()->create(['has_seen_new_project_hint' => false]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/profile/new-project-hint-seen')
+            ->assertOk()
+            ->assertJson(['has_seen_new_project_hint' => true]);
+
+        $this->assertTrue($user->fresh()->has_seen_new_project_hint);
+
+        // Стан має зберегтись і після перезавантаження профілю (не тільки в одній відповіді).
+        $this->getJson('/api/v1/profile')
+            ->assertOk()
+            ->assertJson(['user' => ['has_seen_new_project_hint' => true]]);
+    }
+
+    public function test_mark_new_project_hint_seen_requires_authentication(): void
+    {
+        $this->postJson('/api/v1/profile/new-project-hint-seen')
+            ->assertUnauthorized();
+    }
 }

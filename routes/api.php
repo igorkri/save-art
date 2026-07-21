@@ -144,6 +144,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         Route::post('/social', [ProfileApiController::class, 'createSocial']);
         Route::put('/password', [ProfileApiController::class, 'updatePassword']);
         Route::post('/avatar', [ProfileApiController::class, 'uploadAvatar']);
+        Route::post('/new-project-hint-seen', [ProfileApiController::class, 'markNewProjectHintSeen']);
         Route::delete('/', [ProfileApiController::class, 'requestDeletion']);
 
         // Документи профілю
