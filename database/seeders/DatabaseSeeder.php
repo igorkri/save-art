@@ -35,6 +35,9 @@ class DatabaseSeeder extends Seeder
         // FAQ питання та відповіді
         $this->call(FaqSeeder::class);
 
+        // Характеристики (параметри) категорій мистецтва
+        $this->call(ParameterSeeder::class);
+
         // Проєкти з етапами та бонусами
         $this->call(ProjectSeeder::class);
 

@@ -21,6 +21,8 @@ class ValuesRelationManager extends RelationManager
 {
     protected static string $relationship = 'values';
 
+    protected static ?string $title = 'Значення';
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         return $ownerRecord instanceof Parameter && $ownerRecord->type === ParameterType::List;
@@ -29,6 +31,7 @@ class ValuesRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(2)
             ->components([
                 TextInput::make('value.uk')
                     ->label('Значення (UK)')
@@ -43,7 +46,8 @@ class ValuesRelationManager extends RelationManager
                     ->label('Порядок')
                     ->numeric()
                     ->default(0)
-                    ->required(),
+                    ->required()
+                    ->columnSpanFull(),
             ]);
     }
 

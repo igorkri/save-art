@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Parameters\Pages;
 use App\Filament\Resources\Parameters\ParameterResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Schema;
 
 class EditParameter extends EditRecord
 {
@@ -15,5 +16,15 @@ class EditParameter extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->columns(3)
+            ->components([
+                $this->getFormContentComponent()->columnSpan(2),
+                $this->getRelationManagersContentComponent()->columnSpan(1),
+            ]);
     }
 }
