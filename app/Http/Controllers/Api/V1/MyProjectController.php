@@ -17,6 +17,7 @@ use App\Models\ProjectBonus;
 use App\Models\ProjectStage;
 use App\Services\ImageProcessingService;
 use App\Services\ProjectWorkflowService;
+use App\Support\ProjectCategoryParameterValues;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -256,10 +257,11 @@ class MyProjectController extends Controller
                 ->first();
         }
 
-        // Витягуємо stages та bonuses з даних
+        // Витягуємо stages, bonuses та parameters з даних
         $stagesData = $data['stages'] ?? [];
         $bonusesData = $data['bonuses'] ?? [];
-        unset($data['stages'], $data['bonuses']);
+        $parametersData = $data['parameters'] ?? null;
+        unset($data['stages'], $data['bonuses'], $data['parameters']);
 
         if ($project) {
             // Обновляем существующий проект
@@ -272,7 +274,10 @@ class MyProjectController extends Controller
         // Обновляем этапы и бонусы
         $this->updateProjectStagesAndBonuses($project, $stagesData, $bonusesData);
 
-        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
+        // Оновлюємо характеристики (parameters), якщо передані
+        ProjectCategoryParameterValues::syncForProject($project, $parametersData);
+
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 
     /**
@@ -441,7 +446,7 @@ class MyProjectController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 
     /**
@@ -521,10 +526,11 @@ class MyProjectController extends Controller
         // UpdateProjectRequest::authorize(), тож цей код виконується лише для pending.
         $data['status'] = ProjectStatus::Draft->value;
 
-        // Витягуємо stages та bonuses з даних
+        // Витягуємо stages, bonuses та parameters з даних
         $stagesData = $data['stages'] ?? null;
         $bonusesData = $data['bonuses'] ?? null;
-        unset($data['stages'], $data['bonuses']);
+        $parametersData = $data['parameters'] ?? null;
+        unset($data['stages'], $data['bonuses'], $data['parameters']);
 
         // Розв'язуємо art_category + art_subcategory → art_category_id (якщо передано)
         if (array_key_exists('art_category', $data)) {
@@ -555,9 +561,12 @@ class MyProjectController extends Controller
         }
 
         // Оновлюємо проєкт та зв'язані дані в транзакції
-        DB::transaction(function () use ($project, $data, $stagesData, $bonusesData) {
+        DB::transaction(function () use ($project, $data, $stagesData, $bonusesData, $parametersData) {
             // Оновлюємо основні дані проєкту
             $project->update($data);
+
+            // Оновлюємо характеристики (parameters), якщо передані
+            ProjectCategoryParameterValues::syncForProject($project, $parametersData);
 
             // Оновлюємо етапи (якщо передано)
             if ($stagesData !== null) {
@@ -648,7 +657,7 @@ class MyProjectController extends Controller
             }
         });
 
-        return new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 
     /**
@@ -757,7 +766,7 @@ class MyProjectController extends Controller
 
         $project->update($data);
 
-        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses']));
+        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 
     /**
@@ -883,7 +892,7 @@ class MyProjectController extends Controller
 
         return response()->json([
             'message' => 'Проєкт відправлено на модерацію.',
-            'data' => new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses'])),
+            'data' => new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
         ]);
     }
 
@@ -1025,7 +1034,7 @@ class MyProjectController extends Controller
 
         return response()->json([
             'message' => 'Фінальний результат збережено.',
-            'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses'])),
+            'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
         ]);
     }
 
@@ -1084,7 +1093,7 @@ class MyProjectController extends Controller
 
         return response()->json([
             'message' => 'Проєкт завершено.',
-            'data' => new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses'])),
+            'data' => new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
         ]);
     }
 }

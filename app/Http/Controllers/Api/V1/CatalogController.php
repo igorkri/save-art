@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ArtCategory as ArtCategoryModel;
 use App\Enums\Region;
 use App\Http\Controllers\Controller;
+use App\Models\ArtCategory as ArtCategoryModel;
+use App\Models\Parameter;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -212,6 +213,85 @@ class CatalogController extends Controller
                 'value' => $region->value,
                 'label' => $region->getLabel()[$language] ?? $region->getLabel()['uk'],
             ]),
+        ]);
+    }
+
+    /**
+     * Отримати список характеристик (параметрів) для категорії мистецтва
+     *
+     * @OA\Get(
+     *     path="/v1/parameters",
+     *     summary="Список характеристик категорії мистецтва",
+     *     description="Повертає список характеристик (Parameter) та їх значень (ParameterValue) для побудови фільтрів або форми проєкту. Категорія визначається за art_category (кореневий slug) та опційно art_subcategory (slug підкатегорії) — якщо підкатегорія не вказана або не має власних характеристик, повертаються характеристики кореневої категорії.",
+     *     operationId="getParameters",
+     *     tags={"Catalog"},
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="art_category", in="query", required=true, description="Slug кореневої категорії мистецтва", @OA\Schema(type="string"), example="literature"),
+     *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії", @OA\Schema(type="string"), example="prose"),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список характеристик",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *
+     *                 @OA\Items(
+     *
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *                     @OA\Property(property="name", type="string", example="Жанр"),
+     *                     @OA\Property(property="type", type="string", enum={"list", "custom"}, example="list"),
+     *                     @OA\Property(
+     *                         property="values",
+     *                         type="array",
+     *
+     *                         @OA\Items(
+     *
+     *                             @OA\Property(property="id", type="integer", example=12),
+     *                             @OA\Property(property="value", type="string", example="Роман")
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function parameters(): JsonResponse
+    {
+        $language = request('language');
+        $language = in_array($language, ['uk', 'en'], true) ? $language : null;
+
+        $categoryId = ArtCategoryModel::resolveIdFromSlugs(
+            request('art_category'),
+            request('art_subcategory')
+        );
+
+        if (! $categoryId) {
+            return response()->json(['data' => []]);
+        }
+
+        $parameters = Parameter::query()
+            ->where('art_category_id', $categoryId)
+            ->orderBy('sort_order')
+            ->with('values')
+            ->get();
+
+        return response()->json([
+            'data' => $parameters->map(fn (Parameter $parameter) => [
+                'id' => $parameter->id,
+                'name' => $language !== null ? $parameter->getLabel($language) : $parameter->getTranslations('name'),
+                'type' => $parameter->type->value,
+                'values' => $parameter->values->map(fn ($value) => [
+                    'id' => $value->id,
+                    'value' => $language !== null ? $value->getLabel($language) : $value->getTranslations('value'),
+                ])->values()->all(),
+            ])->values()->all(),
         ]);
     }
 }

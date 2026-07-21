@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Enums\ParameterType;
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use App\Models\Parameter;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -64,10 +66,24 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="final_result", ref="#/components/schemas/FinalResult", nullable=true),
  *     @OA\Property(property="stages", type="array", @OA\Items(ref="#/components/schemas/ProjectStage")),
  *     @OA\Property(property="bonuses", type="array", @OA\Items(ref="#/components/schemas/ProjectBonus")),
+ *     @OA\Property(property="parameters", type="array", @OA\Items(ref="#/components/schemas/ProjectParameter")),
  *     @OA\Property(property="can_edit", type="boolean", example=false),
  *     @OA\Property(property="can_donate", type="boolean", example=true),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ProjectParameter",
+ *     title="ProjectParameter",
+ *     description="Значення характеристики проєкту (включно з незаповненими — value: null)",
+ *     type="object",
+ *
+ *     @OA\Property(property="parameter_id", type="integer", example=5),
+ *     @OA\Property(property="parameter", description="Назва характеристики. Якщо передано language — строка, інакше об'єкт {uk, en}", example="Жанр"),
+ *     @OA\Property(property="type", type="string", enum={"list", "custom"}, example="list"),
+ *     @OA\Property(property="value_id", type="integer", nullable=true, example=12),
+ *     @OA\Property(property="value", nullable=true, description="Значення. Якщо передано language — строка, інакше об'єкт {uk, en} (для custom) або строка (для list)", example="Роман")
  * )
  *
  * @OA\Schema(
@@ -162,6 +178,7 @@ class ProjectResource extends JsonResource
 
             'stages' => ProjectStageResource::collection($this->whenLoaded('stages')),
             'bonuses' => ProjectBonusResource::collection($this->whenLoaded('bonuses')),
+            'parameters' => $this->buildParameters($language),
 
             'can_edit' => $this->when(
                 $request->user(),
@@ -173,6 +190,49 @@ class ProjectResource extends JsonResource
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
         ];
+    }
+
+    /**
+     * Усі характеристики категорії проєкту — включно з незаповненими (value: null),
+     * щоб клієнт міг відобразити повний список полів характеристик.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildParameters(?string $language): array
+    {
+        if (! $this->art_category_id) {
+            return [];
+        }
+
+        $existingByParameterId = $this->relationLoaded('projectParameters')
+            ? $this->projectParameters->keyBy('parameter_id')
+            : collect();
+
+        return Parameter::query()
+            ->where('art_category_id', $this->art_category_id)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function (Parameter $parameter) use ($existingByParameterId, $language) {
+                $existing = $existingByParameterId->get($parameter->getKey());
+
+                if ($parameter->type === ParameterType::List) {
+                    $value = $language !== null
+                        ? $existing?->parameterValue?->getLabel($language)
+                        : $existing?->parameterValue?->getTranslations('value');
+                } else {
+                    $value = $this->localizeField($existing?->custom_value, $language);
+                }
+
+                return [
+                    'parameter_id' => $parameter->getKey(),
+                    'parameter' => $language !== null ? $parameter->getLabel($language) : $parameter->getTranslations('name'),
+                    'type' => $parameter->type->value,
+                    'value_id' => $existing?->parameter_value_id,
+                    'value' => $value,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**

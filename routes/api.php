@@ -76,6 +76,9 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
     // Регіони
     Route::get('/regions', [CatalogController::class, 'regions']);
 
+    // Характеристики (параметри) категорії мистецтва
+    Route::get('/parameters', [CatalogController::class, 'parameters']);
+
     // Статистика платформи
     Route::prefix('statistics')->group(function () {
         Route::get('/', [StatisticsController::class, 'index']);

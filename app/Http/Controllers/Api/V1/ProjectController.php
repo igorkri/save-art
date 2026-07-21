@@ -39,6 +39,7 @@ class ProjectController extends Controller
      *     @OA\Parameter(name="days_left_min", in="query", description="Мінімум днів до завершення", @OA\Schema(type="integer")),
      *     @OA\Parameter(name="days_left_max", in="query", description="Максимум днів до завершення", @OA\Schema(type="integer")),
      *     @OA\Parameter(name="tags", in="query", description="Фільтр по тегах (можна вказати кілька через кому)", @OA\Schema(type="string"), example="живопис,сучасне мистецтво"),
+     *     @OA\Parameter(name="parameter_value_id", in="query", description="Фільтр по значеннях характеристик (id зі списку /v1/parameters, можна вказати кілька через кому)", @OA\Schema(type="string"), example="12,15"),
      *     @OA\Parameter(name="user_id", in="query", description="Фільтр по автору (ID користувача)", @OA\Schema(type="integer")),
      *     @OA\Parameter(name="announced_from", in="query", description="Оголошені від дати (YYYY-MM-DD)", @OA\Schema(type="string", format="date"), example="2025-01-01"),
      *     @OA\Parameter(name="announced_to", in="query", description="Оголошені до дати (YYYY-MM-DD)", @OA\Schema(type="string", format="date"), example="2025-12-31"),
@@ -191,6 +192,10 @@ class ProjectController extends Controller
             $filters['tags'] = array_map('trim', explode(',', $request->input('tags')));
         }
 
+        if ($request->filled('parameter_value_id')) {
+            $filters['parameter_value_id'] = array_map('trim', explode(',', $request->input('parameter_value_id')));
+        }
+
         if ($request->filled('user_id')) {
             $filters['user_id'] = (int) $request->input('user_id');
         }
@@ -305,6 +310,14 @@ class ProjectController extends Controller
             }
         }
 
+        // Фільтр по значеннях характеристик (множинні значення через кому)
+        if (! in_array('parameter_value_id', $except, true) && $request->filled('parameter_value_id')) {
+            $valueIds = array_map('intval', array_map('trim', explode(',', $request->input('parameter_value_id'))));
+            $query->whereHas('projectParameters', function (Builder $q) use ($valueIds) {
+                $q->whereIn('parameter_value_id', $valueIds);
+            });
+        }
+
         // Фільтр по автору
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->input('user_id'));
@@ -392,6 +405,8 @@ class ProjectController extends Controller
                 'user.profileLegal',
                 'stages' => fn ($q) => $q->orderBy('order'),
                 'bonuses' => fn ($q) => $q->orderBy('order'),
+                'projectParameters.parameter',
+                'projectParameters.parameterValue',
             ])
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->where('slug', $slug)

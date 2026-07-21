@@ -115,6 +115,14 @@ class StoreProjectRequest extends FormRequest
             'bonuses.*.max_donation' => ['nullable', 'numeric', 'gt:bonuses.*.min_donation'],
             'bonuses.*.quantity' => ['nullable', 'integer', 'min:1'],
             'bonuses.*.order' => ['nullable', 'integer', 'min:0'],
+
+            // ========== Характеристики (опціонально для чернеток) ==========
+            'parameters' => ['nullable', 'array'],
+            'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
+            'parameters.*.parameter_value_id' => ['nullable', 'integer', 'exists:parameter_values,id'],
+            'parameters.*.custom_value' => ['nullable', 'array'],
+            'parameters.*.custom_value.uk' => ['nullable', 'string', 'max:255'],
+            'parameters.*.custom_value.en' => ['nullable', 'string', 'max:255'],
         ];
     }
 
