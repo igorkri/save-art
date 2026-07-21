@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
-use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Models\ImpersonationToken;
 use App\Models\Message;
 use Filament\Actions\Action;
@@ -19,25 +18,6 @@ use Illuminate\Support\Facades\Auth;
 class EditProject extends EditRecord
 {
     protected static string $resource = ProjectResource::class;
-
-    /**
-     * Захист від обходу disabled-полів у формі (напр. через DevTools):
-     * усім, крім Developer, дозволено змінювати лише статуси проєкту.
-     */
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        if (! ProjectForm::canFullyEdit()) {
-            $data = array_merge(
-                $this->record->only(array_keys($data)),
-                [
-                    'status' => $data['status'] ?? $this->record->status,
-                    'status_moderation' => $data['status_moderation'] ?? $this->record->status_moderation,
-                ]
-            );
-        }
-
-        return $data;
-    }
 
     protected function getHeaderActions(): array
     {

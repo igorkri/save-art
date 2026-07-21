@@ -8,7 +8,6 @@ use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Enums\UserType;
 use App\Models\ArtCategory;
-use App\UserRole;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -20,20 +19,10 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ProjectForm
 {
-    /**
-     * Тільки Developer може повністю редагувати проєкт.
-     * Інші адміни (Admin) можуть лише змінювати статуси.
-     */
-    public static function canFullyEdit(): bool
-    {
-        return Auth::user()?->role === UserRole::Developer;
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -43,7 +32,6 @@ class ProjectForm
                 Tabs::make('Основна інформація')
                     ->columnSpan(2)
                     ->persistTabInQueryString()
-                    ->disabled(fn (): bool => ! self::canFullyEdit())
                     ->tabs([
                         Tabs\Tab::make('Загальне')
                             ->icon('heroicon-o-information-circle')
@@ -503,7 +491,6 @@ class ProjectForm
                             ->placeholder('Генерується автоматично'),
 
                         Fieldset::make('Дати')
-                            ->disabled(fn (): bool => ! self::canFullyEdit())
                             ->schema([
                                 DatePicker::make('announced_at')
                                     ->label('Дата оголошення')->columnSpanFull(),
