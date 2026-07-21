@@ -180,6 +180,10 @@ task('deploy', function (): void {
         runAs("cd $path && $php artisan storage:link --force --no-interaction 2>/dev/null || true");
         runAs("cd $path && $php artisan filament:assets --no-interaction 2>/dev/null || true");
         runAs("cd $path && $php artisan config:clear && $php artisan cache:clear && $php artisan view:clear");
+        // Кэш списку сторінок Filament-панелі (filament:optimize) не чистять інші *:clear —
+        // якщо його колись увімкнули, нові/змінені сторінки лишаються "невидимими" для Livewire
+        // (ComponentNotFoundException) аж до ручного filament:optimize-clear.
+        runAs("cd $path && $php artisan filament:optimize-clear --no-interaction 2>/dev/null || true");
         runAs("cd $path && $php artisan config:cache && $php artisan route:cache && $php artisan view:cache");
         runAs("cd $path && $php artisan queue:restart");
 
@@ -206,6 +210,9 @@ task('deploy:quick', function (): void {
 
     writeln('<comment>▶ 3/3 Clear cache</comment>');
     runAs("cd $path && $php artisan config:clear && $php artisan cache:clear && $php artisan view:clear && $php artisan queue:restart");
+    // Див. коментар у task('deploy') — filament:optimize-clear теж не зайвий тут,
+    // якщо синкались зміни в Filament-ресурсах/сторінках.
+    runAs("cd $path && $php artisan filament:optimize-clear --no-interaction 2>/dev/null || true");
 
     writeln('<info>✓  Quick deploy done → https://'.DEP_SITE_DOMAIN.'</info>');
 })->desc('Quick deploy: code sync + cache clear only (no composer/npm/migrate)');
