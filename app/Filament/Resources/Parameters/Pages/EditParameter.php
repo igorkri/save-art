@@ -21,9 +21,9 @@ class EditParameter extends EditRecord
     public function content(Schema $schema): Schema
     {
         return $schema
-            ->columns(3)
+            ->columns(2)
             ->components([
-                $this->getFormContentComponent()->columnSpan(2),
+                $this->getFormContentComponent()->columnSpan(1),
                 $this->getRelationManagersContentComponent()->columnSpan(1),
             ]);
     }

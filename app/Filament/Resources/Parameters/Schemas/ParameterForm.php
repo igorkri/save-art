@@ -17,6 +17,7 @@ class ParameterForm
         return $schema
             ->components([
                 Section::make('Характеристика')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         LanguageTabs::make([
