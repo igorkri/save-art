@@ -31,7 +31,6 @@ use Illuminate\Support\Str;
  * @property float $budget_goal
  * @property float $budget_collected
  * @property int|null $estimated_days
- * @property array|null $characteristics
  * @property array|null $budget_items
  * @property array|null $additional_info
  * @property array|null $final_result
@@ -74,7 +73,6 @@ class Project extends Model
         'budget_goal',
         'budget_collected',
         'estimated_days',
-        'characteristics',
         'budget_items',
         'additional_info',
         'content_blocks',
@@ -95,7 +93,6 @@ class Project extends Model
             'title' => 'array',
             'short_description' => 'array',
             'tags' => 'array',
-            'characteristics' => 'array',
             'budget_items' => 'array',
             'additional_info' => 'array',
             'content_blocks' => 'array',

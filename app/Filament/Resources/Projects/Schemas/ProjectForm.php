@@ -4,17 +4,27 @@ namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
+use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Enums\UserType;
 use App\Models\ArtCategory;
+use App\Models\Parameter;
+use App\Models\ParameterValue;
+use App\Models\Project;
+use App\Support\ProjectCategoryParameterValues;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Resources\Pages\CreateRecord;
+use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -75,6 +85,20 @@ class ProjectForm
                                                 return $options;
                                             })
                                             ->searchable()
+                                            ->live()
+                                            ->afterStateUpdated(function (mixed $state, callable $set, CreateRecord|EditRecord $livewire): void {
+                                                $project = $livewire instanceof EditRecord && $livewire->getRecord() instanceof Project
+                                                    ? $livewire->getRecord()
+                                                    : null;
+
+                                                $set(
+                                                    'project_parameter_values',
+                                                    ProjectCategoryParameterValues::rowsForCategoryId(
+                                                        filled($state) ? (int) $state : null,
+                                                        $project,
+                                                    ),
+                                                );
+                                            })
                                             ->required(),
                                     ]),
 
@@ -174,33 +198,6 @@ class ProjectForm
                                     ),
                             ]),
 
-                        Tabs\Tab::make('Характеристики')
-                            ->icon('heroicon-o-clipboard-document-list')
-                            ->schema([
-                                Repeater::make('characteristics')
-                                    ->label('Характеристики проєкту')
-                                    ->schema([
-
-                                        LanguageTabs::make([
-                                            TextInput::make('name')
-                                                ->label('Назва')
-                                                ->placeholder('Тривалість, Жанр, Режисер...')
-                                                ->required(),
-
-                                            TextInput::make('value')
-                                                ->label('Значення')
-                                                ->required(),
-                                        ])->columnSpan(1),
-
-                                    ])
-                                    ->columns(1)
-                                    ->columnSpanFull()
-                                    ->defaultItems(0)
-                                    ->reorderable()
-                                    ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => ($state['name']['uk'] ?? 'Без назви').': '.($state['value']['uk'] ?? 'Без значення')),
-                            ]),
-
                         //                        Tabs\Tab::make('Додаткова інформація')
                         //                            ->icon('heroicon-o-ellipsis-horizontal')
                         //                            ->schema([
@@ -211,6 +208,33 @@ class ProjectForm
                         //                                        ->columnSpanFull(),
                         //                                ])->columnSpanFull(),
                         //                            ]),
+
+                        Tabs\Tab::make('Характеристики')
+                            ->icon('heroicon-o-clipboard-document-list')
+                            ->schema([
+                                Section::make('Характеристики')
+                                    ->description('Автоматично показуються всі характеристики обраної категорії мистецтва. Рядок зберігається лише коли заповнено значення; інакше запис видаляється.')
+                                    ->headerActions([
+                                        self::createParameterForProjectCategoryAction(),
+                                    ])
+                                    ->schema([
+                                        Placeholder::make('category_required_for_parameters')
+                                            ->label('')
+                                            ->content('Спочатку оберіть галузь мистецтва на вкладці «Загальне», щоб з’явився список характеристик.')
+                                            ->visible(fn (callable $get): bool => ! filled($get('art_category_id'))),
+
+                                        Repeater::make('project_parameter_values')
+                                            ->label('')
+                                            ->visible(fn (callable $get): bool => filled($get('art_category_id')))
+                                            ->addable(false)
+                                            ->deletable(false)
+                                            ->reorderable(false)
+                                            ->defaultItems(0)
+                                            ->schema(self::categoryParameterValueRowSchema())
+                                            ->columns(3)
+                                            ->columnSpanFull(),
+                                    ]),
+                            ]),
 
                         Tabs\Tab::make('Контент')
                             ->icon('heroicon-o-document-text')
@@ -518,5 +542,94 @@ class ProjectForm
                             ]),
                     ]),
             ]);
+    }
+
+    private static function createParameterForProjectCategoryAction(): Action
+    {
+        return Action::make('createParameterForProjectCategory')
+            ->label('Додати параметр')
+            ->icon('heroicon-o-plus-circle')
+            ->modalHeading('Нова характеристика категорії')
+            ->modalDescription('Характеристика з’явиться в цьому списку для обраної галузі мистецтва. Для типу «Список значень» самі значення додаються окремо в розділі «Характеристики» після створення.')
+            ->modalSubmitActionLabel('Створити')
+            ->successNotificationTitle('Характеристику додано')
+            ->visible(fn (callable $get): bool => filled($get('art_category_id')))
+            ->schema([
+                Select::make('type')
+                    ->label('Тип')
+                    ->options(ParameterType::getOptions())
+                    ->default(ParameterType::List->value)
+                    ->required(),
+
+                LanguageTabs::make([
+                    TextInput::make('name')
+                        ->label('Назва')
+                        ->required()
+                        ->maxLength(255),
+                ])->columnSpanFull(),
+
+                TextInput::make('sort_order')
+                    ->label('Порядок')
+                    ->numeric()
+                    ->default(0)
+                    ->required(),
+            ])
+            ->action(function (array $data, CreateRecord|EditRecord $livewire): void {
+                $categoryId = (int) ($livewire->data['art_category_id'] ?? 0);
+
+                if (! $categoryId) {
+                    return;
+                }
+
+                Parameter::query()->create([
+                    'art_category_id' => $categoryId,
+                    'name' => $data['name'],
+                    'type' => $data['type'],
+                    'sort_order' => (int) $data['sort_order'],
+                ]);
+
+                $project = $livewire instanceof EditRecord && $livewire->getRecord() instanceof Project
+                    ? $livewire->getRecord()
+                    : null;
+
+                $livewire->data['project_parameter_values'] = ProjectCategoryParameterValues::rowsForCategoryId($categoryId, $project);
+            });
+    }
+
+    /**
+     * @return list<\Filament\Schemas\Components\Component>
+     */
+    private static function categoryParameterValueRowSchema(): array
+    {
+        return [
+            Hidden::make('parameter_id')
+                ->required(),
+
+            Hidden::make('parameter_type'),
+
+            TextInput::make('parameter_label')
+                ->label('Характеристика')
+                ->disabled()
+                ->dehydrated(false)
+                ->columnSpan(1),
+
+            Select::make('parameter_value_id')
+                ->label('Значення')
+                ->options(
+                    fn (callable $get) => Parameter::find($get('parameter_id'))
+                        ?->values
+                        ->mapWithKeys(fn (ParameterValue $value) => [$value->id => $value->getLabel('uk')])
+                        ?? []
+                )
+                ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value)
+                ->columnSpan(2),
+
+            LanguageTabs::make([
+                TextInput::make('custom_value')
+                    ->label('Значення'),
+            ])
+                ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value)
+                ->columnSpan(2),
+        ];
     }
 }

@@ -45,10 +45,6 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="planned_completion_at", type="string", format="date-time", nullable=true),
  *     @OA\Property(property="completed_at", type="string", format="date-time", nullable=true),
  *     @OA\Property(property="author", ref="#/components/schemas/Author"),
- *     @OA\Property(property="characteristics", type="array", nullable=true, @OA\Items(type="object",
- *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
- *         @OA\Property(property="value", ref="#/components/schemas/LocalizedString")
- *     )),
  *     @OA\Property(property="budget_items", type="array", nullable=true, @OA\Items(type="object",
  *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
  *         @OA\Property(property="amount", type="number", example=15000)
@@ -159,7 +155,6 @@ class ProjectResource extends JsonResource
 
             'author' => $this->formatAuthor($this->user, $language),
 
-            'characteristics' => $this->localizeArrayField($this->characteristics, $language),
             'budget_items' => $this->localizeArrayField($this->budget_items, $language),
             'additional_info' => $this->localizeField($this->additional_info, $language),
             'content_blocks' => $this->localizeContentBlocks($this->content_blocks, $language),

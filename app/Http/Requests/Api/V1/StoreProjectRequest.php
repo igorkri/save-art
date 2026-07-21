@@ -78,14 +78,6 @@ class StoreProjectRequest extends FormRequest
             'budget_items.*.name.en' => ['nullable', 'string', 'max:255'],
             'budget_items.*.amount' => ['sometimes', 'numeric', 'min:0'],
 
-            'characteristics' => ['nullable', 'array', 'max:20'],
-            'characteristics.*.name' => ['sometimes', 'array'],
-            'characteristics.*.name.uk' => ['sometimes', 'string', 'max:100'],
-            'characteristics.*.name.en' => ['nullable', 'string', 'max:100'],
-            'characteristics.*.value' => ['sometimes', 'array'],
-            'characteristics.*.value.uk' => ['sometimes', 'string', 'max:255'],
-            'characteristics.*.value.en' => ['nullable', 'string', 'max:255'],
-
             'additional_info' => ['nullable', 'array'],
             'additional_info.uk' => ['nullable', 'string', 'max:5000'],
             'additional_info.en' => ['nullable', 'string', 'max:5000'],

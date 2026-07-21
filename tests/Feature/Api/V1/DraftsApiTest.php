@@ -194,9 +194,6 @@ class DraftsApiTest extends ApiTestCase
                 'budget_items' => [
                     ['name' => ['uk' => 'Стаття', 'en' => 'Item'], 'amount' => 10000],
                 ],
-                'characteristics' => [
-                    ['name' => ['uk' => 'Назва', 'en' => 'Name'], 'value' => ['uk' => 'Значення', 'en' => 'Value']],
-                ],
                 'content_blocks' => [
                     ['type' => 'heading', 'heading_level' => 'h2', 'heading_text' => ['uk' => 'Заголовок', 'en' => 'Heading']],
                     ['type' => 'paragraph', 'paragraph_text' => ['uk' => 'Текст параграфу', 'en' => 'Paragraph text']],
@@ -238,7 +235,6 @@ class DraftsApiTest extends ApiTestCase
 
         $getResponse->assertOk()
             ->assertJsonPath('data.draft.budget_items.0.name.uk', 'Стаття')
-            ->assertJsonPath('data.draft.characteristics.0.name.uk', 'Назва')
             ->assertJsonPath('data.draft.content_blocks.0.type', 'heading')
             ->assertJsonPath('data.draft.stages.0.title.uk', 'Етап 1')
             ->assertJsonPath('data.draft.stages.0.days_planned', 14)

@@ -16,7 +16,7 @@ use Illuminate\Validation\Validator;
  * Дозволяє редагувати:
  * - Назву (title), короткий опис (short_description), теги (tags)
  * - Додаткову інформацію (additional_info), обкладинку (cover), контент-блоки (content_blocks)
- * - Категорію (art_category/art_subcategory) та характеристики (characteristics)
+ * - Категорію (art_category/art_subcategory)
  * - Бюджет (budget_goal, budget_items) — для 'announced' лише збільшення budget_goal
  *   (донати вже прийняті на початкову ціль), для 'in_progress'/'paused' без обмежень
  */
@@ -76,15 +76,6 @@ class UpdatePublishedProjectRequest extends FormRequest
             // Категорія (slug з БД)
             'art_category' => ['sometimes', 'nullable', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
-
-            // Характеристики
-            'characteristics' => ['sometimes', 'nullable', 'array'],
-            'characteristics.*.name' => ['required_with:characteristics', 'array'],
-            'characteristics.*.name.uk' => ['required_with:characteristics', 'string', 'max:255'],
-            'characteristics.*.name.en' => ['nullable', 'string', 'max:255'],
-            'characteristics.*.value' => ['required_with:characteristics', 'array'],
-            'characteristics.*.value.uk' => ['required_with:characteristics', 'string', 'max:500'],
-            'characteristics.*.value.en' => ['nullable', 'string', 'max:500'],
 
             // Бюджет: goal для 'announced' обмежений в withValidator() (лише збільшення)
             'budget_goal' => ['sometimes', 'numeric', 'min:100'],

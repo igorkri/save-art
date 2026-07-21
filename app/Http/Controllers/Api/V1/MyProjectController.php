@@ -155,12 +155,6 @@ class MyProjectController extends Controller
      *                     {"name": {"uk": "Доставка та пакування", "en": "Delivery and packaging"}, "amount": 5000},
      *                     {"name": {"uk": "Комісія платформи (13%)", "en": "Platform commission (13%)"}, "amount": 10000}
      *                 },
-     *                 "characteristics": {
-     *                     {"name": {"uk": "Розмір", "en": "Size"}, "value": {"uk": "100×150 см", "en": "100×150 cm"}},
-     *                     {"name": {"uk": "Техніка", "en": "Technique"}, "value": {"uk": "Олія на полотні", "en": "Oil on canvas"}},
-     *                     {"name": {"uk": "Рік створення", "en": "Year"}, "value": {"uk": "2026", "en": "2026"}},
-     *                     {"name": {"uk": "Стиль", "en": "Style"}, "value": {"uk": "Імпресіонізм", "en": "Impressionism"}}
-     *                 },
      *                 "additional_info": {
      *                     "uk": "Картина буде готова протягом 3 місяців. Доставка по Україні безкоштовна.",
      *                     "en": "The painting will be ready within 3 months. Free delivery within Ukraine."
@@ -211,10 +205,6 @@ class MyProjectController extends Controller
      *             @OA\Property(property="budget_items", type="array", maxItems=50, @OA\Items(type="object",
      *                 @OA\Property(property="name", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
      *                 @OA\Property(property="amount", type="number", minimum=0)
-     *             )),
-     *             @OA\Property(property="characteristics", type="array", maxItems=20, @OA\Items(type="object",
-     *                 @OA\Property(property="name", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string")),
-     *                 @OA\Property(property="value", type="object", @OA\Property(property="uk", type="string"), @OA\Property(property="en", type="string"))
      *             )),
      *             @OA\Property(property="additional_info", type="object",
      *                 @OA\Property(property="uk", type="string", maxLength=5000),

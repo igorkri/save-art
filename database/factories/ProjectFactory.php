@@ -53,7 +53,6 @@ class ProjectFactory extends Factory
             'budget_goal' => $this->faker->randomFloat(2, 1000, 100000),
             'budget_collected' => 0,
             'estimated_days' => $this->faker->numberBetween(30, 365),
-            'characteristics' => null,
             'budget_items' => null,
             'additional_info' => null,
             'content_blocks' => null,

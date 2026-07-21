@@ -391,20 +391,6 @@
                 x-transition:enter-start="opacity-0 translate-y-1"
                 x-transition:enter-end="opacity-100 translate-y-0"
             >
-                @if (! empty($project->characteristics))
-                    <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-gray-500">Характеристики</p>
-                        <div class="mt-1.5 divide-y divide-white/5 overflow-hidden rounded-xl border border-white/5">
-                            @foreach ($project->characteristics as $item)
-                                <div class="flex items-center justify-between gap-3 bg-white/[0.02] px-4 py-2 text-sm even:bg-white/[0.04]">
-                                    <span class="text-gray-400">{{ $item['name']['uk'] ?? '—' }}</span>
-                                    <span class="font-medium text-white">{{ $item['value']['uk'] ?? '—' }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
                 @if (! empty($project->budget_items))
                     <div>
                         <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-gray-500">Деталі бюджету</p>
@@ -419,7 +405,7 @@
                     </div>
                 @endif
 
-                @if (empty($project->characteristics) && empty($project->budget_items))
+                @if (empty($project->budget_items))
                     <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 py-10 text-center">
                         <x-filament::icon icon="heroicon-o-inbox" class="h-6 w-6 text-gray-600" />
                         <p class="mt-2 text-sm text-gray-500">Деталей немає</p>

@@ -73,15 +73,6 @@ class CreateProjectRequest extends FormRequest
             'budget_items.*.name.en' => ['nullable', 'string', 'max:255'],
             'budget_items.*.amount' => ['required_with:budget_items', 'numeric', 'min:0'],
 
-            // Характеристики
-            'characteristics' => ['nullable', 'array'],
-            'characteristics.*.name' => ['required_with:characteristics', 'array'],
-            'characteristics.*.name.uk' => ['required_with:characteristics', 'string', 'max:255'],
-            'characteristics.*.name.en' => ['nullable', 'string', 'max:255'],
-            'characteristics.*.value' => ['required_with:characteristics', 'array'],
-            'characteristics.*.value.uk' => ['required_with:characteristics', 'string', 'max:500'],
-            'characteristics.*.value.en' => ['nullable', 'string', 'max:500'],
-
             // Локальний ID для синхронізації чернетки з клієнта (опційно)
             'local_id' => ['nullable', 'string', 'max:255'],
 
