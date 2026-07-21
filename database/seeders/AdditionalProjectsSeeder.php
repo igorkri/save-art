@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\UserType;
+use App\Models\ArtCategory as ArtCategoryModel;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\ProjectStage;
@@ -43,26 +44,11 @@ class AdditionalProjectsSeeder extends Seeder
                     'uk' => ['графічний роман', 'комікс', 'історія', 'революція гідності', 'мистецтво'],
                     'en' => ['graphic novel', 'comics', 'history', 'revolution of dignity', 'art'],
                 ],
-                'art_category' => ArtCategory::Literature,
-                'art_subcategory' => 'prose',
+                'art_category_id' => ArtCategoryModel::resolveIdFromSlugs(ArtCategory::Literature->value, 'prose'),
                 'currency' => Currency::UAH,
                 'budget_goal' => 200000,
                 'budget_collected' => 45000,
                 'estimated_days' => 150,
-                'characteristics' => [
-                    'uk' => [
-                        'Формат' => 'A4, тверда обкладинка',
-                        'Кількість сторінок' => '200',
-                        'Мова' => 'Українська та англійська',
-                        'Тираж' => '2000 примірників',
-                    ],
-                    'en' => [
-                        'Format' => 'A4, hardcover',
-                        'Number of pages' => '200',
-                        'Language' => 'Ukrainian and English',
-                        'Print run' => '2000 copies',
-                    ],
-                ],
                 'budget_items' => [
                     ['name' => ['uk' => 'Робота ілюстратора', 'en' => 'Illustrator work'], 'amount' => 80000],
                     ['name' => ['uk' => 'Робота письменника', 'en' => 'Writer work'], 'amount' => 40000],
@@ -181,26 +167,11 @@ class AdditionalProjectsSeeder extends Seeder
                     'uk' => ['документальний фільм', 'митці', 'війна', 'культура', 'мистецтво'],
                     'en' => ['documentary', 'artists', 'war', 'culture', 'art'],
                 ],
-                'art_category' => ArtCategory::Visual,
-                'art_subcategory' => 'cinema',
+                'art_category_id' => ArtCategoryModel::resolveIdFromSlugs(ArtCategory::Visual->value, 'cinema'),
                 'currency' => Currency::UAH,
                 'budget_goal' => 800000,
                 'budget_collected' => 520000,
                 'estimated_days' => 240,
-                'characteristics' => [
-                    'uk' => [
-                        'Тривалість' => '90 хвилин',
-                        'Формат' => '4K UHD',
-                        'Мова' => 'Українська з англійськими субтитрами',
-                        'Герої' => '15 митців з різних сфер',
-                    ],
-                    'en' => [
-                        'Duration' => '90 minutes',
-                        'Format' => '4K UHD',
-                        'Language' => 'Ukrainian with English subtitles',
-                        'Characters' => '15 artists from different fields',
-                    ],
-                ],
                 'budget_items' => [
                     ['name' => ['uk' => 'Зйомка (обладнання та група)', 'en' => 'Filming (equipment and crew)'], 'amount' => 300000],
                     ['name' => ['uk' => 'Постпродакшн', 'en' => 'Post-production'], 'amount' => 200000],

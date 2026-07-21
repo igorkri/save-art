@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\ArtCategory;
 use App\Enums\Currency;
 use App\Enums\UserType;
+use App\Models\ArtCategory as ArtCategoryModel;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\ProjectStage;
@@ -65,26 +66,11 @@ class ProjectSeederExtended extends Seeder
                 'uk' => ['живопис', 'виставка', 'українське мистецтво', 'сучасне мистецтво', 'патріотизм'],
                 'en' => ['painting', 'exhibition', 'Ukrainian art', 'contemporary art', 'patriotism'],
             ],
-            'art_category' => ArtCategory::FineArt,
-            'art_subcategory' => 'painting',
+            'art_category_id' => ArtCategoryModel::resolveIdFromSlugs(ArtCategory::FineArt->value, 'painting'),
             'currency' => Currency::UAH,
             'budget_goal' => 150000,
             'budget_collected' => 87500,
             'estimated_days' => 90,
-            'characteristics' => [
-                'uk' => [
-                    'Кількість робіт' => '30 картин',
-                    'Формат' => 'Персональна виставка',
-                    'Тривалість' => '2 тижні',
-                    'Локація' => 'Галерея "Мистецький Арсенал", Київ',
-                ],
-                'en' => [
-                    'Number of works' => '30 paintings',
-                    'Format' => 'Personal exhibition',
-                    'Duration' => '2 weeks',
-                    'Location' => 'Gallery "Art Arsenal", Kyiv',
-                ],
-            ],
             'budget_items' => [
                 ['name' => ['uk' => 'Оренда галереї', 'en' => 'Gallery rental'], 'amount' => 50000],
                 ['name' => ['uk' => 'Матеріали для картин', 'en' => 'Painting materials'], 'amount' => 40000],
@@ -197,26 +183,11 @@ class ProjectSeederExtended extends Seeder
                 'uk' => ['скульптура', 'монумент', 'бронза', 'патріотизм', 'герої'],
                 'en' => ['sculpture', 'monument', 'bronze', 'patriotism', 'heroes'],
             ],
-            'art_category' => ArtCategory::FineArt,
-            'art_subcategory' => 'sculpture',
+            'art_category_id' => ArtCategoryModel::resolveIdFromSlugs(ArtCategory::FineArt->value, 'sculpture'),
             'currency' => Currency::UAH,
             'budget_goal' => 500000,
             'budget_collected' => 325000,
             'estimated_days' => 180,
-            'characteristics' => [
-                'uk' => [
-                    'Висота' => '3.5 метра',
-                    'Матеріал' => 'Бронза на гранітному п\'єдесталі',
-                    'Вага' => 'Близько 2 тонн',
-                    'Місце встановлення' => 'Центральний парк',
-                ],
-                'en' => [
-                    'Height' => '3.5 meters',
-                    'Material' => 'Bronze on granite pedestal',
-                    'Weight' => 'About 2 tons',
-                    'Installation location' => 'Central Park',
-                ],
-            ],
             'budget_items' => [
                 ['name' => ['uk' => 'Бронзове лиття', 'en' => 'Bronze casting'], 'amount' => 250000],
                 ['name' => ['uk' => 'Гранітний п\'єдестал', 'en' => 'Granite pedestal'], 'amount' => 80000],
