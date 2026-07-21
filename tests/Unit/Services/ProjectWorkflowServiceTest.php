@@ -50,11 +50,15 @@ class ProjectWorkflowServiceTest extends TestCase
         $this->assertTrue($this->service->canTransition($project, ProjectStatus::Rejected));
     }
 
-    public function test_can_transition_from_rejected_to_moderation(): void
+    public function test_cannot_transition_out_of_rejected(): void
     {
+        // Rejected — фінальний стан (docs/project-lifecycle-flow.md): жодних переходів назад,
+        // єдина дозволена дія — видалення.
         $project = Project::factory()->create(['status' => ProjectStatus::Rejected]);
 
-        $this->assertTrue($this->service->canTransition($project, ProjectStatus::Moderation));
+        $this->assertFalse($this->service->canTransition($project, ProjectStatus::Moderation));
+        $this->assertFalse($this->service->canTransition($project, ProjectStatus::Draft));
+        $this->assertSame([], $this->service->getAllowedTransitions($project));
     }
 
     public function test_can_transition_from_announced_to_in_progress(): void

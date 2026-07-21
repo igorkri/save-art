@@ -25,10 +25,9 @@ class ProjectWorkflowService
             ProjectStatus::Rejected->value,
             ProjectStatus::Draft->value,
         ],
-        ProjectStatus::Rejected->value => [
-            ProjectStatus::Draft->value,
-            ProjectStatus::Moderation->value,
-        ],
+        // Rejected — фінальний стан (docs/project-lifecycle-flow.md): жодних переходів назад,
+        // навіть для модератора через канбан-дошку. Єдина дозволена дія — видалення проєкту.
+        ProjectStatus::Rejected->value => [],
         ProjectStatus::Announced->value => [
             ProjectStatus::InProgress->value,
             ProjectStatus::Paused->value,

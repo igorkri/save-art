@@ -102,11 +102,13 @@ enum ProjectStatus: string
     }
 
     /**
-     * Чи можна редагувати проєкт повністю (чернетки)
+     * Чи можна редагувати проєкт повністю (чернетки).
+     * Rejected навмисно виключено: за флоу (docs/project-lifecycle-flow.md) відхилення —
+     * фінальний стан без повторної подачі на модерацію, єдина дозволена дія — видалення.
      */
     public function isEditable(): bool
     {
-        return in_array($this, [self::New, self::Draft, self::Rejected]);
+        return in_array($this, [self::New, self::Draft]);
     }
 
     /**
