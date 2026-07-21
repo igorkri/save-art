@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Projects\Tables;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\ArtCategory;
+use App\Models\ImpersonationToken;
 use App\Models\Project;
 use App\Services\ModerationService;
 use Filament\Actions\Action;
@@ -155,6 +156,22 @@ class ProjectsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
+
+                    Action::make('impersonate')
+                        ->label('Увійти як автор')
+                        ->icon('heroicon-o-arrow-right-on-rectangle')
+                        ->color('gray')
+                        ->visible(fn (): bool => auth()->user()->isAdmin())
+                        ->requiresConfirmation()
+                        ->modalHeading('Увійти на сайт під автором проєкту')
+                        ->modalDescription('Відкриє фронтенд у новій вкладці, авторизованим під автором, одразу на цей проєкт у його кабінеті. Посилання одноразове й діє 2 хвилини.')
+                        ->modalSubmitActionLabel('Увійти')
+                        ->action(function (Project $record, $livewire) {
+                            $grant = ImpersonationToken::issue($record->user, auth()->user(), $record->slug);
+                            $url = rtrim(config('app.frontend_url'), '/').'/impersonate/'.$grant->token;
+
+                            $livewire->js('window.open('.json_encode($url).', "_blank")');
+                        }),
 
                     Action::make('approve')
                         ->label('Схвалити')

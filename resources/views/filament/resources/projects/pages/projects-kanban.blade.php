@@ -70,13 +70,26 @@
                                 </p>
                             </div>
 
-                            <button
-                                type="button"
-                                wire:click="mountAction('view', { project: {{ $project->id }} })"
-                                class="mt-2 text-xs font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
-                            >
-                                Переглянути →
-                            </button>
+                            <div class="mt-2 flex items-center justify-between gap-2">
+                                <button
+                                    type="button"
+                                    wire:click="mountAction('view', { project: {{ $project->id }} })"
+                                    class="text-xs font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+                                >
+                                    Переглянути →
+                                </button>
+
+                                @if ($project->user)
+                                    <button
+                                        type="button"
+                                        x-on:click.stop="if (confirm('Увійти на сайт під автором цього проєкту?')) { $wire.impersonateAuthor({{ $project->id }}) }"
+                                        title="Увійти на фронтенд під цим автором"
+                                        class="shrink-0 text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400"
+                                    >
+                                        <x-filament::icon icon="heroicon-o-arrow-right-on-rectangle" class="h-4 w-4" />
+                                    </button>
+                                @endif
+                            </div>
                         </div>
                     @empty
                         <p class="px-1 py-4 text-center text-xs text-gray-400">Немає проєктів</p>

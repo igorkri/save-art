@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Projects\Pages;
 
 use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Models\ImpersonationToken;
 use App\Models\Project;
 use App\Services\ProjectWorkflowService;
 use Filament\Actions\Action;
@@ -116,6 +117,24 @@ class ProjectsKanban extends Page
         $project = Project::query()->findOrFail($projectId);
 
         $this->applyStatusChange($project, ProjectStatus::from($newStatus));
+    }
+
+    /**
+     * Увійти на фронтенд під автором проєкту в новій вкладці (одразу на цей
+     * проєкт у його кабінеті). Доступно лише Admin/Developer — саме вони
+     * мають доступ до цієї Filament-панелі.
+     */
+    public function impersonateAuthor(int $projectId): void
+    {
+        if (! auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        $project = Project::query()->with('user')->findOrFail($projectId);
+        $grant = ImpersonationToken::issue($project->user, auth()->user(), $project->slug);
+        $url = rtrim(config('app.frontend_url'), '/').'/impersonate/'.$grant->token;
+
+        $this->js('window.open('.json_encode($url).', "_blank")');
     }
 
     public function startReview(int $projectId): void

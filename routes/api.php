@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\HomePageController;
 use App\Http\Controllers\Api\SiteSettingsController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\V1\Auth\ImpersonateController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
@@ -41,6 +42,7 @@ Route::prefix('v1/auth')->middleware(['api.key', 'throttle:auth'])->group(functi
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
     Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
+    Route::post('/impersonate/{token}/exchange', [ImpersonateController::class, 'exchange']);
 
     // Google OAuth
     Route::get('/google/redirect', [SocialAuthController::class, 'googleRedirect']);

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Schemas\ProjectForm;
+use App\Models\ImpersonationToken;
 use App\Models\Message;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -41,6 +42,21 @@ class EditProject extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('impersonate')
+                ->label('Увійти як автор')
+                ->icon('heroicon-o-arrow-right-on-rectangle')
+                ->color('gray')
+                ->visible(fn (): bool => auth()->user()->isAdmin())
+                ->requiresConfirmation()
+                ->modalHeading('Увійти на сайт під автором проєкту')
+                ->modalDescription('Відкриє фронтенд у новій вкладці, авторизованим під автором, одразу на цей проєкт у його кабінеті. Посилання одноразове й діє 2 хвилини.')
+                ->modalSubmitActionLabel('Увійти')
+                ->action(function () {
+                    $grant = ImpersonationToken::issue($this->record->user, auth()->user(), $this->record->slug);
+                    $url = rtrim(config('app.frontend_url'), '/').'/impersonate/'.$grant->token;
+
+                    $this->js('window.open('.json_encode($url).', "_blank")');
+                }),
             Action::make('sendMessage')
                 ->label('Написати автору')
                 ->icon('heroicon-o-chat-bubble-left-right')

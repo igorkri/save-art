@@ -5,6 +5,7 @@ namespace Tests\Feature\Filament;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\Pages\ProjectsKanban;
+use App\Models\ImpersonationToken;
 use App\Models\Project;
 use App\Models\User;
 use App\UserRole;
@@ -121,5 +122,29 @@ class ProjectsKanbanTest extends TestCase
             ->assertNotified();
 
         $this->assertSame(ModerationStatus::Processing, $project->fresh()->status_moderation);
+    }
+
+    public function test_impersonate_author_issues_a_grant_and_opens_frontend_in_new_tab(): void
+    {
+        $project = Project::factory()->announced()->create();
+
+        $this->actingAs($this->admin);
+
+        $component = Livewire::test(ProjectsKanban::class)
+            ->call('impersonateAuthor', $project->id);
+
+        $grant = ImpersonationToken::where('user_id', $project->user_id)
+            ->where('project_slug', $project->slug)
+            ->first();
+
+        $this->assertNotNull($grant);
+        $this->assertSame($this->admin->id, $grant->created_by);
+        $this->assertTrue($grant->isValid());
+
+        // window.open(...) виконується через Livewire js()-ефект (нова вкладка, без full-page redirect)
+        $jsCalls = $component->effects['xjs'] ?? [];
+        $this->assertNotEmpty($jsCalls);
+        $this->assertStringContainsString('window.open', $jsCalls[0]['expression']);
+        $this->assertStringContainsString($grant->token, $jsCalls[0]['expression']);
     }
 }

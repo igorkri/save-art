@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\ImpersonationToken;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -92,6 +93,21 @@ class UsersTable
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make(),
+                    Action::make('impersonate')
+                        ->label('Увійти як користувач')
+                        ->icon('heroicon-o-arrow-right-on-rectangle')
+                        ->color('gray')
+                        ->visible(fn (): bool => auth()->user()->isAdmin())
+                        ->requiresConfirmation()
+                        ->modalHeading('Увійти на сайт під цим користувачем')
+                        ->modalDescription('Відкриє фронтенд у новій вкладці, авторизованим під цим користувачем. Посилання одноразове й діє 2 хвилини.')
+                        ->modalSubmitActionLabel('Увійти')
+                        ->action(function (User $record, $livewire) {
+                            $grant = ImpersonationToken::issue($record, auth()->user());
+                            $url = rtrim(config('app.frontend_url'), '/').'/impersonate/'.$grant->token;
+
+                            $livewire->js('window.open('.json_encode($url).', "_blank")');
+                        }),
                     Action::make('block')
                         ->label('Заблокувати')
                         ->icon('heroicon-o-lock-closed')

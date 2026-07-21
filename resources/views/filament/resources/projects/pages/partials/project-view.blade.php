@@ -194,11 +194,24 @@
         </div>
 
         <div class="space-y-4">
-            <div class="flex items-center gap-2.5">
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/5">
-                    <x-filament::icon icon="heroicon-o-user" class="h-3.5 w-3.5 text-gray-400" />
-                </span>
-                <span class="truncate text-sm text-gray-200">{{ $project->user?->display_name }}</span>
+            <div class="flex items-center justify-between gap-2.5">
+                <div class="flex min-w-0 items-center gap-2.5">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/5">
+                        <x-filament::icon icon="heroicon-o-user" class="h-3.5 w-3.5 text-gray-400" />
+                    </span>
+                    <span class="truncate text-sm text-gray-200">{{ $project->user?->display_name }}</span>
+                </div>
+                @if ($project->user)
+                    <button
+                        type="button"
+                        x-on:click="if (confirm('Увійти на сайт під автором цього проєкту?')) { $wire.impersonateAuthor({{ $project->id }}) }"
+                        title="Увійти на фронтенд під цим автором"
+                        class="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-gray-300 transition hover:border-[#FECC39]/50 hover:bg-[#FECC39]/10 hover:text-[#FECC39]"
+                    >
+                        <x-filament::icon icon="heroicon-o-arrow-right-on-rectangle" class="h-3.5 w-3.5" />
+                        Увійти як автор
+                    </button>
+                @endif
             </div>
             <div class="flex items-center gap-2.5">
                 <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/5">
