@@ -83,7 +83,7 @@ class MyProjectController extends Controller
     {
 
         $query = Project::query()
-            ->with(['user.profileLegal'])
+            ->with(['user.profileLegal', 'projectParameters.parameter', 'projectParameters.parameterValue'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
 
@@ -668,7 +668,7 @@ class MyProjectController extends Controller
      *     operationId="updateMyProjectPartially",
      *     tags={"My Projects"},
      *     summary="Часткове оновлення опублікованого проєкту (03.4.2.2)",
-     *     description="Дозволяє редагувати назву, опис, теги та обкладинку опублікованого проєкту. Бюджет та категорію змінити не можна. Підтримує завантаження обкладинки через multipart/form-data.",
+     *     description="Дозволяє редагувати назву, опис, теги, обкладинку, контент-блоки, категорію, бюджет та характеристики (parameters) опублікованого проєкту. Для 'announced' бюджет можна лише збільшувати. Підтримує завантаження обкладинки через multipart/form-data.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
@@ -716,6 +716,19 @@ class MyProjectController extends Controller
      *                         @OA\Property(property="image_alt", ref="#/components/schemas/LocalizedString"),
      *                         @OA\Property(property="image_caption", ref="#/components/schemas/LocalizedString")
      *                     )
+     *                 ),
+     *                 @OA\Property(property="art_category", type="string", description="Slug кореневої категорії"),
+     *                 @OA\Property(property="art_subcategory", type="string", description="Slug підкатегорії"),
+     *                 @OA\Property(property="budget_goal", type="number", description="Для 'announced' лише збільшення"),
+     *                 @OA\Property(property="parameters", type="array", description="Характеристики проєкту (повний список — параметр, відсутній у масиві, буде видалено)",
+     *
+     *                     @OA\Items(type="object",
+     *                         required={"parameter_id"},
+     *
+     *                         @OA\Property(property="parameter_id", type="integer", example=11),
+     *                         @OA\Property(property="parameter_value_id", type="integer", nullable=true, description="Для type=list"),
+     *                         @OA\Property(property="custom_value", ref="#/components/schemas/LocalizedString", description="Для type=custom")
+     *                     )
      *                 )
      *             )
      *         )
@@ -736,6 +749,10 @@ class MyProjectController extends Controller
     public function updatePartial(UpdatePublishedProjectRequest $request, Project $project): ProjectResource
     {
         $data = $request->validated();
+
+        // Витягуємо parameters з даних
+        $parametersData = $data['parameters'] ?? null;
+        unset($data['parameters']);
 
         // Розв'язуємо art_category + art_subcategory → art_category_id (якщо передано)
         if (array_key_exists('art_category', $data)) {
@@ -766,7 +783,10 @@ class MyProjectController extends Controller
 
         $project->update($data);
 
-        return new ProjectResource($project->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue']));
+        // Оновлюємо характеристики (parameters), якщо передані
+        ProjectCategoryParameterValues::syncForProject($project, $parametersData);
+
+        return new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 
     /**

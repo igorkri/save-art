@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\V1;
 
 use App\Enums\UserType;
+use App\Http\Resources\Api\V1\Concerns\BuildsProjectParameters;
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -37,6 +38,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="likes_count", type="integer", example=42),
  *     @OA\Property(property="donors_count", type="integer", example=15),
  *     @OA\Property(property="tags", type="array", nullable=true, @OA\Items(type="string"), example={"живопис", "сучасне мистецтво"}, description="Теги проєкту"),
+ *     @OA\Property(property="parameters", type="array", @OA\Items(ref="#/components/schemas/ProjectParameter")),
  *     @OA\Property(property="author", ref="#/components/schemas/Author"),
  *     @OA\Property(property="announced_at", type="string", format="date-time", nullable=true),
  *     @OA\Property(property="planned_completion_at", type="string", format="date-time", nullable=true, description="Планова дата завершення")
@@ -44,6 +46,7 @@ use OpenApi\Annotations as OA;
  */
 class ProjectListResource extends JsonResource
 {
+    use BuildsProjectParameters;
     use LocalizesFields;
 
     /**
@@ -83,6 +86,7 @@ class ProjectListResource extends JsonResource
             'donors_count' => $this->donors_count,
 
             'tags' => $this->localizeField($this->tags, $language),
+            'parameters' => $this->buildParameters($language),
 
             'announced_at' => $this->announced_at?->toISOString(),
             'planned_completion_at' => $this->planned_completion_at?->toISOString(),

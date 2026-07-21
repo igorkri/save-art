@@ -94,7 +94,7 @@ class ProjectController extends Controller
 
         // Будуємо запит для проєктів (artCategory.parent для коректних лейблів батько/нащадок)
         $query = $this->buildFilteredQuery($request)
-            ->with(['user.profileLegal', 'artCategory.parent']);
+            ->with(['user.profileLegal', 'artCategory.parent', 'projectParameters.parameter', 'projectParameters.parameterValue']);
 
         // Сортування (конвертуємо slug в поле БД)
         $sortBy = $request->input('sort_by', 'newest');

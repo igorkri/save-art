@@ -259,6 +259,92 @@ class ProjectParametersApiTest extends ApiTestCase
         $this->assertDatabaseCount('project_parameters', 1);
     }
 
+    public function test_can_update_parameters_of_published_project_via_patch(): void
+    {
+        $category = ArtCategory::factory()->create();
+        $parameter = Parameter::factory()->for($category)->create(['type' => ParameterType::List]);
+        $valueOne = ParameterValue::factory()->for($parameter)->create();
+        $valueTwo = ParameterValue::factory()->for($parameter)->create();
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'art_category_id' => $category->getKey(),
+            'status' => ProjectStatus::InProgress,
+        ]);
+        ProjectParameter::create([
+            'project_id' => $project->getKey(),
+            'parameter_id' => $parameter->getKey(),
+            'parameter_value_id' => $valueOne->getKey(),
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'parameters' => [
+                    ['parameter_id' => $parameter->getKey(), 'parameter_value_id' => $valueTwo->getKey()],
+                ],
+            ]);
+
+        $response->assertOk();
+        $this->assertDatabaseHas('project_parameters', [
+            'project_id' => $project->getKey(),
+            'parameter_id' => $parameter->getKey(),
+            'parameter_value_id' => $valueTwo->getKey(),
+        ]);
+        $this->assertDatabaseCount('project_parameters', 1);
+    }
+
+    // ==========================================
+    // Parameters у списках проєктів
+    // ==========================================
+
+    public function test_public_projects_list_includes_parameters(): void
+    {
+        $category = ArtCategory::factory()->create();
+        $parameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр'], 'type' => ParameterType::List]);
+        $value = ParameterValue::factory()->for($parameter)->create(['value' => ['uk' => 'Роман']]);
+
+        $project = Project::factory()->create([
+            'art_category_id' => $category->getKey(),
+            'status' => ProjectStatus::InProgress,
+        ]);
+        ProjectParameter::create([
+            'project_id' => $project->getKey(),
+            'parameter_id' => $parameter->getKey(),
+            'parameter_value_id' => $value->getKey(),
+        ]);
+
+        $response = $this->apiGet('/api/v1/projects?language=uk');
+
+        $response->assertOk();
+        $projectData = collect($response->json('data'))->firstWhere('id', $project->id);
+        $this->assertNotNull($projectData);
+        $this->assertSame('Роман', collect($projectData['parameters'])->firstWhere('parameter_id', $parameter->getKey())['value']);
+    }
+
+    public function test_my_projects_list_includes_parameters(): void
+    {
+        $category = ArtCategory::factory()->create();
+        $parameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр'], 'type' => ParameterType::Custom]);
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'art_category_id' => $category->getKey(),
+            'status' => ProjectStatus::InProgress,
+        ]);
+        ProjectParameter::create([
+            'project_id' => $project->getKey(),
+            'parameter_id' => $parameter->getKey(),
+            'custom_value' => ['uk' => 'Полотно'],
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())->getJson('/api/v1/my/projects?language=uk');
+
+        $response->assertOk();
+        $projectData = collect($response->json('data'))->firstWhere('id', $project->id);
+        $this->assertNotNull($projectData);
+        $this->assertSame('Полотно', collect($projectData['parameters'])->firstWhere('parameter_id', $parameter->getKey())['value']);
+    }
+
     public function test_rejects_unknown_parameter_id(): void
     {
         $response = $this->withHeaders($this->authHeaders())

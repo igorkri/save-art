@@ -107,6 +107,14 @@ class UpdatePublishedProjectRequest extends FormRequest
             'content_blocks.*.image_caption' => ['nullable', 'array'],
             'content_blocks.*.image_caption.uk' => ['nullable', 'string', 'max:500'],
             'content_blocks.*.image_caption.en' => ['nullable', 'string', 'max:500'],
+
+            // Характеристики (прив'язані до категорії)
+            'parameters' => ['nullable', 'array'],
+            'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
+            'parameters.*.parameter_value_id' => ['nullable', 'integer', 'exists:parameter_values,id'],
+            'parameters.*.custom_value' => ['nullable', 'array'],
+            'parameters.*.custom_value.uk' => ['nullable', 'string', 'max:255'],
+            'parameters.*.custom_value.en' => ['nullable', 'string', 'max:255'],
         ];
     }
 
