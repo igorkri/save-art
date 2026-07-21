@@ -49,6 +49,7 @@ use Illuminate\Support\Str;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectBonus[] $bonuses
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Donation[] $donations
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectLike[] $likes
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectParameter[] $projectParameters
  */
 class Project extends Model
 {
@@ -214,6 +215,14 @@ class Project extends Model
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
+    }
+
+    /**
+     * Обрані значення характеристик (Parameter) проєкту
+     */
+    public function projectParameters(): HasMany
+    {
+        return $this->hasMany(ProjectParameter::class);
     }
 
     /**
