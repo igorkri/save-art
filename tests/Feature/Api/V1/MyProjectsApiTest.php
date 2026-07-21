@@ -247,7 +247,7 @@ class MyProjectsApiTest extends ApiTestCase
         ]);
 
         $response->assertJsonFragment([
-            'message' => 'Project is currently being reviewed by a moderator and cannot be edited until a decision is made.',
+            'error_code' => 'project_under_review',
         ]);
     }
 
@@ -264,7 +264,8 @@ class MyProjectsApiTest extends ApiTestCase
 
         $response->assertForbidden();
         $response->assertJsonFragment([
-            'message' => "Project with status 'announced' cannot be fully edited. Use PATCH /api/v1/my/projects/{$project->slug} to update title, short description, tags, cover and content blocks instead.",
+            'error_code' => 'project_partially_editable',
+            'status' => 'announced',
         ]);
     }
 

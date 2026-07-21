@@ -2,20 +2,23 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Enums\ProjectStatus;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Rules\ImageOrBase64Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 /**
  * Request для часткового оновлення опублікованого проєкту (03.4.2.2)
  *
- * Дозволяє редагувати лише:
- * - Назву (title)
- * - Короткий опис (short_description)
- * - Теги (tags)
- * - Додаткову інформацію (additional_info)
- * - Обкладинку (cover)
- * - Контент-блоки (content_blocks)
+ * Дозволяє редагувати:
+ * - Назву (title), короткий опис (short_description), теги (tags)
+ * - Додаткову інформацію (additional_info), обкладинку (cover), контент-блоки (content_blocks)
+ * - Категорію (art_category/art_subcategory) та характеристики (characteristics)
+ * - Бюджет (budget_goal, budget_items) — для 'announced' лише збільшення budget_goal
+ *   (донати вже прийняті на початкову ціль), для 'in_progress'/'paused' без обмежень
  */
 class UpdatePublishedProjectRequest extends FormRequest
 {
@@ -70,6 +73,27 @@ class UpdatePublishedProjectRequest extends FormRequest
             'tags.uk' => ['nullable', 'string', 'max:500'],
             'tags.en' => ['nullable', 'string', 'max:500'],
 
+            // Категорія (slug з БД)
+            'art_category' => ['sometimes', 'nullable', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
+            'art_subcategory' => ['nullable', 'string', 'max:100'],
+
+            // Характеристики
+            'characteristics' => ['sometimes', 'nullable', 'array'],
+            'characteristics.*.name' => ['required_with:characteristics', 'array'],
+            'characteristics.*.name.uk' => ['required_with:characteristics', 'string', 'max:255'],
+            'characteristics.*.name.en' => ['nullable', 'string', 'max:255'],
+            'characteristics.*.value' => ['required_with:characteristics', 'array'],
+            'characteristics.*.value.uk' => ['required_with:characteristics', 'string', 'max:500'],
+            'characteristics.*.value.en' => ['nullable', 'string', 'max:500'],
+
+            // Бюджет: goal для 'announced' обмежений в withValidator() (лише збільшення)
+            'budget_goal' => ['sometimes', 'numeric', 'min:100'],
+            'budget_items' => ['sometimes', 'nullable', 'array'],
+            'budget_items.*.name' => ['required_with:budget_items', 'array'],
+            'budget_items.*.name.uk' => ['required_with:budget_items', 'string', 'max:255'],
+            'budget_items.*.name.en' => ['nullable', 'string', 'max:255'],
+            'budget_items.*.amount' => ['required_with:budget_items', 'numeric', 'min:0'],
+
             // Додаткова інформація
             'additional_info' => ['sometimes', 'array'],
             'additional_info.uk' => ['nullable', 'string', 'max:10000'],
@@ -96,6 +120,25 @@ class UpdatePublishedProjectRequest extends FormRequest
     }
 
     /**
+     * Для 'announced' бюджет можна лише збільшувати (донати вже прийняті під початкову ціль,
+     * зменшення дозволене тільки для 'in_progress'/'paused' — див. project-lifecycle-flow.md)
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $project = $this->route('project');
+
+            if (! $this->has('budget_goal') || ! $project instanceof Project) {
+                return;
+            }
+
+            if ($project->status === ProjectStatus::Announced && (float) $this->input('budget_goal') < (float) $project->budget_goal) {
+                $validator->errors()->add('budget_goal', 'Для оголошеного проєкту бюджет можна лише збільшувати.');
+            }
+        });
+    }
+
+    /**
      * @return array<string, string>
      */
     public function messages(): array
@@ -103,6 +146,10 @@ class UpdatePublishedProjectRequest extends FormRequest
         return [
             'title.uk.required_with' => 'Назва проєкту українською є обов\'язковою',
             'cover.max' => 'Максимальний розмір обкладинки — 15 МБ',
+            'budget_goal.min' => 'Мінімальна ціль збору — 100',
+
+            // Категорія
+            'art_category.in' => 'Невірна категорія мистецтва',
 
             // Контент-блоки
             'content_blocks.max' => 'Максимум 50 контент-блоків',

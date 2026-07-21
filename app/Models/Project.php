@@ -253,6 +253,22 @@ class Project extends Model
     }
 
     /**
+     * Чи може власник самостійно видалити проєкт: чернетки, відхилені,
+     * а також проєкти в черзі на модерацію (поки їх не взяв в обробку модератор).
+     * Проєкт, що вже проходить модерацію (status_moderation = processing) або
+     * опублікований (announced/in_progress/paused/completed/sold), видаляється
+     * лише через модераторів.
+     */
+    public function canBeDeletedByOwner(): bool
+    {
+        if (in_array($this->status, [ProjectStatus::Draft, ProjectStatus::Rejected])) {
+            return true;
+        }
+
+        return $this->status === ProjectStatus::Moderation && $this->status_moderation === ModerationStatus::Pending;
+    }
+
+    /**
      * Чи є проєкт публічним
      */
     public function isPublic(): bool

@@ -738,6 +738,15 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
+        // Розв'язуємо art_category + art_subcategory → art_category_id (якщо передано)
+        if (array_key_exists('art_category', $data)) {
+            $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+                $data['art_category'] ?? null,
+                $data['art_subcategory'] ?? null
+            );
+            unset($data['art_category'], $data['art_subcategory']);
+        }
+
         // Обробка обкладинки (файл або Base64)
         if ($request->hasFile('cover')) {
             if ($project->cover) {
@@ -762,14 +771,14 @@ class MyProjectController extends Controller
     }
 
     /**
-     * Видалити проєкт (тільки чернетки)
+     * Видалити проєкт (чернетки, відхилені, в черзі на модерацію)
      *
      * @OA\Delete(
      *     path="/v1/my/projects/{project}",
      *     operationId="deleteMyProject",
      *     tags={"My Projects"},
      *     summary="Видалити проєкт",
-     *     description="Видаляє проєкт. Доступно тільки для чернеток.",
+     *     description="Видаляє проєкт. Доступно для чернеток, відхилених проєктів та проєктів у черзі на модерацію (поки їх не взяв в обробку модератор). Опубліковані проєкти видаляються лише через модераторів.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
@@ -783,7 +792,7 @@ class MyProjectController extends Controller
      *
      *     @OA\Response(response=401, description="Не авторизовано"),
      *     @OA\Response(response=403, description="Не власник проєкту"),
-     *     @OA\Response(response=422, description="Неможливо видалити (не чернетка)")
+     *     @OA\Response(response=422, description="Неможливо видалити (проєкт опублікований або на модерації в обробці)")
      * )
      */
     public function destroy(Request $request, Project $project): JsonResponse
@@ -792,9 +801,9 @@ class MyProjectController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if ($project->status !== ProjectStatus::Draft) {
+        if (! $project->canBeDeletedByOwner()) {
             return response()->json([
-                'message' => 'Можна видалити лише чернетки. Для інших проєктів зверніться до модератора.',
+                'message' => 'Можна видалити лише чернетки, відхилені проєкти або проєкти в черзі на модерацію. Для інших проєктів зверніться до модератора.',
             ], 422);
         }
 

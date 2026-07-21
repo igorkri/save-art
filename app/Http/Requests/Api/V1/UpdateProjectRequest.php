@@ -10,6 +10,7 @@ use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Rules\ImageOrBase64Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 /**
@@ -45,18 +46,45 @@ class UpdateProjectRequest extends FormRequest
             || ($project->status === ProjectStatus::Moderation && ! $isBeingReviewed);
 
         if (! $canBeFullyEdited) {
+            // error_code — стабільний ключ для фронтенду, щоб показати локалізований,
+            // зрозумілий клієнту текст замість технічного англійського message нижче
+            // (воно призначене для розробників API, а не для кінцевого користувача).
             if ($isBeingReviewed) {
-                abort(403, 'Project is currently being reviewed by a moderator and cannot be edited until a decision is made.');
+                $this->abortWithCode(
+                    'project_under_review',
+                    'Project is currently being reviewed by a moderator and cannot be edited until a decision is made.'
+                );
             }
 
             if ($project->isPartiallyEditable()) {
-                abort(403, "Project with status '{$project->status->value}' cannot be fully edited. Use PATCH /api/v1/my/projects/{$project->slug} to update title, short description, tags, cover and content blocks instead.");
+                $this->abortWithCode(
+                    'project_partially_editable',
+                    "Project with status '{$project->status->value}' cannot be fully edited. Use PATCH /api/v1/my/projects/{$project->slug} to update title, short description, tags, cover and content blocks instead.",
+                    $project->status->value
+                );
             }
 
-            abort(403, "Project with status '{$project->status->value}' cannot be edited.");
+            $this->abortWithCode(
+                'project_not_editable',
+                "Project with status '{$project->status->value}' cannot be edited.",
+                $project->status->value
+            );
         }
 
         return true;
+    }
+
+    /**
+     * Перериває запит з 403 та стабільним error_code, який фронтенд може змапити
+     * на локалізований (uk/en) текст, не парсячи технічний message.
+     */
+    private function abortWithCode(string $errorCode, string $message, ?string $status = null): never
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => $message,
+            'error_code' => $errorCode,
+            'status' => $status,
+        ], 403));
     }
 
     /**
