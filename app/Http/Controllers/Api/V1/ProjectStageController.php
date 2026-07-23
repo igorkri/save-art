@@ -107,7 +107,9 @@ class ProjectStageController extends Controller
      */
     public function store(CreateStageRequest $request, Project $project): ProjectStageResource|JsonResponse
     {
-        if (! $project->isEditable()) {
+        // Оголошений/в роботі/на паузі: додавання нових етапів дозволене (docs/project-lifecycle-flow.md
+        // — "Додавання Етапів"), на відміну від повного редагування (isEditable — лише new/draft).
+        if (! $project->isEditable() && ! $project->isPartiallyEditable()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
 
