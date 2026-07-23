@@ -17,6 +17,9 @@ class ProjectWorkflowService
      * @var array<string, array<string>>
      */
     private array $allowedTransitions = [
+        ProjectStatus::New->value => [
+            ProjectStatus::Moderation->value,
+        ],
         ProjectStatus::Draft->value => [
             ProjectStatus::Moderation->value,
         ],
