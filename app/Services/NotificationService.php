@@ -271,7 +271,7 @@ class NotificationService
             data: [
                 'project_id' => $project->id,
                 'project_slug' => $project->slug,
-                'collected' => $project->collected_amount ?? 0,
+                'collected' => $project->budget_collected ?? 0,
                 'goal' => $project->budget_goal,
             ]
         );

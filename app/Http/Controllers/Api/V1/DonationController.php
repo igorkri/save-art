@@ -61,7 +61,7 @@ class DonationController extends Controller
     public function myDonations(Request $request): AnonymousResourceCollection
     {
         $donations = Donation::query()
-            ->with(['project', 'bonus'])
+            ->with(['project.user', 'bonus'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->paginate(15);

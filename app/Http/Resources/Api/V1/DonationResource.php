@@ -5,6 +5,7 @@ namespace App\Http\Resources\Api\V1;
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
@@ -21,7 +22,9 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="project", type="object", nullable=true, description="Проект (null для донатів на платформу)",
  *         @OA\Property(property="id", type="integer", example=1),
  *         @OA\Property(property="slug", type="string", example="miy-proekt"),
- *         @OA\Property(property="title", ref="#/components/schemas/LocalizedString")
+ *         @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+ *         @OA\Property(property="cover_url", type="string", nullable=true, example="http://save-art-web.ddev.site/storage/projects/covers/1.jpg"),
+ *         @OA\Property(property="author_name", type="string", nullable=true, example="Іван Петренко")
  *     ),
  *     @OA\Property(property="amount", type="number", format="float", example=1000.00),
  *     @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
@@ -59,6 +62,8 @@ class DonationResource extends JsonResource
                 'id' => $this->project->id,
                 'slug' => $this->project->slug,
                 'title' => $this->localizeField($this->project->title, $language),
+                'cover_url' => $this->project->cover ? Storage::url($this->project->cover) : null,
+                'author_name' => $this->project->user?->name,
             ] : null,
 
             'amount' => (float) $this->amount,
