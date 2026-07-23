@@ -550,11 +550,16 @@ class MyProjectController extends Controller
     {
         $data = $request->validated();
 
-        // Будь-яке редагування (в т.ч. проєкту, що стоїть у черзі на модерацію) повертає
-        // проєкт у чернетку — щоб знову потрапити на модерацію, треба явно викликати submit.
-        // Модерацію, що вже в обробці (status_moderation = processing), сюди не пускає
-        // UpdateProjectRequest::authorize(), тож цей код виконується лише для pending.
-        $data['status'] = ProjectStatus::Draft->value;
+        // Автозбереження (з фронтенду) не передає status — статус лишається як є
+        // (new лишається new, доки автор сам не натисне «Зберегти чернетку»/«Опублікувати»).
+        // Виняток: проєкт, що стоїть у черзі на модерацію (status_moderation = pending),
+        // будь-яке редагування без явного status повертає у чернетку — щоб знову потрапити
+        // на модерацію, треба явно викликати submit. Модерацію, що вже в обробці
+        // (status_moderation = processing), сюди не пускає UpdateProjectRequest::authorize(),
+        // тож цей кейс стосується лише pending.
+        if (! array_key_exists('status', $data) && $project->status === ProjectStatus::Moderation) {
+            $data['status'] = ProjectStatus::Draft->value;
+        }
 
         // Витягуємо stages, bonuses та parameters з даних
         $stagesData = $data['stages'] ?? null;

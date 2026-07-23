@@ -75,7 +75,7 @@ class MyProjectsApiTest extends ApiTestCase
             ->postJson('/api/v1/my/projects', $data);
 
         $response->assertCreated()
-            ->assertJsonPath('data.status', 'draft');
+            ->assertJsonPath('data.status', 'new');
 
         $this->assertDatabaseHas('projects', [
             'user_id' => $this->user->id,
