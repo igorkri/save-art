@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\Auth\ImpersonateController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
+use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DonationController;
@@ -49,10 +50,17 @@ Route::prefix('v1/auth')->middleware(['api.key', 'throttle:auth'])->group(functi
     Route::post('/google/callback', [SocialAuthController::class, 'googleCallback']);
 });
 
+Route::prefix('v1/auth')->middleware(['api.key', 'signed', 'throttle:6,1'])->group(function () {
+    Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+        ->name('verification.verify');
+});
+
 Route::prefix('v1/auth')->middleware(['api.key', 'auth:sanctum'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::get('/me', [LoginController::class, 'me']);
     Route::put('/change-password', \App\Http\Controllers\Api\V1\Auth\ChangePasswordController::class);
+    Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])
+        ->middleware('throttle:6,1');
 });
 
 // ============================================

@@ -74,6 +74,13 @@ class RegisterController extends Controller
             'role' => UserRole::User,
         ]);
 
+        // Надсилаємо лист із посиланням для підтвердження email. Дзвонимо напряму,
+        // а не через event(new Registered($user)) — у цьому застосунку одночасно
+        // активні і старий App\Providers\EventServiceProvider (config/app.php),
+        // і автоматичний EventServiceProvider з bootstrap/app.php, тому подія
+        // Registered дублює SendEmailVerificationNotification і лист іде двічі.
+        $user->sendEmailVerificationNotification();
+
         // Створюємо токен для API
         $token = $user->createToken(
             $request->input('device_name', 'api-token')
