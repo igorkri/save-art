@@ -1102,6 +1102,100 @@ class MyProjectController extends Controller
     }
 
     /**
+     * Перевести проєкт у роботу (announced -> in_progress, або paused -> in_progress/announced)
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/resume",
+     *     operationId="resumeProject",
+     *     tags={"My Projects"},
+     *     summary="Перевести проєкт у роботу",
+     *     description="Переводить оголошений або призупинений проєкт у статус 'в роботі' (для призупиненого — повертає в 'оголошений', якщо ціль збору ще не досягнута).",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Статус проєкту оновлено",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Проєкт переведено в роботу."),
+     *             @OA\Property(property="data", ref="#/components/schemas/Project")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник проєкту"),
+     *     @OA\Response(response=422, description="Недопустимий перехід статусу")
+     * )
+     */
+    public function resume(Request $request, Project $project): JsonResponse
+    {
+        if ($project->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if (! $this->workflowService->moveTo($project, ProjectStatus::InProgress)) {
+            return response()->json([
+                'message' => 'Неможливо перевести проєкт у статус "в роботі".',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Проєкт переведено в роботу.',
+            'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
+        ]);
+    }
+
+    /**
+     * Поставити проєкт на паузу (in_progress -> paused)
+     *
+     * @OA\Post(
+     *     path="/v1/my/projects/{project}/pause",
+     *     operationId="pauseProject",
+     *     tags={"My Projects"},
+     *     summary="Поставити проєкт на паузу",
+     *     description="Призупиняє проєкт, що перебуває в роботі.",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Проєкт поставлено на паузу",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Проєкт поставлено на паузу."),
+     *             @OA\Property(property="data", ref="#/components/schemas/Project")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник проєкту"),
+     *     @OA\Response(response=422, description="Недопустимий перехід статусу")
+     * )
+     */
+    public function pause(Request $request, Project $project): JsonResponse
+    {
+        if ($project->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if (! $this->workflowService->pause($project)) {
+            return response()->json([
+                'message' => 'Поставити на паузу можна лише проєкт в роботі.',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Проєкт поставлено на паузу.',
+            'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
+        ]);
+    }
+
+    /**
      * Завершити проєкт (03.4.5)
      *
      * @OA\Post(

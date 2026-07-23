@@ -366,6 +366,66 @@ class MyProjectsApiTest extends ApiTestCase
     }
 
     // ==========================================
+    // Перехід у роботу / пауза
+    // ==========================================
+
+    public function test_can_resume_announced_project(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Announced,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/resume");
+
+        $response->assertOk();
+        $this->assertSame(ProjectStatus::InProgress->value, $project->fresh()->status->value);
+    }
+
+    public function test_cannot_resume_draft_project(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/resume");
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_can_pause_active_project(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/pause");
+
+        $response->assertOk();
+        $this->assertSame(ProjectStatus::Paused->value, $project->fresh()->status->value);
+    }
+
+    public function test_cannot_resume_or_pause_someone_elses_project(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Announced,
+        ]);
+
+        $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/resume")
+            ->assertForbidden();
+
+        $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/pause")
+            ->assertForbidden();
+    }
+
+    // ==========================================
     // Завантаження фінального результату
     // ==========================================
 

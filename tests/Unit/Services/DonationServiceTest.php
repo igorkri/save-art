@@ -3,7 +3,9 @@
 namespace Tests\Unit\Services;
 
 use App\Enums\DonationStatus;
+use App\Enums\ProjectStatus;
 use App\Models\Donation;
+use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\User;
@@ -20,7 +22,7 @@ class DonationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new DonationService;
+        $this->service = app(DonationService::class);
     }
 
     public function test_process_paid_donation_updates_status(): void
@@ -116,6 +118,48 @@ class DonationServiceTest extends TestCase
 
         $bonus->refresh();
         $this->assertEquals(3, $bonus->quantity_claimed);
+    }
+
+    public function test_process_paid_donation_starts_work_when_goal_reached(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Announced,
+            'budget_collected' => 4000,
+            'budget_goal' => 5000,
+        ]);
+        $donation = Donation::factory()->create([
+            'project_id' => $project->id,
+            'status' => DonationStatus::Pending,
+            'amount' => 1000,
+        ]);
+
+        $this->service->processPaidDonation($donation);
+
+        $project->refresh();
+        $this->assertEquals(ProjectStatus::InProgress->value, $project->status->value);
+        $this->assertDatabaseHas(Notification::class, [
+            'user_id' => $project->user_id,
+            'type' => 'project_funding_complete',
+        ]);
+    }
+
+    public function test_process_paid_donation_does_not_start_work_when_goal_not_reached(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Announced,
+            'budget_collected' => 1000,
+            'budget_goal' => 5000,
+        ]);
+        $donation = Donation::factory()->create([
+            'project_id' => $project->id,
+            'status' => DonationStatus::Pending,
+            'amount' => 500,
+        ]);
+
+        $this->service->processPaidDonation($donation);
+
+        $project->refresh();
+        $this->assertEquals(ProjectStatus::Announced->value, $project->status->value);
     }
 
     public function test_process_failed_donation_updates_status(): void

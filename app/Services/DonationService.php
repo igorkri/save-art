@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ProjectStatus;
 use App\Models\Donation;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
@@ -9,13 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class DonationService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        private ProjectWorkflowService $workflowService,
+        private NotificationService $notificationService
+    ) {}
 
     /**
      * Врахувати донат у зібраній сумі проєкту одразу при створенні,
@@ -49,6 +47,8 @@ class DonationService
             if (! $existingDonor) {
                 $project->increment('donors_count');
             }
+
+            $this->maybeStartWorkOnGoalReached($project);
         });
     }
 
@@ -89,6 +89,8 @@ class DonationService
             if ($donation->project_bonus_id && $donation->bonus) {
                 $donation->bonus->increment('quantity_claimed');
             }
+
+            $this->maybeStartWorkOnGoalReached($project);
 
             Log::info('Donation processed successfully', [
                 'donation_id' => $donation->id,
@@ -164,6 +166,25 @@ class DonationService
     public function checkGoalReached(Project $project): bool
     {
         return $project->budget_collected >= $project->budget_goal;
+    }
+
+    /**
+     * Автоматично перевести проєкт з "оголошений" у "в роботі", щойно збір досяг мети
+     * (docs/Flows.pdf: перехід ОГОЛОШЕНИЙ → В РОБОТІ відбувається системно, без дії митця).
+     */
+    private function maybeStartWorkOnGoalReached(Project $project): void
+    {
+        if ($project->status !== ProjectStatus::Announced) {
+            return;
+        }
+
+        if (! $this->checkGoalReached($project)) {
+            return;
+        }
+
+        if ($this->workflowService->startWork($project)) {
+            $this->notificationService->notifyProjectFundingComplete($project);
+        }
     }
 
     /**

@@ -176,6 +176,8 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         Route::post('/{project}/submit', [MyProjectController::class, 'submit']);
         Route::post('/{project}/final-result/upload', [MyProjectController::class, 'uploadFinalResult']);
         Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
+        Route::post('/{project}/resume', [MyProjectController::class, 'resume']);
+        Route::post('/{project}/pause', [MyProjectController::class, 'pause']);
     });
 
     // Лайки
