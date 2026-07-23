@@ -16,6 +16,7 @@ use OpenApi\Annotations as OA;
  *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="is_active", type="boolean", example=true, description="Чи активний юридичний профіль"),
  *     @OA\Property(property="currency", type="string", nullable=true, example="UAH", description="Валюта"),
  *     @OA\Property(property="logo", type="string", nullable=true, example="logos/company.jpg", description="Логотип"),
  *     @OA\Property(property="name", type="object", nullable=true, description="Назва компанії (мультимовне)",
@@ -49,6 +50,7 @@ class ProfileLegalResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'is_active' => $this->is_active,
             'currency' => $this->currency,
             'logo' => $this->logo ? Storage::url($this->logo) : null,
             'name' => $this->name ?? ['en' => null, 'uk' => null],

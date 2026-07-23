@@ -34,6 +34,7 @@ class UpdateProfileLegalRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'is_active' => ['sometimes', 'boolean'],
             'currency' => ['nullable', 'string', 'in:UAH,USD,EUR'],
             // logo може бути шляхом до файлу або base64 строкою
             'logo' => ['nullable', 'string'],
