@@ -186,6 +186,55 @@ class ProjectStageController extends Controller
 
         $data = $request->validated();
 
+        // Назву та опис можна редагувати лише поки етап ще запланований — інакше клієнт міг би
+        // обійти "read-only" поля напряму через API, тож перевірка продубльована на сервері.
+        if ($stage->status !== StageStatus::Planned && (array_key_exists('title', $data) || array_key_exists('description', $data))) {
+            return response()->json(['message' => 'Назву та опис етапу можна редагувати лише поки він запланований'], 422);
+        }
+
+        $newStatus = array_key_exists('status', $data)
+            ? ($data['status'] instanceof StageStatus ? $data['status'] : StageStatus::from($data['status']))
+            : null;
+
+        if ($newStatus !== null && $newStatus !== $stage->status) {
+            $allowedNextStatuses = [
+                StageStatus::Planned->value => StageStatus::InProgress,
+                StageStatus::InProgress->value => StageStatus::Completed,
+            ];
+
+            if (($allowedNextStatuses[$stage->status->value] ?? null) !== $newStatus) {
+                return response()->json(['message' => 'Недопустима зміна статусу етапу'], 422);
+            }
+
+            if ($newStatus === StageStatus::InProgress) {
+                $daysPlanned = $data['days_planned'] ?? $stage->days_planned;
+                $budgetPlanned = $data['budget_planned'] ?? $stage->budget_planned;
+
+                if (! $daysPlanned || ! $budgetPlanned) {
+                    return response()->json(['message' => 'Вкажіть кількість днів та плановану суму перед початком етапу'], 422);
+                }
+
+                $data['started_at'] = now();
+            }
+
+            if ($newStatus === StageStatus::Completed) {
+                $budgetActual = $data['budget_actual'] ?? $stage->budget_actual;
+
+                if (! $budgetActual) {
+                    return response()->json(['message' => 'Вкажіть фактичну суму витрат перед завершенням етапу'], 422);
+                }
+
+                if (empty($stage->documents)) {
+                    return response()->json(['message' => 'Додайте хоча б один файл-підтвердження перед завершенням етапу'], 422);
+                }
+
+                $data['completed_at'] = now();
+            }
+        } elseif ($stage->status !== StageStatus::Planned) {
+            // Етап уже розпочато/завершено — планові поля більше не редагуються без зміни статусу.
+            unset($data['days_planned'], $data['budget_planned']);
+        }
+
         $stage->update($data);
 
         return new ProjectStageResource($stage);
