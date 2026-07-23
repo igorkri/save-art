@@ -24,6 +24,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="slug", type="string", example="miy-noviy-proekt-abc123"),
  *     @OA\Property(property="status", type="string", example="announced"),
  *     @OA\Property(property="status_label", type="string", example="Оголошений"),
+ *     @OA\Property(property="status_moderation", type="string", nullable=true, enum={"pending", "processing", "approved", "rejected"}, example="pending"),
  *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
  *     @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
  *     @OA\Property(property="cover_url", type="string", nullable=true),
@@ -64,6 +65,7 @@ class ProjectListResource extends JsonResource
 
             'status' => $this->status->value,
             'status_label' => $this->status->getLabel($language ?? 'uk'),
+            'status_moderation' => $this->status_moderation?->value,
 
             'title' => $this->localizeField($this->title, $language),
             'short_description' => $this->localizeField($this->short_description, $language),
