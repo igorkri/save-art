@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\ProjectListResource;
 use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\ArtCategory;
+use App\Models\Parameter;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -90,6 +92,7 @@ class ProjectController extends Controller
         $filters = array_merge($staticFilters, [
             'categories' => $this->getFilterCategories($language, $request),
             'statuses' => $this->getFilterStatuses($language, $request),
+            'parameters' => $this->getFilterParameters($language, $request),
         ]);
 
         // Будуємо запит для проєктів (artCategory.parent для коректних лейблів батько/нащадок)
@@ -561,6 +564,58 @@ class ProjectController extends Controller
         }
 
         return $statuses;
+    }
+
+    /**
+     * Характеристики (Parameter/ParameterValue) поточної обраної категорії — доступні лише
+     * коли обрана рівно одна категорія/підкатегорія (характеристики належать конкретній
+     * категорії, тож без вибору категорії показувати їх нема сенсу).
+     */
+    private function getFilterParameters(?string $language, Request $request): array
+    {
+        $categorySlug = $request->filled('art_category')
+            ? trim(explode(',', $request->input('art_category'))[0])
+            : null;
+        $subcategorySlug = $request->filled('art_subcategory')
+            ? trim(explode(',', $request->input('art_subcategory'))[0])
+            : null;
+
+        $categoryId = ArtCategory::resolveIdFromSlugs($categorySlug, $subcategorySlug);
+        if (! $categoryId) {
+            return [];
+        }
+
+        // Виключаємо фільтр характеристик з базового запиту: кожне значення рахуємо
+        // окремо з урахуванням решти застосованих фільтрів (категорія, статус, бюджет тощо).
+        $baseQuery = $this->buildFilteredQuery($request, ['parameter_value_id']);
+
+        $parameters = Parameter::where('art_category_id', $categoryId)
+            ->where('type', ParameterType::List)
+            ->orderBy('sort_order')
+            ->with('values')
+            ->get();
+
+        return $parameters
+            ->filter(fn (Parameter $parameter) => $parameter->values->isNotEmpty())
+            ->map(function (Parameter $parameter) use ($baseQuery, $language) {
+                return [
+                    'id' => $parameter->id,
+                    'name' => $this->getFilterTranslation($parameter->getTranslations('name'), $language),
+                    'values' => $parameter->values->map(function ($value) use ($baseQuery, $language) {
+                        $count = (clone $baseQuery)->whereHas('projectParameters', function (Builder $q) use ($value) {
+                            $q->where('parameter_value_id', $value->id);
+                        })->count();
+
+                        return [
+                            'id' => $value->id,
+                            'value' => $this->getFilterTranslation($value->getTranslations('value'), $language),
+                            'projects_count' => $count,
+                        ];
+                    })->values()->all(),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     private function getFilterBudgetRange(): array

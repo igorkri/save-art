@@ -3,9 +3,14 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Enums\ArtCategory;
+use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
+use App\Models\ArtCategory as ArtCategoryModel;
 use App\Models\Donation;
+use App\Models\Parameter;
+use App\Models\ParameterValue;
 use App\Models\Project;
+use App\Models\ProjectParameter;
 
 class PublicProjectsApiTest extends ApiTestCase
 {
@@ -144,6 +149,90 @@ class PublicProjectsApiTest extends ApiTestCase
         $statuses = collect($response->json('filters.statuses'))->keyBy('slug');
         $this->assertSame(2, $statuses['in_progress']['projects_count']);
         $this->assertSame(1, $statuses['completed']['projects_count']);
+    }
+
+    public function test_filters_parameters_empty_without_selected_category(): void
+    {
+        Project::factory()->create(['status' => ProjectStatus::InProgress]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/projects');
+
+        $response->assertOk()->assertJsonPath('filters.parameters', []);
+    }
+
+    public function test_filters_parameters_reflect_selected_subcategory(): void
+    {
+        $root = ArtCategoryModel::factory()->create(['parent_id' => null]);
+        $child = ArtCategoryModel::factory()->create(['parent_id' => $root->getKey()]);
+
+        $listParameter = Parameter::factory()->for($child)->create([
+            'name' => ['uk' => 'Формат друку', 'en' => 'Print format'],
+            'type' => ParameterType::List,
+            'sort_order' => 0,
+        ]);
+        $matchingValue = ParameterValue::factory()->for($listParameter)->create(['value' => ['uk' => 'Глянцевий', 'en' => 'Glossy']]);
+        $otherValue = ParameterValue::factory()->for($listParameter)->create(['value' => ['uk' => 'Матовий', 'en' => 'Matte']]);
+
+        // Кастомний параметр (без фіксованих значень) не повинен потрапляти у фільтр
+        Parameter::factory()->for($child)->create(['type' => ParameterType::Custom]);
+
+        $matchingProject = Project::factory()->create([
+            'art_category_id' => $child->getKey(),
+            'status' => ProjectStatus::InProgress,
+        ]);
+        ProjectParameter::create([
+            'project_id' => $matchingProject->getKey(),
+            'parameter_id' => $listParameter->getKey(),
+            'parameter_value_id' => $matchingValue->getKey(),
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/projects?art_category={$root->slug}&art_subcategory={$child->slug}&language=uk");
+
+        $response->assertOk()->assertJsonCount(1, 'filters.parameters');
+
+        $parameter = $response->json('filters.parameters.0');
+        $this->assertSame('Формат друку', $parameter['name']);
+
+        $values = collect($parameter['values'])->keyBy('id');
+        $this->assertSame(1, $values[$matchingValue->getKey()]['projects_count']);
+        $this->assertSame(0, $values[$otherValue->getKey()]['projects_count']);
+    }
+
+    public function test_can_filter_projects_by_parameter_value_from_filters_list(): void
+    {
+        $category = ArtCategoryModel::factory()->create();
+        $parameter = Parameter::factory()->for($category)->create(['type' => ParameterType::List]);
+        $matchingValue = ParameterValue::factory()->for($parameter)->create();
+        $otherValue = ParameterValue::factory()->for($parameter)->create();
+
+        $matchingProject = Project::factory()->create([
+            'art_category_id' => $category->getKey(),
+            'status' => ProjectStatus::InProgress,
+        ]);
+        ProjectParameter::create([
+            'project_id' => $matchingProject->getKey(),
+            'parameter_id' => $parameter->getKey(),
+            'parameter_value_id' => $matchingValue->getKey(),
+        ]);
+
+        $otherProject = Project::factory()->create([
+            'art_category_id' => $category->getKey(),
+            'status' => ProjectStatus::InProgress,
+        ]);
+        ProjectParameter::create([
+            'project_id' => $otherProject->getKey(),
+            'parameter_id' => $parameter->getKey(),
+            'parameter_value_id' => $otherValue->getKey(),
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/projects?parameter_value_id={$matchingValue->getKey()}");
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $matchingProject->id);
     }
 
     public function test_can_search_projects(): void
