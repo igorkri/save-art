@@ -26,6 +26,21 @@ class ProjectsKanban extends Page
         return 'Канбан проєктів';
     }
 
+    /**
+     * За замовчуванням Filament веде хлібну крихту ресурсу на index-сторінку
+     * (список). Канбан тут — основна робоча сторінка проєктів, тож крихта
+     * "Проєкти" має вести саме сюди, а не на список.
+     *
+     * @return array<string>
+     */
+    public function getBreadcrumbs(): array
+    {
+        return [
+            static::getUrl() => ProjectResource::getBreadcrumb(),
+            $this->getBreadcrumb(),
+        ];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -60,7 +75,16 @@ class ProjectsKanban extends Page
     private function findProject(array $arguments): Project
     {
         return Project::query()
-            ->with(['user', 'artCategory', 'stages', 'bonuses', 'donations.user', 'donations.bonus'])
+            ->with([
+                'user.profileLegal',
+                'artCategory',
+                'stages',
+                'bonuses',
+                'donations.user',
+                'donations.bonus',
+                'projectParameters.parameter',
+                'projectParameters.parameterValue',
+            ])
             ->findOrFail($arguments['project']);
     }
 
