@@ -20,8 +20,9 @@ class DonationService
      * не чекаючи підтвердження реальної оплати (фронтенд поки не
      * має інтеграції з платіжною системою). Якщо пізніше підключиться
      * реальний webhook і processPaidDonation() почне викликатись для
-     * цих же донатів — там потрібно буде прибрати повторний increment,
-     * інакше сума порахується двічі.
+     * цих же донатів — там потрібно буде прибрати повторний increment
+     * та повторні сповіщення нижче, інакше сума порахується і
+     * сповіщення надішлються двічі.
      */
     public function registerPendingAsCollected(Donation $donation): void
     {
@@ -47,6 +48,9 @@ class DonationService
             if (! $existingDonor) {
                 $project->increment('donors_count');
             }
+
+            $this->notificationService->notifyDonationReceived($donation);
+            $this->notificationService->notifyDonationMade($donation);
 
             $this->maybeStartWorkOnGoalReached($project);
         });

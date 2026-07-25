@@ -10,6 +10,7 @@ use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Сервіс для управління повідомленнями та нотифікаціями
@@ -30,9 +31,16 @@ class NotificationService
 
         $user = $project->user;
 
+        // Для анонімного донату donor_name — це псевдонім, введений у формі
+        // (не справжнє ім'я з акаунту), тож показуємо саме його, а не
+        // узагальнене "Анонімний меценат".
         $donorName = $donation->is_anonymous
-            ? 'Анонімний меценат'
+            ? ($donation->donor_name ?: 'Анонімний меценат')
             : ($donation->donor_name ?? $donation->user?->name ?? 'Меценат');
+
+        // Анонімний донат — без аватара і посилання на профіль, навіть якщо
+        // донатив авторизований користувач.
+        $donorUser = $donation->is_anonymous ? null : $donation->user;
 
         $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
 
@@ -66,6 +74,9 @@ class NotificationService
                 'amount' => $donation->amount,
                 'currency' => $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency,
                 'donor_name' => $donorName,
+                'donor_avatar' => $donorUser?->avatar ? Storage::url($donorUser->avatar) : null,
+                'donor_slug' => $donorUser?->slug,
+                'is_anonymous' => $donation->is_anonymous,
             ]
         );
     }
