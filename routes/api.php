@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\V1\CatalogController;
+use App\Http\Controllers\Api\V1\ContactInfoRequestController;
 use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\FaqController;
@@ -176,16 +177,20 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
     // Мої проєкти
     Route::prefix('my/projects')->group(function () {
         Route::get('/', [MyProjectController::class, 'index']);
-        Route::post('/', [MyProjectController::class, 'store']);
         Route::get('/{project}', [MyProjectController::class, 'show']);
-        Route::put('/{project}', [MyProjectController::class, 'update']);
-        Route::patch('/{project}', [MyProjectController::class, 'updatePartial']);
-        Route::delete('/{project}', [MyProjectController::class, 'destroy']);
-        Route::post('/{project}/submit', [MyProjectController::class, 'submit']);
-        Route::post('/{project}/final-result/upload', [MyProjectController::class, 'uploadFinalResult']);
-        Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
-        Route::post('/{project}/resume', [MyProjectController::class, 'resume']);
-        Route::post('/{project}/pause', [MyProjectController::class, 'pause']);
+
+        // Створення, редагування та видалення проєктів недоступні заблокованим користувачам
+        Route::middleware('not.blocked')->group(function () {
+            Route::post('/', [MyProjectController::class, 'store']);
+            Route::put('/{project}', [MyProjectController::class, 'update']);
+            Route::patch('/{project}', [MyProjectController::class, 'updatePartial']);
+            Route::delete('/{project}', [MyProjectController::class, 'destroy']);
+            Route::post('/{project}/submit', [MyProjectController::class, 'submit']);
+            Route::post('/{project}/final-result/upload', [MyProjectController::class, 'uploadFinalResult']);
+            Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
+            Route::post('/{project}/resume', [MyProjectController::class, 'resume']);
+            Route::post('/{project}/pause', [MyProjectController::class, 'pause']);
+        });
     });
 
     // Лайки
@@ -241,6 +246,13 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
 
     // Написати автору проєкту (через адміністрацію)
     Route::post('/projects/{project}/contact-author', [MessageController::class, 'contactProjectAuthor']);
+
+    // Запит контактної інформації юридичної особи автора (03.2.4)
+    Route::post('/projects/{project}/contact-request', [ContactInfoRequestController::class, 'store']);
+    Route::prefix('my/contact-requests')->group(function () {
+        Route::post('/{contactInfoRequest}/grant', [ContactInfoRequestController::class, 'grant']);
+        Route::post('/{contactInfoRequest}/reject', [ContactInfoRequestController::class, 'reject']);
+    });
 
     // Контракти (03.7.5, 03.7.5.1)
     Route::prefix('contracts')->group(function () {

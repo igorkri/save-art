@@ -2,14 +2,16 @@
 
 namespace App\Services;
 
-use App\Enums\NotificationType;
 use App\Models\Donation;
-use App\Models\Notification;
 use App\Models\ProjectBonus;
 use Illuminate\Support\Facades\DB;
 
 class BonusClaimService
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     /**
      * Знайти підходящий бонус для суми доната
      */
@@ -77,7 +79,7 @@ class BonusClaimService
 
             // Відправляємо сповіщення донатеру
             if ($donation->user_id) {
-                $this->notifyBonusClaimed($donation->user_id, $bonus, $donation);
+                $this->notifyBonusClaimed($bonus, $donation);
             }
 
             return true;
@@ -179,20 +181,8 @@ class BonusClaimService
     /**
      * Відправити сповіщення про отриманий бонус
      */
-    private function notifyBonusClaimed(int $userId, ProjectBonus $bonus, Donation $donation): void
+    private function notifyBonusClaimed(ProjectBonus $bonus, Donation $donation): void
     {
-        $bonusTitle = $bonus->title['uk'] ?? $bonus->title['en'] ?? 'Бонус';
-
-        Notification::create([
-            'user_id' => $userId,
-            'type' => NotificationType::BonusClaimed,
-            'title' => 'Ви отримали бонус!',
-            'message' => "Дякуємо за вашу підтримку! Ви отримали бонус \"{$bonusTitle}\" за донат {$donation->amount} {$donation->currency->value}.",
-            'data' => [
-                'bonus_id' => $bonus->id,
-                'donation_id' => $donation->id,
-                'project_id' => $bonus->project_id,
-            ],
-        ]);
+        $this->notificationService->notifyBonusClaimed($donation->user, $bonus, $donation);
     }
 }

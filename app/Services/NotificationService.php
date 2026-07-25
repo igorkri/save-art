@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Enums\NotificationType;
+use App\Models\ContactInfoRequest;
 use App\Models\Donation;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Project;
+use App\Models\ProjectBonus;
 use App\Models\User;
 
 /**
@@ -278,6 +280,72 @@ class NotificationService
     }
 
     /**
+     * Надіслати повідомлення про відправку проєкту на модерацію
+     */
+    public function notifyProjectModerationPending(Project $project): Notification
+    {
+        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+
+        return $this->createNotification(
+            user: $project->user,
+            type: NotificationType::ModerationPending,
+            title: [
+                'uk' => 'Ваш проєкт проходить перевірку',
+                'en' => 'Your project is under review',
+            ],
+            message: [
+                'uk' => sprintf('Ваш проєкт "%s" відправлено на модерацію. Це займе декілька днів.', $projectTitle),
+                'en' => sprintf('Your project "%s" has been sent for moderation. This may take a few days.', $project->title['en'] ?? $projectTitle),
+            ],
+            data: [
+                'project_id' => $project->id,
+                'project_slug' => $project->slug,
+            ]
+        );
+    }
+
+    /**
+     * Надіслати сповіщення про отриманий бонус за донат
+     */
+    public function notifyBonusClaimed(User $user, ProjectBonus $bonus, Donation $donation): Notification
+    {
+        $bonusTitle = $bonus->title['uk'] ?? $bonus->title['en'] ?? 'Бонус';
+        $bonusTitleEn = $bonus->title['en'] ?? $bonusTitle;
+        $currency = $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency;
+
+        return $this->createNotification(
+            user: $user,
+            type: NotificationType::BonusClaimed,
+            title: [
+                'uk' => 'Ви отримали подарунок!',
+                'en' => 'You received a gift!',
+            ],
+            message: [
+                'uk' => sprintf(
+                    'За підтримку проєкту на суму %s %s отримаєте "%s" від автора.',
+                    number_format($donation->amount, 0, '.', ' '),
+                    $currency,
+                    $bonusTitle
+                ),
+                'en' => sprintf(
+                    'For supporting the project with %s %s you will receive "%s" from the author.',
+                    number_format($donation->amount, 0, '.', ' '),
+                    $currency,
+                    $bonusTitleEn
+                ),
+            ],
+            data: [
+                'bonus_id' => $bonus->id,
+                'donation_id' => $donation->id,
+                'project_id' => $bonus->project_id,
+                'bonus_title' => $bonus->title,
+                'amount' => $donation->amount,
+                'currency' => $currency,
+            ]
+        );
+    }
+
+    /**
      * Надіслати повідомлення про завершення проєкту
      */
     public function notifyProjectCompleted(Project $project): Notification
@@ -299,6 +367,175 @@ class NotificationService
                 'project_id' => $project->id,
                 'project_slug' => $project->slug,
             ]
+        );
+    }
+
+    /**
+     * Надіслати власнику юридичного профілю запит на отримання контактної інформації
+     */
+    public function notifyContactRequested(ContactInfoRequest $contactInfoRequest): Notification
+    {
+        $requesterName = $contactInfoRequest->requester->display_name ?? 'Меценат';
+
+        return $this->createNotification(
+            user: $contactInfoRequest->owner,
+            type: NotificationType::ContactRequest,
+            title: [
+                'uk' => 'Запит контактної інформації',
+                'en' => 'Contact information request',
+            ],
+            message: [
+                'uk' => 'Користувач хоче отримати контактну інформацію вашої юридичної особи.',
+                'en' => 'A user wants to receive your legal entity’s contact information.',
+            ],
+            data: [
+                'contact_info_request_id' => $contactInfoRequest->id,
+                'donor_name' => $requesterName,
+            ]
+        );
+    }
+
+    /**
+     * Надіслати сповіщення обом сторонам про надання контактної інформації
+     */
+    public function notifyContactGranted(ContactInfoRequest $contactInfoRequest): void
+    {
+        $legal = $contactInfoRequest->owner->profileLegal;
+        $ownerName = $contactInfoRequest->owner->display_name ?? 'Митець';
+
+        $this->createNotification(
+            user: $contactInfoRequest->requester,
+            type: NotificationType::ContactProvided,
+            title: [
+                'uk' => 'Запит контактної інформації затверджено',
+                'en' => 'Contact information request approved',
+            ],
+            message: [
+                'uk' => 'Ваш запит контактної інформації юридичної особи схвалено.',
+                'en' => 'Your request for the legal entity’s contact information has been approved.',
+            ],
+            data: [
+                'contact_info_request_id' => $contactInfoRequest->id,
+                'donor_name' => $ownerName,
+                'legal_info' => $legal ? [
+                    'name' => $legal->name,
+                    'address' => $legal->address,
+                    'email' => $legal->email,
+                    'phone' => $legal->phone,
+                ] : null,
+            ]
+        );
+
+        $this->createNotification(
+            user: $contactInfoRequest->owner,
+            type: NotificationType::ContactProvided,
+            title: [
+                'uk' => 'Запит контактної інформації',
+                'en' => 'Contact information request',
+            ],
+            message: [
+                'uk' => 'Ви надали контактну інформацію вашої юридичної особи.',
+                'en' => 'You provided your legal entity’s contact information.',
+            ],
+            data: [
+                'contact_info_request_id' => $contactInfoRequest->id,
+            ]
+        );
+    }
+
+    /**
+     * Надіслати сповіщення обом сторонам про відмову в наданні контактної інформації
+     */
+    public function notifyContactRejected(ContactInfoRequest $contactInfoRequest): void
+    {
+        $ownerName = $contactInfoRequest->owner->display_name ?? 'Митець';
+        $requesterName = $contactInfoRequest->requester->display_name ?? 'Меценат';
+
+        $this->createNotification(
+            user: $contactInfoRequest->requester,
+            type: NotificationType::ContactRejected,
+            title: [
+                'uk' => 'Запит контактної інформації',
+                'en' => 'Contact information request',
+            ],
+            message: [
+                'uk' => 'Ваш запит контактної інформації юридичної особи відхилено.',
+                'en' => 'Your request for the legal entity’s contact information was declined.',
+            ],
+            data: [
+                'contact_info_request_id' => $contactInfoRequest->id,
+                'donor_name' => $ownerName,
+            ]
+        );
+
+        $this->createNotification(
+            user: $contactInfoRequest->owner,
+            type: NotificationType::ContactRejected,
+            title: [
+                'uk' => 'Запит контактної інформації',
+                'en' => 'Contact information request',
+            ],
+            message: [
+                'uk' => 'Ви не надали контактну інформацію вашої юридичної особи.',
+                'en' => 'You have not provided your legal entity’s contact information.',
+            ],
+            data: [
+                'contact_info_request_id' => $contactInfoRequest->id,
+                'donor_name' => $requesterName,
+            ]
+        );
+    }
+
+    /**
+     * Надіслати повідомлення про тимчасове блокування профілю
+     */
+    public function notifyUserBlocked(User $user): Notification
+    {
+        $messageUk = 'За систематичні порушення правил платформи ваш профіль заблоковано';
+        $messageEn = 'Due to systematic violations of platform rules, your profile has been blocked';
+
+        if ($user->blocked_until) {
+            $messageUk .= ' до '.$user->blocked_until->format('d.m.Y').' року';
+            $messageEn .= ' until '.$user->blocked_until->format('Y-m-d');
+        }
+
+        $messageUk .= '. Ви не можете створювати, редагувати та видаляти проєкти. Фінансові операції з платформою призупинено.';
+        $messageEn .= '. You cannot create, edit or delete projects. Financial operations with the platform are suspended.';
+
+        return $this->createNotification(
+            user: $user,
+            type: NotificationType::Blocked,
+            title: [
+                'uk' => 'Ваш профіль тимчасово заблоковано',
+                'en' => 'Your profile has been temporarily blocked',
+            ],
+            message: [
+                'uk' => $messageUk,
+                'en' => $messageEn,
+            ],
+            data: [
+                'blocked_until' => $user->blocked_until?->toIso8601String(),
+            ]
+        );
+    }
+
+    /**
+     * Надіслати повідомлення про розблокування профілю
+     */
+    public function notifyUserUnblocked(User $user): Notification
+    {
+        return $this->createNotification(
+            user: $user,
+            type: NotificationType::Unblocked,
+            title: [
+                'uk' => 'Ваш профіль розблоковано',
+                'en' => 'Your profile has been unblocked',
+            ],
+            message: [
+                'uk' => 'Обмеження знято. Ви знову можете створювати, редагувати проєкти та здійснювати донати.',
+                'en' => 'The restrictions have been lifted. You can create and edit projects and make donations again.',
+            ],
+            data: []
         );
     }
 

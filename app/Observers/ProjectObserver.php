@@ -42,6 +42,7 @@ class ProjectObserver
         }
 
         match ($newStatus) {
+            ProjectStatus::Moderation => $this->notificationService->notifyProjectModerationPending($project),
             ProjectStatus::Announced => $this->notificationService->notifyProjectApproved($project),
             ProjectStatus::Rejected => $this->handleRejection($project),
             ProjectStatus::Completed => $this->notificationService->notifyProjectCompleted($project),

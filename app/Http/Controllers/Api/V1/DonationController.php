@@ -137,6 +137,20 @@ class DonationController extends Controller
      */
     public function store(CreateDonationRequest $request, Project $project): JsonResponse
     {
+        $donor = $request->user('sanctum');
+
+        if ($donor && $donor->isActuallyBlocked()) {
+            return response()->json([
+                'message' => 'Ваш профіль тимчасово заблоковано. Ви не можете здійснювати донати.',
+            ], 403);
+        }
+
+        if ($project->user && $project->user->isActuallyBlocked()) {
+            return response()->json([
+                'message' => 'Наразі цей проєкт не приймає донати, оскільки профіль автора тимчасово заблоковано.',
+            ], 422);
+        }
+
         // Перевіряємо, чи проєкт може приймати донати
         if (! $project->canReceiveDonations()) {
             Log::channel('donations')->warning('Донат проєкту: проєкт не приймає донати', [
@@ -296,6 +310,14 @@ class DonationController extends Controller
      */
     public function storePlatformDonation(Request $request): JsonResponse
     {
+        $donor = $request->user('sanctum');
+
+        if ($donor && $donor->isActuallyBlocked()) {
+            return response()->json([
+                'message' => 'Ваш профіль тимчасово заблоковано. Ви не можете здійснювати донати.',
+            ], 403);
+        }
+
         try {
             $data = $request->validate([
                 'amount' => ['required', 'numeric', 'min:1'],

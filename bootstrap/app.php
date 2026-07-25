@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Реєстрація middleware alias для API ключа
         $middleware->alias([
             'api.key' => \App\Http\Middleware\VerifyApiKey::class,
+            'not.blocked' => \App\Http\Middleware\EnsureUserIsNotBlocked::class,
         ]);
 
         // Логування кожного API-запиту (свій файл на день для кожного ендпоінту в storage/logs/)

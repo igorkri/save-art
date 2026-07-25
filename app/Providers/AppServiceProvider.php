@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Donation;
 use App\Models\Project;
+use App\Models\User;
 use App\Observers\DonationObserver;
 use App\Observers\ProjectObserver;
+use App\Observers\UserObserver;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\URL;
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         // Реєструємо observers для автоматичних сповіщень
         Donation::observe(DonationObserver::class);
         Project::observe(ProjectObserver::class);
+        User::observe(UserObserver::class);
 
         // Редирект з /uk/... на /... якщо основна мова
         \Illuminate\Support\Facades\Route::matched(function ($event) {
