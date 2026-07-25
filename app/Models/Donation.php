@@ -115,10 +115,6 @@ class Donation extends Model
      */
     public function getDisplayName(): string
     {
-        if ($this->is_anonymous) {
-            return 'Анонімний меценат';
-        }
-
         if ($this->user) {
             return $this->user->name;
         }
