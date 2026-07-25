@@ -340,7 +340,7 @@ class PublicProjectsApiTest extends ApiTestCase
                     '*' => [
                         'name',
                         'amount',
-                        'created_at',
+                        'donated_at',
                     ],
                 ],
             ]);

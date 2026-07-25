@@ -13,6 +13,7 @@ use App\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class ProjectController extends Controller
@@ -464,6 +465,13 @@ class ProjectController extends Controller
      *                     @OA\Property(property="amount", type="number", format="float", example=1000.00),
      *                     @OA\Property(property="currency", type="string", example="UAH"),
      *                     @OA\Property(property="is_anonymous", type="boolean", example=false),
+     *                     @OA\Property(property="avatar_url", type="string", nullable=true, example="https://example.com/storage/avatars/1.jpg"),
+     *                     @OA\Property(property="social", type="object", nullable=true,
+     *                         @OA\Property(property="facebook", type="string", nullable=true),
+     *                         @OA\Property(property="twitter", type="string", nullable=true),
+     *                         @OA\Property(property="linkedin", type="string", nullable=true),
+     *                         @OA\Property(property="pinterest", type="string", nullable=true)
+     *                     ),
      *                     @OA\Property(property="donated_at", type="string", format="date-time", example="2025-01-05T15:30:00.000Z")
      *                 )
      *             ),
@@ -484,19 +492,28 @@ class ProjectController extends Controller
         $perPage = min($request->input('per_page', 15), 50);
 
         $donations = $project->donations()
-            ->with('user')
-            ->where('status', 'paid')
+            ->with('user.profileSocial')
+            ->whereIn('status', ['pending', 'paid'])
             ->orderBy('amount', 'desc')
             ->paginate($perPage);
 
         $donors = $donations->getCollection()->map(function ($donation) {
+            $user = $donation->is_anonymous ? null : $donation->user;
+
             return [
                 'id' => $donation->id,
                 'name' => $donation->getDisplayName(),
                 'amount' => (float) $donation->amount,
                 'currency' => $donation->currency->value,
                 'is_anonymous' => $donation->is_anonymous,
-                'donated_at' => $donation->paid_at?->toISOString(),
+                'avatar_url' => $user?->avatar ? Storage::url($user->avatar) : null,
+                'social' => $user?->profileSocial ? [
+                    'facebook' => $user->profileSocial->facebook,
+                    'twitter' => $user->profileSocial->twitter,
+                    'linkedin' => $user->profileSocial->linkedin,
+                    'pinterest' => $user->profileSocial->pinterest,
+                ] : null,
+                'donated_at' => ($donation->paid_at ?? $donation->created_at)?->toISOString(),
             ];
         });
 
