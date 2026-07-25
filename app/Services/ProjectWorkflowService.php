@@ -3,9 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ModerationStatus;
-use App\Enums\NotificationType;
 use App\Enums\ProjectStatus;
-use App\Models\Notification;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 
@@ -98,13 +96,6 @@ class ProjectWorkflowService
                 'status_moderation' => ModerationStatus::Pending,
             ]);
 
-            $this->createNotification(
-                $project->user_id,
-                NotificationType::Moderation,
-                'Проєкт на модерації',
-                "Ваш проєкт \"{$this->getProjectTitle($project)}\" відправлено на модерацію."
-            );
-
             return true;
         });
     }
@@ -146,14 +137,6 @@ class ProjectWorkflowService
                 'announced_at' => now(),
             ]);
 
-            $this->createNotification(
-                $project->user_id,
-                NotificationType::ProjectApproved,
-                'Проєкт схвалено!',
-                "Вітаємо! Ваш проєкт \"{$this->getProjectTitle($project)}\" пройшов модерацію і опубліковано.",
-                ['project_id' => $project->id]
-            );
-
             return true;
         });
     }
@@ -172,20 +155,11 @@ class ProjectWorkflowService
                 'status' => ProjectStatus::Rejected,
                 'status_moderation' => ModerationStatus::Rejected,
                 'rejection_reason' => $reason,
+                // ProjectObserver::handleRejection() бере причину саме звідси, а не з
+                // rejection_reason, тож дублюємо значення, інакше сповіщення про
+                // відхилення втратить причину.
+                'moderation_comment' => $reason,
             ]);
-
-            $message = "На жаль, ваш проєкт \"{$this->getProjectTitle($project)}\" не пройшов модерацію.";
-            if ($reason) {
-                $message .= "\n\nПричина: {$reason}";
-            }
-
-            $this->createNotification(
-                $project->user_id,
-                NotificationType::ProjectRejected,
-                'Проєкт відхилено',
-                $message,
-                ['project_id' => $project->id, 'reason' => $reason]
-            );
 
             return true;
         });
@@ -285,14 +259,6 @@ class ProjectWorkflowService
             'completed_at' => now(),
         ]);
 
-        $this->createNotification(
-            $project->user_id,
-            NotificationType::ProjectCompleted,
-            'Проєкт завершено!',
-            "Ваш проєкт \"{$project->title}\" успішно завершено.",
-            ['project_id' => $project->id]
-        );
-
         return true;
     }
 
@@ -338,38 +304,5 @@ class ProjectWorkflowService
             ProjectStatus::Sold => $this->markAsSold($project),
             default => false,
         };
-    }
-
-    /**
-     * Створити сповіщення
-     */
-    private function createNotification(
-        int $userId,
-        NotificationType $type,
-        string $title,
-        string $message,
-        array $data = []
-    ): Notification {
-        return Notification::create([
-            'user_id' => $userId,
-            'type' => $type,
-            'title' => $title,
-            'message' => $message,
-            'data' => $data ?: null,
-        ]);
-    }
-
-    /**
-     * Get project title as string (from multilingual array).
-     */
-    private function getProjectTitle(Project $project): string
-    {
-        $title = $project->title;
-
-        if (is_array($title)) {
-            return $title['uk'] ?? $title['en'] ?? 'Проєкт';
-        }
-
-        return (string) $title;
     }
 }

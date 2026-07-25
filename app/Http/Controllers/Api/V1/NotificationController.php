@@ -121,7 +121,9 @@ class NotificationController extends Controller
             $items = $items->merge($messages);
         }
 
-        // Сортуємо за датою створення (нові перші)
+        // Сортуємо за датою створення (нові перші). Саме created_at, а не updated_at:
+        // read-all масово оновлює updated_at всіх непрочитаних до одного моменту
+        // і "зрівнює" їх у сортуванні, ламаючи хронологічний порядок.
         $items = $items->sortByDesc('created_at')->values();
 
         // Пагінація
