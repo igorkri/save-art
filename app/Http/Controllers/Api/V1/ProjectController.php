@@ -402,7 +402,7 @@ class ProjectController extends Controller
      *     )
      * )
      */
-    public function show(string $slug): ProjectResource
+    public function show(Request $request, string $slug): ProjectResource
     {
         $project = Project::query()
             ->with([
@@ -412,9 +412,14 @@ class ProjectController extends Controller
                 'projectParameters.parameter',
                 'projectParameters.parameterValue',
             ])
-            ->whereIn('status', ProjectStatus::publicStatuses())
             ->where('slug', $slug)
             ->firstOrFail();
+
+        $isOwner = $request->user('sanctum')?->id === $project->user_id;
+
+        if (! $isOwner && ! in_array($project->status, ProjectStatus::publicStatuses())) {
+            abort(404);
+        }
 
         return new ProjectResource($project);
     }

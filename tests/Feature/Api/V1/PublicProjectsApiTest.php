@@ -318,6 +318,35 @@ class PublicProjectsApiTest extends ApiTestCase
         $response->assertNotFound();
     }
 
+    public function test_owner_can_get_own_draft_project_details(): void
+    {
+        $owner = User::factory()->create();
+        $project = Project::factory()->create([
+            'user_id' => $owner->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders($owner))
+            ->getJson("/api/v1/projects/{$project->slug}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $project->id)
+            ->assertJsonPath('data.can_edit', true);
+    }
+
+    public function test_other_authenticated_user_cannot_get_draft_project(): void
+    {
+        $otherUser = User::factory()->create();
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders($otherUser))
+            ->getJson("/api/v1/projects/{$project->slug}");
+
+        $response->assertNotFound();
+    }
+
     // ==========================================
     // Донори проекту
     // ==========================================
