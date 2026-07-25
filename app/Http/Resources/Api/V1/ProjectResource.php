@@ -160,8 +160,8 @@ class ProjectResource extends JsonResource
             'donors_count' => $this->donors_count,
 
             'is_liked' => $this->when(
-                $request->user(),
-                fn () => $this->likes()->where('user_id', $request->user()->id)->exists(),
+                $request->user('sanctum'),
+                fn () => $this->likes()->where('user_id', $request->user('sanctum')->id)->exists(),
                 false
             ),
 
@@ -181,8 +181,8 @@ class ProjectResource extends JsonResource
             'parameters' => $this->buildParameters($language),
 
             'can_edit' => $this->when(
-                $request->user(),
-                fn () => $request->user()->id === $this->user_id && ($this->isEditable() || $this->isPartiallyEditable()),
+                $request->user('sanctum'),
+                fn () => $request->user('sanctum')->id === $this->user_id && ($this->isEditable() || $this->isPartiallyEditable()),
                 false
             ),
             'can_donate' => $this->canReceiveDonations(),
