@@ -427,7 +427,7 @@ class ProjectController extends Controller
      *     operationId="getProjectDonors",
      *     tags={"Projects"},
      *     summary="Список меценатів проекту",
-     *     description="Повертає список користувачів, які зробили донати на проект (відсортовано за сумою)",
+     *     description="Повертає список користувачів, які зробили донати на проект (відсортовано за сумою). Меценати, які приховали донати зі свого публічного профілю, у списку не показуються",
      *
      *     @OA\Parameter(
      *         name="slug",
@@ -465,6 +465,7 @@ class ProjectController extends Controller
      *                     @OA\Property(property="amount", type="number", format="float", example=1000.00),
      *                     @OA\Property(property="currency", type="string", example="UAH"),
      *                     @OA\Property(property="is_anonymous", type="boolean", example=false),
+     *                     @OA\Property(property="user_slug", type="string", nullable=true, description="Slug для посилання на публічний профіль мецената (null для анонімних)"),
      *                     @OA\Property(property="avatar_url", type="string", nullable=true, example="https://example.com/storage/avatars/1.jpg"),
      *                     @OA\Property(property="social", type="object", nullable=true,
      *                         @OA\Property(property="facebook", type="string", nullable=true),
@@ -494,6 +495,9 @@ class ProjectController extends Controller
         $donations = $project->donations()
             ->with('user.profileSocial')
             ->whereIn('status', ['pending', 'paid'])
+            // Меценат міг приховати свої донати зі свого публічного профілю
+            // (is_public=false) — тоді він не повинен світитися і в списку донорів проєкту
+            ->where('is_public', true)
             ->orderBy('amount', 'desc')
             ->paginate($perPage);
 
@@ -506,6 +510,7 @@ class ProjectController extends Controller
                 'amount' => (float) $donation->amount,
                 'currency' => $donation->currency->value,
                 'is_anonymous' => $donation->is_anonymous,
+                'user_slug' => $user?->slug,
                 'avatar_url' => $user?->avatar ? Storage::url($user->avatar) : null,
                 'social' => $user?->profileSocial ? [
                     'facebook' => $user->profileSocial->facebook,

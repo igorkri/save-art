@@ -24,13 +24,15 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(property="slug", type="string", example="miy-proekt"),
  *         @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
  *         @OA\Property(property="cover_url", type="string", nullable=true, example="http://save-art-web.ddev.site/storage/projects/covers/1.jpg"),
- *         @OA\Property(property="author_name", type="string", nullable=true, example="Іван Петренко")
+ *         @OA\Property(property="author_name", type="string", nullable=true, example="Іван Петренко"),
+ *         @OA\Property(property="author_avatar_url", type="string", nullable=true, example="http://save-art-web.ddev.site/storage/avatars/1.jpg")
  *     ),
  *     @OA\Property(property="amount", type="number", format="float", example=1000.00),
  *     @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
  *     @OA\Property(property="status", type="string", enum={"pending", "paid", "failed", "refunded"}, example="paid"),
  *     @OA\Property(property="status_label", type="string", example="Оплачено"),
  *     @OA\Property(property="is_anonymous", type="boolean", example=false),
+ *     @OA\Property(property="is_public", type="boolean", example=true, description="Чи показувати донат на публічному профілі мецената"),
  *     @OA\Property(property="donor_name", type="string", nullable=true, example="Іван Петренко"),
  *     @OA\Property(property="bonus", type="object", nullable=true,
  *         @OA\Property(property="id", type="integer", example=1),
@@ -64,6 +66,7 @@ class DonationResource extends JsonResource
                 'title' => $this->localizeField($this->project->title, $language),
                 'cover_url' => $this->project->cover ? Storage::url($this->project->cover) : null,
                 'author_name' => $this->project->user?->name,
+                'author_avatar_url' => $this->project->user?->avatar ? Storage::url($this->project->user->avatar) : null,
             ] : null,
 
             'amount' => (float) $this->amount,
@@ -75,6 +78,7 @@ class DonationResource extends JsonResource
             'status_label' => $this->getDonationStatusLabel($language),
 
             'is_anonymous' => $this->is_anonymous,
+            'is_public' => $this->is_public,
             'donor_name' => $this->is_anonymous ? null : $this->donor_name,
 
             'bonus' => $this->whenLoaded('bonus', function () use ($language) {

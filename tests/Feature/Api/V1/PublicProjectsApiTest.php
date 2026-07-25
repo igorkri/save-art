@@ -11,6 +11,7 @@ use App\Models\Parameter;
 use App\Models\ParameterValue;
 use App\Models\Project;
 use App\Models\ProjectParameter;
+use App\Models\User;
 
 class PublicProjectsApiTest extends ApiTestCase
 {
@@ -341,9 +342,91 @@ class PublicProjectsApiTest extends ApiTestCase
                         'name',
                         'amount',
                         'donated_at',
+                        'user_slug',
                     ],
                 ],
             ]);
+    }
+
+    public function test_donor_user_slug_hidden_for_anonymous_donation(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $donor = User::factory()->create(['slug' => 'ivan-donor']);
+        Donation::factory()->fromUser($donor)->create([
+            'project_id' => $project->id,
+            'status' => 'paid',
+        ]);
+        Donation::factory()->anonymous()->create([
+            'project_id' => $project->id,
+            'status' => 'paid',
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/projects/{$project->slug}/donors");
+
+        $response->assertOk();
+
+        $donors = collect($response->json('data'));
+        $this->assertTrue($donors->contains('user_slug', 'ivan-donor'));
+        $this->assertTrue($donors->where('is_anonymous', true)->every(fn ($d) => $d['user_slug'] === null));
+    }
+
+    public function test_donor_hidden_from_list_when_donations_marked_not_public(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $visibleDonor = User::factory()->create(['slug' => 'visible-donor']);
+        Donation::factory()->fromUser($visibleDonor)->create([
+            'project_id' => $project->id,
+            'status' => 'paid',
+            'is_public' => true,
+        ]);
+
+        $hiddenDonor = User::factory()->create(['slug' => 'hidden-donor']);
+        Donation::factory()->fromUser($hiddenDonor)->create([
+            'project_id' => $project->id,
+            'status' => 'paid',
+            'is_public' => false,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/projects/{$project->slug}/donors");
+
+        $response->assertOk();
+
+        $donors = collect($response->json('data'));
+        $this->assertTrue($donors->contains('user_slug', 'visible-donor'));
+        $this->assertFalse($donors->contains('user_slug', 'hidden-donor'));
+        $this->assertCount(1, $donors);
+    }
+
+    public function test_donors_list_shows_pseudonym_instead_of_real_name_for_anonymous_donor(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $donor = User::factory()->create(['full_name' => ['uk' => 'Real Author Name', 'en' => 'Real Author Name'], 'slug' => 'anon-donor']);
+        Donation::factory()->fromUser($donor)->create([
+            'project_id' => $project->id,
+            'status' => 'paid',
+            'is_anonymous' => true,
+            'donor_name' => 'CoolCat',
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/projects/{$project->slug}/donors");
+
+        $response->assertOk();
+
+        $donors = collect($response->json('data'));
+        $this->assertTrue($donors->contains('name', 'CoolCat'));
+        $this->assertFalse($donors->contains('name', 'Real Author Name'));
     }
 
     // ==========================================

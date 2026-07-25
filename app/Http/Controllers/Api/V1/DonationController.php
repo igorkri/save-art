@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Annotations as OA;
 
@@ -207,7 +208,9 @@ class DonationController extends Controller
 
             'is_anonymous' => $data['is_anonymous'] ?? false,
             'donor_type' => $data['donor_type'],
-            'donor_name' => $data['donor_name'] ?? $donor?->name,
+            // Для анонімного донату авторизованого користувача не підставляємо справжнє
+            // ім'я з акаунту — лише псевдонім, введений у формі (donor_name)
+            'donor_name' => $data['donor_name'] ?? (($data['is_anonymous'] ?? false) ? null : $donor?->name),
             'donor_email' => $data['donor_email'] ?? $donor?->email,
         ]);
 
@@ -298,7 +301,11 @@ class DonationController extends Controller
                 'amount' => ['required', 'numeric', 'min:1'],
                 'currency' => ['required', 'string', 'in:UAH,USD,EUR'],
                 'donor_type' => ['required', 'string', 'in:personal,legal'],
-                'donor_name' => ['nullable', 'string', 'max:255'],
+                // Псевдонім обов'язковий для гостя завжди, а для авторизованого — лише при анонімному донаті
+                'donor_name' => [
+                    Rule::requiredIf(fn () => ! $request->user('sanctum') || $request->boolean('is_anonymous')),
+                    'nullable', 'string', 'max:255',
+                ],
                 'donor_email' => ['nullable', 'email', 'max:255'],
                 'donor_phone' => ['nullable', 'string', 'max:20'],
                 'donor_company_name' => ['nullable', 'string', 'max:255'],
@@ -339,7 +346,9 @@ class DonationController extends Controller
 
             'is_anonymous' => $data['is_anonymous'] ?? false,
             'donor_type' => $data['donor_type'],
-            'donor_name' => $data['donor_name'] ?? $donor?->name,
+            // Для анонімного донату авторизованого користувача не підставляємо справжнє
+            // ім'я з акаунту — лише псевдонім, введений у формі (donor_name)
+            'donor_name' => $data['donor_name'] ?? (($data['is_anonymous'] ?? false) ? null : $donor?->name),
             'donor_email' => $data['donor_email'] ?? $donor?->email,
         ]);
 
@@ -408,5 +417,47 @@ class DonationController extends Controller
         }
 
         return new DonationResource($donation->load(['project', 'bonus']));
+    }
+
+    /**
+     * Показати/приховати всі мої донати на проєкти з публічного профілю
+     *
+     * @OA\Patch(
+     *     path="/v1/my/donations/visibility",
+     *     operationId="updateMyDonationsVisibility",
+     *     tags={"Donations"},
+     *     summary="Видимість донатів на публічному профілі",
+     *     description="Масово перемикає прапорець is_public для всіх донатів поточного користувача на проєкти",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *             required={"is_public"},
+     *
+     *             @OA\Property(property="is_public", type="boolean", example=false)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=200, description="Видимість оновлено"),
+     *     @OA\Response(response=401, description="Не авторизовано")
+     * )
+     */
+    public function updateVisibility(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'is_public' => ['required', 'boolean'],
+        ]);
+
+        Donation::query()
+            ->where('user_id', $request->user()->id)
+            ->where('donation_type', Donation::TYPE_PROJECT)
+            ->update(['is_public' => $validated['is_public']]);
+
+        return response()->json([
+            'message' => 'Visibility updated',
+            'is_public' => $validated['is_public'],
+        ]);
     }
 }

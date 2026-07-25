@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Enums\DonationStatus;
 use App\Enums\ProjectStatus;
+use App\Models\Donation;
 use App\Models\Project;
 use App\Models\User;
 
@@ -110,5 +112,76 @@ class PublicUsersApiTest extends ApiTestCase
         // Формат: data.projects
         $response->assertOk()
             ->assertJsonCount(0, 'data.projects');
+    }
+
+    // ==========================================
+    // Публічні донати користувача (меценатство)
+    // ==========================================
+
+    public function test_can_get_user_public_donations(): void
+    {
+        $user = User::factory()->create();
+        Donation::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Paid,
+            'is_anonymous' => false,
+            'is_public' => true,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/users/{$user->id}/donations");
+
+        $response->assertOk()->assertJsonCount(2, 'data');
+    }
+
+    public function test_public_donations_hide_pending_anonymous_and_hidden(): void
+    {
+        $user = User::factory()->create();
+
+        Donation::factory()->create([
+            'user_id' => $user->id,
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Paid,
+            'is_anonymous' => false,
+            'is_public' => true,
+        ]);
+        // Ще не оплачений
+        Donation::factory()->create([
+            'user_id' => $user->id,
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Pending,
+            'is_anonymous' => false,
+            'is_public' => true,
+        ]);
+        // Анонімний
+        Donation::factory()->create([
+            'user_id' => $user->id,
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Paid,
+            'is_anonymous' => true,
+            'is_public' => true,
+        ]);
+        // Приховано користувачем
+        Donation::factory()->create([
+            'user_id' => $user->id,
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Paid,
+            'is_anonymous' => false,
+            'is_public' => false,
+        ]);
+        // Донат на платформу (без проєкту)
+        Donation::factory()->create([
+            'user_id' => $user->id,
+            'donation_type' => Donation::TYPE_PLATFORM,
+            'status' => DonationStatus::Paid,
+            'is_anonymous' => false,
+            'is_public' => true,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/users/{$user->id}/donations");
+
+        $response->assertOk()->assertJsonCount(1, 'data');
     }
 }

@@ -127,6 +127,7 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/{id}', [PublicUserController::class, 'show'])->where('id', '[0-9]+');
         Route::get('/{id}/projects', [PublicUserController::class, 'projects'])->where('id', '[0-9]+');
+        Route::get('/{id}/donations', [PublicUserController::class, 'donations'])->where('id', '[0-9]+');
     });
 
     // Донати (публічні для ініціалізації)
@@ -193,6 +194,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
 
     // Мої донати
     Route::get('/my/donations', [DonationController::class, 'myDonations']);
+    Route::patch('/my/donations/visibility', [DonationController::class, 'updateVisibility']);
     Route::get('/my/donations/{donation}', [DonationController::class, 'show']);
 
     // Мої сповіщення (03.2.4)

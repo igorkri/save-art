@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\DonationResource;
+use App\Models\Donation;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
@@ -184,6 +187,56 @@ class PublicUserController extends Controller
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Отримати публічні донати користувача (як мецената)
+     *
+     * @OA\Get(
+     *     path="/v1/users/{id}/donations",
+     *     operationId="getUserDonations",
+     *     tags={"Users"},
+     *     summary="Публічні донати користувача",
+     *     description="Повертає проєкти, які користувач публічно підтримав як меценат (оплачені, не анонімні, не приховані з профілю)",
+     *     security={{"apiKey": {}}},
+     *
+     *     @OA\Parameter(name="id", in="path", required=true, description="ID користувача", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=15)),
+     *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список публічних донатів",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Donation")),
+     *             @OA\Property(property="links", ref="#/components/schemas/PaginationLinks"),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Користувача не знайдено")
+     * )
+     */
+    public function donations(Request $request, int $id): AnonymousResourceCollection
+    {
+        $user = User::findOrFail($id);
+
+        $perPage = min((int) $request->input('per_page', 15), 50);
+
+        $donations = Donation::query()
+            ->with(['project.user', 'bonus'])
+            ->where('user_id', $user->id)
+            ->where('donation_type', Donation::TYPE_PROJECT)
+            ->where('status', 'paid')
+            ->where('is_anonymous', false)
+            ->where('is_public', true)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return DonationResource::collection($donations);
     }
 
     /**

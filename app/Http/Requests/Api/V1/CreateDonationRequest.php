@@ -30,8 +30,9 @@ class CreateDonationRequest extends FormRequest
             'is_anonymous' => ['boolean'],
             'donor_type' => ['required', Rule::enum(UserType::class)],
 
-            // Для неавторизованих користувачів
-            'donor_name' => [Rule::requiredIf(fn () => ! $this->user('sanctum')), 'nullable', 'string', 'max:255'],
+            // Для неавторизованих користувачів псевдонім обов'язковий завжди,
+            // для авторизованих — лише коли обрано анонімний донат
+            'donor_name' => [Rule::requiredIf(fn () => ! $this->user('sanctum') || $this->boolean('is_anonymous')), 'nullable', 'string', 'max:255'],
             'donor_email' => [Rule::requiredIf(fn () => ! $this->user('sanctum')), 'nullable', 'email', 'max:255'],
             'donor_phone' => ['nullable', 'string', 'max:20'],
 

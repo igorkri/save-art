@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float|null $amount_usd
  * @property string $donor_type
  * @property bool $is_anonymous
+ * @property bool $is_public
  * @property string|null $donor_name
  * @property string|null $donor_email
  * @property string $status
@@ -48,6 +49,7 @@ class Donation extends Model
         'amount_usd',
         'donor_type',
         'is_anonymous',
+        'is_public',
         'donor_name',
         'donor_email',
         'status',
@@ -65,6 +67,7 @@ class Donation extends Model
             'amount' => 'decimal:2',
             'amount_usd' => 'decimal:2',
             'is_anonymous' => 'boolean',
+            'is_public' => 'boolean',
             'currency' => Currency::class,
             'paid_at' => 'datetime',
         ];
@@ -112,9 +115,16 @@ class Donation extends Model
 
     /**
      * Ім'я донатера для відображення
+     *
+     * Для анонімних донатів (в т.ч. від авторизованих користувачів) показуємо
+     * псевдонім (donor_name), а не справжнє ім'я з акаунту — інакше анонімність втрачає сенс.
      */
     public function getDisplayName(): string
     {
+        if ($this->is_anonymous) {
+            return $this->donor_name ?: 'Анонім';
+        }
+
         if ($this->user) {
             return $this->user->name;
         }

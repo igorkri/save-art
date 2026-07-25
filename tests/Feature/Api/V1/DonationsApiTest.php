@@ -82,6 +82,73 @@ class DonationsApiTest extends ApiTestCase
     }
 
     // ==========================================
+    // Псевдонім для анонімного донату авторизованого користувача
+    // ==========================================
+
+    public function test_authenticated_anonymous_donation_requires_pseudonym(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/projects/{$project->slug}/donate", [
+                'amount' => 100,
+                'currency' => 'UAH',
+                'donor_type' => 'personal',
+                'is_anonymous' => true,
+            ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['donor_name']);
+    }
+
+    public function test_authenticated_anonymous_donation_uses_pseudonym_not_real_name(): void
+    {
+        $this->user->update(['full_name' => ['uk' => 'Real Author Name', 'en' => 'Real Author Name']]);
+
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/projects/{$project->slug}/donate", [
+                'amount' => 100,
+                'currency' => 'UAH',
+                'donor_type' => 'personal',
+                'is_anonymous' => true,
+                'donor_name' => 'CoolCat',
+            ]);
+
+        $response->assertCreated();
+
+        $donation = Donation::where('user_id', $this->user->id)->firstOrFail();
+        $this->assertSame('CoolCat', $donation->donor_name);
+        $this->assertSame('CoolCat', $donation->getDisplayName());
+        $this->assertNotSame('Real Author Name', $donation->getDisplayName());
+    }
+
+    public function test_authenticated_non_anonymous_donation_does_not_require_pseudonym(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::InProgress,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/projects/{$project->slug}/donate", [
+                'amount' => 100,
+                'currency' => 'UAH',
+                'donor_type' => 'personal',
+                'is_anonymous' => false,
+            ]);
+
+        $response->assertCreated();
+
+        $donation = Donation::where('user_id', $this->user->id)->firstOrFail();
+        $this->assertSame($this->user->name, $donation->getDisplayName());
+    }
+
+    // ==========================================
     // Донат на платформу
     // ==========================================
 
@@ -97,6 +164,39 @@ class DonationsApiTest extends ApiTestCase
             ]);
 
         $response->assertCreated();
+    }
+
+    public function test_authenticated_anonymous_platform_donation_requires_pseudonym(): void
+    {
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson('/api/v1/donations/platform', [
+                'amount' => 50,
+                'currency' => 'UAH',
+                'donor_type' => 'personal',
+                'is_anonymous' => true,
+            ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['donor_name']);
+    }
+
+    public function test_authenticated_anonymous_platform_donation_uses_pseudonym(): void
+    {
+        $this->user->update(['full_name' => ['uk' => 'Real Author Name', 'en' => 'Real Author Name']]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson('/api/v1/donations/platform', [
+                'amount' => 50,
+                'currency' => 'UAH',
+                'donor_type' => 'personal',
+                'is_anonymous' => true,
+                'donor_name' => 'AnonPatron',
+            ]);
+
+        $response->assertCreated();
+
+        $donation = Donation::where('user_id', $this->user->id)->firstOrFail();
+        $this->assertSame('AnonPatron', $donation->donor_name);
     }
 
     // ==========================================
@@ -141,6 +241,59 @@ class DonationsApiTest extends ApiTestCase
             ->getJson("/api/v1/my/donations/{$donation->id}");
 
         $response->assertForbidden();
+    }
+
+    // ==========================================
+    // Видимість донатів на публічному профілі
+    // ==========================================
+
+    public function test_can_hide_donations_from_public_profile(): void
+    {
+        Donation::factory()->count(2)->create([
+            'user_id' => $this->user->id,
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Paid,
+            'is_public' => true,
+        ]);
+
+        // Донат іншого користувача не повинен зачепитися
+        $otherDonation = Donation::factory()->create([
+            'donation_type' => Donation::TYPE_PROJECT,
+            'status' => DonationStatus::Paid,
+            'is_public' => true,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->patchJson('/api/v1/my/donations/visibility', ['is_public' => false]);
+
+        $response->assertOk()->assertJsonPath('is_public', false);
+
+        $this->assertDatabaseCount('donations', 3);
+        $this->assertDatabaseMissing('donations', [
+            'user_id' => $this->user->id,
+            'is_public' => true,
+        ]);
+        $this->assertDatabaseHas('donations', [
+            'id' => $otherDonation->id,
+            'is_public' => true,
+        ]);
+    }
+
+    public function test_updating_visibility_requires_boolean(): void
+    {
+        $response = $this->withHeaders($this->authHeaders())
+            ->patchJson('/api/v1/my/donations/visibility', ['is_public' => 'not-a-boolean']);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['is_public']);
+    }
+
+    public function test_updating_visibility_requires_auth(): void
+    {
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->patchJson('/api/v1/my/donations/visibility', ['is_public' => false]);
+
+        $response->assertUnauthorized();
     }
 
     // ==========================================
