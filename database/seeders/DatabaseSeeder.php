@@ -35,6 +35,9 @@ class DatabaseSeeder extends Seeder
         // FAQ питання та відповіді
         $this->call(FaqSeeder::class);
 
+        // Новини та події (art-ua-info)
+        $this->call(NewsSeeder::class);
+
         // Характеристики (параметри) категорій мистецтва
         $this->call(ParameterSeeder::class);
 

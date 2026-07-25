@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\MyProjectController;
+use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -107,6 +108,12 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
     Route::prefix('faq')->group(function () {
         Route::get('/', [FaqController::class, 'index']);
         Route::get('/category/{slug}', [FaqController::class, 'category']);
+    });
+
+    // Новини та події (публічний, art-ua-info)
+    Route::prefix('news')->group(function () {
+        Route::get('/', [NewsController::class, 'index']);
+        Route::get('/{slug}', [NewsController::class, 'show']);
     });
 
     // Митці (публічний профіль)
