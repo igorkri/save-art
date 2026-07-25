@@ -87,9 +87,10 @@ class MyProjectController extends Controller
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
 
-        // Фільтр по статусу
+        // Фільтр по статусу (підтримує кілька значень через кому, напр. "draft,new")
         if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+            $statuses = array_filter(explode(',', (string) $request->input('status')));
+            $query->whereIn('status', $statuses);
         } else {
             $query->whereIn('status', [
                 ProjectStatus::Moderation,
