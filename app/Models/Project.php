@@ -159,6 +159,33 @@ class Project extends Model
     }
 
     /**
+     * Перегенерувати slug на основі поточної назви (title.uk/title.en), замінивши
+     * автогенерований при створенні плейсхолдер на змістовний. Викликається рівно один раз —
+     * саме в момент переходу зі статусу New до наступного (submit на модерацію або
+     * збереження в чернетку) — не при кожному збереженні.
+     */
+    public function regenerateSlugFromTitle(): bool
+    {
+        $title = is_array($this->title) ? $this->title : [];
+        $titleText = $title['uk'] ?? $title['en'] ?? null;
+
+        if (! $titleText || trim($titleText) === '') {
+            return false;
+        }
+
+        $slug = Str::slug($titleText);
+        $originalSlug = $slug;
+        $count = 1;
+        while (self::where('slug', $slug)->where($this->getKeyName(), '!=', $this->getKey())->exists()) {
+            $slug = $originalSlug.'-'.$count++;
+        }
+
+        $this->slug = $slug;
+
+        return true;
+    }
+
+    /**
      * Автор проєкту
      */
     public function user(): BelongsTo

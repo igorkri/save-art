@@ -343,6 +343,8 @@ class MyProjectController extends Controller
      */
     private function updateExistingProject(Project $project, array $data, ProjectStatus $status): void
     {
+        $wasNew = $project->status === ProjectStatus::New;
+
         // Обновляем статус
         $project->status = $status;
 
@@ -371,37 +373,13 @@ class MyProjectController extends Controller
             }
         }
 
-        if (isset($data['title']['uk'])) {
-            $newSlug = $this->regenerateSlugFromTitle($project, $data['title']['uk']);
-            if ($newSlug !== null) {
-                $project->slug = $newSlug;
-            }
+        // Перегенеровуємо slug рівно один раз — саме при виході зі статусу New (замінюємо
+        // автогенерований при створенні плейсхолдер на змістовний, з актуальної на цей момент назви).
+        if ($wasNew && $status !== ProjectStatus::New) {
+            $project->regenerateSlugFromTitle();
         }
 
         $project->save();
-    }
-
-    /**
-     * Якщо назва українською щойно вперше задана (а slug ще є автогенерованим placeholder'ом
-     * на кшталт "novii-proekt-21072026-1836-fws5" чи "chernetka-..."), перегенеровує slug
-     * на основі реальної назви. Після заміни placeholder'a на змістовний slug — далі не чіпаємо,
-     * щоб не ламати вже роздані посилання на чернетку.
-     */
-    private function regenerateSlugFromTitle(Project $project, string $titleUk): ?string
-    {
-        if (trim($titleUk) === '') {
-            return null;
-        }
-
-        if (! preg_match('/^(?:novii-proekt|chernetka)-\d{8}-\d{4}-[A-Za-z0-9]{4}$/', (string) $project->slug)) {
-            return null;
-        }
-
-        do {
-            $slug = Str::slug($titleUk).'-'.Str::random(6);
-        } while (Project::where('slug', $slug)->where('id', '!=', $project->getKey())->exists());
-
-        return $slug;
     }
 
     /**
@@ -595,18 +573,18 @@ class MyProjectController extends Controller
             );
         }
 
-        // Якщо назву щойно вперше задано — заміняємо автогенерований placeholder-slug на змістовний
-        if (isset($data['title']['uk'])) {
-            $newSlug = $this->regenerateSlugFromTitle($project, $data['title']['uk']);
-            if ($newSlug !== null) {
-                $data['slug'] = $newSlug;
-            }
-        }
+        $wasNew = $project->status === ProjectStatus::New;
 
         // Оновлюємо проєкт та зв'язані дані в транзакції
-        DB::transaction(function () use ($project, $data, $stagesData, $bonusesData, $parametersData) {
+        DB::transaction(function () use ($project, $data, $stagesData, $bonusesData, $parametersData, $wasNew) {
             // Оновлюємо основні дані проєкту
             $project->update($data);
+
+            // Перегенеровуємо slug рівно один раз — саме при виході зі статусу New (замінюємо
+            // автогенерований при створенні плейсхолдер на змістовний, з актуальної на цей момент назви).
+            if ($wasNew && $project->status !== ProjectStatus::New && $project->regenerateSlugFromTitle()) {
+                $project->save();
+            }
 
             // Оновлюємо характеристики (parameters), якщо передані
             ProjectCategoryParameterValues::syncForProject($project, $parametersData);

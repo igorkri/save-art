@@ -87,6 +87,12 @@ class ProjectWorkflowService
         }
 
         return DB::transaction(function () use ($project) {
+            // Перегенеровуємо slug рівно один раз — саме при першому виході зі статусу New
+            // (сюди інших шляхів немає: New -> Moderation єдиний дозволений перехід з New).
+            if ($project->status === ProjectStatus::New) {
+                $project->regenerateSlugFromTitle();
+            }
+
             $project->update([
                 'status' => ProjectStatus::Moderation,
                 'status_moderation' => ModerationStatus::Pending,
