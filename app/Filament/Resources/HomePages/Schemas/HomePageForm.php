@@ -102,49 +102,49 @@ class HomePageForm
                     ])
                     ->collapsible()->collapsed(),
 
-                Section::make('Статистика')
-                    ->schema([
-                        Toggle::make('statistics_is_active')
-                            ->label('Відображати ці статистичні дані на головній сторінці (вкл) / приховати (викл) Буде розраховувати та оновлюватися автоматично')
-                            ->default(true),
-
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('total_collected')
-                                    ->label('Загальна сума зібраних коштів (₴)')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->required(),
-
-                                TextInput::make('declared_projects')
-                                    ->label('Оголошених проєктів')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->required(),
-                            ]),
-
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('active_projects')
-                                    ->label('Проєктів в роботі')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->required(),
-
-                                TextInput::make('completed_projects')
-                                    ->label('Завершених проєктів')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->required(),
-                            ]),
-
-                        TextInput::make('sold_projects')
-                            ->label('Проданих проєктів')
-                            ->numeric()
-                            ->default(0)
-                            ->required(),
-                    ])
-                    ->collapsible()->collapsed(),
+//                Section::make('Статистика')
+//                    ->schema([
+//                        Toggle::make('statistics_is_active')
+//                            ->label('Відображати ці статистичні дані на головній сторінці (вкл) / приховати (викл) Буде розраховувати та оновлюватися автоматично')
+//                            ->default(true),
+//
+//                        Grid::make(2)
+//                            ->schema([
+//                                TextInput::make('total_collected')
+//                                    ->label('Загальна сума зібраних коштів (₴)')
+//                                    ->numeric()
+//                                    ->default(0)
+//                                    ->required(),
+//
+//                                TextInput::make('declared_projects')
+//                                    ->label('Оголошених проєктів')
+//                                    ->numeric()
+//                                    ->default(0)
+//                                    ->required(),
+//                            ]),
+//
+//                        Grid::make(2)
+//                            ->schema([
+//                                TextInput::make('active_projects')
+//                                    ->label('Проєктів в роботі')
+//                                    ->numeric()
+//                                    ->default(0)
+//                                    ->required(),
+//
+//                                TextInput::make('completed_projects')
+//                                    ->label('Завершених проєктів')
+//                                    ->numeric()
+//                                    ->default(0)
+//                                    ->required(),
+//                            ]),
+//
+//                        TextInput::make('sold_projects')
+//                            ->label('Проданих проєктів')
+//                            ->numeric()
+//                            ->default(0)
+//                            ->required(),
+//                    ])
+//                    ->collapsible()->collapsed(),
 
                 Section::make('Секція партнерів')
                     ->schema([
