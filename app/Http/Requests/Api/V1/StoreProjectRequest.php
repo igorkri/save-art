@@ -84,12 +84,13 @@ class StoreProjectRequest extends FormRequest
 
             // ========== Контент-блоки ==========
             'content_blocks' => ['nullable', 'array', 'max:50'],
-            'content_blocks.*.type' => ['sometimes', 'string', 'in:heading,paragraph,image'],
+            'content_blocks.*.type' => ['sometimes', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['sometimes', 'string', 'in:h1,h2,h3,h4,h5,h6'],
             'content_blocks.*.heading_text' => ['sometimes', 'array'],
             'content_blocks.*.paragraph_text' => ['sometimes', 'array'],
             'content_blocks.*.image' => ['sometimes', 'string'],
             'content_blocks.*.image_alt' => ['sometimes', 'array'],
+            'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // ========== Етапи (опціонально для чернеток) ==========
             'stages' => ['nullable', 'array'],

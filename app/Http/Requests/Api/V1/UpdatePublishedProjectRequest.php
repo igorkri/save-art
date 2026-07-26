@@ -19,6 +19,10 @@ use Illuminate\Validation\Validator;
  * - Категорію (art_category/art_subcategory)
  * - Бюджет (budget_goal, budget_items) — для 'announced' лише збільшення budget_goal
  *   (донати вже прийняті на початкову ціль), для 'in_progress'/'paused' без обмежень
+ *
+ * Для 'completed'/'sold' (canEditAdditionalContentOnly()) дозволено редагувати лише
+ * content_blocks, additional_info, cover та tags — назву/категорію/бюджет змінити вже не можна
+ * (withValidator() нижче явно відхиляє ці поля для цих статусів).
  */
 class UpdatePublishedProjectRequest extends FormRequest
 {
@@ -41,9 +45,10 @@ class UpdatePublishedProjectRequest extends FormRequest
             abort(403, 'You do not own this project');
         }
 
-        // Перевірка, чи проект можна редагувати частково
-        if (! $project->isPartiallyEditable()) {
-            abort(403, "Project with status '{$project->status->value}' cannot be partially edited. Only projects with status 'announced', 'in_progress', or 'paused' can be partially edited.");
+        // Перевірка, чи проект можна редагувати частково. Завершені/продані сюди теж потрапляють,
+        // але лише для контенту (content_blocks/additional_info/cover) — див. withValidator().
+        if (! $project->isPartiallyEditable() && ! $project->canEditAdditionalContentOnly()) {
+            abort(403, "Project with status '{$project->status->value}' cannot be partially edited. Only projects with status 'announced', 'in_progress', 'paused', 'completed', or 'sold' can be partially edited.");
         }
 
         return true;
@@ -92,7 +97,7 @@ class UpdatePublishedProjectRequest extends FormRequest
 
             // Контент-блоки
             'content_blocks' => ['nullable', 'array', 'max:50'],
-            'content_blocks.*.type' => ['required_with:content_blocks', 'string', 'in:heading,paragraph,image'],
+            'content_blocks.*.type' => ['required_with:content_blocks', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['nullable', 'string', 'in:h2,h3,h4,h5,h6'],
             'content_blocks.*.heading_text' => ['nullable', 'array'],
             'content_blocks.*.heading_text.uk' => ['nullable', 'string', 'max:255'],
@@ -107,6 +112,7 @@ class UpdatePublishedProjectRequest extends FormRequest
             'content_blocks.*.image_caption' => ['nullable', 'array'],
             'content_blocks.*.image_caption.uk' => ['nullable', 'string', 'max:500'],
             'content_blocks.*.image_caption.en' => ['nullable', 'string', 'max:500'],
+            'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // Характеристики (прив'язані до категорії)
             'parameters' => ['nullable', 'array'],
@@ -127,7 +133,25 @@ class UpdatePublishedProjectRequest extends FormRequest
         $validator->after(function (Validator $validator) {
             $project = $this->route('project');
 
-            if (! $this->has('budget_goal') || ! $project instanceof Project) {
+            if (! $project instanceof Project) {
+                return;
+            }
+
+            // Завершені/продані: контент (content_blocks/additional_info/cover/tags) — назву,
+            // категорію та бюджет для них міняти не можна навіть через цей "частковий" ендпоінт.
+            if ($project->canEditAdditionalContentOnly()) {
+                $forbiddenFields = array_intersect(
+                    array_keys($this->all()),
+                    ['title', 'short_description', 'art_category', 'art_subcategory', 'budget_goal', 'budget_items', 'parameters']
+                );
+                foreach ($forbiddenFields as $field) {
+                    $validator->errors()->add($field, "Поле '{$field}' не можна редагувати для завершеного/проданого проєкту. Доступні лише content_blocks, additional_info, cover та tags.");
+                }
+
+                return;
+            }
+
+            if (! $this->has('budget_goal')) {
                 return;
             }
 
@@ -153,7 +177,7 @@ class UpdatePublishedProjectRequest extends FormRequest
             // Контент-блоки
             'content_blocks.max' => 'Максимум 50 контент-блоків',
             'content_blocks.*.type.required_with' => 'Тип контент-блоку є обов\'язковим',
-            'content_blocks.*.type.in' => 'Тип контент-блоку має бути: heading, paragraph або image',
+            'content_blocks.*.type.in' => 'Тип контент-блоку має бути: heading, paragraph, image або link',
         ];
     }
 }

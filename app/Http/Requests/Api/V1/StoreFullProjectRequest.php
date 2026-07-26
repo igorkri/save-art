@@ -79,7 +79,7 @@ class StoreFullProjectRequest extends FormRequest
 
             // Контент-блоки
             'content_blocks' => ['nullable', 'array', 'max:50'],
-            'content_blocks.*.type' => ['required_with:content_blocks', 'string', 'in:heading,paragraph,image'],
+            'content_blocks.*.type' => ['required_with:content_blocks', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['nullable', 'string', 'in:h2,h3,h4,h5,h6'],
             'content_blocks.*.heading_text' => ['nullable', 'array'],
             'content_blocks.*.heading_text.uk' => ['nullable', 'string', 'max:255'],
@@ -94,6 +94,7 @@ class StoreFullProjectRequest extends FormRequest
             'content_blocks.*.image_caption' => ['nullable', 'array'],
             'content_blocks.*.image_caption.uk' => ['nullable', 'string', 'max:500'],
             'content_blocks.*.image_caption.en' => ['nullable', 'string', 'max:500'],
+            'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // ========== Етапи проекту ==========
             'stages' => ['nullable', 'array', 'max:20'],
@@ -138,7 +139,7 @@ class StoreFullProjectRequest extends FormRequest
             // Контент-блоки
             'content_blocks.max' => 'Максимум 50 контент-блоків',
             'content_blocks.*.type.required_with' => 'Тип контент-блоку є обов\'язковим',
-            'content_blocks.*.type.in' => 'Тип контент-блоку має бути: heading, paragraph або image',
+            'content_blocks.*.type.in' => 'Тип контент-блоку має бути: heading, paragraph, image або link',
 
             // Етапи
             'stages.max' => 'Максимум 20 етапів',

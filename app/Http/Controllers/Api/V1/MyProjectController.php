@@ -958,14 +958,15 @@ class MyProjectController extends Controller
      *             mediaType="multipart/form-data",
      *
      *             @OA\Schema(
-     *                 required={"type", "files"},
+     *                 required={"type"},
      *
-     *                 @OA\Property(property="type", type="string", enum={"image", "gallery", "video", "document"}, example="gallery", description="Тип результату: image (одне зображення), gallery (кілька зображень), video (відео-файл), document (PDF або інший документ)"),
-     *                 @OA\Property(property="files", type="array", description="Файли (до 10 файлів, до 50MB кожен)",
+     *                 @OA\Property(property="type", type="string", enum={"image", "gallery", "video", "document", "link"}, example="gallery", description="Тип результату: image (одне зображення), gallery (кілька зображень), video (відео-файл), document (PDF або інший документ), link (посилання на YouTube/Vimeo/Issuu тощо — вимагає поле url замість files)"),
+     *                 @OA\Property(property="files", type="array", description="Файли (до 10 файлів, до 50MB кожен). Обов'язкове для всіх типів окрім link",
      *
      *                     @OA\Items(type="string", format="binary")
      *                 ),
      *
+     *                 @OA\Property(property="url", type="string", example="https://www.youtube.com/watch?v=abc123", description="Посилання на відео (обов'язкове лише для type=link)"),
      *                 @OA\Property(property="description[uk]", type="string", example="Опис результату українською"),
      *                 @OA\Property(property="description[en]", type="string", example="Result description in English")
      *             )
@@ -1000,6 +1001,33 @@ class MyProjectController extends Controller
             ], 422);
         }
 
+        $type = $request->input('type');
+
+        // Посилання (YouTube/Vimeo/Issuu тощо) — без файлів, лише URL.
+        if ($type === 'link') {
+            $validated = Validator::make($request->all(), [
+                'type' => ['required', 'in:link'],
+                'url' => ['required', 'string', 'max:500', 'url'],
+                'description' => ['nullable', 'array'],
+                'description.uk' => ['nullable', 'string', 'max:2000'],
+                'description.en' => ['nullable', 'string', 'max:2000'],
+            ])->validate();
+
+            $project->update([
+                'final_result' => [
+                    'type' => 'link',
+                    'url' => $validated['url'],
+                    'description' => $request->input('description'),
+                    'uploaded_at' => now()->toISOString(),
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Фінальний результат збережено.',
+                'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
+            ]);
+        }
+
         // Нормалізація: multipart з кількома "files" (без []) дає один файл; curl -F files=@a -F files=@b теж може дати один або масив — завжди приводимо до масиву
         $rawFiles = $request->file('files');
         $files = $rawFiles === null ? [] : (is_array($rawFiles) ? $rawFiles : [$rawFiles]);
@@ -1019,8 +1047,6 @@ class MyProjectController extends Controller
             'files.*.max' => 'Максимальний розмір файлу 50MB',
         ];
         Validator::make(array_merge($request->all(), ['files' => $files]), $rules, $messages)->validate();
-
-        $type = $request->input('type');
 
         // Додаткова валідація типів файлів залежно від type
         $allowedMimes = match ($type) {

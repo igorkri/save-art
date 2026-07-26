@@ -286,6 +286,16 @@ class Project extends Model
     }
 
     /**
+     * Завершені/продані проєкти: назву, категорію та бюджет змінювати вже не можна, але
+     * додаткову інформацію (content_blocks, additional_info) та обкладинку — можна, щоб
+     * митець міг, наприклад, додати відео чи посилання з результатом уже після завершення.
+     */
+    public function canEditAdditionalContentOnly(): bool
+    {
+        return in_array($this->status, [ProjectStatus::Completed, ProjectStatus::Sold], true);
+    }
+
+    /**
      * Чи може власник самостійно видалити проєкт: чернетки, відхилені,
      * а також проєкти в черзі на модерацію (поки їх не взяв в обробку модератор).
      * Проєкт, що вже проходить модерацію (status_moderation = processing) або
