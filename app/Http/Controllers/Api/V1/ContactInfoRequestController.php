@@ -6,6 +6,7 @@ use App\Enums\ContactInfoRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ContactInfoRequest;
 use App\Models\Project;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,8 +43,35 @@ class ContactInfoRequestController extends Controller
      */
     public function store(Request $request, Project $project): JsonResponse
     {
+        return $this->createRequest($request, $project->user_id, $project->id);
+    }
+
+    /**
+     * Запросити контактну інформацію юридичної особи з публічного профілю
+     * митця, без прив'язки до конкретного проєкту.
+     *
+     * @OA\Post(
+     *     path="/v1/users/{user}/contact-request",
+     *     operationId="requestContactInfoFromProfile",
+     *     tags={"ContactInfoRequests"},
+     *     summary="Запросити контактну інформацію з публічного профілю митця",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="user", in="path", required=true, description="ID митця", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=201, description="Запит створено"),
+     *     @OA\Response(response=422, description="Некоректний запит (наприклад, запит вже існує)"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
+     */
+    public function storeForUser(Request $request, User $user): JsonResponse
+    {
+        return $this->createRequest($request, $user->id, null);
+    }
+
+    private function createRequest(Request $request, int $ownerId, ?int $projectId): JsonResponse
+    {
         $requesterId = $request->user()->id;
-        $ownerId = $project->user_id;
 
         if ($ownerId === $requesterId) {
             return response()->json(['message' => 'Ви не можете надіслати запит самому собі.'], 422);
@@ -61,7 +89,7 @@ class ContactInfoRequestController extends Controller
         $contactInfoRequest = ContactInfoRequest::create([
             'requester_id' => $requesterId,
             'owner_id' => $ownerId,
-            'project_id' => $project->id,
+            'project_id' => $projectId,
             'status' => ContactInfoRequestStatus::Pending,
         ]);
 

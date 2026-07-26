@@ -386,8 +386,6 @@ class NotificationService
      */
     public function notifyContactRequested(ContactInfoRequest $contactInfoRequest): Notification
     {
-        $requesterName = $contactInfoRequest->requester->display_name ?? 'Меценат';
-
         return $this->createNotification(
             user: $contactInfoRequest->owner,
             type: NotificationType::ContactRequest,
@@ -401,7 +399,7 @@ class NotificationService
             ],
             data: [
                 'contact_info_request_id' => $contactInfoRequest->id,
-                'donor_name' => $requesterName,
+                ...$this->personData($contactInfoRequest->requester, 'Меценат'),
             ]
         );
     }
@@ -412,7 +410,6 @@ class NotificationService
     public function notifyContactGranted(ContactInfoRequest $contactInfoRequest): void
     {
         $legal = $contactInfoRequest->owner->profileLegal;
-        $ownerName = $contactInfoRequest->owner->display_name ?? 'Митець';
 
         $this->createNotification(
             user: $contactInfoRequest->requester,
@@ -427,7 +424,7 @@ class NotificationService
             ],
             data: [
                 'contact_info_request_id' => $contactInfoRequest->id,
-                'donor_name' => $ownerName,
+                ...$this->personData($contactInfoRequest->owner, 'Митець'),
                 'legal_info' => $legal ? [
                     'name' => $legal->name,
                     'address' => $legal->address,
@@ -450,6 +447,7 @@ class NotificationService
             ],
             data: [
                 'contact_info_request_id' => $contactInfoRequest->id,
+                ...$this->personData($contactInfoRequest->requester, 'Меценат'),
             ]
         );
     }
@@ -459,9 +457,6 @@ class NotificationService
      */
     public function notifyContactRejected(ContactInfoRequest $contactInfoRequest): void
     {
-        $ownerName = $contactInfoRequest->owner->display_name ?? 'Митець';
-        $requesterName = $contactInfoRequest->requester->display_name ?? 'Меценат';
-
         $this->createNotification(
             user: $contactInfoRequest->requester,
             type: NotificationType::ContactRejected,
@@ -475,7 +470,7 @@ class NotificationService
             ],
             data: [
                 'contact_info_request_id' => $contactInfoRequest->id,
-                'donor_name' => $ownerName,
+                ...$this->personData($contactInfoRequest->owner, 'Митець'),
             ]
         );
 
@@ -492,7 +487,7 @@ class NotificationService
             ],
             data: [
                 'contact_info_request_id' => $contactInfoRequest->id,
-                'donor_name' => $requesterName,
+                ...$this->personData($contactInfoRequest->requester, 'Меценат'),
             ]
         );
     }
@@ -588,6 +583,21 @@ class NotificationService
             message: $message,
             data: $data
         );
+    }
+
+    /**
+     * Дані користувача для блоку "хто" в картці сповіщення: ім'я, аватар і
+     * slug для посилання на публічний профіль.
+     *
+     * @return array{donor_name: string, donor_avatar: ?string, donor_slug: ?string}
+     */
+    private function personData(User $user, string $fallbackName): array
+    {
+        return [
+            'donor_name' => $user->display_name ?: $fallbackName,
+            'donor_avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+            'donor_slug' => $user->slug,
+        ];
     }
 
     /**
