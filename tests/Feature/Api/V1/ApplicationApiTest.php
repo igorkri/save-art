@@ -39,6 +39,8 @@ class ApplicationApiTest extends ApiTestCase
             ->postJson('/api/v1/applications', [
                 'name' => 'Іван Іваненко',
                 'email' => 'ivan@example.com',
+                'phone' => '+380501234567',
+                'about' => 'Хочу долучитись як волонтер.',
             ]);
 
         $response->assertOk();
@@ -58,6 +60,8 @@ class ApplicationApiTest extends ApiTestCase
             ->postJson('/api/v1/applications', [
                 'name' => 'Марія Коваль',
                 'email' => 'maria@example.com',
+                'phone' => '+380501234567',
+                'about' => 'Хочу долучитись як волонтер.',
                 'resume' => $file,
             ]);
 
@@ -69,13 +73,28 @@ class ApplicationApiTest extends ApiTestCase
         });
     }
 
-    public function test_name_and_email_are_required(): void
+    public function test_resume_is_optional(): void
+    {
+        Mail::fake();
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson('/api/v1/applications', [
+                'name' => 'Марія Коваль',
+                'email' => 'maria@example.com',
+                'phone' => '+380501234567',
+                'about' => 'Хочу долучитись як волонтер.',
+            ]);
+
+        $response->assertOk();
+    }
+
+    public function test_all_fields_except_resume_are_required(): void
     {
         $response = $this->withHeaders($this->apiHeaders())
             ->postJson('/api/v1/applications', []);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name', 'email']);
+            ->assertJsonValidationErrors(['name', 'email', 'phone', 'about']);
     }
 
     public function test_email_must_be_valid(): void
@@ -84,6 +103,8 @@ class ApplicationApiTest extends ApiTestCase
             ->postJson('/api/v1/applications', [
                 'name' => 'Test',
                 'email' => 'not-an-email',
+                'phone' => '+380501234567',
+                'about' => 'Хочу долучитись як волонтер.',
             ]);
 
         $response->assertUnprocessable()
@@ -98,6 +119,8 @@ class ApplicationApiTest extends ApiTestCase
             ->postJson('/api/v1/applications', [
                 'name' => 'Test',
                 'email' => 'test@example.com',
+                'phone' => '+380501234567',
+                'about' => 'Хочу долучитись як волонтер.',
                 'resume' => $file,
             ]);
 

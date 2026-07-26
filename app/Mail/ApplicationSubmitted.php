@@ -33,7 +33,7 @@ class ApplicationSubmitted extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.application-submitted',
+            view: 'emails.application-submitted',
             with: [
                 'applicant' => $this->applicant,
             ],
