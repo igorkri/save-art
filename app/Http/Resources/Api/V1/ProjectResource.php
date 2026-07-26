@@ -245,6 +245,8 @@ class ProjectResource extends JsonResource
                 $localized['image'] = isset($block['image']) ? Storage::url($block['image']) : null;
                 $localized['image_alt'] = $this->localizeField($block['image_alt'] ?? null, $language);
                 $localized['image_caption'] = $this->localizeField($block['image_caption'] ?? null, $language);
+            } elseif ($block['type'] === 'link') {
+                $localized['url'] = $block['url'] ?? null;
             }
 
             return $localized;

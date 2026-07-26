@@ -78,6 +78,22 @@ class ProjectApiTest extends ApiTestCase
             ->assertJsonPath('data.id', $project->id);
     }
 
+    public function test_single_project_localizes_link_content_block_url(): void
+    {
+        $project = Project::factory()->announced()->create([
+            'content_blocks' => [
+                ['type' => 'heading', 'heading_level' => 'h2', 'heading_text' => ['uk' => 'Заголовок', 'en' => 'Heading']],
+                ['type' => 'link', 'url' => 'https://www.youtube.com/watch?v=abc123'],
+            ],
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders())->getJson("/api/v1/projects/{$project->slug}?language=uk");
+
+        $response->assertOk()
+            ->assertJsonPath('data.content_blocks.1.type', 'link')
+            ->assertJsonPath('data.content_blocks.1.url', 'https://www.youtube.com/watch?v=abc123');
+    }
+
     public function test_cannot_get_draft_project(): void
     {
         $project = Project::factory()->create(['status' => ProjectStatus::Draft]);
