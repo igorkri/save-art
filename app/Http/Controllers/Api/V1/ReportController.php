@@ -108,8 +108,14 @@ class ReportController extends Controller
             $platformTotal = (clone $platformDonations)->sum('amount');
 
             if ($platformTotal > 0) {
-                $lastDonationAt = (clone $platformDonations)->max('paid_at');
-                $reports->prepend($this->formatPlatformDonations($language, (float) $platformTotal, $lastDonationAt));
+                // Показуємо донора останнього донату як "обличчя" агрегованого рядка (псевдонім
+                // або "Анонім" з анімованими очима для is_anonymous — так само, як у списку
+                // меценатів проєкту), а не заглушку "Невідомий автор".
+                $lastDonation = (clone $platformDonations)
+                    ->with('user:id,full_name,slug,avatar')
+                    ->latest('paid_at')
+                    ->first();
+                $reports->prepend($this->formatPlatformDonations($language, (float) $platformTotal, $lastDonation));
                 $total++;
             }
         }
@@ -295,9 +301,38 @@ class ReportController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function formatPlatformDonations(?string $language, float $total, ?string $lastDonationAt): array
+    private function formatPlatformDonations(?string $language, float $total, ?\App\Models\Donation $lastDonation): array
     {
         $title = ['uk' => 'Донати платформі', 'en' => 'Platform donations'];
+
+        $user = null;
+        if ($lastDonation) {
+            if ($lastDonation->is_anonymous) {
+                $user = [
+                    'id' => null,
+                    'name' => $lastDonation->donor_name ?: 'Анонім',
+                    'slug' => null,
+                    'avatar_url' => null,
+                    'is_anonymous' => true,
+                ];
+            } elseif ($lastDonation->user) {
+                $user = [
+                    'id' => $lastDonation->user->id,
+                    'name' => $lastDonation->user->name,
+                    'slug' => $lastDonation->user->slug,
+                    'avatar_url' => $lastDonation->user->avatar ? Storage::url($lastDonation->user->avatar) : null,
+                    'is_anonymous' => false,
+                ];
+            } elseif ($lastDonation->donor_name) {
+                $user = [
+                    'id' => null,
+                    'name' => $lastDonation->donor_name,
+                    'slug' => null,
+                    'avatar_url' => null,
+                    'is_anonymous' => false,
+                ];
+            }
+        }
 
         return [
             'id' => 'platform',
@@ -306,12 +341,12 @@ class ReportController extends Controller
             'collected_amount' => $total,
             'goal_amount' => $total,
             'spent_amount' => 0,
-            'report_date' => $lastDonationAt ? \Illuminate\Support\Carbon::parse($lastDonationAt)->toDateString() : null,
+            'report_date' => $lastDonation?->paid_at ? \Illuminate\Support\Carbon::parse($lastDonation->paid_at)->toDateString() : null,
             'status' => 'in_progress',
             'completed_at' => null,
             'created_at' => now()->toISOString(),
             'project' => null,
-            'user' => null,
+            'user' => $user,
         ];
     }
 

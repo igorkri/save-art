@@ -57,6 +57,26 @@ class ReportsApiTest extends ApiTestCase
             ->assertJsonPath('data.reports.0.user.avatar_url', fn ($url) => str_contains($url, 'avatars/test-avatar.jpg'));
     }
 
+    public function test_platform_donations_row_shows_anonymous_donor_nickname(): void
+    {
+        Donation::factory()->paid()->create([
+            'project_id' => null,
+            'donation_type' => \App\Models\Donation::TYPE_PLATFORM,
+            'is_anonymous' => true,
+            'donor_name' => 'Таємний Меценат',
+            'user_id' => null,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/reports');
+
+        $response->assertOk()
+            ->assertJsonPath('data.reports.0.id', 'platform')
+            ->assertJsonPath('data.reports.0.user.is_anonymous', true)
+            ->assertJsonPath('data.reports.0.user.name', 'Таємний Меценат')
+            ->assertJsonPath('data.reports.0.user.slug', null);
+    }
+
     public function test_projects_without_paid_donations_not_shown(): void
     {
         $withDonation = Project::factory()->create();
