@@ -1013,6 +1013,10 @@ class MyProjectController extends Controller
                 'description.en' => ['nullable', 'string', 'max:2000'],
             ])->validate();
 
+            // При заміні попереднього результату (image/gallery/video/document) видаляємо його
+            // файли зі сховища — так само, як і обкладинку при заміні (не лишаємо сиротами).
+            $this->deleteFinalResultFiles($project->final_result);
+
             $project->update([
                 'final_result' => [
                     'type' => 'link',
@@ -1096,6 +1100,10 @@ class MyProjectController extends Controller
             $finalResult['files'] = $uploadedFiles;
         }
 
+        // При заміні попереднього результату видаляємо його файли зі сховища (так само, як і
+        // обкладинку при заміні) — інакше старі файли лишаються сиротами на диску назавжди.
+        $this->deleteFinalResultFiles($project->final_result);
+
         $project->update([
             'final_result' => $finalResult,
         ]);
@@ -1104,6 +1112,32 @@ class MyProjectController extends Controller
             'message' => 'Фінальний результат збережено.',
             'data' => new ProjectResource($project->fresh()->load(['user.profileLegal', 'stages', 'bonuses', 'projectParameters.parameter', 'projectParameters.parameterValue'])),
         ]);
+    }
+
+    /**
+     * Видаляє файли попереднього фінального результату зі сховища перед заміною на новий
+     * (як і Storage::delete($project->cover) при заміні обкладинки) — щоб старі image/gallery/
+     * video/document файли не лишалися сиротами на диску.
+     *
+     * @param  array<string, mixed>|null  $finalResult
+     */
+    private function deleteFinalResultFiles(?array $finalResult): void
+    {
+        if (! $finalResult) {
+            return;
+        }
+
+        if (isset($finalResult['file']['path'])) {
+            Storage::disk('public')->delete($finalResult['file']['path']);
+        }
+
+        if (isset($finalResult['files']) && is_array($finalResult['files'])) {
+            foreach ($finalResult['files'] as $file) {
+                if (isset($file['path'])) {
+                    Storage::disk('public')->delete($file['path']);
+                }
+            }
+        }
     }
 
     /**

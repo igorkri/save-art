@@ -24,7 +24,7 @@ class FinalResultUploadTest extends ApiTestCase
     {
         $file = UploadedFile::fake()->image('final-artwork.jpg', 1920, 1080);
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'image',
                 'files' => [$file],
                 'description' => ['uk' => 'Фінальна робота', 'en' => 'Final artwork'],
@@ -43,7 +43,7 @@ class FinalResultUploadTest extends ApiTestCase
             UploadedFile::fake()->image('artwork3.jpg'),
         ];
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'gallery',
                 'files' => $files,
             ]);
@@ -56,7 +56,7 @@ class FinalResultUploadTest extends ApiTestCase
     {
         $file = UploadedFile::fake()->create('presentation.mp4', 5000, 'video/mp4');
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'video',
                 'files' => [$file],
                 'description' => ['uk' => 'Відео презентація'],
@@ -70,7 +70,7 @@ class FinalResultUploadTest extends ApiTestCase
     {
         $file = UploadedFile::fake()->create('catalog.pdf', 2000, 'application/pdf');
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'document',
                 'files' => [$file],
             ]);
@@ -85,7 +85,7 @@ class FinalResultUploadTest extends ApiTestCase
             'status' => ProjectStatus::Draft,
         ]);
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$draftProject->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$draftProject->slug}/final-result/upload", [
                 'type' => 'image',
                 'files' => [UploadedFile::fake()->image('test.jpg')],
             ]);
@@ -98,18 +98,70 @@ class FinalResultUploadTest extends ApiTestCase
             'status' => ProjectStatus::Completed,
         ]);
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$completedProject->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$completedProject->slug}/final-result/upload", [
                 'type' => 'image',
                 'files' => [UploadedFile::fake()->image('update.jpg')],
             ]);
         $response->assertOk();
     }
 
+    public function test_replacing_gallery_deletes_old_files_from_storage(): void
+    {
+        $oldFiles = [
+            UploadedFile::fake()->image('old1.jpg'),
+            UploadedFile::fake()->image('old2.jpg'),
+        ];
+        $firstResponse = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
+                'type' => 'gallery',
+                'files' => $oldFiles,
+            ]);
+        $firstResponse->assertOk();
+        $oldPaths = collect($firstResponse->json('data.final_result.files'))->pluck('url');
+
+        foreach ($oldPaths as $url) {
+            Storage::disk('public')->assertExists(ltrim(str_replace('/storage/', '', $url), '/'));
+        }
+
+        $secondResponse = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
+                'type' => 'image',
+                'files' => [UploadedFile::fake()->image('new.jpg')],
+            ]);
+        $secondResponse->assertOk();
+
+        foreach ($oldPaths as $url) {
+            Storage::disk('public')->assertMissing(ltrim(str_replace('/storage/', '', $url), '/'));
+        }
+    }
+
+    public function test_replacing_result_with_link_deletes_old_files_from_storage(): void
+    {
+        $firstResponse = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
+                'type' => 'image',
+                'files' => [UploadedFile::fake()->image('old.jpg')],
+            ]);
+        $firstResponse->assertOk();
+        $oldPath = ltrim(str_replace('/storage/', '', $firstResponse->json('data.final_result.file.url')), '/');
+        Storage::disk('public')->assertExists($oldPath);
+
+        $secondResponse = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
+                'type' => 'link',
+                'url' => 'https://www.youtube.com/watch?v=abc123',
+            ]);
+        $secondResponse->assertOk();
+        $secondResponse->assertJsonPath('data.final_result.type', 'link');
+
+        Storage::disk('public')->assertMissing($oldPath);
+    }
+
     public function test_other_user_cannot_upload_final_result(): void
     {
         $otherUser = User::factory()->create();
         $response = $this->withHeaders($this->authHeaders($otherUser))
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'image',
                 'files' => [UploadedFile::fake()->image('hack.jpg')],
             ]);
@@ -119,7 +171,7 @@ class FinalResultUploadTest extends ApiTestCase
     public function test_files_required(): void
     {
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'image',
             ]);
         $response->assertUnprocessable();
@@ -130,7 +182,7 @@ class FinalResultUploadTest extends ApiTestCase
     {
         $file = UploadedFile::fake()->create('video.mp4', 1000, 'video/mp4');
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'image',
                 'files' => [$file],
             ]);
@@ -141,7 +193,7 @@ class FinalResultUploadTest extends ApiTestCase
     {
         $file = UploadedFile::fake()->image('image.jpg');
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$this->project->id}/final-result/upload", [
+            ->postJson("/api/v1/my/projects/{$this->project->slug}/final-result/upload", [
                 'type' => 'video',
                 'files' => [$file],
             ]);
