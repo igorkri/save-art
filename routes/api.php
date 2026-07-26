@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ArtistBoardController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\HomePageController;
 use App\Http\Controllers\Api\SiteSettingsController;
+use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\ImpersonateController;
@@ -79,6 +80,10 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
 
     // Пошук з підказками (автори + проєкти)
     Route::get('/search/suggest', [SearchController::class, 'suggest']);
+
+    // Заявка на співпрацю (форма "Заявка" у футері сайту)
+    Route::post('/applications', [ApplicationController::class, 'store'])
+        ->middleware('throttle:6,1');
 
     // Категорії мистецтва
     Route::get('/categories', [CatalogController::class, 'categories']);
