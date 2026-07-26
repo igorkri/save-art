@@ -62,7 +62,6 @@ class HomePage extends Model
         'footer_expert_features',
         'footer_expert_button_text',
         'is_active',
-        'chart_auto_collect',
     ];
 
     protected function casts(): array
@@ -88,7 +87,6 @@ class HomePage extends Model
             'sold_projects' => 'integer',
             'statistics_is_active' => 'boolean',
             'is_active' => 'boolean',
-            'chart_auto_collect' => 'boolean',
             'partners' => 'array',
         ];
     }

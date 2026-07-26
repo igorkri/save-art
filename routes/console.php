@@ -18,13 +18,6 @@ Artisan::command('inspire', function () {
 |
 */
 
-// Збір даних графіка донатів кожну годину
-Schedule::command('donations:collect-chart-data')
-    ->hourly()
-    ->withoutOverlapping()
-    ->runInBackground()
-    ->appendOutputTo(storage_path('logs/donations-chart.log'));
-
 // Генерація звітів з проєктів щодня о 2:00
 Schedule::command('reports:generate --all')
     ->dailyAt('02:00')

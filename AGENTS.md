@@ -219,54 +219,18 @@ php artisan db:seed --class=SiteSettingsSeeder
 
 ---
 
-## 📊 DonationChartData (Графік донатів)
+## 📊 Графік донатів
 
-Модель `DonationChartData` зберігає кешовані дані для графіка донатів.
+Кешованої моделі `DonationChartData` та крону більше немає (видалено 2026-07-26 —
+крон рахував суми по неіснуючому статусу `completed` замість `paid`, тому графік
+завжди показував 0 замість реальних сум).
 
-### Структура бази даних
+Дані для графіка тепер рахуються напряму з `Donation` (`status = paid`) в моменті
+запиту — без кешу, без крону:
+- Публічний API: `HomePageController::chart()` → `GET /api/home/chart?period=...`
+- Адмінський дашборд: `app/Filament/Widgets/DonationChartWidget.php`
 
-| Поле | Тип | Опис |
-|------|-----|------|
-| `period_type` | string(20) | Тип періоду: day, week, month, year, all |
-| `total` | decimal(15,2) | Загальна сума за період |
-| `labels` | json | Мітки осі X (масив рядків) |
-| `values` | json | Значення (масив чисел) |
-| `data_collected_at` | timestamp | Час останнього збору даних |
-| `is_manual` | boolean | true = введено вручну (крон не перезаписує) |
-
-### Консольна команда
-
-```bash
-# Зібрати всі періоди
-php artisan donations:collect-chart-data
-
-# Зібрати конкретний період
-php artisan donations:collect-chart-data --period=month
-
-# Примусово оновити (ігнорує is_manual)
-php artisan donations:collect-chart-data --force
-```
-
-### Розклад крона
-
-Команда запускається автоматично кожну годину (див. `routes/console.php`).
-
-### Контроль автозбору
-
-В `HomePage` є поле `chart_auto_collect`:
-- `true` — крон збирає дані автоматично
-- `false` — крон не збирає (потрібен `--force`)
-
-### API Endpoint
-
-Графік повертається через `/api/home/chart?period=month`.
-Якщо є кешовані дані — повертаються вони, інакше генеруються на льоту.
-
-### Filament ресурс
-
-`app/Filament/Resources/DonationChartData/DonationChartDataResource.php`
-
-Кнопка "Зібрати дані" в таблиці дозволяє вручну запустити збір.
+Період `month` — календарний місяць (01 до останнього дня), а не «31 день назад».
 
 ---
 

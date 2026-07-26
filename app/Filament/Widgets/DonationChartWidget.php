@@ -2,7 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\DonationChartData;
+use App\Models\Donation;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;
 
 class DonationChartWidget extends ChartWidget
@@ -23,28 +25,146 @@ class DonationChartWidget extends ChartWidget
     {
         $chartData = $this->getChartData();
 
-        if (! $chartData) {
-            return 'Немає даних за обраний період';
-        }
-
-        $total = number_format($chartData->total ?? 0, 0, ',', ' ');
-        $count = count(array_filter($chartData->values ?? [], fn ($v) => $v > 0));
+        $total = number_format($chartData['total'], 0, ',', ' ');
+        $count = count(array_filter($chartData['values'], fn ($v) => $v > 0));
         $periodLabel = $this->getFilters()[$this->filter] ?? $this->filter;
 
         return "Загалом: {$total} ₴ • {$count} активних точок • Період: {$periodLabel}";
     }
 
-    protected function getChartData(): ?DonationChartData
+    /**
+     * Дані рахуються напряму з donations (без кешу/крону)
+     *
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    protected function getChartData(): array
     {
-        return DonationChartData::where('period_type', $this->filter)->first();
+        return match ($this->filter) {
+            'day' => $this->getDataByHours(),
+            'week' => $this->getDataByDays(7),
+            'month' => $this->getDataByCalendarMonth(),
+            'year' => $this->getDataByMonths(12),
+            'all' => $this->getDataAllTime(),
+            default => $this->getDataByCalendarMonth(),
+        };
+    }
+
+    /**
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getDataByHours(): array
+    {
+        $today = Carbon::today();
+        $labels = [];
+        $values = [];
+
+        for ($hour = 0; $hour < 24; $hour++) {
+            $labels[] = sprintf('%02d:00', $hour);
+
+            $values[] = (float) Donation::where('status', 'paid')
+                ->whereDate('paid_at', $today)
+                ->whereRaw('HOUR(paid_at) = ?', [$hour])
+                ->sum('amount');
+        }
+
+        return ['total' => array_sum($values), 'labels' => $labels, 'values' => $values];
+    }
+
+    /**
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getDataByDays(int $days): array
+    {
+        $startDate = Carbon::now()->subDays($days - 1)->startOfDay();
+        $endDate = Carbon::now()->endOfDay();
+
+        return $this->getDataForDateRange($startDate, $endDate, 'j');
+    }
+
+    /**
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getDataByCalendarMonth(): array
+    {
+        return $this->getDataForDateRange(Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth(), 'd');
+    }
+
+    /**
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getDataForDateRange(Carbon $startDate, Carbon $endDate, string $labelFormat): array
+    {
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        $donations = Donation::where('status', 'paid')
+            ->whereBetween('paid_at', [$startDate, $endDate])
+            ->selectRaw('DATE(paid_at) as date, SUM(amount) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date')
+            ->toArray();
+
+        $labels = [];
+        $values = [];
+
+        foreach ($period as $date) {
+            $labels[] = $date->format($labelFormat);
+            $values[] = (float) ($donations[$date->format('Y-m-d')] ?? 0);
+        }
+
+        return ['total' => array_sum($values), 'labels' => $labels, 'values' => $values];
+    }
+
+    /**
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getDataByMonths(int $months): array
+    {
+        $donations = Donation::where('status', 'paid')
+            ->where('paid_at', '>=', Carbon::now()->subMonths($months)->startOfMonth())
+            ->selectRaw('YEAR(paid_at) as year, MONTH(paid_at) as month, SUM(amount) as total')
+            ->groupBy('year', 'month')
+            ->get()
+            ->keyBy(fn ($item) => $item->year.'-'.str_pad($item->month, 2, '0', STR_PAD_LEFT))
+            ->map(fn ($item) => (float) $item->total)
+            ->toArray();
+
+        $labels = [];
+        $values = [];
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $labels[] = $date->translatedFormat('M');
+            $values[] = $donations[$date->format('Y-m')] ?? 0;
+        }
+
+        return ['total' => array_sum($values), 'labels' => $labels, 'values' => $values];
+    }
+
+    /**
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getDataAllTime(): array
+    {
+        $donations = Donation::where('status', 'paid')
+            ->selectRaw('YEAR(paid_at) as year, SUM(amount) as total')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->pluck('total', 'year')
+            ->toArray();
+
+        return [
+            'total' => array_sum($donations),
+            'labels' => array_map('strval', array_keys($donations)),
+            'values' => array_map('floatval', array_values($donations)),
+        ];
     }
 
     protected function getData(): array
     {
         $chartData = $this->getChartData();
 
-        $values = $chartData?->values ?? [];
-        $labels = $chartData?->labels ?? [];
+        $values = $chartData['values'];
+        $labels = $chartData['labels'];
 
         if (empty($values)) {
             return [

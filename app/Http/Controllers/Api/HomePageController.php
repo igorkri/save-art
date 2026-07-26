@@ -304,20 +304,11 @@ class HomePageController extends Controller
     {
         $period = $request->get('period', 'month');
 
-        // Спочатку спробуємо отримати кешовані дані
-        $cachedData = \App\Models\DonationChartData::getByPeriod($period);
-
-        if ($cachedData) {
-            return response()->json([
-                'data' => $cachedData->toApiArray(),
-            ]);
-        }
-
-        // Якщо кешованих даних немає, генеруємо на льоту
+        // Дані завжди рахуються напряму з donations, без кешу/крону
         $data = match ($period) {
             'day' => $this->getChartDataByHours(),
             'week' => $this->getChartDataByDays(7),
-            'month' => $this->getChartDataByDays(31),
+            'month' => $this->getChartDataByCalendarMonth(),
             'year' => $this->getChartDataByMonths(12),
             'all' => $this->getChartDataAllTime(),
             default => $this->getChartDataByDays(31),
@@ -348,7 +339,7 @@ class HomePageController extends Controller
         for ($hour = 0; $hour < 24; $hour++) {
             $labels[] = sprintf('%02d:00', $hour);
 
-            $amount = Donation::where('status', 'completed')
+            $amount = Donation::where('status', 'paid')
                 ->whereDate('paid_at', $today)
                 ->whereRaw('HOUR(paid_at) = ?', [$hour])
                 ->sum('amount');
@@ -377,7 +368,7 @@ class HomePageController extends Controller
         $labels = [];
         $values = [];
 
-        $donations = Donation::where('status', 'completed')
+        $donations = Donation::where('status', 'paid')
             ->whereBetween('paid_at', [$startDate, $endDate])
             ->selectRaw('DATE(paid_at) as date, SUM(amount) as total')
             ->groupBy('date')
@@ -398,6 +389,40 @@ class HomePageController extends Controller
     }
 
     /**
+     * Дані графіка за поточний календарний місяць (01 - останній день місяця)
+     *
+     * @return array{total: float, labels: array<string>, values: array<float>}
+     */
+    private function getChartDataByCalendarMonth(): array
+    {
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        $labels = [];
+        $values = [];
+
+        $donations = Donation::where('status', 'paid')
+            ->whereBetween('paid_at', [$startDate, $endDate])
+            ->selectRaw('DATE(paid_at) as date, SUM(amount) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date')
+            ->toArray();
+
+        foreach ($period as $date) {
+            $dateKey = $date->format('Y-m-d');
+            $labels[] = $date->format('d');
+            $values[] = (float) ($donations[$dateKey] ?? 0);
+        }
+
+        return [
+            'total' => array_sum($values),
+            'labels' => $labels,
+            'values' => $values,
+        ];
+    }
+
+    /**
      * Дані графіка по місяцях
      *
      * @return array{total: float, labels: array<string>, values: array<float>}
@@ -407,7 +432,7 @@ class HomePageController extends Controller
         $labels = [];
         $values = [];
 
-        $donations = Donation::where('status', 'completed')
+        $donations = Donation::where('status', 'paid')
             ->where('paid_at', '>=', Carbon::now()->subMonths($months)->startOfMonth())
             ->selectRaw('YEAR(paid_at) as year, MONTH(paid_at) as month, SUM(amount) as total')
             ->groupBy('year', 'month')
@@ -437,7 +462,7 @@ class HomePageController extends Controller
      */
     private function getChartDataAllTime(): array
     {
-        $donations = Donation::where('status', 'completed')
+        $donations = Donation::where('status', 'paid')
             ->selectRaw('YEAR(paid_at) as year, SUM(amount) as total')
             ->groupBy('year')
             ->orderBy('year')

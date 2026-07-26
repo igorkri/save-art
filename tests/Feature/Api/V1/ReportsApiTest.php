@@ -3,31 +3,35 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Enums\ProjectStatus;
+use App\Models\Donation;
 use App\Models\Project;
 use App\Models\Report;
 
 class ReportsApiTest extends ApiTestCase
 {
     // ==========================================
-    // Список звітів
+    // Список звітів (агрегація реальних донатів по проєктах)
     // ==========================================
 
     public function test_can_get_reports_list(): void
     {
-        Report::factory()->count(5)->create([
-            'status' => 'published',
-        ]);
+        Project::factory()->count(5)->create()->each(function (Project $project) {
+            Donation::factory()->paid()->for($project)->create();
+        });
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson('/api/v1/reports');
 
         $response->assertOk()
+            ->assertJsonCount(5, 'data.reports')
             ->assertJsonStructure([
                 'data' => [
                     'reports' => [
                         '*' => [
                             'id',
                             'title',
+                            'collected_amount',
+                            'goal_amount',
                             'created_at',
                         ],
                     ],
@@ -35,23 +39,27 @@ class ReportsApiTest extends ApiTestCase
             ]);
     }
 
-    public function test_unpublished_reports_not_shown(): void
+    public function test_projects_without_paid_donations_not_shown(): void
     {
-        Report::factory()->create(['status' => 'draft']);
-        Report::factory()->create(['status' => 'published']);
+        $withDonation = Project::factory()->create();
+        Donation::factory()->paid()->for($withDonation)->create();
+
+        $withoutDonation = Project::factory()->create();
+        Donation::factory()->for($withoutDonation)->create(); // pending, не оплачений
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson('/api/v1/reports');
 
         $response->assertOk()
-            ->assertJsonCount(1, 'data.reports');
+            ->assertJsonCount(1, 'data.reports')
+            ->assertJsonPath('data.reports.0.id', $withDonation->id);
     }
 
     public function test_reports_are_paginated(): void
     {
-        Report::factory()->count(20)->create([
-            'status' => 'published',
-        ]);
+        Project::factory()->count(20)->create()->each(function (Project $project) {
+            Donation::factory()->paid()->for($project)->create();
+        });
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson('/api/v1/reports?per_page=10');
