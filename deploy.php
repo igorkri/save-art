@@ -185,6 +185,9 @@ task('deploy', function (): void {
         // (ComponentNotFoundException) аж до ручного filament:optimize-clear.
         runAs("cd $path && $php artisan filament:optimize-clear --no-interaction 2>/dev/null || true");
         runAs("cd $path && $php artisan config:cache && $php artisan route:cache && $php artisan view:cache");
+        // filament:optimize кэшує компоненти й Blade-іконки (blade-heroicons) — без цього
+        // кожен запит на проді заново сканує сотні SVG, що з open_basedir дає ~2с затримки.
+        runAs("cd $path && $php artisan filament:optimize --no-interaction");
         runAs("cd $path && $php artisan queue:restart");
 
         writeln('<comment>▶ 7/7 Scheduler</comment>');
@@ -213,6 +216,9 @@ task('deploy:quick', function (): void {
     // Див. коментар у task('deploy') — filament:optimize-clear теж не зайвий тут,
     // якщо синкались зміни в Filament-ресурсах/сторінках.
     runAs("cd $path && $php artisan filament:optimize-clear --no-interaction 2>/dev/null || true");
+    // Обов'язково перекешувати назад: без цього кожен запит на проді заново сканує
+    // Blade-іконки/в'юхи, що з open_basedir дає ~2с затримки на кожен запит.
+    runAs("cd $path && $php artisan view:cache && $php artisan filament:optimize --no-interaction");
 
     writeln('<info>✓  Quick deploy done → https://'.DEP_SITE_DOMAIN.'</info>');
 })->desc('Quick deploy: code sync + cache clear only (no composer/npm/migrate)');
