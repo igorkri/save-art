@@ -250,6 +250,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
     // Запит контактної інформації юридичної особи автора (03.2.4)
     Route::post('/projects/{project}/contact-request', [ContactInfoRequestController::class, 'store']);
     Route::post('/users/{user}/contact-request', [ContactInfoRequestController::class, 'storeForUser']);
+    Route::get('/users/{user}/contact-request', [ContactInfoRequestController::class, 'statusForUser']);
     Route::prefix('my/contact-requests')->group(function () {
         Route::post('/{contactInfoRequest}/grant', [ContactInfoRequestController::class, 'grant']);
         Route::post('/{contactInfoRequest}/reject', [ContactInfoRequestController::class, 'reject']);

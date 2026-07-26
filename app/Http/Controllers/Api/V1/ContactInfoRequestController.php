@@ -69,6 +69,34 @@ class ContactInfoRequestController extends Controller
         return $this->createRequest($request, $user->id, null);
     }
 
+    /**
+     * Отримати статус останнього запиту поточного користувача на контакти
+     * вказаного митця (для відображення стану кнопки на публічному профілі).
+     *
+     * @OA\Get(
+     *     path="/v1/users/{user}/contact-request",
+     *     operationId="getContactInfoRequestStatus",
+     *     tags={"ContactInfoRequests"},
+     *     summary="Статус запиту контактної інформації митця",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="user", in="path", required=true, description="ID митця", @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Статус запиту (null, якщо запитів не було)")
+     * )
+     */
+    public function statusForUser(Request $request, User $user): JsonResponse
+    {
+        $status = ContactInfoRequest::where('requester_id', $request->user()->id)
+            ->where('owner_id', $user->id)
+            ->latest()
+            ->value('status');
+
+        return response()->json([
+            'data' => ['status' => $status],
+        ]);
+    }
+
     private function createRequest(Request $request, int $ownerId, ?int $projectId): JsonResponse
     {
         $requesterId = $request->user()->id;
