@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\Report;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class ReportController extends Controller
@@ -54,7 +55,7 @@ class ReportController extends Controller
 
         $query = Project::query()
             ->select('id', 'title', 'slug', 'cover', 'budget_goal', 'user_id', 'status', 'completed_at', 'created_at')
-            ->with('user:id,full_name')
+            ->with('user:id,full_name,slug,avatar')
             ->withSum(['donations as collected_amount' => $donatedFilter], 'amount')
             ->withMax(['donations as last_donation_at' => $donatedFilter], 'paid_at')
             ->whereHas('donations', $donatedFilter);
@@ -283,6 +284,8 @@ class ReportController extends Controller
             'user' => $project->user ? [
                 'id' => $project->user->id,
                 'name' => $project->user->name,
+                'slug' => $project->user->slug,
+                'avatar_url' => $project->user->avatar ? Storage::url($project->user->avatar) : null,
             ] : null,
         ];
     }

@@ -39,6 +39,24 @@ class ReportsApiTest extends ApiTestCase
             ]);
     }
 
+    public function test_reports_list_includes_project_slug_and_author_link_data(): void
+    {
+        $user = \App\Models\User::factory()->create([
+            'slug' => 'test-author-slug',
+            'avatar' => 'avatars/test-avatar.jpg',
+        ]);
+        $project = Project::factory()->for($user)->create();
+        Donation::factory()->paid()->for($project)->create();
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/reports');
+
+        $response->assertOk()
+            ->assertJsonPath('data.reports.0.project.slug', $project->slug)
+            ->assertJsonPath('data.reports.0.user.slug', 'test-author-slug')
+            ->assertJsonPath('data.reports.0.user.avatar_url', fn ($url) => str_contains($url, 'avatars/test-avatar.jpg'));
+    }
+
     public function test_projects_without_paid_donations_not_shown(): void
     {
         $withDonation = Project::factory()->create();
