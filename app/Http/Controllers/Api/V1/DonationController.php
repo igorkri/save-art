@@ -228,8 +228,6 @@ class DonationController extends Controller
             'donor_email' => $data['donor_email'] ?? $donor?->email,
         ]);
 
-        $this->donationService->registerPendingAsCollected($donation);
-
         // Ініціалізуємо платіж через PaymentService
         $paymentData = null;
         $paymentConfigured = $this->paymentService->isConfigured();
@@ -238,6 +236,12 @@ class DonationController extends Controller
             $resultUrl = config('app.frontend_url', config('app.url')).'/payment/result';
 
             $paymentData = $this->paymentService->createPayment($donation, $callbackUrl, $resultUrl);
+        } else {
+            // TODO(payment-integration): демо-режим без платіжної системи —
+            // прибрати цю гілку, коли LiqPay буде сконфігуровано скрізь
+            // (тоді $paymentConfigured завжди true і сюди код не потраплятиме).
+            // Див. докблок DonationService::markAsPaidForDemo().
+            $this->donationService->markAsPaidForDemo($donation);
         }
 
         Log::channel('donations')->info('Донат проєкту створено', [
@@ -255,7 +259,7 @@ class DonationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Донат створено. Очікуємо на оплату.',
+            'message' => $paymentConfigured ? 'Донат створено. Очікуємо на оплату.' : 'Донат створено та оплачено.',
             'data' => new DonationResource($donation->load(['project', 'bonus'])),
             'payment' => $paymentData,
         ], 201);
@@ -382,6 +386,12 @@ class DonationController extends Controller
             $resultUrl = config('app.frontend_url', config('app.url')).'/payment/result';
 
             $paymentData = $this->paymentService->createPayment($donation, $callbackUrl, $resultUrl);
+        } else {
+            // TODO(payment-integration): демо-режим без платіжної системи —
+            // прибрати цю гілку, коли LiqPay буде сконфігуровано скрізь
+            // (тоді $paymentConfigured завжди true і сюди код не потраплятиме).
+            // Див. докблок DonationService::markAsPaidForDemo().
+            $this->donationService->markAsPaidForDemo($donation);
         }
 
         Log::channel('donations')->info('Донат платформі створено', [
@@ -397,7 +407,7 @@ class DonationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Донат на платформу створено. Очікуємо на оплату.',
+            'message' => $paymentConfigured ? 'Донат на платформу створено. Очікуємо на оплату.' : 'Донат на платформу створено та оплачено.',
             'data' => new DonationResource($donation),
             'payment' => $paymentData,
         ], 201);

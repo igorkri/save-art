@@ -16,44 +16,23 @@ class DonationService
     ) {}
 
     /**
-     * Врахувати донат у зібраній сумі проєкту одразу при створенні,
-     * не чекаючи підтвердження реальної оплати (фронтенд поки не
-     * має інтеграції з платіжною системою). Якщо пізніше підключиться
-     * реальний webhook і processPaidDonation() почне викликатись для
-     * цих же донатів — там потрібно буде прибрати повторний increment
-     * та повторні сповіщення нижче, інакше сума порахується і
-     * сповіщення надішлються двічі.
+     * TODO(payment-integration): демо-режим без платіжної системи.
+     *
+     * LiqPay ще не підключено (PaymentService::isConfigured() === false), тож
+     * донат позначається оплаченим одразу при створенні, минаючи реальну
+     * оплату — щоб можна було демонструвати збір коштів/бонуси/сповіщення
+     * вже зараз. Викликається лише з DonationController::store() і
+     * storePlatformDonation(), і лише коли платіж НЕ сконфігуровано — щойно
+     * в .env з'являться робочі LIQPAY_PUBLIC_KEY/LIQPAY_PRIVATE_KEY, цей
+     * виклик перестане спрацьовувати сам собою (гілка if в контролері), і
+     * донати підуть по реальному шляху: 'pending' -> LiqPay -> webhook ->
+     * processPaidDonation(). Коли платіжна система стане основним шляхом
+     * для всіх користувачів — приберіть виклики markAsPaidForDemo() і саму
+     * гілку "якщо не сконфігуровано" в контролері.
      */
-    public function registerPendingAsCollected(Donation $donation): void
+    public function markAsPaidForDemo(Donation $donation): void
     {
-        if (! $donation->project_id) {
-            return;
-        }
-
-        DB::transaction(function () use ($donation) {
-            $project = $donation->project;
-            $project->increment('budget_collected', $donation->amount);
-
-            $existingDonor = Donation::where('project_id', $project->id)
-                ->where('id', '!=', $donation->id)
-                ->where(function ($q) use ($donation) {
-                    if ($donation->user_id) {
-                        $q->where('user_id', $donation->user_id);
-                    } else {
-                        $q->where('donor_email', $donation->donor_email);
-                    }
-                })
-                ->exists();
-
-            if (! $existingDonor) {
-                $project->increment('donors_count');
-            }
-
-            $this->notificationService->notifyDonationReceived($donation);
-            $this->notificationService->notifyDonationMade($donation);
-
-            $this->maybeStartWorkOnGoalReached($project);
-        });
+        $this->processPaidDonation($donation);
     }
 
     /**
@@ -68,38 +47,40 @@ class DonationService
                 'paid_at' => now(),
             ]);
 
-            // Оновлюємо статистику проєкту
+            // Донат на платформу (без project_id) не впливає на статистику проєкту
             $project = $donation->project;
-            $project->increment('budget_collected', $donation->amount);
+            if ($project) {
+                $project->increment('budget_collected', $donation->amount);
 
-            // Збільшуємо кількість донатерів (унікальних)
-            $existingDonor = Donation::where('project_id', $project->id)
-                ->where('id', '!=', $donation->id)
-                ->where('status', 'paid')
-                ->where(function ($q) use ($donation) {
-                    if ($donation->user_id) {
-                        $q->where('user_id', $donation->user_id);
-                    } else {
-                        $q->where('donor_email', $donation->donor_email);
-                    }
-                })
-                ->exists();
+                // Збільшуємо кількість донатерів (унікальних)
+                $existingDonor = Donation::where('project_id', $project->id)
+                    ->where('id', '!=', $donation->id)
+                    ->where('status', 'paid')
+                    ->where(function ($q) use ($donation) {
+                        if ($donation->user_id) {
+                            $q->where('user_id', $donation->user_id);
+                        } else {
+                            $q->where('donor_email', $donation->donor_email);
+                        }
+                    })
+                    ->exists();
 
-            if (! $existingDonor) {
-                $project->increment('donors_count');
+                if (! $existingDonor) {
+                    $project->increment('donors_count');
+                }
+
+                // Якщо є бонус — резервуємо
+                if ($donation->project_bonus_id && $donation->bonus) {
+                    $donation->bonus->increment('quantity_claimed');
+                }
+
+                $this->maybeStartWorkOnGoalReached($project);
             }
-
-            // Якщо є бонус — резервуємо
-            if ($donation->project_bonus_id && $donation->bonus) {
-                $donation->bonus->increment('quantity_claimed');
-            }
-
-            $this->maybeStartWorkOnGoalReached($project);
 
             Log::info('Donation processed successfully', [
                 'donation_id' => $donation->id,
                 'amount' => $donation->amount,
-                'project_id' => $project->id,
+                'project_id' => $project?->id,
             ]);
         });
     }
