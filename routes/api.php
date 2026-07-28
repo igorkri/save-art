@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\HomePageController;
 use App\Http\Controllers\Api\SiteSettingsController;
 use App\Http\Controllers\Api\V1\ApplicationController;
+use App\Http\Controllers\Api\V1\ArtCatalogController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\ImpersonateController;
@@ -28,13 +29,16 @@ use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\MyProjectController;
 use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\ProjectBonusController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectStageController;
 use App\Http\Controllers\Api\V1\PublicUserController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\StatisticsController;
+use App\Http\Controllers\Api\V1\TeamController;
 use App\Http\Controllers\ProfileApiController;
 
 // ============================================
@@ -127,6 +131,34 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
         Route::get('/', [ArtistController::class, 'index']);
         Route::get('/{slug}', [ArtistController::class, 'show']);
         Route::get('/{slug}/projects', [ArtistController::class, 'projects']);
+        Route::get('/{slug}/photos', [ArtistController::class, 'photos']);
+    });
+
+    // Організації (публічний профіль, art-ua-info)
+    Route::prefix('organizations')->group(function () {
+        Route::get('/', [OrganizationController::class, 'index']);
+        Route::get('/{slug}', [OrganizationController::class, 'show']);
+        Route::get('/{slug}/projects', [OrganizationController::class, 'projects']);
+        Route::get('/{slug}/photos', [OrganizationController::class, 'photos']);
+    });
+
+    // PDF-каталоги робіт авторів (публічний, art-ua-info)
+    Route::prefix('catalogs')->group(function () {
+        Route::get('/', [ArtCatalogController::class, 'index']);
+        Route::get('/{id}', [ArtCatalogController::class, 'show'])->where('id', '[0-9]+');
+    });
+
+    // Творчі команди (публічний, art-ua-info)
+    Route::prefix('teams')->group(function () {
+        Route::get('/', [TeamController::class, 'index']);
+        Route::get('/{slug}', [TeamController::class, 'show']);
+        Route::get('/{slug}/services', [TeamController::class, 'services']);
+    });
+
+    // Послуги митців/організацій/команд (публічний, art-ua-info)
+    Route::prefix('services')->group(function () {
+        Route::get('/', [ServiceController::class, 'index']);
+        Route::get('/{slug}', [ServiceController::class, 'show']);
     });
 
     // Публічні профілі користувачів
@@ -201,6 +233,8 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
     // Лайки
     Route::post('/projects/{project}/like', [LikeController::class, 'store']);
     Route::delete('/projects/{project}/like', [LikeController::class, 'destroy']);
+    Route::post('/catalogs/{artCatalog}/like', [LikeController::class, 'likeCatalog']);
+    Route::delete('/catalogs/{artCatalog}/like', [LikeController::class, 'unlikeCatalog']);
 
     // Мої донати
     Route::get('/my/donations', [DonationController::class, 'myDonations']);

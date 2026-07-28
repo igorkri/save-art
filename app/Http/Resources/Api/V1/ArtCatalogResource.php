@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Resources\Api\V1;
+
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
+use OpenApi\Annotations as OA;
+
+/**
+ * @mixin \App\Models\ArtCatalog
+ *
+ * @OA\Schema(
+ *     schema="ArtCatalog",
+ *     title="ArtCatalog",
+ *     description="PDF-каталог робіт автора",
+ *     type="object",
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="image_url", type="string"),
+ *     @OA\Property(property="published_at", type="string", format="date", nullable=true),
+ *     @OA\Property(property="art_category", type="object", nullable=true,
+ *         @OA\Property(property="slug", type="string"),
+ *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString")
+ *     ),
+ *     @OA\Property(property="likes_count", type="integer", example=10),
+ *     @OA\Property(property="pdf_url", type="string", nullable=true),
+ *     @OA\Property(property="author", type="object",
+ *         @OA\Property(property="id", type="integer"),
+ *         @OA\Property(property="name", type="string"),
+ *         @OA\Property(property="slug", type="string"),
+ *         @OA\Property(property="avatar_url", type="string", nullable=true)
+ *     )
+ * )
+ */
+class ArtCatalogResource extends JsonResource
+{
+    use LocalizesFields;
+
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        $language = $this->getLanguage($request);
+
+        return [
+            'id' => $this->id,
+            'title' => $this->localizeField($this->title, $language),
+            'image_url' => Storage::url($this->image),
+            'published_at' => $this->published_at?->toDateString(),
+            'art_category' => $this->whenLoaded('artCategory', fn () => $this->artCategory ? [
+                'slug' => $this->artCategory->slug,
+                'name' => $this->localizeField($this->artCategory->name, $language),
+            ] : null),
+            'likes_count' => $this->likes_count,
+            'pdf_url' => $this->pdf_file ? Storage::url('catalogs/'.$this->pdf_file) : null,
+            'author' => $this->whenLoaded('user', fn () => [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'slug' => $this->user->slug,
+                'avatar_url' => $this->user->avatar ? Storage::url($this->user->avatar) : null,
+            ]),
+        ];
+    }
+}

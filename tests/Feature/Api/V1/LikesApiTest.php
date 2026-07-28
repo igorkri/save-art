@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Enums\ProjectStatus;
+use App\Models\ArtCatalog;
 use App\Models\Project;
 use App\Models\ProjectLike;
 use App\Models\User;
@@ -93,5 +94,40 @@ class LikesApiTest extends ApiTestCase
             ->postJson("/api/v1/projects/{$project->id}/like");
 
         $response->assertUnauthorized();
+    }
+
+    public function test_can_like_and_unlike_catalog(): void
+    {
+        $catalog = ArtCatalog::factory()->create(['likes_count' => 0]);
+
+        $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/catalogs/{$catalog->id}/like")
+            ->assertOk()
+            ->assertJsonPath('likes_count', 1);
+
+        $this->assertDatabaseHas('art_catalog_likes', [
+            'user_id' => $this->user->id,
+            'art_catalog_id' => $catalog->id,
+        ]);
+
+        $this->withHeaders($this->authHeaders())
+            ->deleteJson("/api/v1/catalogs/{$catalog->id}/like")
+            ->assertOk()
+            ->assertJsonPath('likes_count', 0);
+
+        $this->assertDatabaseMissing('art_catalog_likes', [
+            'user_id' => $this->user->id,
+            'art_catalog_id' => $catalog->id,
+        ]);
+    }
+
+    public function test_cannot_unlike_not_liked_catalog(): void
+    {
+        $catalog = ArtCatalog::factory()->create();
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->deleteJson("/api/v1/catalogs/{$catalog->id}/like");
+
+        $response->assertUnprocessable();
     }
 }

@@ -212,6 +212,30 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     /**
+     * Перевірити, чи є користувач організацією
+     */
+    public function isOrganization(): bool
+    {
+        return $this->profile_type === ProfileType::Organization;
+    }
+
+    /**
+     * Портфоліо-фото користувача
+     */
+    public function photos(): HasMany
+    {
+        return $this->hasMany(UserPhoto::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Команди, учасником яких є користувач
+     */
+    public function teams(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_members')->withPivot('sort_order')->withTimestamps();
+    }
+
+    /**
      * Контракти користувача
      */
     public function contracts(): HasMany

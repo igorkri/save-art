@@ -6,6 +6,7 @@ enum ProfileType: string
 {
     case Artist = 'artist';
     case Patron = 'patron';
+    case Organization = 'organization';
 
     /**
      * Отримати назву типу українською
@@ -15,6 +16,7 @@ enum ProfileType: string
         return match ($this) {
             self::Artist => 'Митець',
             self::Patron => 'Меценат',
+            self::Organization => 'Організація',
         };
     }
 
