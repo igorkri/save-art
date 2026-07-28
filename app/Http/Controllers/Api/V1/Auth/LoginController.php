@@ -100,6 +100,10 @@ class LoginController extends Controller
                 'email' => $user->email,
                 'slug' => $user->slug,
                 'role' => $user->role->value,
+                'profile_type' => $user->profile_type?->value,
+                'profession' => $user->profession,
+                'avatar_url' => $user->avatar ? \Storage::url($user->avatar) : null,
+                'teams' => $user->teams()->get(['teams.id', 'teams.slug', 'teams.name', 'teams.avatar']),
             ],
             'token' => $token,
         ]);
@@ -183,9 +187,11 @@ class LoginController extends Controller
                 'slug' => $user->slug,
                 'role' => $user->role->value,
                 'profile_type' => $user->profile_type?->value,
+                'profession' => $user->profession,
                 'avatar_url' => $user->avatar ? \Storage::url($user->avatar) : null,
                 'has_seen_new_project_hint' => $user->has_seen_new_project_hint,
                 'created_at' => $user->created_at->toISOString(),
+                'teams' => $user->teams()->get(['teams.id', 'teams.slug', 'teams.name', 'teams.avatar']),
             ],
         ]);
     }

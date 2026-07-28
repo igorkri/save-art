@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property array|null $location
  * @property string|null $price
  * @property Currency|null $currency
+ * @property array|null $options
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \App\Models\User|\App\Models\Team $serviceable
@@ -41,6 +42,7 @@ class Service extends Model
         'location',
         'price',
         'currency',
+        'options',
     ];
 
     protected function casts(): array
@@ -51,6 +53,7 @@ class Service extends Model
             'location' => 'array',
             'price' => 'decimal:2',
             'currency' => Currency::class,
+            'options' => 'array',
         ];
     }
 

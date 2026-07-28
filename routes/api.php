@@ -26,7 +26,10 @@ use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MessageController;
+use App\Http\Controllers\Api\V1\MyArtCatalogController;
 use App\Http\Controllers\Api\V1\MyProjectController;
+use App\Http\Controllers\Api\V1\MyServiceController;
+use App\Http\Controllers\Api\V1\MyTeamController;
 use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrganizationController;
@@ -231,6 +234,41 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
             Route::post('/{project}/complete', [MyProjectController::class, 'complete']);
             Route::post('/{project}/resume', [MyProjectController::class, 'resume']);
             Route::post('/{project}/pause', [MyProjectController::class, 'pause']);
+        });
+    });
+
+    // Мої каталоги
+    Route::prefix('my/catalogs')->group(function () {
+        Route::get('/', [MyArtCatalogController::class, 'index']);
+
+        Route::middleware('not.blocked')->group(function () {
+            Route::post('/', [MyArtCatalogController::class, 'store']);
+            Route::put('/{catalog}', [MyArtCatalogController::class, 'update']);
+            Route::delete('/{catalog}', [MyArtCatalogController::class, 'destroy']);
+            Route::post('/{catalog}/primary', [MyArtCatalogController::class, 'setPrimary']);
+        });
+    });
+
+    // Мої послуги
+    Route::prefix('my/services')->group(function () {
+        Route::get('/', [MyServiceController::class, 'index']);
+
+        Route::middleware('not.blocked')->group(function () {
+            Route::post('/', [MyServiceController::class, 'store']);
+            Route::put('/{service}', [MyServiceController::class, 'update']);
+            Route::delete('/{service}', [MyServiceController::class, 'destroy']);
+        });
+    });
+
+    // Мої команди
+    Route::prefix('my/teams')->group(function () {
+        Route::get('/', [MyTeamController::class, 'index']);
+
+        Route::middleware('not.blocked')->group(function () {
+            Route::post('/', [MyTeamController::class, 'store']);
+            Route::put('/{team}', [MyTeamController::class, 'update']);
+            Route::delete('/{team}', [MyTeamController::class, 'destroy']);
+            Route::post('/{team}/leave', [MyTeamController::class, 'leave']);
         });
     });
 

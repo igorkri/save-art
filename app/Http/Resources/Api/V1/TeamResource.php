@@ -26,7 +26,8 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="city", ref="#/components/schemas/LocalizedString", nullable=true),
  *     @OA\Property(property="description", type="array", @OA\Items(type="string")),
  *     @OA\Property(property="social_links", type="array", @OA\Items(type="object")),
- *     @OA\Property(property="members", type="array", @OA\Items(ref="#/components/schemas/TeamMember"))
+ *     @OA\Property(property="members", type="array", @OA\Items(ref="#/components/schemas/TeamMember")),
+ *     @OA\Property(property="is_owner", type="boolean", description="Чи є поточний авторизований користувач власником команди")
  * )
  */
 class TeamResource extends JsonResource
@@ -41,6 +42,7 @@ class TeamResource extends JsonResource
     public function toArray(Request $request): array
     {
         $language = $this->getLanguage($request);
+        $user = $request->user();
 
         return [
             'id' => $this->id,
@@ -53,6 +55,7 @@ class TeamResource extends JsonResource
             'description' => $this->localizeField($this->description, $language),
             'social_links' => $this->social_links ?? [],
             'members' => TeamMemberResource::collection($this->whenLoaded('members')),
+            'is_owner' => $user ? $this->isOwnedBy($user) : false,
         ];
     }
 }

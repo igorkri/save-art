@@ -26,6 +26,7 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString")
  *     ),
  *     @OA\Property(property="likes_count", type="integer", example=10),
+ *     @OA\Property(property="is_primary", type="boolean", example=false),
  *     @OA\Property(property="pdf_url", type="string", nullable=true),
  *     @OA\Property(property="author", type="object",
  *         @OA\Property(property="id", type="integer"),
@@ -58,6 +59,7 @@ class ArtCatalogResource extends JsonResource
                 'name' => $this->localizeField($this->artCategory->name, $language),
             ] : null),
             'likes_count' => $this->likes_count,
+            'is_primary' => $this->is_primary,
             'pdf_url' => $this->pdf_file ? Storage::url('catalogs/'.$this->pdf_file) : null,
             'author' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,

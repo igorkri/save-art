@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $team_id
  * @property int $user_id
+ * @property string $role
  * @property int $sort_order
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -20,6 +21,7 @@ class TeamMember extends Model
     protected $fillable = [
         'team_id',
         'user_id',
+        'role',
         'sort_order',
     ];
 

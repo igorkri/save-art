@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $image
  * @property int|null $art_category_id
  * @property \Carbon\Carbon|null $published_at
+ * @property bool $is_primary
  * @property int $likes_count
  * @property string|null $pdf_file
  * @property \Carbon\Carbon $created_at
@@ -32,6 +33,7 @@ class ArtCatalog extends Model
         'image',
         'art_category_id',
         'published_at',
+        'is_primary',
         'likes_count',
         'pdf_file',
     ];
@@ -41,6 +43,7 @@ class ArtCatalog extends Model
         return [
             'title' => 'array',
             'published_at' => 'date',
+            'is_primary' => 'boolean',
             'likes_count' => 'integer',
         ];
     }

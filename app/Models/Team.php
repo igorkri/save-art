@@ -63,7 +63,12 @@ class Team extends Model
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'team_members')->withPivot('sort_order')->withTimestamps()->orderBy('team_members.sort_order');
+        return $this->belongsToMany(User::class, 'team_members')->withPivot('role', 'sort_order')->withTimestamps()->orderBy('team_members.sort_order');
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->teamMembers()->where('user_id', $user->id)->where('role', 'owner')->exists();
     }
 
     public function services(): MorphMany
