@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\StatisticsController;
 use App\Http\Controllers\Api\V1\TeamController;
+use App\Http\Controllers\ArtInfo\InfoController;
 use App\Http\Controllers\ProfileApiController;
 
 // ============================================
@@ -75,6 +76,9 @@ Route::prefix('v1/auth')->middleware(['api.key', 'auth:sanctum'])->group(functio
 // ============================================
 
 Route::prefix('v1')->middleware('api.key')->group(function () {
+    // Інформація про Art-UA Info API
+    Route::get('/info', [InfoController::class, 'index']);
+
     // Проєкти (публічні)
     Route::prefix('projects')->group(function () {
         Route::get('/', [ProjectController::class, 'index']);
