@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
+use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,6 +60,7 @@ class Project extends Model
         'user_id',
         'user_type',
         'is_legal',
+        'source',
         'code',
         'slug',
         'status',
@@ -103,6 +106,7 @@ class Project extends Model
             'status' => ProjectStatus::class,
             'status_moderation' => ModerationStatus::class,
             'user_type' => UserType::class,
+            'source' => ProjectSource::class,
             'currency' => Currency::class,
             'announced_at' => 'datetime',
             'planned_completion_at' => 'datetime',
@@ -317,6 +321,15 @@ class Project extends Model
     public function isPublic(): bool
     {
         return in_array($this->status, ProjectStatus::publicStatuses());
+    }
+
+    /**
+     * Проєкти, створені через art-ua-info, не мають показуватись на save-art
+     * (окремий фронтенд/флоу без бюджету, етапів тощо).
+     */
+    public function scopeForSaveArt(Builder $query): Builder
+    {
+        return $query->where('source', ProjectSource::SaveArt);
     }
 
     /**

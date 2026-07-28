@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\LoginRequest;
+use App\Http\Resources\ProfileLegalResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -178,6 +179,7 @@ class LoginController extends Controller
     public function me(): JsonResponse
     {
         $user = request()->user();
+        $user->load('profileLegal');
 
         return response()->json([
             'user' => [
@@ -192,6 +194,7 @@ class LoginController extends Controller
                 'has_seen_new_project_hint' => $user->has_seen_new_project_hint,
                 'created_at' => $user->created_at->toISOString(),
                 'teams' => $user->teams()->get(['teams.id', 'teams.slug', 'teams.name', 'teams.avatar']),
+                'profile_legal' => $user->profileLegal ? new ProfileLegalResource($user->profileLegal) : null,
             ],
         ]);
     }

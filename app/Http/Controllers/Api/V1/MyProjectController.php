@@ -83,6 +83,7 @@ class MyProjectController extends Controller
     {
 
         $query = Project::query()
+            ->forSaveArt()
             ->with(['user.profileLegal', 'projectParameters.parameter', 'projectParameters.parameterValue'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');

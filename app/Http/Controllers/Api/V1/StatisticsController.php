@@ -225,12 +225,12 @@ class StatisticsController extends Controller
 
         // Загальна статистика
         $totalCollected = Donation::where('status', 'completed')->sum('amount');
-        $totalProjects = Project::whereIn('status', $publicStatuses)->count();
-        $activeProjects = Project::whereIn('status', [ProjectStatus::Announced, ProjectStatus::InProgress])->count();
-        $completedProjects = Project::where('status', ProjectStatus::Completed)->count();
-        $soldProjects = Project::where('status', ProjectStatus::Sold)->count();
+        $totalProjects = Project::forSaveArt()->whereIn('status', $publicStatuses)->count();
+        $activeProjects = Project::forSaveArt()->whereIn('status', [ProjectStatus::Announced, ProjectStatus::InProgress])->count();
+        $completedProjects = Project::forSaveArt()->where('status', ProjectStatus::Completed)->count();
+        $soldProjects = Project::forSaveArt()->where('status', ProjectStatus::Sold)->count();
         $totalSupporters = Donation::where('status', 'completed')->distinct('user_id')->count('user_id');
-        $totalArtists = User::whereHas('projects', fn ($q) => $q->whereIn('status', $publicStatuses))->count();
+        $totalArtists = User::whereHas('projects', fn ($q) => $q->forSaveArt()->whereIn('status', $publicStatuses))->count();
 
         // Місячна статистика за останній рік
         $monthly = $this->getMonthlyStatistics();
@@ -260,7 +260,7 @@ class StatisticsController extends Controller
      */
     private function calculateProjectStatistics(string $period): array
     {
-        $query = Project::query();
+        $query = Project::query()->forSaveArt();
 
         // Застосовуємо фільтр по періоду
         if ($period === 'year') {
@@ -304,6 +304,7 @@ class StatisticsController extends Controller
 
         // Топ проєктів по зборам
         $topProjects = Project::query()
+            ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('budget_collected', 'desc')
             ->limit(5)
@@ -440,7 +441,8 @@ class StatisticsController extends Controller
 
         foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $category) {
             $categoryIds = [$category->id, ...$category->children->pluck('id')];
-            $projects = Project::whereIn('art_category_id', $categoryIds)
+            $projects = Project::forSaveArt()
+                ->whereIn('art_category_id', $categoryIds)
                 ->whereIn('status', ProjectStatus::publicStatuses());
 
             $count = $projects->count();

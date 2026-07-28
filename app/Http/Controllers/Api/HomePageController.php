@@ -104,6 +104,7 @@ class HomePageController extends Controller
 
         // Отримуємо рекомендовані проекти (останні 6 оголошених)
         $featuredProjects = Project::query()
+            ->forSaveArt()
             ->with('user')
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('announced_at', 'desc')
@@ -250,16 +251,16 @@ class HomePageController extends Controller
             ];
         } else {
             // Вычисляем данные из проектов (когда statistics_is_active = false или нет HomePage)
-            $totalCollected = Project::whereIn('status', ProjectStatus::publicStatuses())
+            $totalCollected = Project::forSaveArt()->whereIn('status', ProjectStatus::publicStatuses())
                 ->sum('budget_collected');
 
             return [
                 'is_active' => $isActive,
                 'total_collected' => (float) $totalCollected,
-                'declared_projects' => Project::where('status', ProjectStatus::Announced)->count(),
-                'active_projects' => Project::where('status', ProjectStatus::InProgress)->count(),
-                'completed_projects' => Project::where('status', ProjectStatus::Completed)->count(),
-                'sold_projects' => Project::where('status', ProjectStatus::Sold)->count(),
+                'declared_projects' => Project::forSaveArt()->where('status', ProjectStatus::Announced)->count(),
+                'active_projects' => Project::forSaveArt()->where('status', ProjectStatus::InProgress)->count(),
+                'completed_projects' => Project::forSaveArt()->where('status', ProjectStatus::Completed)->count(),
+                'sold_projects' => Project::forSaveArt()->where('status', ProjectStatus::Sold)->count(),
             ];
         }
     }

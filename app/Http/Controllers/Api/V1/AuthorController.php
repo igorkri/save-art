@@ -29,9 +29,9 @@ abstract class AuthorController extends Controller
         $query = User::query()
             ->when($this->profileType(), fn ($q, $type) => $q->where('profile_type', $type))
             ->withCount([
-                'projects' => fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()),
+                'projects' => fn ($q) => $q->forSaveArt()->whereIn('status', ProjectStatus::publicStatuses()),
             ])
-            ->whereHas('projects', fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()))
+            ->whereHas('projects', fn ($q) => $q->forSaveArt()->whereIn('status', ProjectStatus::publicStatuses()))
             ->orderByDesc('projects_count');
 
         if ($request->filled('search')) {
@@ -54,7 +54,7 @@ abstract class AuthorController extends Controller
             ->when($this->profileType(), fn ($q, $type) => $q->where('profile_type', $type))
             ->with(['profileSocial'])
             ->withCount([
-                'projects' => fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()),
+                'projects' => fn ($q) => $q->forSaveArt()->whereIn('status', ProjectStatus::publicStatuses()),
             ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -70,6 +70,7 @@ abstract class AuthorController extends Controller
             ->firstOrFail();
 
         $query = $author->projects()
+            ->forSaveArt()
             ->with(['user.profileLegal'])
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('announced_at', 'desc');

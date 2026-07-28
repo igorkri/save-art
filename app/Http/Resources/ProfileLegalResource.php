@@ -52,7 +52,7 @@ class ProfileLegalResource extends JsonResource
             'user_id' => $this->user_id,
             'is_active' => $this->is_active,
             'currency' => $this->currency,
-            'logo' => $this->logo ? Storage::url($this->logo) : null,
+            'logo' => $this->logo ? Storage::url(ltrim(preg_replace('#^/?storage/#', '', $this->logo), '/')) : null,
             'name' => $this->name ?? ['en' => null, 'uk' => null],
             'edrpou' => $this->edrpou,
             'authorized_person' => $this->authorized_person ?? ['en' => null, 'uk' => null],

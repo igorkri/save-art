@@ -236,7 +236,7 @@ class ProjectController extends Controller
      */
     private function buildFilteredQuery(Request $request, array $except = []): Builder
     {
-        $query = Project::query()->whereIn('status', ProjectStatus::publicStatuses());
+        $query = Project::query()->forSaveArt()->whereIn('status', ProjectStatus::publicStatuses());
 
         // Фільтр по категорії (slug кореня або підкатегорії; множинні значення через кому)
         if (! in_array('art_category', $except, true) && $request->filled('art_category')) {
@@ -649,7 +649,8 @@ class ProjectController extends Controller
     {
         $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
 
-        $budgetStats = Project::whereIn('status', $publicStatuses)
+        $budgetStats = Project::forSaveArt()
+            ->whereIn('status', $publicStatuses)
             ->where('budget_goal', '>', 0)
             ->selectRaw('MIN(budget_goal) as min, MAX(budget_goal) as max')
             ->first();
@@ -716,7 +717,7 @@ class ProjectController extends Controller
     {
         $publicStatuses = array_map(fn ($s) => $s->value, ProjectStatus::publicStatuses());
 
-        return Project::whereIn('status', $publicStatuses)->count();
+        return Project::forSaveArt()->whereIn('status', $publicStatuses)->count();
     }
 
     private function getStatusTranslations(ProjectStatus $status): array

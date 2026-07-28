@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\SiteSettingsController;
 use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\ArtCatalogController;
 use App\Http\Controllers\Api\V1\ArtistController;
+use App\Http\Controllers\Api\V1\ArtUaInfo\ProjectController as ArtUaInfoProjectController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\ImpersonateController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
@@ -235,6 +236,11 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
             Route::post('/{project}/resume', [MyProjectController::class, 'resume']);
             Route::post('/{project}/pause', [MyProjectController::class, 'pause']);
         });
+    });
+
+    // Створення проєкту з візарда art-ua-info (окремий флоу без бюджету/етапів/бонусів)
+    Route::prefix('art-ua-info/projects')->middleware('not.blocked')->group(function () {
+        Route::post('/', [ArtUaInfoProjectController::class, 'store']);
     });
 
     // Мої каталоги

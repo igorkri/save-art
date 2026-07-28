@@ -61,6 +61,7 @@ class SearchController extends Controller
         $query = mb_strtolower($rawQuery);
 
         $projects = Project::query()
+            ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->where(function ($q) use ($query) {
                 $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.uk'))) LIKE ?", ["%{$query}%"])
@@ -76,7 +77,7 @@ class SearchController extends Controller
             ]);
 
         $artists = User::query()
-            ->whereHas('projects', fn ($q) => $q->whereIn('status', ProjectStatus::publicStatuses()))
+            ->whereHas('projects', fn ($q) => $q->forSaveArt()->whereIn('status', ProjectStatus::publicStatuses()))
             ->where(function ($q) use ($query) {
                 $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk'))) LIKE ?", ["%{$query}%"])
                     ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en'))) LIKE ?", ["%{$query}%"]);

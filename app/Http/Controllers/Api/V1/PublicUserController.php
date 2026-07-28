@@ -61,14 +61,17 @@ class PublicUserController extends Controller
 
         // Рахуємо статистику
         $projectsCount = $user->projects()
+            ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->count();
 
         $totalCollected = $user->projects()
+            ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->sum('budget_collected');
 
         $supportersCount = $user->projects()
+            ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->sum('donors_count');
 
@@ -146,6 +149,7 @@ class PublicUserController extends Controller
         $perPage = min((int) $request->input('per_page', 10), 50);
 
         $projects = $user->projects()
+            ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);

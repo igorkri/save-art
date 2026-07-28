@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Requests\Api\V1\ArtUaInfo;
+
+use App\Enums\Currency;
+use App\Enums\ProjectStatus;
+use App\Enums\UserType;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+/**
+ * Request для створення проєкту з візарда art-ua-info. На відміну від
+ * App\Http\Requests\Api\V1\StoreProjectRequest (save-art), цей візард не збирає
+ * бюджет/етапи/бонуси/характеристики — тому їх нема в rules() зовсім (Laravel не
+ * вимагає ключів, яких немає в правилах).
+ */
+class StoreProjectRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return $this->user() !== null;
+    }
+
+    /**
+     * Валюта проєкту наразі підтримується лише USD — примусово перезаписуємо
+     * будь-яке значення, що прийшло з клієнта.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge(['currency' => Currency::USD->value]);
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        $status = $this->input('status', 'new');
+        $isDraft = in_array($status, ['new', 'draft']);
+
+        return [
+            'status' => ['nullable', 'string', Rule::enum(ProjectStatus::class)],
+            'local_id' => ['nullable', 'string', 'max:100'],
+
+            'user_type' => [$isDraft ? 'nullable' : 'required', Rule::enum(UserType::class)],
+
+            'title' => [$isDraft ? 'nullable' : 'required', 'array'],
+            'title.uk' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
+            'title.en' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
+
+            'short_description' => ['nullable', 'array'],
+            'short_description.uk' => ['nullable', 'string', 'max:1000'],
+            'short_description.en' => ['nullable', 'string', 'max:1000'],
+
+            'cover' => ['nullable'],
+
+            'art_category' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
+            'art_subcategory' => ['nullable', 'string', 'max:100'],
+
+            'tags' => ['nullable', 'array'],
+            'tags.uk' => ['nullable', 'string', 'max:500'],
+            'tags.en' => ['nullable', 'string', 'max:500'],
+
+            'currency' => ['nullable', Rule::enum(Currency::class)],
+
+            'content_blocks' => [$isDraft ? 'nullable' : 'required', 'array', 'max:50'],
+            'content_blocks.*.type' => ['sometimes', 'string', 'in:heading,paragraph,image,link'],
+            'content_blocks.*.heading_level' => ['sometimes', 'string', 'in:h1,h2,h3,h4,h5,h6'],
+            'content_blocks.*.heading_text' => ['sometimes', 'array'],
+            'content_blocks.*.paragraph_text' => ['sometimes', 'array'],
+            'content_blocks.*.image' => ['sometimes', 'string'],
+            'content_blocks.*.image_alt' => ['sometimes', 'array'],
+            'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
+
+            'parameters' => ['nullable', 'array'],
+            'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
+            'parameters.*.parameter_value_id' => ['nullable', 'integer', 'exists:parameter_values,id'],
+            'parameters.*.custom_value' => ['nullable', 'array'],
+            'parameters.*.custom_value.uk' => ['nullable', 'string', 'max:255'],
+            'parameters.*.custom_value.en' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    /**
+     * Визначає статус для створюваного проєкту
+     */
+    public function getProjectStatus(): ProjectStatus
+    {
+        $requestedStatus = $this->input('status', 'new');
+
+        return match ($requestedStatus) {
+            'draft' => ProjectStatus::Draft,
+            'moderation' => ProjectStatus::Moderation,
+            default => ProjectStatus::New,
+        };
+    }
+
+    /**
+     * Кастомні повідомлення про помилки
+     */
+    public function messages(): array
+    {
+        return [
+            'user_type.required' => 'Оберіть власника проєкту.',
+            'title.uk.required' => 'Введіть назву проєкту українською.',
+            'title.en.required' => 'Введіть назву проєкту англійською.',
+            'art_category.required' => 'Оберіть галузь мистецтва.',
+            'content_blocks.required' => 'Додайте роботу.',
+        ];
+    }
+}
