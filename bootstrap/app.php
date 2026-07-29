@@ -76,6 +76,16 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        // Обробка помилок валідації зображень (наприклад, пошкоджений Base64)
+        $exceptions->render(function (InvalidArgumentException $e, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'error' => 'Unprocessable Entity',
+                ], 422);
+            }
+        });
+
         // Обробка 403 - Доступ заборонено
         $exceptions->render(function (AccessDeniedHttpException $e, Request $request) use ($isApiRequest) {
             if ($isApiRequest($request)) {

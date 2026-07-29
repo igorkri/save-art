@@ -115,6 +115,14 @@ class ImageProcessingService
             throw new \InvalidArgumentException('Invalid Base64 image data');
         }
 
+        // Перевіряємо цілісність зображення — base64_decode не виявляє
+        // обірвані дані (наприклад, коли завантаження перервалось на клієнті),
+        // а getimagesizefromstring() лише читає заголовок і не помічає обрив
+        // потоку. Повне декодування через GD гарантовано виявляє пошкодження.
+        if (@imagecreatefromstring($imageData) === false) {
+            throw new \InvalidArgumentException('Image data is corrupted or incomplete');
+        }
+
         // Генеруємо унікальне ім'я файлу
         $filename = $directory.'/'.Str::uuid().'.'.$extension;
 

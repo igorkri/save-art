@@ -16,7 +16,7 @@ class ImageProcessingServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImageProcessingService();
+        $this->service = new ImageProcessingService;
         Storage::fake('public');
     }
 
@@ -159,5 +159,18 @@ class ImageProcessingServiceTest extends TestCase
         $this->assertStringStartsWith('test-images/', $result);
         $this->assertStringEndsWith('.jpg', $result);
         Storage::disk('public')->assertExists($result);
+    }
+
+    public function test_save_base64_image_rejects_truncated_image_data(): void
+    {
+        // Валідний PNG-заголовок, але дані обірвані (немає IEND) —
+        // base64_decode() таке пропускає, тож декодуємо через GD.
+        $fullBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        $truncatedBase64 = substr($fullBase64, 0, -20);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Image data is corrupted or incomplete');
+
+        $this->service->saveBase64Image($truncatedBase64, 'test-images');
     }
 }
