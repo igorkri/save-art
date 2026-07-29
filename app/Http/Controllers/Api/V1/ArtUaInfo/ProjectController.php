@@ -70,7 +70,7 @@ class ProjectController extends Controller
 
         $data['user_id'] = $request->user()->id;
         $data['status'] = $status;
-        $data['status_moderation'] = ModerationStatus::Pending;
+        $data['status_moderation'] = $request->isDraftSave() ? ModerationStatus::Pending : ModerationStatus::Approved;
         $data['source'] = ProjectSource::ArtUaInfo;
         $data['is_legal'] = $userType === UserType::Legal->value;
         $data['currency'] = $data['currency'] ?? Currency::USD->value;

@@ -2446,6 +2446,82 @@
                     }
                 }
             }
+        },
+        "/v1/my/projects/completed": {
+            "get": {
+                "tags": [
+                    "My Projects"
+                ],
+                "summary": "Список моїх завершених проєктів (save-art + art-ua-info)",
+                "description": "Повертає завершені проєкти (completed, sold) авторизованого користувача незалежно від джерела створення (save-art або art-ua-info).",
+                "operationId": "getMyCompletedProjectsArtInfo",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список завершених проєктів",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProjectList"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginationLinks"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2570,6 +2646,10 @@
                     "likes_count": {
                         "type": "integer",
                         "example": 10
+                    },
+                    "is_primary": {
+                        "type": "boolean",
+                        "example": false
                     },
                     "pdf_url": {
                         "type": "string",
@@ -3579,6 +3659,12 @@
                         "example": "UAH",
                         "nullable": true
                     },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
                     "performer_type": {
                         "type": "string",
                         "enum": [
@@ -3684,6 +3770,10 @@
                         "items": {
                             "$ref": "#/components/schemas/TeamMember"
                         }
+                    },
+                    "is_owner": {
+                        "description": "Чи є поточний авторизований користувач власником команди",
+                        "type": "boolean"
                     }
                 },
                 "type": "object"
@@ -3758,6 +3848,10 @@
         {
             "name": "Info",
             "description": "Загальна інформація про API"
+        },
+        {
+            "name": "My Projects",
+            "description": "API для управління власними проєктами (кабінет митця)"
         },
         {
             "name": "Likes",

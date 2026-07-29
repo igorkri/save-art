@@ -87,7 +87,9 @@ class StoreProjectRequest extends FormRequest
     }
 
     /**
-     * Визначає статус для створюваного проєкту
+     * Визначає статус для створюваного проєкту.
+     * Візард art-ua-info не має модерації бюджету — тож будь-яке збереження,
+     * окрім чернетки (new/draft), одразу завершує проєкт (Completed).
      */
     public function getProjectStatus(): ProjectStatus
     {
@@ -95,9 +97,17 @@ class StoreProjectRequest extends FormRequest
 
         return match ($requestedStatus) {
             'draft' => ProjectStatus::Draft,
-            'moderation' => ProjectStatus::Moderation,
-            default => ProjectStatus::New,
+            'new' => ProjectStatus::New,
+            default => ProjectStatus::Completed,
         };
+    }
+
+    /**
+     * Чи зберігається проєкт як чернетка (не завершується автоматично)
+     */
+    public function isDraftSave(): bool
+    {
+        return in_array($this->input('status', 'new'), ['new', 'draft'], true);
     }
 
     /**

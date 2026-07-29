@@ -222,6 +222,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
     // Мої проєкти
     Route::prefix('my/projects')->group(function () {
         Route::get('/', [MyProjectController::class, 'index']);
+        Route::get('/completed', [MyProjectController::class, 'completed']);
         Route::get('/{project}', [MyProjectController::class, 'show']);
 
         // Створення, редагування та видалення проєктів недоступні заблокованим користувачам
