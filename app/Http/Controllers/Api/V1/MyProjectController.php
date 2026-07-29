@@ -371,6 +371,7 @@ class MyProjectController extends Controller
         $data['user_id'] = $request->user()->id;
         $data['status'] = $status;
         $data['status_moderation'] = ModerationStatus::Pending;
+        $data['source'] = ProjectSource::SaveArt;
         $data['budget_collected'] = 0;
         $data['likes_count'] = 0;
         $data['donors_count'] = 0;

@@ -239,9 +239,10 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         });
     });
 
-    // Створення проєкту з візарда art-ua-info (окремий флоу без бюджету/етапів/бонусів)
+    // Створення та редагування проєкту з візарда art-ua-info (окремий флоу без бюджету/етапів/бонусів)
     Route::prefix('art-ua-info/projects')->middleware('not.blocked')->group(function () {
         Route::post('/', [ArtUaInfoProjectController::class, 'store']);
+        Route::put('/{project}', [ArtUaInfoProjectController::class, 'update']);
     });
 
     // Мої каталоги

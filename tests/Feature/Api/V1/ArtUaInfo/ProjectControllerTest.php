@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1\ArtUaInfo;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
+use App\Models\Project;
 use App\Models\User;
 use Tests\Feature\Api\V1\ApiTestCase;
 
@@ -75,5 +76,56 @@ class ProjectControllerTest extends ApiTestCase
             'status' => ProjectStatus::New->value,
             'status_moderation' => ModerationStatus::Pending->value,
         ]);
+    }
+
+    public function test_owner_can_update_completed_project_without_losing_status(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+            'status_moderation' => ModerationStatus::Approved,
+            'title' => ['uk' => 'Стара назва', 'en' => 'Old title'],
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/art-ua-info/projects/{$project->slug}", [
+                'user_type' => 'personal',
+                'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
+                'art_category' => 'music',
+                'content_blocks' => [
+                    ['type' => 'paragraph', 'paragraph_text' => ['uk' => 'Текст', 'en' => 'Text']],
+                ],
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.title.uk', 'Нова назва')
+            ->assertJsonPath('data.status', 'completed');
+
+        $this->assertDatabaseHas('projects', [
+            'id' => $project->id,
+            'status' => ProjectStatus::Completed->value,
+            'status_moderation' => ModerationStatus::Approved->value,
+        ]);
+    }
+
+    public function test_cannot_update_someone_elses_project(): void
+    {
+        $project = Project::factory()->create([
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/art-ua-info/projects/{$project->slug}", [
+                'user_type' => 'personal',
+                'title' => ['uk' => 'Назва', 'en' => 'Title'],
+                'art_category' => 'music',
+                'content_blocks' => [
+                    ['type' => 'paragraph', 'paragraph_text' => ['uk' => 'Текст', 'en' => 'Text']],
+                ],
+            ]);
+
+        $response->assertForbidden();
     }
 }

@@ -1515,6 +1515,65 @@
                 ]
             }
         },
+        "/v1/art-ua-info/projects/{project}": {
+            "put": {
+                "tags": [
+                    "ArtUaInfo Projects"
+                ],
+                "summary": "Редагувати проєкт з art-ua-info",
+                "description": "Редагувати вже створений проєкт з візарда art-ua-info. Статус (completed/approved)\nредагування не чіпає — оновлюється лише вміст.",
+                "operationId": "artUaInfoUpdateProject",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Проєкт оновлено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Project"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизований"
+                    },
+                    "403": {
+                        "description": "Не власник проєкту"
+                    },
+                    "422": {
+                        "description": "Помилка валідації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
         "/v1/artists": {
             "get": {
                 "tags": [
@@ -12028,6 +12087,14 @@
                     "code": {
                         "type": "string",
                         "example": "ABC12345"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "save_art",
+                            "art_ua_info"
+                        ],
+                        "example": "save_art"
                     },
                     "status": {
                         "type": "string",

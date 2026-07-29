@@ -23,6 +23,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="slug", type="string", example="miy-noviy-proekt-abc123"),
  *     @OA\Property(property="code", type="string", example="ABC12345"),
+ *     @OA\Property(property="source", type="string", enum={"save_art", "art_ua_info"}, example="save_art"),
  *     @OA\Property(property="status", type="string", enum={"draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"}, example="announced"),
  *     @OA\Property(property="status_label", type="string", example="Оголошений"),
  *     @OA\Property(property="status_moderation", type="string", enum={"pending", "approved", "rejected"}, example="approved"),
@@ -133,6 +134,7 @@ class ProjectResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'code' => $this->code,
+            'source' => $this->source->value,
 
             'status' => $this->status->value,
             'status_label' => $this->status->getLabel($language ?? 'uk'),
