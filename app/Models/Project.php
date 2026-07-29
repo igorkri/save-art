@@ -335,6 +335,14 @@ class Project extends Model
     }
 
     /**
+     * Проєкти, створені через art-ua-info (окремий флоу без бюджету, етапів тощо).
+     */
+    public function scopeForArtUaInfo(Builder $query): Builder
+    {
+        return $query->where('source', ProjectSource::ArtUaInfo);
+    }
+
+    /**
      * Отримати назву батьківської (кореневої) категорії мистецтва.
      * Якщо обрано підкатегорію — повертає назву кореня; інакше — назву самої категорії.
      */

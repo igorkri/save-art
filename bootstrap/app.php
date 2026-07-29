@@ -14,7 +14,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
+        // Кожен фронтенд має свій окремий файл маршрутів (routes/api.php — save-art,
+        // routes/api-art-ua-info.php — art-ua-info), щоб зміни для одного сайту
+        // фізично не могли зачепити роути іншого. БД спільна, роути — ні.
+        api: [
+            __DIR__.'/../routes/api.php',
+            __DIR__.'/../routes/api-art-ua-info.php',
+        ],
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
