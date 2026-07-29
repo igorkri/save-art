@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\ArtUaInfo;
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectSource;
+use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\ArtUaInfo\StoreProjectRequest;
@@ -92,8 +93,10 @@ class ProjectController extends Controller
     }
 
     /**
-     * Редагувати вже створений проєкт з візарда art-ua-info. Статус (completed/approved)
-     * редагування не чіпає — оновлюється лише вміст.
+     * Редагувати вже створений проєкт з візарда art-ua-info. Вміст оновлюється
+     * завжди; статус змінюється лише якщо передано status=draft (зняти з
+     * публікації) або status=moderation (опублікувати чернетку) — будь-які
+     * інші значення status валідація відхилить.
      *
      * @OA\Put(
      *     path="/v1/art-ua-info/projects/{project}",
@@ -139,6 +142,20 @@ class ProjectController extends Controller
 
         $userType = $data['user_type'] ?? null;
         $data['is_legal'] = $userType === UserType::Legal->value;
+
+        // Дозволені статус-переходи через цей ендпоінт (див. UpdateProjectRequest::rules):
+        // draft — зняти з публікації; moderation — опублікувати чернетку (цей візард без
+        // модерації бюджету, тож одразу Completed, як і при створенні через store()).
+        $requestedStatus = $data['status'] ?? null;
+        if ($requestedStatus === 'draft') {
+            $data['status'] = ProjectStatus::Draft;
+            $data['status_moderation'] = ModerationStatus::Pending;
+        } elseif ($requestedStatus === 'moderation') {
+            $data['status'] = ProjectStatus::Completed;
+            $data['status_moderation'] = ModerationStatus::Approved;
+        } else {
+            unset($data['status']);
+        }
 
         $project->update($data);
 

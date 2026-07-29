@@ -11,7 +11,11 @@ use Illuminate\Validation\Rule;
 
 /**
  * Request для редагування вже створеного проєкту з візарда art-ua-info.
- * Статус проєкту (completed/approved) редагування не змінює — тут лише вміст.
+ * Редагування вмісту саме по собі статус не змінює. Два дозволені
+ * статус-переходи: status=draft (зняти опублікований проєкт з публічної
+ * сторінки й повернути в чернетку) та status=moderation (опублікувати
+ * чернетку — так само, як create-флоу, одразу завершує проєкт, бо цей
+ * візард не має окремої модерації бюджету).
  */
 class UpdateProjectRequest extends FormRequest
 {
@@ -40,6 +44,8 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'status' => ['nullable', 'string', Rule::in(['draft', 'moderation'])],
+
             'user_type' => ['required', Rule::enum(UserType::class)],
 
             'title' => ['required', 'array'],

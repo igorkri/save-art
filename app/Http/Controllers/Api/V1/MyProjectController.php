@@ -49,16 +49,25 @@ class MyProjectController extends Controller
      *     operationId="getMyProjects",
      *     tags={"My Projects"},
      *     summary="Список моїх проєктів",
-     *     description="Повертає список проєктів авторизованого користувача (всі статуси)",
+     *     description="Повертає список проєктів авторизованого користувача (всі статуси). За замовчуванням — лише проєкти save-art; для art-ua-info передайте ?source=art_ua_info.",
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="Фільтр по статусу",
+     *         description="Фільтр по статусу (підтримує кілька значень через кому, напр. draft,new,moderation). Якщо не вказано — усі статуси, крім new/draft.",
      *
      *         @OA\Schema(type="string", enum={"new", "draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"}),
      *         example="draft"
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="source",
+     *         in="query",
+     *         description="Джерело проєкту. За замовчуванням — save_art (проєкти art-ua-info в кабінеті save-art не показуються, бо без бюджету/етапів).",
+     *
+     *         @OA\Schema(type="string", enum={"save_art", "art_ua_info"}),
+     *         example="art_ua_info"
      *     ),
      *
      *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15, maximum=50)),
@@ -84,10 +93,18 @@ class MyProjectController extends Controller
     {
 
         $query = Project::query()
-            ->forSaveArt()
             ->with(['user.profileLegal', 'projectParameters.parameter', 'projectParameters.parameterValue'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
+
+        // За замовчуванням — тільки save-art (art-ua-info без бюджету/етапів не мають
+        // показуватись у save-art-кабінеті). art-ua-info фронтенд явно передає
+        // ?source=art_ua_info, щоб отримати свої проєкти (в т.ч. чернетки/на модерації).
+        if ($request->input('source') === ProjectSource::ArtUaInfo->value) {
+            $query->where('source', ProjectSource::ArtUaInfo);
+        } else {
+            $query->forSaveArt();
+        }
 
         // Фільтр по статусу (підтримує кілька значень через кому, напр. "draft,new")
         if ($request->filled('status')) {

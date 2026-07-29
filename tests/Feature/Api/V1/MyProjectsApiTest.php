@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Enums\ModerationStatus;
+use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
@@ -53,6 +54,68 @@ class MyProjectsApiTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonCount(1, 'data');
+    }
+
+    public function test_default_source_excludes_art_ua_info_projects(): void
+    {
+        Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::SaveArt,
+            'status' => ProjectStatus::Announced,
+        ]);
+        Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/projects');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data');
+    }
+
+    public function test_source_art_ua_info_returns_only_art_ua_info_projects(): void
+    {
+        Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::SaveArt,
+            'status' => ProjectStatus::Announced,
+        ]);
+        $artUaInfoProject = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/projects?source=art_ua_info');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.slug', $artUaInfoProject->slug);
+    }
+
+    public function test_can_filter_art_ua_info_drafts_by_status(): void
+    {
+        Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Draft,
+        ]);
+        Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/projects?source=art_ua_info&status=draft,new,moderation');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.status', 'draft');
     }
 
     // ==========================================
