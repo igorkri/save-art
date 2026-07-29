@@ -37,7 +37,7 @@ class ProjectController extends Controller
      *     operationId="artUaInfoCreateProject",
      *     tags={"ArtUaInfo Projects"},
      *     summary="Створити проєкт з art-ua-info",
-     *     security={{"bearerAuth":{}, "apiKey":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Response(response=200, description="Проєкт створено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Project"))),
      *     @OA\Response(response=401, description="Не авторизований"),
@@ -103,7 +103,7 @@ class ProjectController extends Controller
      *     operationId="artUaInfoUpdateProject",
      *     tags={"ArtUaInfo Projects"},
      *     summary="Редагувати проєкт з art-ua-info",
-     *     security={{"bearerAuth":{}, "apiKey":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string")),
      *

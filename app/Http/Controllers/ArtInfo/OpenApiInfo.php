@@ -76,6 +76,15 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\Schema(
+ *     schema="ValidationError",
+ *     title="ValidationError",
+ *     type="object",
+ *
+ *     @OA\Property(property="message", type="string", example="Валідацію не пройдено."),
+ *     @OA\Property(property="errors", type="object")
+ * )
+ *
+ * @OA\Schema(
  *     schema="ErrorResponse",
  *     title="ErrorResponse",
  *     type="object",

@@ -14,9 +14,15 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
 /**
- * API для управління власними командами (кабінет митця)
+ * API для управління власними командами (кабінет митця, art-ua-info)
+ *
+ * @OA\Tag(
+ *     name="My Teams",
+ *     description="API для управління власними творчими командами (art-ua-info)"
+ * )
  */
 class MyTeamController extends Controller
 {
@@ -26,6 +32,17 @@ class MyTeamController extends Controller
 
     /**
      * Список команд, де користувач є учасником
+     *
+     * @OA\Get(
+     *     path="/v1/art-ua-info/my/teams",
+     *     operationId="artUaInfoGetMyTeams",
+     *     tags={"My Teams"},
+     *     summary="Список моїх команд",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Response(response=200, description="Список команд", @OA\JsonContent(@OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Team")))),
+     *     @OA\Response(response=401, description="Не авторизовано")
+     * )
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -36,6 +53,33 @@ class MyTeamController extends Controller
 
     /**
      * Створити команду (поточний користувач стає власником)
+     *
+     * @OA\Post(
+     *     path="/v1/art-ua-info/my/teams",
+     *     operationId="artUaInfoCreateMyTeam",
+     *     tags={"My Teams"},
+     *     summary="Створити команду",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
+     *             @OA\Property(property="avatar", type="string", nullable=true, description="Файл або Base64 data URL"),
+     *             @OA\Property(property="website", type="string", nullable=true),
+     *             @OA\Property(property="country", ref="#/components/schemas/LocalizedString", nullable=true),
+     *             @OA\Property(property="city", ref="#/components/schemas/LocalizedString", nullable=true),
+     *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true),
+     *             @OA\Property(property="members", type="array", @OA\Items(type="object", @OA\Property(property="user_id", type="integer")))
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=200, description="Команду створено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Team"))),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
      */
     public function store(StoreTeamRequest $request): TeamResource
     {
@@ -79,6 +123,21 @@ class MyTeamController extends Controller
 
     /**
      * Оновити команду (лише власник)
+     *
+     * @OA\Put(
+     *     path="/v1/art-ua-info/my/teams/{team}",
+     *     operationId="artUaInfoUpdateMyTeam",
+     *     tags={"My Teams"},
+     *     summary="Оновити команду",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="team", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Команду оновлено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Team"))),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник команди"),
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
      */
     public function update(UpdateTeamRequest $request, Team $team): TeamResource
     {
@@ -121,6 +180,20 @@ class MyTeamController extends Controller
 
     /**
      * Видалити команду (лише власник)
+     *
+     * @OA\Delete(
+     *     path="/v1/art-ua-info/my/teams/{team}",
+     *     operationId="artUaInfoDeleteMyTeam",
+     *     tags={"My Teams"},
+     *     summary="Видалити команду",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="team", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Команду видалено"),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник команди")
+     * )
      */
     public function destroy(Request $request, Team $team): JsonResponse
     {
@@ -137,6 +210,21 @@ class MyTeamController extends Controller
 
     /**
      * Вийти з команди (для учасника, що не є власником)
+     *
+     * @OA\Post(
+     *     path="/v1/art-ua-info/my/teams/{team}/leave",
+     *     operationId="artUaInfoLeaveMyTeam",
+     *     tags={"My Teams"},
+     *     summary="Покинути команду",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="team", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Ви покинули команду"),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=404, description="Ви не є учасником цієї команди"),
+     *     @OA\Response(response=422, description="Власник не може покинути команду")
+     * )
      */
     public function leave(Request $request, Team $team): JsonResponse
     {

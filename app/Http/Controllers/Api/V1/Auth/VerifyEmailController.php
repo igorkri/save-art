@@ -79,9 +79,10 @@ class VerifyEmailController extends Controller
      *     operationId="resendEmailVerification",
      *     tags={"Auth"},
      *     summary="Повторна відправка листа підтвердження email",
-     *     security={{"apiKey":{}}},
+     *     security={{"sanctum":{}, "apiKey":{}}},
      *
-     *     @OA\Response(response=200, description="Лист надіслано")
+     *     @OA\Response(response=200, description="Лист надіслано"),
+     *     @OA\Response(response=401, description="Не авторизовано")
      * )
      */
     public function resend(Request $request): JsonResponse

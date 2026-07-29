@@ -14,9 +14,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
 /**
- * API для управління власними послугами (кабінет митця)
+ * API для управління власними послугами (кабінет митця, art-ua-info)
+ *
+ * @OA\Tag(
+ *     name="My Services",
+ *     description="API для управління власними послугами (art-ua-info)"
+ * )
  */
 class MyServiceController extends Controller
 {
@@ -26,6 +32,17 @@ class MyServiceController extends Controller
 
     /**
      * Список власних послуг
+     *
+     * @OA\Get(
+     *     path="/v1/art-ua-info/my/services",
+     *     operationId="artUaInfoGetMyServices",
+     *     tags={"My Services"},
+     *     summary="Список моїх послуг",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Response(response=200, description="Список послуг", @OA\JsonContent(@OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Service")))),
+     *     @OA\Response(response=401, description="Не авторизовано")
+     * )
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -40,6 +57,33 @@ class MyServiceController extends Controller
 
     /**
      * Створити послугу
+     *
+     * @OA\Post(
+     *     path="/v1/art-ua-info/my/services",
+     *     operationId="artUaInfoCreateMyService",
+     *     tags={"My Services"},
+     *     summary="Створити послугу",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+     *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true),
+     *             @OA\Property(property="image", type="string", nullable=true, description="Файл або Base64 data URL"),
+     *             @OA\Property(property="art_category_id", type="integer", nullable=true),
+     *             @OA\Property(property="price", type="number", nullable=true),
+     *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, nullable=true),
+     *             @OA\Property(property="options", type="array", maxItems=50, @OA\Items(type="object", @OA\Property(property="name", ref="#/components/schemas/LocalizedString")))
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=200, description="Послугу створено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Service"))),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
      */
     public function store(StoreServiceRequest $request): ServiceResource
     {
@@ -62,6 +106,21 @@ class MyServiceController extends Controller
 
     /**
      * Оновити послугу
+     *
+     * @OA\Put(
+     *     path="/v1/art-ua-info/my/services/{service}",
+     *     operationId="artUaInfoUpdateMyService",
+     *     tags={"My Services"},
+     *     summary="Оновити послугу",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="service", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Послугу оновлено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Service"))),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник послуги"),
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
      */
     public function update(UpdateServiceRequest $request, Service $service): ServiceResource
     {
@@ -86,6 +145,20 @@ class MyServiceController extends Controller
 
     /**
      * Видалити послугу
+     *
+     * @OA\Delete(
+     *     path="/v1/art-ua-info/my/services/{service}",
+     *     operationId="artUaInfoDeleteMyService",
+     *     tags={"My Services"},
+     *     summary="Видалити послугу",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="service", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Послугу видалено"),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник послуги")
+     * )
      */
     public function destroy(Request $request, Service $service): JsonResponse
     {

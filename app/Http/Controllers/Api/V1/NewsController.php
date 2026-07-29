@@ -22,7 +22,7 @@ class NewsController extends Controller
      * Отримати список новин та подій
      *
      * @OA\Get(
-     *     path="/v1/news",
+     *     path="/v1/art-ua-info/news",
      *     operationId="getNews",
      *     tags={"News"},
      *     summary="Список новин та подій",
@@ -103,7 +103,7 @@ class NewsController extends Controller
      * Отримати новину/подію за slug
      *
      * @OA\Get(
-     *     path="/v1/news/{slug}",
+     *     path="/v1/art-ua-info/news/{slug}",
      *     operationId="getNewsItem",
      *     tags={"News"},
      *     summary="Новина/подія за slug",

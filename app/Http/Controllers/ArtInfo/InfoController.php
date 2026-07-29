@@ -18,7 +18,7 @@ class InfoController extends Controller
      * Інформація про API
      *
      * @OA\Get(
-     *     path="/info",
+     *     path="/v1/art-ua-info/info",
      *     operationId="artInfoGetInfo",
      *     tags={"Info"},
      *     summary="Інформація про Art-UA Info API",
@@ -27,7 +27,9 @@ class InfoController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Інформація про API",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="name", type="string", example="Art-UA Info API"),
      *             @OA\Property(property="version", type="string", example="1.0.0"),
      *             @OA\Property(property="description", type="string", example="API для інформаційного порталу art-ua.info"),

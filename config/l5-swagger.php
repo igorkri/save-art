@@ -27,11 +27,21 @@ return [
                     base_path('app/Http/Controllers/ProfileApiController.php'),
                     base_path('app/Http/Resources'),
                 ],
+                // /api/v1/art-ua-info/* — окремий неймспейс і окрема swagger-документація
+                // (група 'art-info' нижче), не мають потрапляти в доки SaveArt.
+                'excludes' => [
+                    base_path('app/Http/Controllers/Api/V1/ArtUaInfo'),
+                    base_path('app/Http/Controllers/Api/V1/NewsController.php'),
+                    base_path('app/Http/Controllers/Api/V1/MyArtCatalogController.php'),
+                    base_path('app/Http/Controllers/Api/V1/MyServiceController.php'),
+                    base_path('app/Http/Controllers/Api/V1/MyTeamController.php'),
+                ],
             ],
         ],
 
         /*
-         * Art-UA Info API - інформаційний портал (art-ua.info)
+         * Art-UA Info API - інформаційний портал (art-ua.info), окремий
+         * неймспейс /api/v1/art-ua-info/* — app/Http/Controllers/Api/V1/ArtUaInfo
          */
         'art-info' => [
             'api' => [
@@ -51,16 +61,18 @@ return [
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
                 'annotations' => [
                     base_path('app/Http/Controllers/ArtInfo'),
+                    base_path('app/Http/Controllers/Api/V1/ArtUaInfo'),
+                    // Контролери без окремої ArtUaInfo-копії (уже були ексклюзивні
+                    // для art-ua-info, роут лише перенесено в новий неймспейс) —
+                    // їхні OA-докблоки лишаються тут єдиним джерелом документації.
                     base_path('app/Http/Controllers/Api/V1/NewsController.php'),
-                    base_path('app/Http/Controllers/Api/V1/FaqController.php'),
-                    base_path('app/Http/Controllers/Api/V1/CatalogController.php'),
-                    base_path('app/Http/Controllers/Api/V1/ArtistController.php'),
                     base_path('app/Http/Controllers/Api/V1/OrganizationController.php'),
                     base_path('app/Http/Controllers/Api/V1/ArtCatalogController.php'),
                     base_path('app/Http/Controllers/Api/V1/TeamController.php'),
                     base_path('app/Http/Controllers/Api/V1/ServiceController.php'),
-                    base_path('app/Http/Controllers/Api/V1/ProjectController.php'),
-                    base_path('app/Http/Controllers/Api/V1/LikeController.php'),
+                    base_path('app/Http/Controllers/Api/V1/MyArtCatalogController.php'),
+                    base_path('app/Http/Controllers/Api/V1/MyServiceController.php'),
+                    base_path('app/Http/Controllers/Api/V1/MyTeamController.php'),
                     base_path('app/Http/Resources/Api/V1/NewsResource.php'),
                     base_path('app/Http/Resources/Api/V1/NewsListResource.php'),
                     base_path('app/Http/Resources/Api/V1/ArtistResource.php'),

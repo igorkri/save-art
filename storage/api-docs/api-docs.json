@@ -1469,111 +1469,6 @@
                 }
             }
         },
-        "/v1/art-ua-info/projects": {
-            "post": {
-                "tags": [
-                    "ArtUaInfo Projects"
-                ],
-                "summary": "Створити проєкт з art-ua-info",
-                "description": "Створити проєкт з візарда art-ua-info",
-                "operationId": "artUaInfoCreateProject",
-                "responses": {
-                    "200": {
-                        "description": "Проєкт створено",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/Project"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Не авторизований"
-                    },
-                    "422": {
-                        "description": "Помилка валідації",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ValidationError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": [],
-                        "apiKey": []
-                    }
-                ]
-            }
-        },
-        "/v1/art-ua-info/projects/{project}": {
-            "put": {
-                "tags": [
-                    "ArtUaInfo Projects"
-                ],
-                "summary": "Редагувати проєкт з art-ua-info",
-                "description": "Редагувати вже створений проєкт з візарда art-ua-info. Статус (completed/approved)\nредагування не чіпає — оновлюється лише вміст.",
-                "operationId": "artUaInfoUpdateProject",
-                "parameters": [
-                    {
-                        "name": "project",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Проєкт оновлено",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/Project"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Не авторизований"
-                    },
-                    "403": {
-                        "description": "Не власник проєкту"
-                    },
-                    "422": {
-                        "description": "Помилка валідації",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ValidationError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": [],
-                        "apiKey": []
-                    }
-                ]
-            }
-        },
         "/v1/artists": {
             "get": {
                 "tags": [
@@ -2647,10 +2542,14 @@
                 "responses": {
                     "200": {
                         "description": "Лист надіслано"
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
                     }
                 },
                 "security": [
                     {
+                        "sanctum": [],
                         "apiKey": []
                     }
                 ]
@@ -4848,13 +4747,13 @@
                     "My Projects"
                 ],
                 "summary": "Список моїх проєктів",
-                "description": "Повертає список проєктів авторизованого користувача (всі статуси)",
+                "description": "Повертає список проєктів авторизованого користувача (всі статуси). За замовчуванням — лише проєкти save-art; для art-ua-info передайте ?source=art_ua_info.",
                 "operationId": "getMyProjects",
                 "parameters": [
                     {
                         "name": "status",
                         "in": "query",
-                        "description": "Фільтр по статусу",
+                        "description": "Фільтр по статусу (підтримує кілька значень через кому, напр. draft,new,moderation). Якщо не вказано — усі статуси, крім new/draft.",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -4870,6 +4769,19 @@
                             ]
                         },
                         "example": "draft"
+                    },
+                    {
+                        "name": "source",
+                        "in": "query",
+                        "description": "Джерело проєкту. За замовчуванням — save_art (проєкти art-ua-info в кабінеті save-art не показуються, бо без бюджету/етапів).",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "save_art",
+                                "art_ua_info"
+                            ]
+                        },
+                        "example": "art_ua_info"
                     },
                     {
                         "name": "per_page",
@@ -6448,148 +6360,6 @@
                 "security": [
                     {
                         "sanctum": [],
-                        "apiKey": []
-                    }
-                ]
-            }
-        },
-        "/v1/news": {
-            "get": {
-                "tags": [
-                    "News"
-                ],
-                "summary": "Список новин та подій",
-                "description": "Повертає пагінований список активних новин та подій, відсортований за датою публікації (спочатку найновіші). Підтримує фільтрацію за категорією.",
-                "operationId": "getNews",
-                "parameters": [
-                    {
-                        "name": "category",
-                        "in": "query",
-                        "description": "Фільтр за категорією",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "news",
-                                "event"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Кількість новин на сторінці (максимум 50)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 15
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список новин та подій",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/NewsList"
-                                            }
-                                        },
-                                        "language": {
-                                            "type": "string",
-                                            "example": "uk",
-                                            "nullable": true
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ]
-            }
-        },
-        "/v1/news/{slug}": {
-            "get": {
-                "tags": [
-                    "News"
-                ],
-                "summary": "Новина/подія за slug",
-                "description": "Повертає повну інформацію про новину або подію, включно з текстовими блоками.",
-                "operationId": "getNewsItem",
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "path",
-                        "description": "Slug новини",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Новина/подія",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/News"
-                                        },
-                                        "language": {
-                                            "type": "string",
-                                            "example": "uk",
-                                            "nullable": true
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Новину не знайдено"
-                    }
-                },
-                "security": [
-                    {
                         "apiKey": []
                     }
                 ]
@@ -11972,6 +11742,11 @@
                         "example": "pending",
                         "nullable": true
                     },
+                    "sold_externally": {
+                        "description": "Проєкт позначено проданим поза платформою (art-ua-info)",
+                        "type": "boolean",
+                        "example": false
+                    },
                     "title": {
                         "$ref": "#/components/schemas/LocalizedString"
                     },
@@ -13457,10 +13232,6 @@
             "description": "PDF-каталоги робіт авторів"
         },
         {
-            "name": "ArtUaInfo Projects",
-            "description": "API для створення проєктів з візарда art-ua-info (без бюджету/етапів/бонусів)"
-        },
-        {
             "name": "Artists",
             "description": "API для роботи з митцями (публічні профілі)"
         },
@@ -13487,10 +13258,6 @@
         {
             "name": "My Projects",
             "description": "API для управління власними проєктами (кабінет митця)"
-        },
-        {
-            "name": "News",
-            "description": "API для новин та подій (art-ua-info)"
         },
         {
             "name": "Notifications",
