@@ -64,7 +64,7 @@ class ProjectController extends Controller
         }
 
         if (isset($data['final_result'])) {
-            $data['final_result'] = $this->imageProcessor->processContentBlocks($data['final_result']);
+            $data['final_result'] = $this->imageProcessor->processContentBlocks($data['final_result'], null, 'projects/final-result');
         }
 
         if (isset($data['content_blocks'])) {
@@ -130,7 +130,7 @@ class ProjectController extends Controller
         }
 
         if (isset($data['final_result'])) {
-            $data['final_result'] = $this->imageProcessor->processContentBlocks($data['final_result'], $project->final_result);
+            $data['final_result'] = $this->imageProcessor->processContentBlocks($data['final_result'], $project->final_result, 'projects/final-result');
         }
 
         if (isset($data['content_blocks'])) {

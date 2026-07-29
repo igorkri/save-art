@@ -63,8 +63,10 @@ class StoreProjectRequest extends FormRequest
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
             'tags' => ['nullable', 'array'],
-            'tags.uk' => ['nullable', 'string', 'max:500'],
-            'tags.en' => ['nullable', 'string', 'max:500'],
+            'tags.uk' => ['nullable', 'array', 'max:30'],
+            'tags.uk.*' => ['string', 'max:100'],
+            'tags.en' => ['nullable', 'array', 'max:30'],
+            'tags.en.*' => ['string', 'max:100'],
 
             'currency' => ['nullable', Rule::enum(Currency::class)],
 

@@ -45,12 +45,13 @@ class ImageProcessingService
     }
 
     /**
-     * Обробляє content_blocks та конвертує Base64 зображення в файли
+     * Обробляє content_blocks (або final_result — той самий формат блоків) та
+     * конвертує Base64 зображення в файли.
      *
      * @param  array<int, array<string, mixed>>|null  $contentBlocks
      * @return array<int, array<string, mixed>>|null
      */
-    public function processContentBlocks(?array $contentBlocks, ?array $oldContentBlocks = null): ?array
+    public function processContentBlocks(?array $contentBlocks, ?array $oldContentBlocks = null, string $directory = 'projects/content-blocks'): ?array
     {
         if (empty($contentBlocks)) {
             return $contentBlocks;
@@ -73,7 +74,7 @@ class ImageProcessingService
 
             // Якщо це Base64 - конвертуємо в файл
             if ($this->isBase64Image($image)) {
-                $contentBlocks[$index]['image'] = $this->saveBase64Image($image, 'projects/content-blocks');
+                $contentBlocks[$index]['image'] = $this->saveBase64Image($image, $directory);
             } else {
                 // Якщо це вже шлях - запам'ятовуємо що він використовується
                 $usedPaths[] = $image;
