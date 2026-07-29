@@ -68,7 +68,14 @@ class StoreProjectRequest extends FormRequest
 
             'currency' => ['nullable', Rule::enum(Currency::class)],
 
-            'content_blocks' => [$isDraft ? 'nullable' : 'required', 'array', 'max:50'],
+            // Робота (галерея зображень + посилання на відео), яку показуємо в прев'ю проєкту.
+            'final_result' => [$isDraft ? 'nullable' : 'required', 'array', 'max:50'],
+            'final_result.*.type' => ['sometimes', 'string', 'in:image,link'],
+            'final_result.*.image' => ['sometimes', 'string'],
+            'final_result.*.url' => ['nullable', 'string', 'max:500', 'url'],
+
+            // Додаткова інформація про проєкт (блоки: заголовок/текст/зображення/посилання).
+            'content_blocks' => ['nullable', 'array', 'max:50'],
             'content_blocks.*.type' => ['sometimes', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['sometimes', 'string', 'in:h1,h2,h3,h4,h5,h6'],
             'content_blocks.*.heading_text' => ['sometimes', 'array'],
@@ -76,6 +83,9 @@ class StoreProjectRequest extends FormRequest
             'content_blocks.*.image' => ['sometimes', 'string'],
             'content_blocks.*.image_alt' => ['sometimes', 'array'],
             'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
+
+            // Проєкт уже продано на іншій платформі (art-ua.com чи іншій).
+            'sold_externally' => ['nullable', 'boolean'],
 
             'parameters' => ['nullable', 'array'],
             'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
@@ -120,7 +130,7 @@ class StoreProjectRequest extends FormRequest
             'title.uk.required' => 'Введіть назву проєкту українською.',
             'title.en.required' => 'Введіть назву проєкту англійською.',
             'art_category.required' => 'Оберіть галузь мистецтва.',
-            'content_blocks.required' => 'Додайте роботу.',
+            'final_result.required' => 'Додайте роботу.',
         ];
     }
 }

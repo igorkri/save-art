@@ -63,6 +63,10 @@ class ProjectController extends Controller
             $data['cover'] = $this->imageProcessor->processCover($data['cover']);
         }
 
+        if (isset($data['final_result'])) {
+            $data['final_result'] = $this->imageProcessor->processContentBlocks($data['final_result']);
+        }
+
         if (isset($data['content_blocks'])) {
             $data['content_blocks'] = $this->imageProcessor->processContentBlocks($data['content_blocks']);
         }
@@ -123,6 +127,10 @@ class ProjectController extends Controller
 
         if (isset($data['cover'])) {
             $data['cover'] = $this->imageProcessor->processCover($data['cover'], $project->cover);
+        }
+
+        if (isset($data['final_result'])) {
+            $data['final_result'] = $this->imageProcessor->processContentBlocks($data['final_result'], $project->final_result);
         }
 
         if (isset($data['content_blocks'])) {

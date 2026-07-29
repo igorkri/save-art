@@ -135,6 +135,7 @@ class ProjectResource extends JsonResource
             'slug' => $this->slug,
             'code' => $this->code,
             'source' => $this->source->value,
+            'sold_externally' => (bool) $this->sold_externally,
 
             'status' => $this->status->value,
             'status_label' => $this->status->getLabel($language ?? 'uk'),
@@ -199,7 +200,25 @@ class ProjectResource extends JsonResource
      */
     private function localizeFinalResult($finalResult, ?string $language): mixed
     {
-        if ($language === null || ! is_array($finalResult)) {
+        if (! is_array($finalResult)) {
+            return $finalResult;
+        }
+
+        // art-ua-info: final_result — список блоків роботи (type: image|link), а не
+        // одиничний об'єкт { type, url, urls, description } як у save-art — конвертуємо
+        // шляхи зображень в URL так само, як у content_blocks.
+        if (array_is_list($finalResult)) {
+            return array_map(function ($block) {
+                if (is_array($block) && isset($block['image'])) {
+                    $block['image'] = Storage::url($block['image']);
+                    $block['image_url'] = $block['image'];
+                }
+
+                return $block;
+            }, $finalResult);
+        }
+
+        if ($language === null) {
             return $finalResult;
         }
 

@@ -24,6 +24,9 @@ class ProjectControllerTest extends ApiTestCase
             'user_type' => 'personal',
             'title' => ['uk' => 'Мій проект', 'en' => 'My project'],
             'art_category' => 'music',
+            'final_result' => [
+                ['type' => 'link', 'url' => 'https://example.com/work'],
+            ],
             'content_blocks' => [
                 ['type' => 'paragraph', 'paragraph_text' => ['uk' => 'Текст', 'en' => 'Text']],
             ],
@@ -93,6 +96,9 @@ class ProjectControllerTest extends ApiTestCase
                 'user_type' => 'personal',
                 'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
                 'art_category' => 'music',
+                'final_result' => [
+                    ['type' => 'link', 'url' => 'https://example.com/work'],
+                ],
                 'content_blocks' => [
                     ['type' => 'paragraph', 'paragraph_text' => ['uk' => 'Текст', 'en' => 'Text']],
                 ],
