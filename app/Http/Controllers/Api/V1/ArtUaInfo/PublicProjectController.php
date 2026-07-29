@@ -42,7 +42,7 @@ class PublicProjectController extends Controller
      *     @OA\Parameter(name="parameter_value_id", in="query", description="Фільтр по значеннях характеристик", @OA\Schema(type="string")),
      *     @OA\Parameter(name="user_id", in="query", description="Фільтр по автору", @OA\Schema(type="integer")),
      *     @OA\Parameter(name="search", in="query", description="Пошук по назві та опису", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="sort_by", in="query", @OA\Schema(type="string", enum={"newest", "popular", "ending_soon"})),
+     *     @OA\Parameter(name="sort_by", in="query", @OA\Schema(type="string", enum={"name", "date"})),
      *     @OA\Parameter(name="sort_dir", in="query", @OA\Schema(type="string", enum={"asc", "desc"})),
      *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15, maximum=50)),
      *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
@@ -87,22 +87,17 @@ class PublicProjectController extends Controller
         $query = $this->buildFilteredQuery($request)
             ->with(['user.profileLegal', 'artCategory.parent', 'projectParameters.parameter', 'projectParameters.parameterValue']);
 
-        $sortBy = $request->input('sort_by', 'newest');
-        $sortDir = $request->input('sort_dir', 'desc');
-        $sortMapping = [
-            'newest' => 'announced_at',
-            'popular' => 'likes_count',
-            'ending_soon' => 'planned_completion_at',
-            'created_at' => 'created_at',
-            'likes_count' => 'likes_count',
-        ];
+        $sortBy = $request->input('sort_by', 'date');
 
-        $sortField = $sortMapping[$sortBy] ?? 'announced_at';
-
-        if ($sortBy === 'ending_soon') {
-            $query->orderBy($sortField, 'asc');
+        if ($sortBy === 'name') {
+            $sortDir = $request->input('sort_dir', 'asc');
+            $jsonPath = '$.'.($language ?: 'uk');
+            $query->orderByRaw(
+                "LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '{$jsonPath}'))) ".($sortDir === 'desc' ? 'desc' : 'asc')
+            );
         } else {
-            $query->orderBy($sortField, $sortDir === 'asc' ? 'asc' : 'desc');
+            $sortDir = $request->input('sort_dir', 'desc');
+            $query->orderBy('announced_at', $sortDir === 'asc' ? 'asc' : 'desc');
         }
 
         $perPage = min(max(1, $request->input('per_page', 15)), 50);
@@ -424,9 +419,8 @@ class PublicProjectController extends Controller
     private function getFilterSortOptions(?string $language = null): array
     {
         $options = [
-            ['slug' => 'newest', 'name' => ['uk' => 'Найновіші', 'en' => 'Newest']],
-            ['slug' => 'popular', 'name' => ['uk' => 'Популярні', 'en' => 'Popular']],
-            ['slug' => 'ending_soon', 'name' => ['uk' => 'Скоро завершуються', 'en' => 'Ending Soon']],
+            ['slug' => 'date', 'name' => ['uk' => 'За датою', 'en' => 'By date']],
+            ['slug' => 'name', 'name' => ['uk' => 'За назвою', 'en' => 'By name']],
         ];
 
         return array_map(fn ($option) => [
