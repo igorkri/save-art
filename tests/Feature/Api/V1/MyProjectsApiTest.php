@@ -38,6 +38,22 @@ class MyProjectsApiTest extends ApiTestCase
             ->assertJsonCount(3, 'data');
     }
 
+    public function test_completed_projects_list_exposes_sold_externally(): void
+    {
+        Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => ProjectStatus::Completed,
+            'sold_externally' => true,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/my/projects/completed');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.sold_externally', true);
+    }
+
     public function test_can_filter_my_projects_by_status(): void
     {
         Project::factory()->create([
