@@ -5,7 +5,6 @@ namespace App\Http\Resources\Api\V1;
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
@@ -61,7 +60,7 @@ class NewsResource extends JsonResource
             'date' => $this->published_at?->format('d.m.Y'),
             'published_at' => $this->published_at?->toISOString(),
 
-            'main_image_url' => $this->main_image ? Storage::url($this->main_image) : null,
+            'main_image_url' => $this->main_image ? asset('storage/'.$this->main_image) : null,
 
             'text_blocks' => $this->localizeTextBlocks($this->text_blocks, $language),
 
@@ -89,7 +88,7 @@ class NewsResource extends JsonResource
             return [
                 'paragraphs' => $this->localizeField($paragraphs, $language) ?? [],
                 'image' => $block['image'] ?? null,
-                'image_url' => isset($block['image']) ? Storage::url($block['image']) : null,
+                'image_url' => isset($block['image']) ? asset('storage/'.$block['image']) : null,
             ];
         }, $textBlocks);
     }
