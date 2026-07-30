@@ -52,7 +52,7 @@ class ArtCatalogController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = $this->buildFilteredQuery($request)->with(['user', 'artCategory']);
+        $query = $this->buildFilteredQuery($request)->with(['user', 'artCategory.parent']);
 
         if ($request->input('sort_by') === 'likes') {
             $query->orderBy('likes_count', $request->input('sort_dir', 'desc') === 'asc' ? 'asc' : 'desc');
@@ -193,7 +193,7 @@ class ArtCatalogController extends Controller
     public function show(int $id): ArtCatalogResource
     {
         $catalog = ArtCatalog::query()
-            ->with(['user', 'artCategory'])
+            ->with(['user', 'artCategory.parent'])
             ->findOrFail($id);
 
         return new ArtCatalogResource($catalog);

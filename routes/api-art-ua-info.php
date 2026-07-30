@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\V1\LikeController as SharedLikeController;
 use App\Http\Controllers\Api\V1\MyArtCatalogController;
 use App\Http\Controllers\Api\V1\MyServiceController;
 use App\Http\Controllers\Api\V1\MyTeamController;
@@ -107,6 +108,11 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
 
     Route::post('/projects/{project}/like', [LikeController::class, 'store']);
     Route::delete('/projects/{project}/like', [LikeController::class, 'destroy']);
+
+    // ArtCatalog — спільна модель для save-art і art-ua-info, тож лайки теж
+    // через спільний LikeController (як і ArtCatalogController вище).
+    Route::post('/catalogs/{artCatalog}/like', [SharedLikeController::class, 'likeCatalog']);
+    Route::delete('/catalogs/{artCatalog}/like', [SharedLikeController::class, 'unlikeCatalog']);
 
     Route::prefix('my/catalogs')->group(function () {
         Route::get('/', [MyArtCatalogController::class, 'index']);

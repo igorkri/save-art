@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1;
 
 use App\Models\ArtCatalog;
 use App\Models\ArtCategory;
+use App\Models\User;
 
 class ArtCatalogsApiTest extends ApiTestCase
 {
@@ -142,5 +143,35 @@ class ArtCatalogsApiTest extends ApiTestCase
         $subcategories = collect($rootData['subcategories']);
         $this->assertSame(2, $subcategories->firstWhere('slug', $subA->slug)['catalogs_count']);
         $this->assertSame(0, $subcategories->firstWhere('slug', $subB->slug)['catalogs_count']);
+    }
+
+    public function test_catalog_includes_root_and_child_category_names(): void
+    {
+        $root = ArtCategory::create(['slug' => 'test-root-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Візуальне мистецтво', 'en' => 'Visual art']]);
+        $sub = ArtCategory::create(['slug' => 'test-sub-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Доповнена реальність', 'en' => 'Augmented reality'], 'parent_id' => $root->id]);
+        $catalog = ArtCatalog::factory()->create(['art_category_id' => $sub->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/art-ua-info/catalogs/{$catalog->id}?language=uk");
+
+        $response->assertOk()
+            ->assertJsonPath('data.art_category.name', 'Доповнена реальність')
+            ->assertJsonPath('data.art_category.root_name', 'Візуальне мистецтво');
+    }
+
+    public function test_can_like_and_unlike_catalog_via_art_ua_info_route(): void
+    {
+        $user = User::factory()->create();
+        $catalog = ArtCatalog::factory()->create(['likes_count' => 0]);
+
+        $likeResponse = $this->authPost($user, "/api/v1/art-ua-info/catalogs/{$catalog->id}/like");
+        $likeResponse->assertOk()->assertJsonPath('is_liked', true)->assertJsonPath('likes_count', 1);
+
+        $showResponse = $this->withHeaders($this->authHeaders($user))
+            ->getJson("/api/v1/art-ua-info/catalogs/{$catalog->id}");
+        $showResponse->assertOk()->assertJsonPath('data.is_liked', true);
+
+        $unlikeResponse = $this->authDelete($user, "/api/v1/art-ua-info/catalogs/{$catalog->id}/like");
+        $unlikeResponse->assertOk()->assertJsonPath('is_liked', false)->assertJsonPath('likes_count', 0);
     }
 }

@@ -23,9 +23,11 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="published_at", type="string", format="date", nullable=true),
  *     @OA\Property(property="art_category", type="object", nullable=true,
  *         @OA\Property(property="slug", type="string"),
- *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString")
+ *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
+ *         @OA\Property(property="root_name", ref="#/components/schemas/LocalizedString")
  *     ),
  *     @OA\Property(property="likes_count", type="integer", example=10),
+ *     @OA\Property(property="is_liked", type="boolean", example=false),
  *     @OA\Property(property="is_primary", type="boolean", example=false),
  *     @OA\Property(property="pdf_url", type="string", nullable=true),
  *     @OA\Property(property="author", type="object",
@@ -60,11 +62,20 @@ class ArtCatalogResource extends JsonResource
             'art_category' => $this->whenLoaded('artCategory', fn () => $this->artCategory ? [
                 'slug' => $this->artCategory->slug,
                 'name' => $this->localizeField($this->artCategory->name, $language),
+                'root_name' => $this->localizeField(
+                    ($this->artCategory->parent ?? $this->artCategory)->name,
+                    $language
+                ),
             ] : null),
             // Slug кореневої галузі та підкатегорії — для передзаповнення форми редагування каталогу.
             'art_category_slug' => $this->whenLoaded('artCategory', fn () => $this->artCategory?->getRootSlug()),
             'art_subcategory_slug' => $this->whenLoaded('artCategory', fn () => $this->artCategory?->getSubSlug()),
             'likes_count' => $this->likes_count,
+            'is_liked' => $this->when(
+                $request->user('sanctum'),
+                fn () => $this->likes()->where('user_id', $request->user('sanctum')->id)->exists(),
+                false
+            ),
             'is_primary' => $this->is_primary,
             'pdf_url' => $this->pdf_file ? Storage::url('catalogs/'.$this->pdf_file) : null,
             'author' => $this->whenLoaded('user', fn () => [
