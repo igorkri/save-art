@@ -166,6 +166,7 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
     // Послуги митців/організацій/команд (публічний, art-ua-info)
     Route::prefix('services')->group(function () {
         Route::get('/', [ServiceController::class, 'index']);
+        Route::get('/locations', [ServiceController::class, 'locations']);
         Route::get('/{slug}', [ServiceController::class, 'show']);
     });
 

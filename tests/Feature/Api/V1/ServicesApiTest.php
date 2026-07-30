@@ -101,6 +101,44 @@ class ServicesApiTest extends ApiTestCase
             ->assertJsonPath('data.0.currency', 'USD');
     }
 
+    public function test_can_filter_services_by_performer_city(): void
+    {
+        // SQLite (тестова БД) не вміє LOWER() для кирилиці — використовуємо вже
+        // нижній регістр, щоб перевірити саму логіку фільтра незалежно від цієї особливості.
+        $kyivArtist = User::factory()->create(['city' => ['uk' => 'київ', 'en' => 'kyiv']]);
+        $lvivArtist = User::factory()->create(['city' => ['uk' => 'львів', 'en' => 'lviv']]);
+        Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $kyivArtist->id]);
+        Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $lvivArtist->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/services?location=київ');
+
+        $response->assertOk()->assertJsonCount(1, 'data');
+    }
+
+    public function test_returns_city_suggestions_by_prefix(): void
+    {
+        $kryvyiRihArtist = User::factory()->create(['city' => ['uk' => 'Кривий Ріг', 'en' => 'Kryvyi Rih']]);
+        $kyivArtist = User::factory()->create(['city' => ['uk' => 'Київ', 'en' => 'Kyiv']]);
+        Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $kryvyiRihArtist->id]);
+        Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $kyivArtist->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/services/locations?search=Крив');
+
+        $response->assertOk()->assertJson(['data' => ['Кривий Ріг']]);
+    }
+
+    public function test_location_suggestions_ignore_authors_without_services(): void
+    {
+        User::factory()->create(['city' => ['uk' => 'Крижопіль', 'en' => 'Kryzhopil']]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/services/locations?search=Криж');
+
+        $response->assertOk()->assertJson(['data' => []]);
+    }
+
     public function test_can_search_services_by_title(): void
     {
         Service::factory()->create(['title' => ['uk' => 'Розпис портрету', 'en' => 'Portrait painting']]);

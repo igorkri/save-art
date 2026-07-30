@@ -9,6 +9,7 @@ use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
@@ -120,11 +121,12 @@ class ServiceController extends Controller
         if ($request->filled('location')) {
             $location = mb_strtolower((string) $request->input('location'));
             $jsonUnquote = (new Service)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
-            $locationUk = sprintf($jsonUnquote, "JSON_EXTRACT(location, '$.uk')");
-            $locationEn = sprintf($jsonUnquote, "JSON_EXTRACT(location, '$.en')");
-            $query->where(function ($q) use ($location, $locationUk, $locationEn) {
-                $q->whereRaw("LOWER({$locationUk}) LIKE ?", ["%{$location}%"])
-                    ->orWhereRaw("LOWER({$locationEn}) LIKE ?", ["%{$location}%"]);
+            $cityUk = sprintf($jsonUnquote, "JSON_EXTRACT(city, '$.uk')");
+            $cityEn = sprintf($jsonUnquote, "JSON_EXTRACT(city, '$.en')");
+            // Місто послуги власного поля не має — шукаємо за містом виконавця (митця/команди).
+            $query->whereHasMorph('serviceable', [User::class, Team::class], function ($q) use ($location, $cityUk, $cityEn) {
+                $q->whereRaw("LOWER({$cityUk}) LIKE ?", ["%{$location}%"])
+                    ->orWhereRaw("LOWER({$cityEn}) LIKE ?", ["%{$location}%"]);
             });
         }
 
@@ -189,6 +191,52 @@ class ServiceController extends Controller
         }
 
         return $translations[$language] ?? $translations['uk'] ?? reset($translations);
+    }
+
+    /**
+     * Підказки міст для фільтра "Місцезнаходження"
+     *
+     * @OA\Get(
+     *     path="/v1/services/locations",
+     *     operationId="getServiceLocations",
+     *     tags={"Services"},
+     *     summary="Автопідказки міст виконавців послуг",
+     *     description="Повертає до 8 міст (серед тих, де є хоча б одна послуга), що починаються з пошукового рядка",
+     *
+     *     @OA\Parameter(name="search", in="query", required=true, description="Початок назви міста", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en)", @OA\Schema(type="string", enum={"uk", "en"})),
+     *
+     *     @OA\Response(response=200, description="Список міст", @OA\JsonContent(@OA\Property(property="data", type="array", @OA\Items(type="string"))))
+     * )
+     */
+    public function locations(Request $request): JsonResponse
+    {
+        $search = trim((string) $request->input('search', ''));
+        if ($search === '') {
+            return response()->json(['data' => []]);
+        }
+
+        $language = $request->query('language', 'uk');
+
+        $userIds = Service::query()->where('serviceable_type', User::class)->distinct()->pluck('serviceable_id');
+        $teamIds = Service::query()->where('serviceable_type', Team::class)->distinct()->pluck('serviceable_id');
+
+        $cities = User::query()->whereIn('id', $userIds)->pluck('city')
+            ->merge(Team::query()->whereIn('id', $teamIds)->pluck('city'));
+
+        $names = $cities
+            ->filter()
+            ->map(fn (array $city) => $city[$language] ?? $city['uk'] ?? reset($city))
+            ->filter()
+            ->unique();
+
+        $matches = $names
+            ->filter(fn (string $name) => mb_stripos($name, $search) === 0)
+            ->sort(fn (string $a, string $b) => mb_strtolower($a) <=> mb_strtolower($b))
+            ->values()
+            ->take(8);
+
+        return response()->json(['data' => $matches]);
     }
 
     /**
