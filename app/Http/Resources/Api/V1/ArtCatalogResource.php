@@ -32,7 +32,8 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(property="id", type="integer"),
  *         @OA\Property(property="name", type="string"),
  *         @OA\Property(property="slug", type="string"),
- *         @OA\Property(property="avatar_url", type="string", nullable=true)
+ *         @OA\Property(property="avatar_url", type="string", nullable=true),
+ *         @OA\Property(property="profession", type="string", nullable=true)
  *     )
  * )
  */
@@ -71,6 +72,7 @@ class ArtCatalogResource extends JsonResource
                 'name' => $this->user->name,
                 'slug' => $this->user->slug,
                 'avatar_url' => $this->user->avatar ? Storage::url($this->user->avatar) : null,
+                'profession' => $this->localizeField($this->user->profession, $language),
             ]),
         ];
     }
