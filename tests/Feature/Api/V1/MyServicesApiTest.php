@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Models\ArtCategory;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -33,10 +34,13 @@ class MyServicesApiTest extends ApiTestCase
 
     public function test_can_create_service(): void
     {
+        $category = ArtCategory::factory()->create();
+
         $data = [
             'title' => ['uk' => 'Розпис портрету'],
             'description' => ['uk' => 'Опис послуги'],
             'image' => UploadedFile::fake()->image('cover.jpg'),
+            'art_category' => $category->slug,
             'price' => 1500,
             'currency' => 'UAH',
             'options' => [
@@ -54,6 +58,7 @@ class MyServicesApiTest extends ApiTestCase
         $this->assertDatabaseHas('services', [
             'serviceable_type' => User::class,
             'serviceable_id' => $this->user->id,
+            'art_category_id' => $category->id,
         ]);
     }
 
@@ -62,15 +67,19 @@ class MyServicesApiTest extends ApiTestCase
         $response = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/my/services', []);
 
-        $response->assertUnprocessable()->assertJsonValidationErrors(['title.uk']);
+        $response->assertUnprocessable()->assertJsonValidationErrors(['title.uk', 'art_category']);
     }
 
     public function test_cannot_update_others_service(): void
     {
+        $category = ArtCategory::factory()->create();
         $service = Service::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/services/{$service->slug}", ['title' => ['uk' => 'Хак']]);
+            ->putJson("/api/v1/my/services/{$service->slug}", [
+                'title' => ['uk' => 'Хак'],
+                'art_category' => $category->slug,
+            ]);
 
         $response->assertForbidden();
     }

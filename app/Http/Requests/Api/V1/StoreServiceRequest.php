@@ -29,13 +29,25 @@ class StoreServiceRequest extends FormRequest
             'description.uk' => ['nullable', 'string', 'max:5000'],
             'description.en' => ['nullable', 'string', 'max:5000'],
             'image' => ['nullable'], // файл або Base64
-            'art_category_id' => ['nullable', 'integer', 'exists:art_categories,id'],
+            'art_category' => ['required', 'string', 'max:100'],
+            'art_subcategory' => ['nullable', 'string', 'max:100'],
             'price' => ['nullable', 'numeric', 'min:0'],
+            'price_from' => ['nullable', 'boolean'],
             'currency' => ['nullable', 'string', 'in:UAH,USD,EUR'],
             'options' => ['nullable', 'array', 'max:50'],
             'options.*.name' => ['required_with:options', 'array'],
             'options.*.name.uk' => ['required_with:options', 'string', 'max:255'],
             'options.*.name.en' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    /**
+     * Кастомні повідомлення про помилки
+     */
+    public function messages(): array
+    {
+        return [
+            'art_category.required' => 'Оберіть галузь мистецтва.',
         ];
     }
 }

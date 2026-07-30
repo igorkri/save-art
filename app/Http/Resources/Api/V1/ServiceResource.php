@@ -30,6 +30,7 @@ use OpenApi\Annotations as OA;
  *     ),
  *     @OA\Property(property="location", ref="#/components/schemas/LocalizedString", nullable=true),
  *     @OA\Property(property="price", type="number", format="float", nullable=true),
+ *     @OA\Property(property="price_from", type="boolean", example=false),
  *     @OA\Property(property="currency", type="string", nullable=true, example="UAH"),
  *     @OA\Property(property="options", type="array", @OA\Items(type="string")),
  *     @OA\Property(property="performer_type", type="string", enum={"artist", "organization", "team"}),
@@ -67,6 +68,7 @@ class ServiceResource extends JsonResource
             ] : null),
             'location' => $this->localizeField($this->location, $language),
             'price' => $this->price !== null ? (float) $this->price : null,
+            'price_from' => (bool) $this->price_from,
             'currency' => $this->currency?->value,
             'options' => collect($this->options ?? [])
                 ->map(fn ($option) => $this->localizeField($option['name'] ?? null, $language))

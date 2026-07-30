@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreServiceRequest;
 use App\Http\Requests\Api\V1\UpdateServiceRequest;
 use App\Http\Resources\Api\V1\ServiceResource;
+use App\Models\ArtCategory;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\ImageProcessingService;
@@ -75,14 +76,21 @@ class MyServiceController extends Controller
     public function show(Request $request, Service $service): JsonResponse
     {
         $this->authorizeOwner($request, $service);
+        $service->load('artCategory');
 
         return response()->json(['data' => [
             'slug' => $service->slug,
             'title' => $service->title,
             'description' => $service->description,
             'image_url' => $service->image ? Storage::url($service->image) : null,
-            'art_category_id' => $service->art_category_id,
+            'art_category_slug' => $service->artCategory?->getRootSlug(),
+            'art_subcategory_slug' => $service->artCategory?->getSubSlug(),
+            'art_category' => $service->artCategory ? [
+                'slug' => $service->artCategory->slug,
+                'name' => $service->artCategory->getLabel('uk'),
+            ] : null,
             'price' => $service->price !== null ? (float) $service->price : null,
+            'price_from' => (bool) $service->price_from,
             'currency' => $service->currency?->value,
             'options' => collect($service->options ?? [])
                 ->map(fn (array $option) => $option['name'] ?? null)
@@ -109,8 +117,10 @@ class MyServiceController extends Controller
      *             @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
      *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true),
      *             @OA\Property(property="image", type="string", nullable=true, description="Файл або Base64 data URL"),
-     *             @OA\Property(property="art_category_id", type="integer", nullable=true),
+     *             @OA\Property(property="art_category", type="string", description="Slug кореневої галузі мистецтва"),
+     *             @OA\Property(property="art_subcategory", type="string", nullable=true, description="Slug підкатегорії"),
      *             @OA\Property(property="price", type="number", nullable=true),
+     *             @OA\Property(property="price_from", type="boolean", nullable=true),
      *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, nullable=true),
      *             @OA\Property(property="options", type="array", maxItems=50, @OA\Items(type="object", @OA\Property(property="name", ref="#/components/schemas/LocalizedString")))
      *         )
@@ -124,6 +134,12 @@ class MyServiceController extends Controller
     public function store(StoreServiceRequest $request): ServiceResource
     {
         $data = $request->validated();
+
+        $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+            $data['art_category'] ?? null,
+            $data['art_subcategory'] ?? null
+        );
+        unset($data['art_category'], $data['art_subcategory']);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
@@ -163,6 +179,12 @@ class MyServiceController extends Controller
         $this->authorizeOwner($request, $service);
 
         $data = $request->validated();
+
+        $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+            $data['art_category'] ?? null,
+            $data['art_subcategory'] ?? null
+        );
+        unset($data['art_category'], $data['art_subcategory']);
 
         if ($request->hasFile('image')) {
             if ($service->image) {

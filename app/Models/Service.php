@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int|null $art_category_id
  * @property array|null $location
  * @property string|null $price
+ * @property bool $price_from
  * @property Currency|null $currency
  * @property array|null $options
  * @property \Carbon\Carbon $created_at
@@ -41,6 +42,7 @@ class Service extends Model
         'art_category_id',
         'location',
         'price',
+        'price_from',
         'currency',
         'options',
     ];
@@ -52,6 +54,7 @@ class Service extends Model
             'description' => 'array',
             'location' => 'array',
             'price' => 'decimal:2',
+            'price_from' => 'boolean',
             'currency' => Currency::class,
             'options' => 'array',
         ];
