@@ -52,12 +52,17 @@ class ArtCatalogResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->localizeField($this->title, $language),
+            // Сирий об'єкт {uk, en} незалежно від ?language — потрібен для передзаповнення форми редагування.
+            'title_translations' => $this->title,
             'image_url' => Storage::url($this->image),
             'published_at' => $this->published_at?->toDateString(),
             'art_category' => $this->whenLoaded('artCategory', fn () => $this->artCategory ? [
                 'slug' => $this->artCategory->slug,
                 'name' => $this->localizeField($this->artCategory->name, $language),
             ] : null),
+            // Slug кореневої галузі та підкатегорії — для передзаповнення форми редагування каталогу.
+            'art_category_slug' => $this->whenLoaded('artCategory', fn () => $this->artCategory?->getRootSlug()),
+            'art_subcategory_slug' => $this->whenLoaded('artCategory', fn () => $this->artCategory?->getSubSlug()),
             'likes_count' => $this->likes_count,
             'is_primary' => $this->is_primary,
             'pdf_url' => $this->pdf_file ? Storage::url('catalogs/'.$this->pdf_file) : null,

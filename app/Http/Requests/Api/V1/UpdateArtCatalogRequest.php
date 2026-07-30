@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\ArtCatalog;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateArtCatalogRequest extends FormRequest
@@ -11,7 +12,11 @@ class UpdateArtCatalogRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        /** @var ArtCatalog|null $catalog */
+        $catalog = $this->route('catalog');
+
+        return $this->user() !== null
+            && $catalog?->user_id === $this->user()->id;
     }
 
     /**
@@ -22,14 +27,27 @@ class UpdateArtCatalogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'array'],
-            'title.uk' => ['sometimes', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'image' => ['nullable'], // файл або Base64
+            'title' => ['required', 'array'],
+            'title.uk' => ['required', 'string', 'max:255'],
+            'title.en' => ['required', 'string', 'max:255'],
+            'image' => ['nullable'], // файл або Base64, необов'язково при редагуванні
             'pdf_file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
-            'art_category_id' => ['nullable', 'integer', 'exists:art_categories,id'],
+            'art_category' => ['required', 'string', 'max:100'],
+            'art_subcategory' => ['nullable', 'string', 'max:100'],
             'published_at' => ['nullable', 'date'],
             'is_primary' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
+     * Кастомні повідомлення про помилки
+     */
+    public function messages(): array
+    {
+        return [
+            'title.uk.required' => 'Введіть назву каталогу українською.',
+            'title.en.required' => 'Введіть назву каталогу англійською.',
+            'art_category.required' => 'Оберіть галузь мистецтва.',
         ];
     }
 }

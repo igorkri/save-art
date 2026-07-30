@@ -60,6 +60,37 @@ class MyArtCatalogsApiTest extends ApiTestCase
             ->assertJsonValidationErrors(['title.uk', 'title.en', 'image', 'pdf_file', 'art_category']);
     }
 
+    public function test_can_update_own_catalog(): void
+    {
+        $category = ArtCategory::factory()->create();
+        $catalog = ArtCatalog::factory()->create(['user_id' => $this->user->id]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/catalogs/{$catalog->id}", [
+                '_method' => 'PUT',
+                'title' => ['uk' => 'Оновлений каталог', 'en' => 'Updated catalog'],
+                'art_category' => $category->slug,
+            ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('art_catalogs', [
+            'id' => $catalog->id,
+            'art_category_id' => $category->id,
+        ]);
+    }
+
+    public function test_cannot_update_catalog_without_required_fields(): void
+    {
+        $catalog = ArtCatalog::factory()->create(['user_id' => $this->user->id]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/catalogs/{$catalog->id}", []);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['title.uk', 'title.en', 'art_category']);
+    }
+
     public function test_cannot_update_others_catalog(): void
     {
         $catalog = ArtCatalog::factory()->create();

@@ -47,6 +47,7 @@ class MyArtCatalogController extends Controller
     {
         $catalogs = ArtCatalog::query()
             ->where('user_id', $request->user()->id)
+            ->with('artCategory')
             ->orderByDesc('created_at')
             ->get();
 
@@ -143,9 +144,15 @@ class MyArtCatalogController extends Controller
      */
     public function update(UpdateArtCatalogRequest $request, ArtCatalog $catalog): ArtCatalogResource
     {
-        $this->authorizeOwner($request, $catalog);
-
         $data = $request->validated();
+
+        if (isset($data['art_category'])) {
+            $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+                $data['art_category'] ?? null,
+                $data['art_subcategory'] ?? null
+            );
+        }
+        unset($data['art_category'], $data['art_subcategory']);
 
         if ($request->hasFile('image')) {
             Storage::disk('public')->delete($catalog->image);
