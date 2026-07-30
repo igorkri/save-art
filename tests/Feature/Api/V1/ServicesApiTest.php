@@ -2,10 +2,16 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Jobs\SendServiceOrderEmails;
+use App\Mail\ServiceOrderToCustomer;
+use App\Mail\ServiceOrderToPerformer;
 use App\Models\ArtCategory;
 use App\Models\Service;
 use App\Models\Team;
+use App\Models\TeamMember;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 
 class ServicesApiTest extends ApiTestCase
 {
@@ -168,5 +174,106 @@ class ServicesApiTest extends ApiTestCase
         $rootFilter = $categories->firstWhere('slug', $root->slug);
         $this->assertNotNull($rootFilter);
         $this->assertSame(1, $rootFilter['services_count']);
+    }
+
+    public function test_can_order_service_from_artist(): void
+    {
+        Mail::fake();
+
+        $artist = User::factory()->create(['email' => 'artist@example.com']);
+        $service = Service::factory()->create([
+            'serviceable_type' => User::class,
+            'serviceable_id' => $artist->id,
+            'title' => ['uk' => 'Розпис портрету'],
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson("/api/v1/services/{$service->slug}/order", [
+                'name' => 'Іван Іваненко',
+                'email' => 'ivan@example.com',
+                'phone' => '+380501234567',
+                'message' => 'Хочу замовити портрет',
+                'options' => ['Індивідуальний дизайн'],
+            ]);
+
+        $response->assertOk()->assertJsonPath('message', 'Запит надіслано');
+
+        Mail::assertSent(ServiceOrderToPerformer::class, function ($mail) use ($artist) {
+            return $mail->hasTo($artist->email)
+                && $mail->customer['name'] === 'Іван Іваненко'
+                && $mail->customer['options'] === ['Індивідуальний дизайн'];
+        });
+
+        Mail::assertSent(ServiceOrderToCustomer::class, function ($mail) {
+            return $mail->hasTo('ivan@example.com')
+                && $mail->service['title'] === 'Розпис портрету';
+        });
+    }
+
+    public function test_ordering_service_dispatches_queued_job(): void
+    {
+        Queue::fake();
+
+        $service = Service::factory()->create();
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson("/api/v1/services/{$service->slug}/order", [
+                'name' => 'Test',
+                'email' => 'test@example.com',
+                'message' => 'Повідомлення',
+            ]);
+
+        $response->assertOk();
+
+        Queue::assertPushed(SendServiceOrderEmails::class, function ($job) {
+            return $job->customer['email'] === 'test@example.com';
+        });
+    }
+
+    public function test_can_order_service_from_team(): void
+    {
+        Mail::fake();
+
+        $team = Team::factory()->create();
+        $owner = User::factory()->create(['email' => 'owner@example.com']);
+        TeamMember::create(['team_id' => $team->id, 'user_id' => $owner->id, 'role' => 'owner', 'sort_order' => 0]);
+
+        $service = Service::factory()->create([
+            'serviceable_type' => Team::class,
+            'serviceable_id' => $team->id,
+        ]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson("/api/v1/services/{$service->slug}/order", [
+                'name' => 'Тест',
+                'email' => 'customer@example.com',
+                'message' => 'Повідомлення',
+            ]);
+
+        $response->assertOk();
+
+        Mail::assertSent(ServiceOrderToPerformer::class, fn ($mail) => $mail->hasTo('owner@example.com'));
+    }
+
+    public function test_order_requires_name_email_and_message(): void
+    {
+        $service = Service::factory()->create();
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson("/api/v1/services/{$service->slug}/order", []);
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['name', 'email', 'message']);
+    }
+
+    public function test_order_returns_404_for_unknown_service(): void
+    {
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson('/api/v1/services/unknown-slug/order', [
+                'name' => 'Test',
+                'email' => 'test@example.com',
+                'message' => 'Msg',
+            ]);
+
+        $response->assertNotFound();
     }
 }

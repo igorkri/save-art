@@ -168,6 +168,8 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
         Route::get('/', [ServiceController::class, 'index']);
         Route::get('/locations', [ServiceController::class, 'locations']);
         Route::get('/{slug}', [ServiceController::class, 'show']);
+        Route::post('/{slug}/order', [ServiceController::class, 'order'])
+            ->middleware('throttle:6,1');
     });
 
     // Публічні профілі користувачів

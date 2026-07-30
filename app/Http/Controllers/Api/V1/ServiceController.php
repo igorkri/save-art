@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\OrderServiceRequest;
 use App\Http\Resources\Api\V1\ServiceResource;
+use App\Jobs\SendServiceOrderEmails;
 use App\Models\ArtCategory;
 use App\Models\Service;
 use App\Models\Team;
@@ -273,5 +275,90 @@ class ServiceController extends Controller
             ->firstOrFail();
 
         return new ServiceResource($service);
+    }
+
+    /**
+     * Замовити послугу
+     *
+     * @OA\Post(
+     *     path="/v1/services/{slug}/order",
+     *     operationId="orderService",
+     *     tags={"Services"},
+     *     summary="Надіслати запит на замовлення послуги",
+     *     description="Надсилає лист виконавцю (з даними замовника) та лист-підтвердження замовнику. Нічого не зберігається в БД.",
+     *
+     *     @OA\Parameter(name="slug", in="path", required=true, description="Slug послуги", @OA\Schema(type="string")),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="phone", type="string", nullable=true),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="options", type="array", @OA\Items(type="string"))
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=200, description="Запит надіслано"),
+     *     @OA\Response(response=404, description="Послугу не знайдено або не вдалося визначити отримувача"),
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
+     */
+    public function order(OrderServiceRequest $request, string $slug): JsonResponse
+    {
+        $service = Service::query()
+            ->with('serviceable')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $performer = $this->resolvePerformerContact($service->serviceable);
+        abort_if(! $performer, 404, 'Не вдалося визначити отримувача листа');
+
+        $data = $request->validated();
+
+        SendServiceOrderEmails::dispatch(
+            service: [
+                'title' => $service->title['uk'] ?? $service->title['en'] ?? '',
+                'url' => rtrim(config('services.art_ua_info_frontend_url'), '/')."/services/{$service->slug}",
+            ],
+            performer: $performer,
+            customer: [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'message' => $data['message'],
+                'options' => $data['options'] ?? [],
+            ],
+        );
+
+        return response()->json(['message' => 'Запит надіслано']);
+    }
+
+    /**
+     * @return array{name: string, email: string}|null
+     */
+    private function resolvePerformerContact(mixed $performer): ?array
+    {
+        if ($performer instanceof User) {
+            return ['name' => $performer->display_name, 'email' => $performer->email];
+        }
+
+        if ($performer instanceof Team) {
+            $ownerUser = $performer->teamMembers()->where('role', 'owner')->with('user')->first()?->user
+                ?? $performer->members()->first();
+
+            if (! $ownerUser) {
+                return null;
+            }
+
+            $teamName = is_array($performer->name) ? ($performer->name['uk'] ?? $performer->name['en'] ?? '') : (string) $performer->name;
+
+            return ['name' => $teamName, 'email' => $ownerUser->email];
+        }
+
+        return null;
     }
 }
