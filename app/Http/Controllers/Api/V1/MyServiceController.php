@@ -192,7 +192,7 @@ class MyServiceController extends Controller
             }
             $data['image'] = $request->file('image')->store('services', 'public');
         } elseif (! empty($data['image'])) {
-            $data['image'] = $this->imageProcessor->processCover($data['image'], $service->image);
+            $data['image'] = $this->imageProcessor->processCover($data['image'], $service->image, 'services');
         }
 
         $service->fill($data);

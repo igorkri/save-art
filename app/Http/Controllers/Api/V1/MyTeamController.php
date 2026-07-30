@@ -153,7 +153,7 @@ class MyTeamController extends Controller
             }
             $data['avatar'] = $request->file('avatar')->store('teams', 'public');
         } elseif (! empty($data['avatar'])) {
-            $data['avatar'] = $this->imageProcessor->processCover($data['avatar'], $team->avatar);
+            $data['avatar'] = $this->imageProcessor->processCover($data['avatar'], $team->avatar, 'teams');
         }
 
         $team->fill($data);

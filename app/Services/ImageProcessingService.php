@@ -25,7 +25,7 @@ class ImageProcessingService
     /**
      * Обробляє Base64 обкладинку проєкту та зберігає як файл
      */
-    public function processCover(?string $cover, ?string $oldCover = null): ?string
+    public function processCover(?string $cover, ?string $oldCover = null, string $directory = 'projects/covers'): ?string
     {
         if (empty($cover)) {
             return null;
@@ -41,7 +41,7 @@ class ImageProcessingService
             Storage::disk('public')->delete($oldCover);
         }
 
-        return $this->saveBase64Image($cover, 'projects/covers');
+        return $this->saveBase64Image($cover, $directory);
     }
 
     /**

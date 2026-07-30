@@ -158,7 +158,7 @@ class MyArtCatalogController extends Controller
             Storage::disk('public')->delete($catalog->image);
             $data['image'] = $request->file('image')->store('catalogs', 'public');
         } elseif (! empty($data['image'])) {
-            $data['image'] = $this->imageProcessor->processCover($data['image'], $catalog->image);
+            $data['image'] = $this->imageProcessor->processCover($data['image'], $catalog->image, 'catalogs');
         }
 
         if ($request->hasFile('pdf_file')) {
