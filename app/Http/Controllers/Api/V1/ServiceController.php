@@ -8,6 +8,7 @@ use App\Models\ArtCategory;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
@@ -28,11 +29,16 @@ class ServiceController extends Controller
      *     operationId="getServices",
      *     tags={"Services"},
      *     summary="Список послуг",
-     *     description="Повертає список послуг з можливістю фільтрації за категорією мистецтва та типом виконавця",
+     *     description="Повертає список послуг з можливістю фільтрації за категорією мистецтва, ціною, валютою, локацією та пошуком",
      *
-     *     @OA\Parameter(name="art_category", in="query", description="Slug кореневої категорії мистецтва", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії мистецтва", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="art_category", in="query", description="Slug кореневої категорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
      *     @OA\Parameter(name="performer_type", in="query", description="Тип виконавця", @OA\Schema(type="string", enum={"artist", "team"})),
+     *     @OA\Parameter(name="currency", in="query", description="Валюта", @OA\Schema(type="string", enum={"UAH", "USD", "EUR"})),
+     *     @OA\Parameter(name="price_min", in="query", description="Мінімальна ціна", @OA\Schema(type="number")),
+     *     @OA\Parameter(name="price_max", in="query", description="Максимальна ціна", @OA\Schema(type="number")),
+     *     @OA\Parameter(name="location", in="query", description="Пошук за місцезнаходженням", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="search", in="query", description="Пошук по назві та опису послуги", @OA\Schema(type="string")),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс. 50)", @OA\Schema(type="integer", default=15, maximum=50)),
      *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en)", @OA\Schema(type="string", enum={"uk", "en"})),
      *
@@ -51,15 +57,46 @@ class ServiceController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Service::query()->with(['serviceable', 'artCategory']);
+        $query = $this->buildFilteredQuery($request)->with(['serviceable', 'artCategory']);
+        $query->orderBy('created_at', $request->input('sort_dir') === 'asc' ? 'asc' : 'desc');
 
-        if ($request->filled('art_category') || $request->filled('art_subcategory')) {
-            $categoryId = ArtCategory::resolveIdFromSlugs(
-                $request->input('art_category'),
-                $request->input('art_subcategory')
-            );
+        $perPage = min($request->input('per_page', 15), 50);
+        $services = $query->paginate($perPage);
 
-            $query->when($categoryId, fn ($q) => $q->where('art_category_id', $categoryId));
+        $language = $request->query('language');
+
+        return ServiceResource::collection($services)->additional([
+            'filters' => [
+                'categories' => $this->getFilterCategories($language, $request),
+            ],
+        ]);
+    }
+
+    /**
+     * @param  string[]  $except
+     */
+    private function buildFilteredQuery(Request $request, array $except = []): Builder
+    {
+        $query = Service::query();
+
+        if (! in_array('art_subcategory', $except, true) && $request->filled('art_subcategory')) {
+            $subSlugs = array_map('trim', explode(',', (string) $request->input('art_subcategory')));
+            // Слаг може бути як підкатегорією, так і кореневою категорією без дітей —
+            // в обох випадках фільтруємо строго по її власному art_category_id.
+            $subIds = ArtCategory::whereIn('slug', $subSlugs)->pluck('id')->all();
+            $query->when(! empty($subIds), fn ($q) => $q->whereIn('art_category_id', $subIds));
+        } elseif (! in_array('art_category', $except, true) && $request->filled('art_category')) {
+            $slugs = array_map('trim', explode(',', (string) $request->input('art_category')));
+            $categoryIds = ArtCategory::whereIn('slug', $slugs)
+                ->get()
+                ->flatMap(fn (ArtCategory $c) => $c->parent_id
+                    ? [$c->id]
+                    : [$c->id, ...$c->children()->pluck('id')]
+                )
+                ->unique()
+                ->values()
+                ->all();
+            $query->when(! empty($categoryIds), fn ($q) => $q->whereIn('art_category_id', $categoryIds));
         }
 
         if ($request->input('performer_type') === 'team') {
@@ -68,10 +105,90 @@ class ServiceController extends Controller
             $query->where('serviceable_type', User::class);
         }
 
-        $perPage = min($request->input('per_page', 15), 50);
-        $services = $query->paginate($perPage);
+        if ($request->filled('currency')) {
+            $query->where('currency', $request->input('currency'));
+        }
 
-        return ServiceResource::collection($services);
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', (float) $request->input('price_min'));
+        }
+
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', (float) $request->input('price_max'));
+        }
+
+        if ($request->filled('location')) {
+            $location = mb_strtolower((string) $request->input('location'));
+            $jsonUnquote = (new Service)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
+            $locationUk = sprintf($jsonUnquote, "JSON_EXTRACT(location, '$.uk')");
+            $locationEn = sprintf($jsonUnquote, "JSON_EXTRACT(location, '$.en')");
+            $query->where(function ($q) use ($location, $locationUk, $locationEn) {
+                $q->whereRaw("LOWER({$locationUk}) LIKE ?", ["%{$location}%"])
+                    ->orWhereRaw("LOWER({$locationEn}) LIKE ?", ["%{$location}%"]);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = mb_strtolower((string) $request->input('search'));
+            $jsonUnquote = (new Service)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
+            $titleUk = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.uk')");
+            $titleEn = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.en')");
+            $descriptionUk = sprintf($jsonUnquote, "JSON_EXTRACT(description, '$.uk')");
+            $descriptionEn = sprintf($jsonUnquote, "JSON_EXTRACT(description, '$.en')");
+            $query->where(function ($q) use ($search, $titleUk, $titleEn, $descriptionUk, $descriptionEn) {
+                $q->whereRaw("LOWER({$titleUk}) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER({$titleEn}) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER({$descriptionUk}) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER({$descriptionEn}) LIKE ?", ["%{$search}%"]);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Дерево категорій (корінь + підкатегорії) з кількістю послуг для кожної —
+     * враховує всі фільтри, окрім вибору категорії (щоб чекбокси не зникали одна за одною).
+     */
+    private function getFilterCategories(?string $language, Request $request): array
+    {
+        $categories = [];
+        $baseQuery = $this->buildFilteredQuery($request, ['art_subcategory', 'art_category']);
+
+        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
+            $subcategories = [];
+            $categoryIds = [$root->id];
+
+            foreach ($root->children as $child) {
+                $categoryIds[] = $child->id;
+                $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
+                $subcategories[] = [
+                    'slug' => $child->slug,
+                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'services_count' => $count,
+                ];
+            }
+
+            $rootCount = (clone $baseQuery)->whereIn('art_category_id', $categoryIds)->count();
+
+            $categories[] = [
+                'slug' => $root->slug,
+                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'services_count' => $rootCount,
+                'subcategories' => $subcategories,
+            ];
+        }
+
+        return $categories;
+    }
+
+    private function getFilterTranslation(array $translations, ?string $language): string|array
+    {
+        if ($language === null) {
+            return $translations;
+        }
+
+        return $translations[$language] ?? $translations['uk'] ?? reset($translations);
     }
 
     /**
