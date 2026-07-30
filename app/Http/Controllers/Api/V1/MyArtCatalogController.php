@@ -7,6 +7,7 @@ use App\Http\Requests\Api\V1\StoreArtCatalogRequest;
 use App\Http\Requests\Api\V1\UpdateArtCatalogRequest;
 use App\Http\Resources\Api\V1\ArtCatalogResource;
 use App\Models\ArtCatalog;
+use App\Models\ArtCategory;
 use App\Services\ImageProcessingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -71,10 +72,11 @@ class MyArtCatalogController extends Controller
      *             @OA\Schema(
      *
      *                 @OA\Property(property="title[uk]", type="string", example="Мій каталог"),
-     *                 @OA\Property(property="title[en]", type="string", nullable=true),
+     *                 @OA\Property(property="title[en]", type="string", example="My catalog"),
      *                 @OA\Property(property="image", type="string", format="binary", description="Обкладинка (файл) або Base64 data URL"),
      *                 @OA\Property(property="pdf_file", type="string", format="binary", description="PDF-файл каталогу (до 20MB)"),
-     *                 @OA\Property(property="art_category_id", type="integer", nullable=true),
+     *                 @OA\Property(property="art_category", type="string", description="Slug кореневої галузі мистецтва", example="painting"),
+     *                 @OA\Property(property="art_subcategory", type="string", nullable=true, description="Slug підкатегорії"),
      *                 @OA\Property(property="published_at", type="string", format="date", nullable=true),
      *                 @OA\Property(property="is_primary", type="boolean", nullable=true)
      *             )
@@ -89,6 +91,14 @@ class MyArtCatalogController extends Controller
     public function store(StoreArtCatalogRequest $request): ArtCatalogResource
     {
         $data = $request->validated();
+
+        if (isset($data['art_category'])) {
+            $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+                $data['art_category'] ?? null,
+                $data['art_subcategory'] ?? null
+            );
+        }
+        unset($data['art_category'], $data['art_subcategory']);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('catalogs', 'public');

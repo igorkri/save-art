@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Models\ArtCatalog;
+use App\Models\ArtCategory;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -30,10 +31,13 @@ class MyArtCatalogsApiTest extends ApiTestCase
 
     public function test_can_create_catalog(): void
     {
+        $category = ArtCategory::factory()->create();
+
         $data = [
-            'title' => ['uk' => 'Мій каталог'],
+            'title' => ['uk' => 'Мій каталог', 'en' => 'My catalog'],
             'image' => UploadedFile::fake()->image('cover.jpg'),
             'pdf_file' => UploadedFile::fake()->create('catalog.pdf', 100, 'application/pdf'),
+            'art_category' => $category->slug,
         ];
 
         $response = $this->withHeaders($this->authHeaders())
@@ -43,6 +47,7 @@ class MyArtCatalogsApiTest extends ApiTestCase
 
         $this->assertDatabaseHas('art_catalogs', [
             'user_id' => $this->user->id,
+            'art_category_id' => $category->id,
         ]);
     }
 
@@ -52,7 +57,7 @@ class MyArtCatalogsApiTest extends ApiTestCase
             ->postJson('/api/v1/my/catalogs', []);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['title.uk', 'image', 'pdf_file']);
+            ->assertJsonValidationErrors(['title.uk', 'title.en', 'image', 'pdf_file', 'art_category']);
     }
 
     public function test_cannot_update_others_catalog(): void

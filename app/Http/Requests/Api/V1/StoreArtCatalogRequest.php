@@ -24,12 +24,25 @@ class StoreArtCatalogRequest extends FormRequest
         return [
             'title' => ['required', 'array'],
             'title.uk' => ['required', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
+            'title.en' => ['required', 'string', 'max:255'],
             'image' => ['required'], // файл або Base64
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
-            'art_category_id' => ['nullable', 'integer', 'exists:art_categories,id'],
+            'art_category' => ['required', 'string', 'max:100'],
+            'art_subcategory' => ['nullable', 'string', 'max:100'],
             'published_at' => ['nullable', 'date'],
             'is_primary' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
+     * Кастомні повідомлення про помилки
+     */
+    public function messages(): array
+    {
+        return [
+            'title.uk.required' => 'Введіть назву каталогу українською.',
+            'title.en.required' => 'Введіть назву каталогу англійською.',
+            'art_category.required' => 'Оберіть галузь мистецтва.',
         ];
     }
 }
