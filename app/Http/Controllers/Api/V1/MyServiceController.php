@@ -56,6 +56,42 @@ class MyServiceController extends Controller
     }
 
     /**
+     * Отримати власну послугу з повними (двомовними) даними для форми редагування
+     *
+     * @OA\Get(
+     *     path="/v1/art-ua-info/my/services/{service}",
+     *     operationId="artUaInfoGetMyService",
+     *     tags={"My Services"},
+     *     summary="Отримати послугу для редагування",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="service", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *     @OA\Response(response=200, description="Послуга"),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не власник послуги")
+     * )
+     */
+    public function show(Request $request, Service $service): JsonResponse
+    {
+        $this->authorizeOwner($request, $service);
+
+        return response()->json(['data' => [
+            'slug' => $service->slug,
+            'title' => $service->title,
+            'description' => $service->description,
+            'image_url' => $service->image ? Storage::url($service->image) : null,
+            'art_category_id' => $service->art_category_id,
+            'price' => $service->price !== null ? (float) $service->price : null,
+            'currency' => $service->currency?->value,
+            'options' => collect($service->options ?? [])
+                ->map(fn (array $option) => $option['name'] ?? null)
+                ->filter()
+                ->values(),
+        ]]);
+    }
+
+    /**
      * Створити послугу
      *
      * @OA\Post(

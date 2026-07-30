@@ -127,6 +127,7 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
 
     Route::prefix('my/services')->group(function () {
         Route::get('/', [MyServiceController::class, 'index']);
+        Route::get('/{service}', [MyServiceController::class, 'show']);
 
         Route::middleware('not.blocked')->group(function () {
             Route::post('/', [MyServiceController::class, 'store']);
