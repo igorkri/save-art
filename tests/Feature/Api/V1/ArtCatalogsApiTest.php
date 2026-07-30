@@ -56,4 +56,91 @@ class ArtCatalogsApiTest extends ApiTestCase
 
         $response->assertNotFound();
     }
+
+    public function test_can_get_catalogs_list_via_art_ua_info_route(): void
+    {
+        ArtCatalog::factory()->count(2)->create();
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/art-ua-info/catalogs');
+
+        $response->assertOk()->assertJsonCount(2, 'data');
+    }
+
+    public function test_can_filter_catalogs_by_multiple_subcategories(): void
+    {
+        $root = ArtCategory::create(['slug' => 'test-root-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Корінь', 'en' => 'Root']]);
+        $subA = ArtCategory::create(['slug' => 'test-sub-a-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'А', 'en' => 'A'], 'parent_id' => $root->id]);
+        $subB = ArtCategory::create(['slug' => 'test-sub-b-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Б', 'en' => 'B'], 'parent_id' => $root->id]);
+        $other = ArtCategory::create(['slug' => 'test-other-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Інше', 'en' => 'Other']]);
+
+        ArtCatalog::factory()->create(['art_category_id' => $subA->id]);
+        ArtCatalog::factory()->create(['art_category_id' => $subB->id]);
+        ArtCatalog::factory()->create(['art_category_id' => $other->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/art-ua-info/catalogs?art_subcategory={$subA->slug},{$subB->slug}");
+
+        $response->assertOk()->assertJsonCount(2, 'data');
+    }
+
+    public function test_can_search_catalogs_by_title(): void
+    {
+        ArtCatalog::factory()->create(['title' => ['uk' => 'унікальна назва каталогу', 'en' => 'unique catalog title']]);
+        ArtCatalog::factory()->create(['title' => ['uk' => 'інший каталог', 'en' => 'another catalog']]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/art-ua-info/catalogs?search=унікальна');
+
+        $response->assertOk()->assertJsonCount(1, 'data');
+    }
+
+    public function test_can_sort_catalogs_by_likes(): void
+    {
+        $low = ArtCatalog::factory()->create(['likes_count' => 3]);
+        $high = ArtCatalog::factory()->create(['likes_count' => 10]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/art-ua-info/catalogs?sort_by=likes');
+
+        $response->assertOk()->assertJsonPath('data.0.id', $high->id);
+    }
+
+    public function test_can_filter_by_childless_root_category_slug(): void
+    {
+        $childless = ArtCategory::create(['slug' => 'test-childless-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Музика', 'en' => 'Music']]);
+        $other = ArtCategory::create(['slug' => 'test-other-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Інше', 'en' => 'Other']]);
+
+        ArtCatalog::factory()->create(['art_category_id' => $childless->id]);
+        ArtCatalog::factory()->create(['art_category_id' => $other->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/art-ua-info/catalogs?art_subcategory={$childless->slug}");
+
+        $response->assertOk()->assertJsonCount(1, 'data');
+    }
+
+    public function test_response_includes_category_counts_for_filters(): void
+    {
+        $root = ArtCategory::create(['slug' => 'test-root-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Корінь', 'en' => 'Root']]);
+        $subA = ArtCategory::create(['slug' => 'test-sub-a-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'А', 'en' => 'A'], 'parent_id' => $root->id]);
+        $subB = ArtCategory::create(['slug' => 'test-sub-b-'.\Illuminate\Support\Str::random(6), 'name' => ['uk' => 'Б', 'en' => 'B'], 'parent_id' => $root->id]);
+
+        ArtCatalog::factory()->count(2)->create(['art_category_id' => $subA->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson('/api/v1/art-ua-info/catalogs');
+
+        $response->assertOk();
+
+        $categories = collect($response->json('filters.categories'));
+        $rootData = $categories->firstWhere('slug', $root->slug);
+
+        $this->assertNotNull($rootData);
+        $this->assertSame(2, $rootData['catalogs_count']);
+
+        $subcategories = collect($rootData['subcategories']);
+        $this->assertSame(2, $subcategories->firstWhere('slug', $subA->slug)['catalogs_count']);
+        $this->assertSame(0, $subcategories->firstWhere('slug', $subB->slug)['catalogs_count']);
+    }
 }

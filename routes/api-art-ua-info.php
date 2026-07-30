@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ArtCatalogController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ArtistController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\CatalogController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\FaqController;
@@ -53,6 +54,11 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
     Route::get('/categories', [CatalogController::class, 'categories']);
     Route::get('/regions', [CatalogController::class, 'regions']);
     Route::get('/parameters', [CatalogController::class, 'parameters']);
+
+    Route::prefix('catalogs')->group(function () {
+        Route::get('/', [ArtCatalogController::class, 'index']);
+        Route::get('/{id}', [ArtCatalogController::class, 'show'])->where('id', '[0-9]+');
+    });
 
     Route::prefix('faq')->group(function () {
         Route::get('/', [FaqController::class, 'index']);

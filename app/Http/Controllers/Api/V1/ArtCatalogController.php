@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\ArtCatalogResource;
 use App\Models\ArtCatalog;
 use App\Models\ArtCategory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
@@ -28,8 +29,11 @@ class ArtCatalogController extends Controller
      *     summary="Список PDF-каталогів",
      *     description="Повертає список каталогів робіт авторів з можливістю фільтрації за категорією мистецтва",
      *
-     *     @OA\Parameter(name="art_category", in="query", description="Slug кореневої категорії мистецтва", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії мистецтва", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="art_category", in="query", description="Slug кореневої категорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="search", in="query", description="Пошук по назві каталогу та імені автора", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="sort_by", in="query", @OA\Schema(type="string", enum={"date", "likes"})),
+     *     @OA\Parameter(name="sort_dir", in="query", @OA\Schema(type="string", enum={"asc", "desc"})),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс. 50)", @OA\Schema(type="integer", default=15, maximum=50)),
      *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en)", @OA\Schema(type="string", enum={"uk", "en"})),
      *
@@ -48,23 +52,116 @@ class ArtCatalogController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = ArtCatalog::query()
-            ->with(['user', 'artCategory'])
-            ->orderByDesc('published_at');
+        $query = $this->buildFilteredQuery($request)->with(['user', 'artCategory']);
 
-        if ($request->filled('art_category') || $request->filled('art_subcategory')) {
-            $categoryId = ArtCategory::resolveIdFromSlugs(
-                $request->input('art_category'),
-                $request->input('art_subcategory')
-            );
-
-            $query->when($categoryId, fn ($q) => $q->where('art_category_id', $categoryId));
+        if ($request->input('sort_by') === 'likes') {
+            $query->orderBy('likes_count', $request->input('sort_dir', 'desc') === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->orderBy('published_at', $request->input('sort_dir', 'desc') === 'asc' ? 'asc' : 'desc');
         }
 
         $perPage = min($request->input('per_page', 15), 50);
         $catalogs = $query->paginate($perPage);
 
-        return ArtCatalogResource::collection($catalogs);
+        $language = $request->query('language');
+
+        return ArtCatalogResource::collection($catalogs)->additional([
+            'filters' => [
+                'categories' => $this->getFilterCategories($language, $request),
+            ],
+        ]);
+    }
+
+    /**
+     * @param  string[]  $except
+     */
+    private function buildFilteredQuery(Request $request, array $except = []): Builder
+    {
+        $query = ArtCatalog::query();
+
+        if (! in_array('art_subcategory', $except, true) && $request->filled('art_subcategory')) {
+            $subSlugs = array_map('trim', explode(',', (string) $request->input('art_subcategory')));
+            // Слаг може бути як підкатегорією, так і кореневою категорією без дітей (напр. "music") —
+            // в обох випадках фільтруємо строго по її власному art_category_id.
+            $subIds = ArtCategory::whereIn('slug', $subSlugs)->pluck('id')->all();
+            $query->when(! empty($subIds), fn ($q) => $q->whereIn('art_category_id', $subIds));
+        } elseif (! in_array('art_category', $except, true) && $request->filled('art_category')) {
+            $slugs = array_map('trim', explode(',', (string) $request->input('art_category')));
+            $categoryIds = ArtCategory::whereIn('slug', $slugs)
+                ->get()
+                ->flatMap(fn (ArtCategory $c) => $c->parent_id
+                    ? [$c->id]
+                    : [$c->id, ...$c->children()->pluck('id')]
+                )
+                ->unique()
+                ->values()
+                ->all();
+            $query->when(! empty($categoryIds), fn ($q) => $q->whereIn('art_category_id', $categoryIds));
+        }
+
+        if ($request->filled('search')) {
+            $search = mb_strtolower($request->input('search'));
+            $jsonUnquote = (new ArtCatalog)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
+            $titleUk = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.uk')");
+            $titleEn = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.en')");
+            $authorNameUk = sprintf($jsonUnquote, "JSON_EXTRACT(full_name, '$.uk')");
+            $authorNameEn = sprintf($jsonUnquote, "JSON_EXTRACT(full_name, '$.en')");
+            $query->where(function ($q) use ($search, $titleUk, $titleEn, $authorNameUk, $authorNameEn) {
+                $q->whereRaw("LOWER({$titleUk}) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("LOWER({$titleEn}) LIKE ?", ["%{$search}%"])
+                    ->orWhereHas('user', function ($uq) use ($search, $authorNameUk, $authorNameEn) {
+                        $uq->whereRaw("LOWER({$authorNameUk}) LIKE ?", ["%{$search}%"])
+                            ->orWhereRaw("LOWER({$authorNameEn}) LIKE ?", ["%{$search}%"]);
+                    });
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Дерево категорій (корінь + підкатегорії) з кількістю каталогів для кожної —
+     * враховує пошук, але не власний вибір підкатегорії (щоб чекбокси не зникали одна за одною).
+     */
+    private function getFilterCategories(?string $language, Request $request): array
+    {
+        $categories = [];
+        $baseQuery = $this->buildFilteredQuery($request, ['art_subcategory', 'art_category']);
+
+        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
+            $subcategories = [];
+            $categoryIds = [$root->id];
+
+            foreach ($root->children as $child) {
+                $categoryIds[] = $child->id;
+                $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
+                $subcategories[] = [
+                    'slug' => $child->slug,
+                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'catalogs_count' => $count,
+                ];
+            }
+
+            $rootCount = (clone $baseQuery)->whereIn('art_category_id', $categoryIds)->count();
+
+            $categories[] = [
+                'slug' => $root->slug,
+                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'catalogs_count' => $rootCount,
+                'subcategories' => $subcategories,
+            ];
+        }
+
+        return $categories;
+    }
+
+    private function getFilterTranslation(array $translations, ?string $language): string|array
+    {
+        if ($language === null) {
+            return $translations;
+        }
+
+        return $translations[$language] ?? $translations['uk'] ?? reset($translations);
     }
 
     /**
