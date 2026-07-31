@@ -47,6 +47,20 @@ class UpdateProjectRequest extends FormRequest
             'status' => ['nullable', 'string', Rule::in(['draft', 'moderation'])],
 
             'user_type' => ['required', Rule::enum(UserType::class)],
+            'team_id' => [
+                'nullable',
+                'required_if:user_type,team',
+                'integer',
+                Rule::exists('teams', 'id'),
+                function ($attribute, $value, $fail): void {
+                    if ($value === null) {
+                        return;
+                    }
+                    if (! $this->user()->teams()->where('teams.id', $value)->exists()) {
+                        $fail('Ви не є учасником обраної команди.');
+                    }
+                },
+            ],
 
             'title' => ['required', 'array'],
             'title.uk' => ['required', 'string', 'max:255'],

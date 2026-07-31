@@ -6,6 +6,7 @@ use App\Enums\ModerationStatus;
 use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
+use App\Models\Team;
 use App\Models\User;
 use Tests\Feature\Api\V1\ApiTestCase;
 
@@ -202,6 +203,58 @@ class ProjectControllerTest extends ApiTestCase
             ]);
 
         $response->assertUnprocessable();
+    }
+
+    public function test_project_can_be_owned_by_a_team_user_is_member_of(): void
+    {
+        $team = Team::factory()->create();
+        $team->members()->attach($this->user, ['role' => 'member', 'sort_order' => 0]);
+
+        $data = [
+            'status' => 'moderation',
+            'user_type' => 'team',
+            'team_id' => $team->id,
+            'title' => ['uk' => 'Проект команди', 'en' => 'Team project'],
+            'art_category' => 'music',
+            'final_result' => [
+                ['type' => 'link', 'url' => 'https://example.com/work'],
+            ],
+        ];
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson('/api/v1/art-ua-info/projects', $data);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.author.type', 'team')
+            ->assertJsonPath('data.author.slug', $team->slug);
+
+        $this->assertDatabaseHas('projects', [
+            'user_id' => $this->user->id,
+            'team_id' => $team->id,
+            'user_type' => 'team',
+        ]);
+    }
+
+    public function test_cannot_own_project_via_team_user_is_not_member_of(): void
+    {
+        $team = Team::factory()->create();
+
+        $data = [
+            'status' => 'moderation',
+            'user_type' => 'team',
+            'team_id' => $team->id,
+            'title' => ['uk' => 'Проект команди', 'en' => 'Team project'],
+            'art_category' => 'music',
+            'final_result' => [
+                ['type' => 'link', 'url' => 'https://example.com/work'],
+            ],
+        ];
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson('/api/v1/art-ua-info/projects', $data);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['team_id']);
     }
 
     public function test_cannot_update_someone_elses_project(): void

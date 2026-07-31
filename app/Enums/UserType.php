@@ -6,6 +6,7 @@ enum UserType: string
 {
     case Personal = 'personal';
     case Legal = 'legal';
+    case Team = 'team';
 
     /**
      * Отримати назву типу українською
@@ -15,6 +16,7 @@ enum UserType: string
         return match ($this) {
             self::Personal => 'Фізична особа',
             self::Legal => 'Юридична особа',
+            self::Team => 'Команда',
         };
     }
 

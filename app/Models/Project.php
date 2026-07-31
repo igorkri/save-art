@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property int $user_id
  * @property string $user_type
+ * @property int|null $team_id
  * @property bool $is_legal
  * @property string $code
  * @property string $slug
@@ -59,6 +60,7 @@ class Project extends Model
     protected $fillable = [
         'user_id',
         'user_type',
+        'team_id',
         'is_legal',
         'source',
         'sold_externally',
@@ -205,6 +207,14 @@ class Project extends Model
     public function artCategory(): BelongsTo
     {
         return $this->belongsTo(ArtCategory::class, 'art_category_id');
+    }
+
+    /**
+     * Команда-власник проєкту (якщо user_type = team)
+     */
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
     }
 
     /**

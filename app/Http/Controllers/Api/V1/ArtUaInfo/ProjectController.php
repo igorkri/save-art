@@ -79,6 +79,7 @@ class ProjectController extends Controller
         $data['status_moderation'] = $request->isDraftSave() ? ModerationStatus::Pending : ModerationStatus::Approved;
         $data['source'] = ProjectSource::ArtUaInfo;
         $data['is_legal'] = $userType === UserType::Legal->value;
+        $data['team_id'] = $userType === UserType::Team->value ? ($data['team_id'] ?? null) : null;
         $data['currency'] = $data['currency'] ?? Currency::USD->value;
         $data['budget_goal'] = 0;
         $data['budget_collected'] = 0;
@@ -89,7 +90,7 @@ class ProjectController extends Controller
 
         ProjectCategoryParameterValues::syncForProject($project, $parametersData);
 
-        return new ProjectResource($project->load(['user.profileLegal', 'projectParameters.parameter', 'projectParameters.parameterValue']));
+        return new ProjectResource($project->load(['user.profileLegal', 'team', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 
     /**
@@ -142,6 +143,7 @@ class ProjectController extends Controller
 
         $userType = $data['user_type'] ?? null;
         $data['is_legal'] = $userType === UserType::Legal->value;
+        $data['team_id'] = $userType === UserType::Team->value ? ($data['team_id'] ?? null) : null;
 
         // Дозволені статус-переходи через цей ендпоінт (див. UpdateProjectRequest::rules):
         // draft — зняти з публікації; moderation — опублікувати чернетку (цей візард без
@@ -161,6 +163,6 @@ class ProjectController extends Controller
 
         ProjectCategoryParameterValues::syncForProject($project, $parametersData);
 
-        return new ProjectResource($project->fresh()->load(['user.profileLegal', 'projectParameters.parameter', 'projectParameters.parameterValue']));
+        return new ProjectResource($project->fresh()->load(['user.profileLegal', 'team', 'projectParameters.parameter', 'projectParameters.parameterValue']));
     }
 }

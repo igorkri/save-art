@@ -48,6 +48,20 @@ class StoreProjectRequest extends FormRequest
             'local_id' => ['nullable', 'string', 'max:100'],
 
             'user_type' => [$isDraft ? 'nullable' : 'required', Rule::enum(UserType::class)],
+            'team_id' => [
+                'nullable',
+                'required_if:user_type,team',
+                'integer',
+                Rule::exists('teams', 'id'),
+                function ($attribute, $value, $fail): void {
+                    if ($value === null) {
+                        return;
+                    }
+                    if (! $this->user()->teams()->where('teams.id', $value)->exists()) {
+                        $fail('Ви не є учасником обраної команди.');
+                    }
+                },
+            ],
 
             'title' => [$isDraft ? 'nullable' : 'required', 'array'],
             'title.uk' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
