@@ -10,6 +10,7 @@ use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\ArtCategory;
 use App\Models\Parameter;
 use App\Models\Project;
+use App\Support\ArtCategoryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -160,24 +161,14 @@ class PublicProjectController extends Controller
         $query = Project::query()->forArtUaInfo()->whereIn('status', ProjectStatus::publicStatuses());
 
         if (! in_array('art_category', $except, true) && $request->filled('art_category')) {
-            $slugs = array_map('trim', explode(',', $request->input('art_category')));
-            $categoryIds = ArtCategory::whereIn('slug', $slugs)
-                ->get()
-                ->flatMap(fn (ArtCategory $c) => $c->parent_id
-                    ? [$c->id]
-                    : [$c->id, ...$c->children()->pluck('id')]
-                )
-                ->unique()
-                ->values()
-                ->all();
+            $categoryIds = ArtCategoryFilter::resolveCategoryIds($request->input('art_category'));
             if (! empty($categoryIds)) {
                 $query->whereIn('art_category_id', $categoryIds);
             }
         }
 
         if (! in_array('art_subcategory', $except, true) && $request->filled('art_subcategory')) {
-            $subSlugs = array_map('trim', explode(',', $request->input('art_subcategory')));
-            $subIds = ArtCategory::whereNotNull('parent_id')->whereIn('slug', $subSlugs)->pluck('id')->all();
+            $subIds = ArtCategoryFilter::resolveSubcategoryIds($request->input('art_subcategory'));
             if (! empty($subIds)) {
                 $query->whereIn('art_category_id', $subIds);
             }

@@ -7,9 +7,11 @@ use App\Http\Controllers\Api\V1\ArtUaInfo\FaqController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\HomePageController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\LikeController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\MyProjectController;
+use App\Http\Controllers\Api\V1\ArtUaInfo\OrganizationController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ProfileApiController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ProjectController as ArtUaInfoWizardProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\PublicProjectController;
+use App\Http\Controllers\Api\V1\ArtUaInfo\TeamController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
@@ -76,6 +78,19 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
         Route::get('/{slug}', [ArtistController::class, 'show']);
         Route::get('/{slug}/projects', [ArtistController::class, 'projects']);
         Route::get('/{slug}/photos', [ArtistController::class, 'photos']);
+    });
+
+    Route::prefix('organizations')->group(function () {
+        Route::get('/', [OrganizationController::class, 'index']);
+        Route::get('/{slug}', [OrganizationController::class, 'show']);
+        Route::get('/{slug}/projects', [OrganizationController::class, 'projects']);
+        Route::get('/{slug}/photos', [OrganizationController::class, 'photos']);
+    });
+
+    Route::prefix('teams')->group(function () {
+        Route::get('/', [TeamController::class, 'index']);
+        Route::get('/{slug}', [TeamController::class, 'show']);
+        Route::get('/{slug}/projects', [TeamController::class, 'projects']);
     });
 });
 
