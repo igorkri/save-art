@@ -37,6 +37,7 @@ class ServiceController extends Controller
      *     @OA\Parameter(name="art_category", in="query", description="Slug кореневої категорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
      *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
      *     @OA\Parameter(name="performer_type", in="query", description="Тип виконавця", @OA\Schema(type="string", enum={"artist", "team"})),
+     *     @OA\Parameter(name="performer_slug", in="query", description="Slug виконавця (митця/організації/команди) — обмежує список послугами лише цього виконавця", @OA\Schema(type="string")),
      *     @OA\Parameter(name="currency", in="query", description="Валюта", @OA\Schema(type="string", enum={"UAH", "USD", "EUR"})),
      *     @OA\Parameter(name="price_min", in="query", description="Мінімальна ціна", @OA\Schema(type="number")),
      *     @OA\Parameter(name="price_max", in="query", description="Максимальна ціна", @OA\Schema(type="number")),
@@ -106,6 +107,13 @@ class ServiceController extends Controller
             $query->where('serviceable_type', Team::class);
         } elseif ($request->input('performer_type') === 'artist') {
             $query->where('serviceable_type', User::class);
+        }
+
+        if ($request->filled('performer_slug')) {
+            $performerSlug = (string) $request->input('performer_slug');
+            $query->whereHasMorph('serviceable', [User::class, Team::class], function ($q) use ($performerSlug) {
+                $q->where('slug', $performerSlug);
+            });
         }
 
         if ($request->filled('currency')) {

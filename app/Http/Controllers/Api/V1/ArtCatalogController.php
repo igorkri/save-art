@@ -31,6 +31,7 @@ class ArtCatalogController extends Controller
      *
      *     @OA\Parameter(name="art_category", in="query", description="Slug кореневої категорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
      *     @OA\Parameter(name="art_subcategory", in="query", description="Slug підкатегорії мистецтва (можна кілька через кому)", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="author_slug", in="query", description="Slug автора (митця/організації) — обмежує список каталогами лише цього автора", @OA\Schema(type="string")),
      *     @OA\Parameter(name="search", in="query", description="Пошук по назві каталогу та імені автора", @OA\Schema(type="string")),
      *     @OA\Parameter(name="sort_by", in="query", @OA\Schema(type="string", enum={"date", "likes"})),
      *     @OA\Parameter(name="sort_dir", in="query", @OA\Schema(type="string", enum={"asc", "desc"})),
@@ -97,6 +98,11 @@ class ArtCatalogController extends Controller
                 ->values()
                 ->all();
             $query->when(! empty($categoryIds), fn ($q) => $q->whereIn('art_category_id', $categoryIds));
+        }
+
+        if (! in_array('author_slug', $except, true) && $request->filled('author_slug')) {
+            $authorSlug = (string) $request->input('author_slug');
+            $query->whereHas('user', fn ($q) => $q->where('slug', $authorSlug));
         }
 
         if ($request->filled('search')) {

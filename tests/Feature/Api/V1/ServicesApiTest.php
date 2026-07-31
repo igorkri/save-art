@@ -47,6 +47,21 @@ class ServicesApiTest extends ApiTestCase
             ->assertJsonPath('data.0.performer_type', 'team');
     }
 
+    public function test_can_filter_services_by_performer_slug(): void
+    {
+        $artist = User::factory()->create(['slug' => 'test-artist-'.\Illuminate\Support\Str::random(6)]);
+        $team = Team::factory()->create();
+        Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $artist->id]);
+        Service::factory()->create(['serviceable_type' => Team::class, 'serviceable_id' => $team->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/services?performer_slug={$artist->slug}");
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.performer.slug', $artist->slug);
+    }
+
     public function test_can_get_single_service(): void
     {
         $service = Service::factory()->create();

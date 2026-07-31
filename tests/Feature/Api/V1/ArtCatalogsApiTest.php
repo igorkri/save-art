@@ -159,6 +159,20 @@ class ArtCatalogsApiTest extends ApiTestCase
             ->assertJsonPath('data.art_category.root_name', 'Візуальне мистецтво');
     }
 
+    public function test_can_filter_catalogs_by_author_slug(): void
+    {
+        $author = User::factory()->create(['slug' => 'test-author-'.\Illuminate\Support\Str::random(6)]);
+        $other = User::factory()->create();
+
+        ArtCatalog::factory()->create(['user_id' => $author->id]);
+        ArtCatalog::factory()->create(['user_id' => $other->id]);
+
+        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->getJson("/api/v1/art-ua-info/catalogs?author_slug={$author->slug}");
+
+        $response->assertOk()->assertJsonCount(1, 'data');
+    }
+
     public function test_can_like_and_unlike_catalog_via_art_ua_info_route(): void
     {
         $user = User::factory()->create();
