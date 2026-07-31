@@ -111,6 +111,18 @@ class ProjectListResource extends JsonResource
      */
     private function formatAuthor(User $user, ?string $language): array
     {
+        if ($this->team_id && $this->team) {
+            // Команда - дані з Team
+            return [
+                'id' => $this->team->id,
+                'name' => $this->localizeField($this->team->name, $language),
+                'slug' => $this->team->slug,
+                'avatar_url' => $this->team->avatar ? Storage::url($this->team->avatar) : null,
+                'profession' => null,
+                'type' => UserType::Team,
+            ];
+        }
+
         // Перевіряємо чи це юридична особа за полем проєкту
         $isLegal = $this->user_type == UserType::Legal;
 

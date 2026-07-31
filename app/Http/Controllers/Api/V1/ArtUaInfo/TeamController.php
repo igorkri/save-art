@@ -102,7 +102,7 @@ class TeamController extends Controller
      *     operationId="artUaInfoGetTeamProjects",
      *     tags={"Teams"},
      *     summary="Проєкти команди",
-     *     description="Повертає опубліковані art-ua-info проєкти всіх учасників команди (для фото-слайдера картки команди)",
+     *     description="Повертає опубліковані art-ua-info проєкти, власником яких є сама команда (team_id)",
      *
      *     @OA\Parameter(name="slug", in="path", required=true, description="Slug команди", @OA\Schema(type="string")),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс. 50)", @OA\Schema(type="integer", default=15, maximum=50)),
@@ -110,7 +110,7 @@ class TeamController extends Controller
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Список проєктів учасників команди",
+     *         description="Список проєктів команди",
      *
      *         @OA\JsonContent(
      *
@@ -126,13 +126,14 @@ class TeamController extends Controller
     public function projects(string $slug, Request $request): AnonymousResourceCollection
     {
         $team = Team::query()->where('slug', $slug)->firstOrFail();
-        $memberIds = $team->members()->pluck('users.id');
 
+        // Лише проєкти, підписані власне на команду (team_id) — не особисті проєкти
+        // учасників, опубліковані від свого імені.
         $query = Project::query()
             ->forArtUaInfo()
-            ->with(['user.profileLegal'])
+            ->with(['user.profileLegal', 'team'])
             ->whereIn('status', ProjectStatus::publicStatuses())
-            ->whereIn('user_id', $memberIds)
+            ->where('team_id', $team->id)
             ->orderBy('announced_at', 'desc');
 
         $perPage = min($request->input('per_page', 15), 50);

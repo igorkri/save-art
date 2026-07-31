@@ -24,8 +24,12 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="website", type="string", nullable=true),
  *     @OA\Property(property="country", type="string", nullable=true),
  *     @OA\Property(property="city", type="string", nullable=true),
+ *     @OA\Property(property="description", type="string", nullable=true),
+ *     @OA\Property(property="specialization", type="string", nullable=true),
+ *     @OA\Property(property="social_links", type="array", @OA\Items(type="object")),
  *     @OA\Property(property="members_count", type="integer", example=3),
- *     @OA\Property(property="member_avatars", type="array", @OA\Items(type="string"))
+ *     @OA\Property(property="member_avatars", type="array", @OA\Items(type="string")),
+ *     @OA\Property(property="members", type="array", @OA\Items(ref="#/components/schemas/TeamMember"))
  * )
  */
 class TeamListResource extends JsonResource
@@ -49,12 +53,16 @@ class TeamListResource extends JsonResource
             'website' => $this->website,
             'country' => $this->localizeField($this->country, $language),
             'city' => $this->localizeField($this->city, $language),
+            'description' => $this->localizeField($this->description, $language),
+            'specialization' => $this->localizeField($this->specialization, $language),
+            'social_links' => $this->social_links ?? [],
             'members_count' => $this->whenCounted('members'),
             'member_avatars' => $this->whenLoaded('members', function () {
                 return $this->members->map(fn ($member) => $member->avatar ? Storage::url($member->avatar) : null)
                     ->filter()
                     ->values();
             }),
+            'members' => TeamMemberResource::collection($this->whenLoaded('members')),
         ];
     }
 }

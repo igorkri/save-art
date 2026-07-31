@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\UpdateServiceRequest;
 use App\Http\Resources\Api\V1\ServiceResource;
 use App\Models\ArtCategory;
 use App\Models\Service;
+use App\Models\Team;
 use App\Models\User;
 use App\Services\ImageProcessingService;
 use Illuminate\Http\JsonResponse;
@@ -54,6 +55,81 @@ class MyServiceController extends Controller
             ->get();
 
         return ServiceResource::collection($services);
+    }
+
+    /**
+     * Список послуг команди (для учасників, керування послугами команди)
+     *
+     * @OA\Get(
+     *     path="/v1/art-ua-info/my/teams/{team}/services",
+     *     operationId="artUaInfoGetMyTeamServices",
+     *     tags={"My Services"},
+     *     summary="Список послуг команди",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="team", in="path", required=true, description="Slug команди", @OA\Schema(type="string")),
+     *
+     *     @OA\Response(response=200, description="Список послуг", @OA\JsonContent(@OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Service")))),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не учасник команди")
+     * )
+     */
+    public function teamIndex(Request $request, Team $team): AnonymousResourceCollection
+    {
+        $this->authorizeTeamMember($request, $team);
+
+        $services = Service::query()
+            ->where('serviceable_type', Team::class)
+            ->where('serviceable_id', $team->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return ServiceResource::collection($services);
+    }
+
+    /**
+     * Створити послугу від імені команди
+     *
+     * @OA\Post(
+     *     path="/v1/art-ua-info/my/teams/{team}/services",
+     *     operationId="artUaInfoCreateMyTeamService",
+     *     tags={"My Services"},
+     *     summary="Створити послугу команди",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\Parameter(name="team", in="path", required=true, description="Slug команди", @OA\Schema(type="string")),
+     *
+     *     @OA\Response(response=200, description="Послугу створено", @OA\JsonContent(@OA\Property(property="data", ref="#/components/schemas/Service"))),
+     *     @OA\Response(response=401, description="Не авторизовано"),
+     *     @OA\Response(response=403, description="Не учасник команди"),
+     *     @OA\Response(response=422, description="Помилка валідації", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
+     * )
+     */
+    public function teamStore(StoreServiceRequest $request, Team $team): ServiceResource
+    {
+        $this->authorizeTeamMember($request, $team);
+
+        $data = $request->validated();
+
+        $data['art_category_id'] = ArtCategory::resolveIdFromSlugs(
+            $data['art_category'] ?? null,
+            $data['art_subcategory'] ?? null
+        );
+        unset($data['art_category'], $data['art_subcategory']);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('services', 'public');
+        } elseif (! empty($data['image'])) {
+            $data['image'] = $this->imageProcessor->saveBase64Image($data['image'], 'services');
+        }
+
+        $data['slug'] = Str::slug($data['title']['uk']).'-'.Str::random(6);
+        $data['serviceable_type'] = Team::class;
+        $data['serviceable_id'] = $team->id;
+
+        $service = Service::create($data);
+
+        return new ServiceResource($service->load('artCategory'));
     }
 
     /**
@@ -232,10 +308,28 @@ class MyServiceController extends Controller
 
     private function authorizeOwner(Request $request, Service $service): void
     {
+        $user = $request->user();
+
+        if ($service->serviceable_type === User::class && $service->serviceable_id === $user->id) {
+            return;
+        }
+
+        if ($service->serviceable_type === Team::class) {
+            $team = Team::find($service->serviceable_id);
+            if ($team && $team->members()->where('users.id', $user->id)->exists()) {
+                return;
+            }
+        }
+
+        abort(403, 'Ви не є власником цієї послуги');
+    }
+
+    private function authorizeTeamMember(Request $request, Team $team): void
+    {
         abort_if(
-            ! ($service->serviceable_type === User::class && $service->serviceable_id === $request->user()->id),
+            ! $team->members()->where('users.id', $request->user()->id)->exists(),
             403,
-            'Ви не є власником цієї послуги'
+            'Ви не є учасником цієї команди'
         );
     }
 }

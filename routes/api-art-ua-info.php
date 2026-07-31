@@ -161,5 +161,10 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
             Route::delete('/{team}', [MyTeamController::class, 'destroy']);
             Route::post('/{team}/leave', [MyTeamController::class, 'leave']);
         });
+
+        Route::get('/{team}/services', [MyServiceController::class, 'teamIndex']);
+        Route::middleware('not.blocked')->group(function () {
+            Route::post('/{team}/services', [MyServiceController::class, 'teamStore']);
+        });
     });
 });
