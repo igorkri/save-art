@@ -25,7 +25,10 @@ class TeamFactory extends Factory
             'website' => fake()->url(),
             'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
             'city' => ['uk' => fake()->city(), 'en' => fake()->city()],
+            'region' => ['uk' => fake()->state(), 'en' => fake()->state()],
+            'zip' => ['uk' => fake()->postcode(), 'en' => fake()->postcode()],
             'description' => ['uk' => fake()->paragraphs(2), 'en' => fake()->paragraphs(2)],
+            'specialization' => ['uk' => fake()->jobTitle(), 'en' => fake()->jobTitle()],
             'social_links' => [],
         ];
     }

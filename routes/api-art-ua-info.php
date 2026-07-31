@@ -153,6 +153,7 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
 
     Route::prefix('my/teams')->group(function () {
         Route::get('/', [MyTeamController::class, 'index']);
+        Route::get('/search-members', [MyTeamController::class, 'searchMembers']);
 
         Route::middleware('not.blocked')->group(function () {
             Route::post('/', [MyTeamController::class, 'store']);

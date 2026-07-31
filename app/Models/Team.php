@@ -16,7 +16,10 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property string|null $website
  * @property array|null $country
  * @property array|null $city
+ * @property array|null $region
+ * @property array|null $zip
  * @property array|null $description
+ * @property array|null $specialization
  * @property array|null $social_links
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -36,7 +39,10 @@ class Team extends Model
         'website',
         'country',
         'city',
+        'region',
+        'zip',
         'description',
+        'specialization',
         'social_links',
     ];
 
@@ -46,7 +52,10 @@ class Team extends Model
             'name' => 'array',
             'country' => 'array',
             'city' => 'array',
+            'region' => 'array',
+            'zip' => 'array',
             'description' => 'array',
+            'specialization' => 'array',
             'social_links' => 'array',
         ];
     }

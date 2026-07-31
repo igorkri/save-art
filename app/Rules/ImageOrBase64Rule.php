@@ -88,8 +88,11 @@ class ImageOrBase64Rule implements ValidationRule
             return;
         }
 
-        // Якщо це відносний шлях до storage - пропускаємо
-        if (str_starts_with($value, 'projects/') || str_starts_with($value, 'storage/')) {
+        // Якщо це відносний шлях до storage (напр. "teams/uuid.png",
+        // "projects/covers/uuid.png") - пропускаємо. Перевіряємо за формою
+        // "директорія(-ії)/файл", а не за фіксованим списком директорій, щоб
+        // правило працювало для будь-якої моделі, що його використовує.
+        if (preg_match('#^[a-z_]+(/[a-z_]+)*/[\w.-]+\.\w+$#i', $value)) {
             return;
         }
 
