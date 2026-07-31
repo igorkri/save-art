@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
+use App\Support\FrontendUrlResolver;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -93,7 +95,7 @@ class VerifyEmailController extends Controller
             return response()->json(['message' => 'Email вже підтверджено']);
         }
 
-        $user->sendEmailVerificationNotification();
+        $user->notify(new VerifyEmailNotification(FrontendUrlResolver::resolve($request)));
 
         return response()->json(['message' => 'Лист для підтвердження email надіслано повторно']);
     }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
+use App\Support\FrontendUrlResolver;
 use App\UserRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -79,7 +81,11 @@ class RegisterController extends Controller
         // активні і старий App\Providers\EventServiceProvider (config/app.php),
         // і автоматичний EventServiceProvider з bootstrap/app.php, тому подія
         // Registered дублює SendEmailVerificationNotification і лист іде двічі.
-        $user->sendEmailVerificationNotification();
+        // Використовуємо VerifyEmailNotification (не $user->sendEmailVerificationNotification())
+        // з фронтендом, визначеним по Origin/Referer запиту, — інакше посилання
+        // завжди веде на дефолтний FRONTEND_URL, навіть якщо реєстрація прийшла
+        // з art-ua-info чи art-ua.com.
+        $user->notify(new VerifyEmailNotification(FrontendUrlResolver::resolve($request)));
 
         // Створюємо токен для API
         $token = $user->createToken(

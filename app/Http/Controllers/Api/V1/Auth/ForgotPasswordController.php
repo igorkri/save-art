@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
+use App\Support\FrontendUrlResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -56,7 +57,7 @@ class ForgotPasswordController extends Controller
 
         app()->setLocale($data['locale'] ?? app()->getLocale());
 
-        $frontendUrl = $this->resolveFrontendUrl($request);
+        $frontendUrl = FrontendUrlResolver::resolve($request);
 
         $status = Password::sendResetLink(
             $request->only('email'),
@@ -72,32 +73,6 @@ class ForgotPasswordController extends Controller
         return response()->json([
             'message' => 'Посилання для скидання пароля відправлено на email',
         ]);
-    }
-
-    /**
-     * Визначає, з якого фронтенду (save-art / art-ua-info / art-ua.com) прийшов
-     * запит, щоб посилання у листі вело на правильний домен, а не завжди на
-     * дефолтний FRONTEND_URL. Довіряємо лише доменам зі списку CORS_ALLOWED_ORIGINS.
-     */
-    private function resolveFrontendUrl(Request $request): string
-    {
-        $origin = $request->headers->get('Origin') ?: $request->headers->get('Referer');
-
-        if ($origin) {
-            $parts = parse_url($origin);
-
-            if ($parts && isset($parts['scheme'], $parts['host'])) {
-                $originBase = $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '');
-
-                foreach (config('cors.allowed_origins', []) as $allowedOrigin) {
-                    if (rtrim($allowedOrigin, '/') === $originBase) {
-                        return $originBase;
-                    }
-                }
-            }
-        }
-
-        return config('app.frontend_url');
     }
 
     /**
