@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Enums\NotificationType;
 use App\Jobs\SendServiceOrderEmails;
 use App\Mail\ServiceOrderToCustomer;
 use App\Mail\ServiceOrderToPerformer;
@@ -219,6 +220,11 @@ class ServicesApiTest extends ApiTestCase
                 && $mail->customer['options'] === ['Індивідуальний дизайн'];
         });
 
+        $this->assertDatabaseHas('app_notifications', [
+            'user_id' => $artist->id,
+            'type' => NotificationType::ServiceOrder->value,
+        ]);
+
         Mail::assertSent(ServiceOrderToCustomer::class, function ($mail) {
             return $mail->hasTo('ivan@example.com')
                 && $mail->service['title'] === 'Розпис портрету';
@@ -268,6 +274,11 @@ class ServicesApiTest extends ApiTestCase
         $response->assertOk();
 
         Mail::assertSent(ServiceOrderToPerformer::class, fn ($mail) => $mail->hasTo('owner@example.com'));
+
+        $this->assertDatabaseHas('app_notifications', [
+            'user_id' => $owner->id,
+            'type' => NotificationType::ServiceOrder->value,
+        ]);
     }
 
     public function test_order_requires_name_email_and_message(): void

@@ -9,6 +9,7 @@ use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectBonus;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -400,6 +401,39 @@ class NotificationService
             data: [
                 'contact_info_request_id' => $contactInfoRequest->id,
                 ...$this->personData($contactInfoRequest->requester, 'Меценат'),
+            ]
+        );
+    }
+
+    /**
+     * Надіслати власнику послуги (митцю або команді) сповіщення про нове замовлення
+     *
+     * @param  array{name: string, email: string, phone?: string|null, message: string, options?: array<int, string>}  $customer
+     */
+    public function notifyServiceOrdered(User $user, Service $service, array $customer): Notification
+    {
+        $serviceTitle = $service->title['uk'] ?? $service->title['en'] ?? '';
+
+        return $this->createNotification(
+            user: $user,
+            type: NotificationType::ServiceOrder,
+            title: [
+                'uk' => 'Нове замовлення послуги',
+                'en' => 'New service order',
+            ],
+            message: [
+                'uk' => sprintf('%s замовив(-ла) вашу послугу «%s».', $customer['name'], $serviceTitle),
+                'en' => sprintf('%s ordered your service "%s".', $customer['name'], $service->title['en'] ?? $service->title['uk'] ?? ''),
+            ],
+            data: [
+                'service_id' => $service->id,
+                'service_slug' => $service->slug,
+                'service_title' => $service->title,
+                'customer_name' => $customer['name'],
+                'customer_email' => $customer['email'],
+                'customer_phone' => $customer['phone'] ?? null,
+                'customer_message' => $customer['message'],
+                'options' => $customer['options'] ?? [],
             ]
         );
     }

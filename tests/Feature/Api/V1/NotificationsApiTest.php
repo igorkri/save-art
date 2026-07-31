@@ -189,4 +189,21 @@ class NotificationsApiTest extends ApiTestCase
 
         $response->assertUnauthorized();
     }
+
+    // ==========================================
+    // Неймспейс art-ua-info (той самий NotificationController)
+    // ==========================================
+
+    public function test_can_get_notifications_via_art_ua_info_namespace(): void
+    {
+        Notification::factory()->count(2)->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->getJson('/api/v1/art-ua-info/my/notifications');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+    }
 }

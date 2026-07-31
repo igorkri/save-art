@@ -10,6 +10,7 @@ use App\Models\ArtCategory;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,10 @@ use OpenApi\Annotations as OA;
  */
 class ServiceController extends Controller
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     /**
      * Отримати список послуг
      *
@@ -326,32 +331,35 @@ class ServiceController extends Controller
         abort_if(! $performer, 404, 'Не вдалося визначити отримувача листа');
 
         $data = $request->validated();
+        $customer = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'message' => $data['message'],
+            'options' => $data['options'] ?? [],
+        ];
 
         SendServiceOrderEmails::dispatch(
             service: [
                 'title' => $service->title['uk'] ?? $service->title['en'] ?? '',
                 'url' => rtrim(config('services.art_ua_info_frontend_url'), '/')."/services/{$service->slug}",
             ],
-            performer: $performer,
-            customer: [
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'] ?? null,
-                'message' => $data['message'],
-                'options' => $data['options'] ?? [],
-            ],
+            performer: ['name' => $performer['name'], 'email' => $performer['email']],
+            customer: $customer,
         );
+
+        $this->notificationService->notifyServiceOrdered($performer['user'], $service, $customer);
 
         return response()->json(['message' => 'Запит надіслано']);
     }
 
     /**
-     * @return array{name: string, email: string}|null
+     * @return array{name: string, email: string, user: User}|null
      */
     private function resolvePerformerContact(mixed $performer): ?array
     {
         if ($performer instanceof User) {
-            return ['name' => $performer->display_name, 'email' => $performer->email];
+            return ['name' => $performer->display_name, 'email' => $performer->email, 'user' => $performer];
         }
 
         if ($performer instanceof Team) {
@@ -364,7 +372,7 @@ class ServiceController extends Controller
 
             $teamName = is_array($performer->name) ? ($performer->name['uk'] ?? $performer->name['en'] ?? '') : (string) $performer->name;
 
-            return ['name' => $teamName, 'email' => $ownerUser->email];
+            return ['name' => $teamName, 'email' => $ownerUser->email, 'user' => $ownerUser];
         }
 
         return null;

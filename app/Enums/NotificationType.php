@@ -22,6 +22,7 @@ enum NotificationType: string
     case ContactRejected = 'contact_rejected';
     case Blocked = 'blocked';
     case Unblocked = 'unblocked';
+    case ServiceOrder = 'service_order';
 
     /**
      * Отримати назву типу сповіщення українською
@@ -47,6 +48,7 @@ enum NotificationType: string
             self::ContactRejected => 'Контакти відхилено',
             self::Blocked => 'Профіль заблоковано',
             self::Unblocked => 'Профіль розблоковано',
+            self::ServiceOrder => 'Замовлення послуги',
         };
     }
 
@@ -67,6 +69,7 @@ enum NotificationType: string
             self::ContactRequest, self::ContactProvided, self::ContactRejected => 'heroicon-o-identification',
             self::Blocked => 'heroicon-o-lock-closed',
             self::Unblocked => 'heroicon-o-lock-open',
+            self::ServiceOrder => 'heroicon-o-briefcase',
         };
     }
 
@@ -90,6 +93,7 @@ enum NotificationType: string
             self::ContactRejected => 'danger',
             self::Blocked => 'danger',
             self::Unblocked => 'success',
+            self::ServiceOrder => 'warning',
         };
     }
 

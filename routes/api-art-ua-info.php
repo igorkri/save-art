@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\MyArtCatalogController;
 use App\Http\Controllers\Api\V1\MyServiceController;
 use App\Http\Controllers\Api\V1\MyTeamController;
 use App\Http\Controllers\Api\V1\NewsController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\ArtInfo\InfoController;
 use Illuminate\Support\Facades\Route;
 
@@ -166,5 +167,17 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
         Route::middleware('not.blocked')->group(function () {
             Route::post('/{team}/services', [MyServiceController::class, 'teamStore']);
         });
+    });
+
+    Route::prefix('my/notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::get('/{source}/{id}', [NotificationController::class, 'show'])
+            ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
+        Route::post('/{source}/{id}/read', [NotificationController::class, 'markAsRead'])
+            ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
+        Route::delete('/{source}/{id}', [NotificationController::class, 'destroy'])
+            ->where(['source' => 'notification|message', 'id' => '[0-9]+']);
     });
 });
