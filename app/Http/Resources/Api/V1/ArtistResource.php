@@ -52,7 +52,7 @@ class ArtistResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $language ? ($this->localizeField($this->full_name, $language) ?? $this->name) : $this->name,
             'slug' => $this->slug,
             'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
 

@@ -64,7 +64,7 @@ class ServiceResource extends JsonResource
             'image_url' => $this->image ? Storage::url($this->image) : null,
             'art_category' => $this->whenLoaded('artCategory', fn () => $this->artCategory ? [
                 'slug' => $this->artCategory->slug,
-                'name' => $this->localizeField($this->artCategory->name, $language),
+                'name' => $this->artCategory->getLabel($language ?? 'uk'),
             ] : null),
             'location' => $this->localizeField($this->location, $language),
             'price' => $this->price !== null ? (float) $this->price : null,
@@ -77,7 +77,9 @@ class ServiceResource extends JsonResource
             'performer_type' => $this->performerType($performer),
             'performer' => $performer ? [
                 'id' => $performer->id,
-                'name' => $performer instanceof Team ? $this->localizeField($performer->name, $language) : $performer->name,
+                'name' => $performer instanceof Team
+                    ? $this->localizeField($performer->name, $language)
+                    : ($language ? ($this->localizeField($performer->full_name, $language) ?? $performer->name) : $performer->name),
                 'slug' => $performer->slug,
                 'avatar_url' => $performer->avatar ? Storage::url($performer->avatar) : null,
             ] : null,

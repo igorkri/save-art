@@ -61,11 +61,8 @@ class ArtCatalogResource extends JsonResource
             'published_at' => $this->published_at?->toDateString(),
             'art_category' => $this->whenLoaded('artCategory', fn () => $this->artCategory ? [
                 'slug' => $this->artCategory->slug,
-                'name' => $this->localizeField($this->artCategory->name, $language),
-                'root_name' => $this->localizeField(
-                    ($this->artCategory->parent ?? $this->artCategory)->name,
-                    $language
-                ),
+                'name' => $this->artCategory->getLabel($language ?? 'uk'),
+                'root_name' => ($this->artCategory->parent ?? $this->artCategory)->getLabel($language ?? 'uk'),
             ] : null),
             // Slug кореневої галузі та підкатегорії — для передзаповнення форми редагування каталогу.
             'art_category_slug' => $this->whenLoaded('artCategory', fn () => $this->artCategory?->getRootSlug()),
@@ -80,7 +77,7 @@ class ArtCatalogResource extends JsonResource
             'pdf_url' => $this->pdf_file ? Storage::url('catalogs/'.$this->pdf_file) : null,
             'author' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,
-                'name' => $this->user->name,
+                'name' => $language ? ($this->localizeField($this->user->full_name, $language) ?? $this->user->name) : $this->user->name,
                 'slug' => $this->user->slug,
                 'avatar_url' => $this->user->avatar ? Storage::url($this->user->avatar) : null,
                 'profession' => $this->localizeField($this->user->profession, $language),
