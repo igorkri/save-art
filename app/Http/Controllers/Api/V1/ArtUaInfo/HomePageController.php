@@ -113,6 +113,13 @@ class HomePageController extends Controller
                     'title' => $homePage->donates_title,
                     'text' => $homePage->donates_text,
                 ],
+                'platform_description' => [
+                    'tagline' => $homePage->platform_description_tagline,
+                    'title' => $homePage->platform_description_title,
+                    'subtitle' => $homePage->platform_description_subtitle,
+                    'paragraphs' => $homePage->platform_description_paragraphs ?? [],
+                ],
+                'platform_features' => $homePage->platform_features ?? [],
                 'featured_projects' => $featuredProjects,
                 'statistics' => $this->getStatisticsData(),
                 'partners' => [

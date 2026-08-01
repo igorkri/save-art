@@ -32,6 +32,11 @@ class HomePage extends Model
         'footer_expert_text',
         'footer_expert_features',
         'footer_expert_button_text',
+        'platform_description_tagline',
+        'platform_description_title',
+        'platform_description_subtitle',
+        'platform_description_paragraphs',
+        'platform_features',
     ];
 
     protected $fillable = [
@@ -61,6 +66,11 @@ class HomePage extends Model
         'footer_expert_text',
         'footer_expert_features',
         'footer_expert_button_text',
+        'platform_description_tagline',
+        'platform_description_title',
+        'platform_description_subtitle',
+        'platform_description_paragraphs',
+        'platform_features',
         'is_active',
     ];
 
@@ -80,6 +90,11 @@ class HomePage extends Model
             'footer_expert_text' => 'array',
             'footer_expert_features' => 'array',
             'footer_expert_button_text' => 'array',
+            'platform_description_tagline' => 'array',
+            'platform_description_title' => 'array',
+            'platform_description_subtitle' => 'array',
+            'platform_description_paragraphs' => 'array',
+            'platform_features' => 'array',
             'total_collected' => 'integer',
             'declared_projects' => 'integer',
             'active_projects' => 'integer',

@@ -87,6 +87,41 @@ class HomePageSeeder extends Seeder
                 'en' => 'Send Application',
             ],
 
+            'platform_description_tagline' => [
+                'uk' => 'art-ua',
+                'en' => 'art-ua',
+            ],
+            'platform_description_title' => [
+                'uk' => 'Про платформу',
+                'en' => 'About the Platform',
+            ],
+            'platform_description_subtitle' => [
+                'uk' => "Спільнота підтримки\nукраїнських митців",
+                'en' => "A Community Supporting\nUkrainian Artists",
+            ],
+            'platform_description_paragraphs' => [
+                'uk' => [
+                    'Ми створюємо всеукраїнську платформу особистостей з різних культурних сфер діяльності, чия професійна кваліфікація передбачає високий творчий потенціал для створення унікальних витворів мистецтва, що художньо переосмислюють сучасні історичні події та стани людства, пропагують мир, збагачують світову мистецьку спадщину.',
+                    'Для подолання глобальної культурної кризи в країні, яка стоїть на варті миру у всьому світі, ми надаємо можливість формувати новітню мистецьку спадщину, яка транслює мистецтво перемоги та вбереже наступні покоління від руїн.',
+                ],
+                'en' => [
+                    'We are building a nationwide platform for individuals from various cultural fields whose professional qualifications entail high creative potential for producing unique works of art that artistically reinterpret current historical events and the state of humanity, promote peace, and enrich the world\'s artistic heritage.',
+                    'To overcome the global cultural crisis in a country standing guard over peace throughout the world, we provide the opportunity to form a new artistic heritage that conveys the art of victory and protects future generations from ruin.',
+                ],
+            ],
+            'platform_features' => [
+                'uk' => [
+                    ['title' => 'Творче натхнення', 'description' => 'Досліджуй роботи інших, надихайся і вдосконалюй свої власні проєкти.'],
+                    ['title' => 'Визнання та нові можливості', 'description' => 'Підвищуй свою видимість і знайди нові проєкти та співпрацю, які допоможуть тобі втілити свої творчі амбіції.'],
+                    ['title' => 'Навчання у кращих', 'description' => 'Відвідуй вебінари та майстер-класи, що допоможуть тобі підвищити свої професійні навички.'],
+                ],
+                'en' => [
+                    ['title' => 'Creative Inspiration', 'description' => 'Explore the work of others, get inspired, and improve your own projects.'],
+                    ['title' => 'Recognition and New Opportunities', 'description' => 'Increase your visibility and find new projects and collaborations that will help you realize your creative ambitions.'],
+                    ['title' => 'Learn from the Best', 'description' => 'Attend webinars and workshops that will help you improve your professional skills.'],
+                ],
+            ],
+
             'is_active' => true,
         ]);
     }

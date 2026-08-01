@@ -102,49 +102,101 @@ class HomePageForm
                     ])
                     ->collapsible()->collapsed(),
 
-//                Section::make('Статистика')
-//                    ->schema([
-//                        Toggle::make('statistics_is_active')
-//                            ->label('Відображати ці статистичні дані на головній сторінці (вкл) / приховати (викл) Буде розраховувати та оновлюватися автоматично')
-//                            ->default(true),
-//
-//                        Grid::make(2)
-//                            ->schema([
-//                                TextInput::make('total_collected')
-//                                    ->label('Загальна сума зібраних коштів (₴)')
-//                                    ->numeric()
-//                                    ->default(0)
-//                                    ->required(),
-//
-//                                TextInput::make('declared_projects')
-//                                    ->label('Оголошених проєктів')
-//                                    ->numeric()
-//                                    ->default(0)
-//                                    ->required(),
-//                            ]),
-//
-//                        Grid::make(2)
-//                            ->schema([
-//                                TextInput::make('active_projects')
-//                                    ->label('Проєктів в роботі')
-//                                    ->numeric()
-//                                    ->default(0)
-//                                    ->required(),
-//
-//                                TextInput::make('completed_projects')
-//                                    ->label('Завершених проєктів')
-//                                    ->numeric()
-//                                    ->default(0)
-//                                    ->required(),
-//                            ]),
-//
-//                        TextInput::make('sold_projects')
-//                            ->label('Проданих проєктів')
-//                            ->numeric()
-//                            ->default(0)
-//                            ->required(),
-//                    ])
-//                    ->collapsible()->collapsed(),
+                //                Section::make('Статистика')
+                //                    ->schema([
+                //                        Toggle::make('statistics_is_active')
+                //                            ->label('Відображати ці статистичні дані на головній сторінці (вкл) / приховати (викл) Буде розраховувати та оновлюватися автоматично')
+                //                            ->default(true),
+                //
+                //                        Grid::make(2)
+                //                            ->schema([
+                //                                TextInput::make('total_collected')
+                //                                    ->label('Загальна сума зібраних коштів (₴)')
+                //                                    ->numeric()
+                //                                    ->default(0)
+                //                                    ->required(),
+                //
+                //                                TextInput::make('declared_projects')
+                //                                    ->label('Оголошених проєктів')
+                //                                    ->numeric()
+                //                                    ->default(0)
+                //                                    ->required(),
+                //                            ]),
+                //
+                //                        Grid::make(2)
+                //                            ->schema([
+                //                                TextInput::make('active_projects')
+                //                                    ->label('Проєктів в роботі')
+                //                                    ->numeric()
+                //                                    ->default(0)
+                //                                    ->required(),
+                //
+                //                                TextInput::make('completed_projects')
+                //                                    ->label('Завершених проєктів')
+                //                                    ->numeric()
+                //                                    ->default(0)
+                //                                    ->required(),
+                //                            ]),
+                //
+                //                        TextInput::make('sold_projects')
+                //                            ->label('Проданих проєктів')
+                //                            ->numeric()
+                //                            ->default(0)
+                //                            ->required(),
+                //                    ])
+                //                    ->collapsible()->collapsed(),
+
+                Section::make('Секція "Про платформу" (art-ua-info)')
+                    ->schema([
+                        LanguageTabs::make([
+                            TextInput::make('platform_description_tagline')
+                                ->label('Тег (над заголовком)')
+                                ->placeholder('art-ua')
+                                ->maxLength(50),
+
+                            TextInput::make('platform_description_title')
+                                ->label('Заголовок')
+                                ->placeholder('Про платформу')
+                                ->maxLength(255),
+
+                            TextInput::make('platform_description_subtitle')
+                                ->label('Підзаголовок')
+                                ->placeholder('Спільнота підтримки українських митців')
+                                ->maxLength(255),
+
+                            \Filament\Forms\Components\Repeater::make('platform_description_paragraphs')
+                                ->label('Абзаци опису')
+                                ->simple(
+                                    RichEditor::make('paragraph')->label('Абзац')
+                                )
+                                ->addActionLabel('+ Додати абзац')
+                                ->minItems(0)
+                                ->maxItems(5),
+                        ]),
+                    ])
+                    ->collapsible()->collapsed(),
+
+                Section::make('Секція переваг платформи (art-ua-info)')
+                    ->schema([
+                        LanguageTabs::make([
+                            \Filament\Forms\Components\Repeater::make('platform_features')
+                                ->label('Переваги')
+                                ->schema([
+                                    TextInput::make('title')
+                                        ->label('Заголовок')
+                                        ->required()
+                                        ->maxLength(255),
+                                    RichEditor::make('description')
+                                        ->label('Опис')
+                                        ->required(),
+                                ])
+                                ->addActionLabel('+ Додати перевагу')
+                                ->minItems(0)
+                                ->maxItems(6)
+                                ->cloneable(),
+                        ]),
+                    ])
+                    ->collapsible()->collapsed(),
 
                 Section::make('Секція партнерів')
                     ->schema([
