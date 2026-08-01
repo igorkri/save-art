@@ -35,6 +35,12 @@ class DatabaseSeeder extends Seeder
         // FAQ питання та відповіді
         $this->call(FaqSeeder::class);
 
+        // Розділи умов використання
+        $this->call(TermsSectionSeeder::class);
+
+        // Блоки контенту умов використання
+        $this->call(TermsBlockSeeder::class);
+
         // Новини та події (art-ua-info)
         $this->call(NewsSeeder::class);
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\ArtUaInfo\ProfileApiController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ProjectController as ArtUaInfoWizardProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\PublicProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\TeamController;
+use App\Http\Controllers\Api\V1\ArtUaInfo\TermsController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
@@ -67,6 +68,10 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
     Route::prefix('faq')->group(function () {
         Route::get('/', [FaqController::class, 'index']);
         Route::get('/category/{slug}', [FaqController::class, 'category']);
+    });
+
+    Route::prefix('terms')->group(function () {
+        Route::get('/', [TermsController::class, 'index']);
     });
 
     Route::prefix('news')->group(function () {
