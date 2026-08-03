@@ -161,6 +161,23 @@ class ProjectsKanban extends Page
         $this->js('window.open('.json_encode($url).', "_blank")');
     }
 
+    /**
+     * Те саме, що impersonateAuthor(), але веде на art-ua-info замість
+     * save-art (React SPA) — окремий фронтенд з іншою структурою роутів.
+     */
+    public function impersonateAuthorArtUaInfo(int $projectId): void
+    {
+        if (! auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        $project = Project::query()->with('user')->findOrFail($projectId);
+        $grant = ImpersonationToken::issue($project->user, auth()->user(), $project->slug, 'art_ua_info');
+        $url = rtrim(config('services.art_ua_info_frontend_url'), '/').'/impersonate/'.$grant->token;
+
+        $this->js('window.open('.json_encode($url).', "_blank")');
+    }
+
     public function startReview(int $projectId): void
     {
         $project = Project::query()->findOrFail($projectId);

@@ -8,6 +8,7 @@ use App\Enums\UserType;
 use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 /**
  * Request для редагування вже створеного проєкту з візарда art-ua-info.
@@ -46,6 +47,30 @@ class UpdateProjectRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge(['currency' => Currency::USD->value]);
+    }
+
+    /**
+     * Переприв'язати командний проєкт на іншого власника (себе особисто,
+     * юрособу чи іншу команду) може лише власник поточної команди — рядовий
+     * учасник команди має право редагувати вміст проєкту, але не власника.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var Project|null $project */
+            $project = $this->route('project');
+
+            if (! $project || $project->team_id === null) {
+                return;
+            }
+
+            $keepsSameTeam = $this->input('user_type') === UserType::Team->value
+                && (int) $this->input('team_id') === $project->team_id;
+
+            if (! $keepsSameTeam && ! $project->team->isOwnedBy($this->user())) {
+                $validator->errors()->add('user_type', 'Змінити власника проєкту може лише власник команди.');
+            }
+        });
     }
 
     /**

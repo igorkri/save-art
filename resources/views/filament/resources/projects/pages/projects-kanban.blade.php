@@ -84,14 +84,24 @@
                                 </button>
 
                                 @if ($project->user)
-                                    <button
-                                        type="button"
-                                        x-on:click.stop="if (confirm('Увійти на сайт під автором цього проєкту?')) { $wire.impersonateAuthor({{ $project->id }}) }"
-                                        title="Увійти на фронтенд під цим автором"
-                                        class="shrink-0 text-gray-400 transition hover:text-primary-500 dark:text-gray-500 dark:hover:text-[#FECC39]"
-                                    >
-                                        <x-filament::icon icon="heroicon-o-arrow-right-on-rectangle" class="h-5 w-5" />
-                                    </button>
+                                    <div class="flex shrink-0 items-center gap-2">
+                                        <button
+                                            type="button"
+                                            x-on:click.stop="if (confirm('Увійти на save-art під автором цього проєкту?')) { $wire.impersonateAuthor({{ $project->id }}) }"
+                                            title="Увійти на save-art під цим автором"
+                                            class="text-gray-400 transition hover:text-primary-500 dark:text-gray-500 dark:hover:text-[#FECC39]"
+                                        >
+                                            <x-filament::icon icon="heroicon-o-arrow-right-on-rectangle" class="h-5 w-5" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            x-on:click.stop="if (confirm('Увійти на art-ua-info під автором цього проєкту?')) { $wire.impersonateAuthorArtUaInfo({{ $project->id }}) }"
+                                            title="Увійти на art-ua-info під цим автором"
+                                            class="text-gray-400 transition hover:text-primary-500 dark:text-gray-500 dark:hover:text-[#FECC39]"
+                                        >
+                                            <x-filament::icon icon="heroicon-o-globe-alt" class="h-5 w-5" />
+                                        </button>
+                                    </div>
                                 @endif
                             </div>
                         </div>

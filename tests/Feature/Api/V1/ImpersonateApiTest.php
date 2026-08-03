@@ -44,6 +44,31 @@ class ImpersonateApiTest extends ApiTestCase
             ->assertJsonPath('redirect_path', "/profile/private/{$project->slug}");
     }
 
+    public function test_exchange_redirects_to_art_ua_info_profile_for_that_target_app(): void
+    {
+        $admin = User::factory()->create();
+        $grant = ImpersonationToken::issue($this->user, $admin, null, 'art_ua_info');
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson("/api/v1/auth/impersonate/{$grant->token}/exchange");
+
+        $response->assertOk()
+            ->assertJsonPath('redirect_path', "/profile/{$this->user->slug}");
+    }
+
+    public function test_exchange_redirects_to_art_ua_info_project_edit_when_grant_has_a_project_slug(): void
+    {
+        $admin = User::factory()->create();
+        $project = Project::factory()->create(['user_id' => $this->user->id]);
+        $grant = ImpersonationToken::issue($this->user, $admin, $project->slug, 'art_ua_info');
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson("/api/v1/auth/impersonate/{$grant->token}/exchange");
+
+        $response->assertOk()
+            ->assertJsonPath('redirect_path', "/profile/{$this->user->slug}/edit-project?edit={$project->slug}");
+    }
+
     public function test_grant_cannot_be_used_twice(): void
     {
         $admin = User::factory()->create();

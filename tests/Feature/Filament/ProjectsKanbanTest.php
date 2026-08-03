@@ -147,4 +147,29 @@ class ProjectsKanbanTest extends TestCase
         $this->assertStringContainsString('window.open', $jsCalls[0]['expression']);
         $this->assertStringContainsString($grant->token, $jsCalls[0]['expression']);
     }
+
+    public function test_impersonate_author_art_ua_info_issues_a_grant_for_that_app_and_opens_its_frontend(): void
+    {
+        $project = Project::factory()->announced()->create();
+
+        $this->actingAs($this->admin);
+
+        $component = Livewire::test(ProjectsKanban::class)
+            ->call('impersonateAuthorArtUaInfo', $project->id);
+
+        $grant = ImpersonationToken::where('user_id', $project->user_id)
+            ->where('project_slug', $project->slug)
+            ->first();
+
+        $this->assertNotNull($grant);
+        $this->assertSame($this->admin->id, $grant->created_by);
+        $this->assertSame('art_ua_info', $grant->target_app);
+        $this->assertTrue($grant->isValid());
+
+        $jsCalls = $component->effects['xjs'] ?? [];
+        $this->assertNotEmpty($jsCalls);
+        $this->assertStringContainsString('window.open', $jsCalls[0]['expression']);
+        $this->assertStringContainsString($grant->token, $jsCalls[0]['expression']);
+        $this->assertStringContainsString('art-ua-info.ddev.site', $jsCalls[0]['expression']);
+    }
 }

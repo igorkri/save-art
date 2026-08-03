@@ -257,6 +257,86 @@ class ProjectControllerTest extends ApiTestCase
             ->assertJsonValidationErrors(['team_id']);
     }
 
+    public function test_team_member_can_update_team_project_without_changing_owner(): void
+    {
+        $team = Team::factory()->create();
+        $team->members()->attach($this->user, ['role' => 'member', 'sort_order' => 0]);
+        $project = Project::factory()->create([
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+            'team_id' => $team->id,
+            'title' => ['uk' => 'Стара назва', 'en' => 'Old title'],
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/art-ua-info/projects/{$project->slug}", [
+                'user_type' => 'team',
+                'team_id' => $team->id,
+                'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
+                'art_category' => 'music',
+                'final_result' => [
+                    ['type' => 'link', 'url' => 'https://example.com/work'],
+                ],
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.title.uk', 'Нова назва');
+    }
+
+    public function test_team_member_cannot_reassign_team_project_owner(): void
+    {
+        $team = Team::factory()->create();
+        $team->members()->attach($this->user, ['role' => 'member', 'sort_order' => 0]);
+        $project = Project::factory()->create([
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+            'team_id' => $team->id,
+            'title' => ['uk' => 'Назва', 'en' => 'Title'],
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/art-ua-info/projects/{$project->slug}", [
+                'user_type' => 'personal',
+                'title' => ['uk' => 'Назва', 'en' => 'Title'],
+                'art_category' => 'music',
+                'final_result' => [
+                    ['type' => 'link', 'url' => 'https://example.com/work'],
+                ],
+            ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['user_type']);
+
+        $this->assertDatabaseHas('projects', ['id' => $project->id, 'team_id' => $team->id]);
+    }
+
+    public function test_team_owner_can_reassign_team_project_owner(): void
+    {
+        $team = Team::factory()->create();
+        $team->members()->attach($this->user, ['role' => 'owner', 'sort_order' => 0]);
+        $project = Project::factory()->create([
+            'source' => ProjectSource::ArtUaInfo,
+            'status' => ProjectStatus::Completed,
+            'user_id' => $this->user->id,
+            'team_id' => $team->id,
+            'title' => ['uk' => 'Назва', 'en' => 'Title'],
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/art-ua-info/projects/{$project->slug}", [
+                'user_type' => 'personal',
+                'title' => ['uk' => 'Назва', 'en' => 'Title'],
+                'art_category' => 'music',
+                'final_result' => [
+                    ['type' => 'link', 'url' => 'https://example.com/work'],
+                ],
+            ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('projects', ['id' => $project->id, 'team_id' => null]);
+    }
+
     public function test_cannot_update_someone_elses_project(): void
     {
         $project = Project::factory()->create([

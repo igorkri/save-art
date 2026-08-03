@@ -33,6 +33,7 @@ class ImpersonationToken extends Model
         'user_id',
         'created_by',
         'project_slug',
+        'target_app',
         'expires_at',
         'used_at',
     ];
@@ -69,13 +70,14 @@ class ImpersonationToken extends Model
      * Живе 2 хвилини — цього достатньо, щоб браузер встиг відкрити фронтенд
      * і одразу обміняти токен на справжню сесію.
      */
-    public static function issue(User $target, User $admin, ?string $projectSlug = null): self
+    public static function issue(User $target, User $admin, ?string $projectSlug = null, string $targetApp = 'save_art'): self
     {
         return self::create([
             'token' => Str::random(64),
             'user_id' => $target->id,
             'created_by' => $admin->id,
             'project_slug' => $projectSlug,
+            'target_app' => $targetApp,
             'expires_at' => Carbon::now()->addMinutes(2),
         ]);
     }
@@ -88,9 +90,17 @@ class ImpersonationToken extends Model
     /**
      * Куди на фронтенді потрапити після обміну токена: одразу на проєкт
      * автора (якщо грант видано з картки проєкту) або в загальний кабінет.
+     * Формат шляху залежить від фронтенду — save-art (SPA) та art-ua-info
+     * (Next.js) мають різну структуру роутів кабінету.
      */
     public function redirectPath(): string
     {
+        if ($this->target_app === 'art_ua_info') {
+            return $this->project_slug
+                ? "/profile/{$this->user->slug}/edit-project?edit={$this->project_slug}"
+                : "/profile/{$this->user->slug}";
+        }
+
         return $this->project_slug
             ? "/profile/private/{$this->project_slug}"
             : '/profile/private';
