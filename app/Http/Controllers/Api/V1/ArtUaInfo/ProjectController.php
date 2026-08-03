@@ -159,6 +159,17 @@ class ProjectController extends Controller
             unset($data['status']);
         }
 
+        // Позначку "продано" (sold_externally) відображаємо в самому статусі проєкту:
+        // Completed -> Sold, коли прапорець увімкнули, і назад, коли вимкнули.
+        if (array_key_exists('sold_externally', $data)) {
+            $targetStatus = $data['status'] ?? $project->status;
+            if ($targetStatus === ProjectStatus::Completed && $data['sold_externally']) {
+                $data['status'] = ProjectStatus::Sold;
+            } elseif ($targetStatus === ProjectStatus::Sold && ! $data['sold_externally']) {
+                $data['status'] = ProjectStatus::Completed;
+            }
+        }
+
         $project->update($data);
 
         ProjectCategoryParameterValues::syncForProject($project, $parametersData);

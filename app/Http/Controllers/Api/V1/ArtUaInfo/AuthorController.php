@@ -49,7 +49,7 @@ abstract class AuthorController extends Controller
                 : ArtCategoryFilter::resolveCategoryIds($request->input('art_category'));
 
             if (! empty($categoryIds)) {
-                $query->whereHas('projects', fn ($q) => $q->forArtUaInfo()
+                $query->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                     ->whereIn('status', ProjectStatus::publicStatuses())
                     ->whereIn('art_category_id', $categoryIds));
             }
@@ -57,7 +57,7 @@ abstract class AuthorController extends Controller
 
         if ($request->filled('parameter_value_id')) {
             $valueIds = array_map('intval', array_map('trim', explode(',', $request->input('parameter_value_id'))));
-            $query->whereHas('projects', fn ($q) => $q->forArtUaInfo()
+            $query->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                 ->whereIn('status', ProjectStatus::publicStatuses())
                 ->whereHas('projectParameters', fn ($pq) => $pq->whereIn('parameter_value_id', $valueIds)));
         }
@@ -93,9 +93,9 @@ abstract class AuthorController extends Controller
         $query = User::query()
             ->when($this->profileType(), fn ($q, $type) => $q->where('profile_type', $type))
             ->withCount([
-                'projects' => fn ($q) => $q->forArtUaInfo()->whereIn('status', ProjectStatus::publicStatuses()),
+                'projects' => fn ($q) => $q->forArtUaInfo()->ownedIndividually()->whereIn('status', ProjectStatus::publicStatuses()),
             ])
-            ->whereHas('projects', fn ($q) => $q->forArtUaInfo()->whereIn('status', ProjectStatus::publicStatuses()));
+            ->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()->whereIn('status', ProjectStatus::publicStatuses()));
 
         if ($request->filled('search')) {
             $search = mb_strtolower($request->input('search'));
@@ -122,7 +122,7 @@ abstract class AuthorController extends Controller
             $subcategories = [];
 
             foreach ($root->children as $child) {
-                $count = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()
+                $count = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                     ->whereIn('status', ProjectStatus::publicStatuses())
                     ->where('art_category_id', $child->id))->count();
 
@@ -134,7 +134,7 @@ abstract class AuthorController extends Controller
             }
 
             $rootCategoryIds = [$root->id, ...$root->children->pluck('id')];
-            $rootCount = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()
+            $rootCount = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                 ->whereIn('status', ProjectStatus::publicStatuses())
                 ->whereIn('art_category_id', $rootCategoryIds))->count();
 
@@ -177,7 +177,7 @@ abstract class AuthorController extends Controller
                 : ArtCategoryFilter::resolveCategoryIds($categorySlug);
 
             if (! empty($categoryIds)) {
-                $baseQuery->whereHas('projects', fn ($q) => $q->forArtUaInfo()
+                $baseQuery->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                     ->whereIn('status', ProjectStatus::publicStatuses())
                     ->whereIn('art_category_id', $categoryIds));
             }
@@ -196,7 +196,7 @@ abstract class AuthorController extends Controller
                     'id' => $parameter->id,
                     'name' => $this->getFilterTranslation($parameter->getTranslations('name'), $language),
                     'values' => $parameter->values->map(function ($value) use ($baseQuery, $language) {
-                        $count = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()
+                        $count = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                             ->whereIn('status', ProjectStatus::publicStatuses())
                             ->whereHas('projectParameters', fn ($pq) => $pq->where('parameter_value_id', $value->id)))
                             ->count();
@@ -241,7 +241,7 @@ abstract class AuthorController extends Controller
             ->when($this->profileType(), fn ($q, $type) => $q->where('profile_type', $type))
             ->with(['profileSocial'])
             ->withCount([
-                'projects' => fn ($q) => $q->forArtUaInfo()->whereIn('status', ProjectStatus::publicStatuses()),
+                'projects' => fn ($q) => $q->forArtUaInfo()->ownedIndividually()->whereIn('status', ProjectStatus::publicStatuses()),
             ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -258,6 +258,7 @@ abstract class AuthorController extends Controller
 
         $query = $author->projects()
             ->forArtUaInfo()
+            ->ownedIndividually()
             ->with(['user.profileLegal'])
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('announced_at', 'desc');

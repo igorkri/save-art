@@ -121,6 +121,10 @@ class StoreProjectRequest extends FormRequest
     {
         $requestedStatus = $this->input('status', 'new');
 
+        if (! in_array($requestedStatus, ['draft', 'new'], true) && $this->boolean('sold_externally')) {
+            return ProjectStatus::Sold;
+        }
+
         return match ($requestedStatus) {
             'draft' => ProjectStatus::Draft,
             'new' => ProjectStatus::New,

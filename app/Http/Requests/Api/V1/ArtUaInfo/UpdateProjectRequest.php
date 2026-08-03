@@ -23,10 +23,20 @@ class UpdateProjectRequest extends FormRequest
     {
         /** @var Project|null $project */
         $project = $this->route('project');
+        $user = $this->user();
 
-        return $this->user() !== null
-            && $project?->user_id === $this->user()->id
-            && $project?->source === ProjectSource::ArtUaInfo;
+        if ($user === null || $project?->source !== ProjectSource::ArtUaInfo) {
+            return false;
+        }
+
+        if ($project->user_id === $user->id) {
+            return true;
+        }
+
+        // Командний проєкт може редагувати будь-який учасник команди, на яку він
+        // підписаний (team_id), а не лише той, хто його фізично створив.
+        return $project->team_id !== null
+            && $user->teams()->where('teams.id', $project->team_id)->exists();
     }
 
     /**

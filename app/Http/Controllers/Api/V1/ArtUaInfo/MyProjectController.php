@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\ProjectListResource;
 use App\Http\Resources\Api\V1\ProjectResource;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -129,7 +130,7 @@ class MyProjectController extends Controller
      */
     public function show(Request $request, Project $project): ProjectResource|JsonResponse
     {
-        if ($project->user_id !== $request->user()->id) {
+        if (! $this->canAccess($project, $request->user())) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -174,5 +175,19 @@ class MyProjectController extends Controller
         $project->delete();
 
         return response()->json(['message' => 'Проєкт видалено']);
+    }
+
+    /**
+     * Творець проєкту завжди має доступ; для командного проєкту (team_id)
+     * доступ також має будь-який учасник цієї команди.
+     */
+    private function canAccess(Project $project, User $user): bool
+    {
+        if ($project->user_id === $user->id) {
+            return true;
+        }
+
+        return $project->team_id !== null
+            && $user->teams()->where('teams.id', $project->team_id)->exists();
     }
 }
