@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Profile\Pages\Auth\Login;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -25,7 +26,7 @@ class ProfilePanelProvider extends PanelProvider
         return $panel
             ->id('profile')
             ->path('profile')
-            ->login()
+            ->login(Login::class)
             ->brandName('Кабінет автора')
             ->viteTheme('resources/css/filament/profile/theme.css')
             ->colors([
