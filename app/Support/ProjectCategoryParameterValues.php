@@ -11,12 +11,7 @@ use App\Models\ProjectParameter;
 final class ProjectCategoryParameterValues
 {
     /**
-     * @var list<string>
-     */
-    public const LOCALES = ['uk', 'en'];
-
-    /**
-     * @return list<array{parameter_id: int, parameter_label: string, parameter_type: string, parameter_value_id: int|null, custom_value: array<string, string>}>
+     * @return list<array{parameter_id: int, parameter_label: string, parameter_type: string, parameter_value_id: int|null, custom_value: string|null}>
      */
     public static function rowsForProject(Project $project): array
     {
@@ -24,7 +19,7 @@ final class ProjectCategoryParameterValues
     }
 
     /**
-     * @return list<array{parameter_id: int, parameter_label: string, parameter_type: string, parameter_value_id: int|null, custom_value: array<string, string>}>
+     * @return list<array{parameter_id: int, parameter_label: string, parameter_type: string, parameter_value_id: int|null, custom_value: string|null}>
      */
     public static function rowsForCategoryId(?int $categoryId, ?Project $projectForExistingValues = null): array
     {
@@ -55,26 +50,11 @@ final class ProjectCategoryParameterValues
                 'parameter_label' => $parameter->getLabel('uk'),
                 'parameter_type' => $parameter->type->value,
                 'parameter_value_id' => $existing?->parameter_value_id,
-                'custom_value' => self::normalizeValueForLocales(is_array($existing?->custom_value) ? $existing->custom_value : []),
+                'custom_value' => $existing?->custom_value,
             ];
         }
 
         return $rows;
-    }
-
-    /**
-     * @param  array<string, mixed>  $value
-     * @return array<string, string>
-     */
-    public static function normalizeValueForLocales(array $value): array
-    {
-        $out = [];
-        foreach (self::LOCALES as $code) {
-            $v = $value[$code] ?? '';
-            $out[$code] = is_string($v) ? trim($v) : '';
-        }
-
-        return $out;
     }
 
     /**
@@ -139,9 +119,9 @@ final class ProjectCategoryParameterValues
                 continue;
             }
 
-            $customValue = self::normalizeValueForLocales(is_array($row['custom_value'] ?? null) ? $row['custom_value'] : []);
+            $customValue = is_string($row['custom_value'] ?? null) ? trim($row['custom_value']) : '';
 
-            if (($customValue['uk'] ?? '') === '') {
+            if ($customValue === '') {
                 ProjectParameter::query()
                     ->where('project_id', $project->getKey())
                     ->where('parameter_id', $parameterId)

@@ -5,13 +5,12 @@ namespace App\Models;
 use App\Enums\DocumentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Translatable\HasTranslations;
 
 /**
  * @property int $id
- * @property array $name
+ * @property string $name
  * @property DocumentType $type
- * @property array|null $description
+ * @property string|null $description
  * @property string $file_path
  * @property string|null $file_name
  * @property string|null $file_size
@@ -22,8 +21,6 @@ use Spatie\Translatable\HasTranslations;
  */
 class Document extends Model
 {
-    use HasTranslations;
-
     protected $fillable = [
         'name',
         'type',
@@ -34,8 +31,6 @@ class Document extends Model
         'mime_type',
         'is_active',
     ];
-
-    public array $translatable = ['name', 'description'];
 
     protected function casts(): array
     {

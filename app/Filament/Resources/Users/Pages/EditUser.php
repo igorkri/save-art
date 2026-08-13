@@ -87,12 +87,7 @@ class EditUser extends EditRecord
             $legal->user_id = $user->id;
         }
 
-        // Заполняем обычные поля
-        foreach ($legalData as $key => $value) {
-            if (! in_array($key, ['name', 'authorized_person', 'address'])) {
-                $legal->$key = $value;
-            }
-        }
+        $legal->fill($legalData);
 
         // Встановлюємо значення за замовчуванням для currency, якщо воно null
         if (empty($legal->currency)) {
@@ -101,14 +96,7 @@ class EditUser extends EditRecord
 
         // Встановлюємо значення за замовчуванням для name, якщо воно null або порожнє
         if (empty($legal->name)) {
-            $legal->name = ['uk' => '', 'en' => ''];
-        }
-
-        // Для полей с array cast используем setAttribute, который автоматически применит cast
-        foreach (['name', 'authorized_person', 'address'] as $field) {
-            if (isset($legalData[$field])) {
-                $legal->setAttribute($field, $legalData[$field]);
-            }
+            $legal->name = '';
         }
 
         $legal->save();
@@ -138,23 +126,11 @@ class EditUser extends EditRecord
                 $legal->user_id = $record->id;
             }
 
-            // Заполняем обычные поля
-            foreach ($legalData as $key => $value) {
-                if (! in_array($key, ['name', 'authorized_person', 'address'])) {
-                    $legal->$key = $value;
-                }
-            }
+            $legal->fill($legalData);
 
             // Встановлюємо значення за замовчуванням для currency, якщо воно null
             if (empty($legal->currency)) {
                 $legal->currency = 'UAH';
-            }
-
-            // Для полей с array cast используем setAttribute, который автоматически применит cast
-            foreach (['name', 'authorized_person', 'address'] as $field) {
-                if (isset($legalData[$field])) {
-                    $legal->setAttribute($field, $legalData[$field]);
-                }
             }
 
             $legal->save();
@@ -279,16 +255,16 @@ class EditUser extends EditRecord
 
                 // Персональні дані (тепер в User)
                 'avatar' => $record->avatar,
-                'full_name' => $record->full_name ?? ['uk' => '', 'en' => ''],
-                'profession' => $record->profession ?? ['uk' => '', 'en' => ''],
-                'tags' => $record->tags ?? ['uk' => '', 'en' => ''],
-                'country' => $record->country ?? ['uk' => '', 'en' => ''],
-                'region' => $record->region ?? ['uk' => '', 'en' => ''],
-                'city' => $record->city ?? ['uk' => '', 'en' => ''],
+                'full_name' => $record->full_name,
+                'profession' => $record->profession,
+                'tags' => $record->tags,
+                'country' => $record->country,
+                'region' => $record->region,
+                'city' => $record->city,
                 'postal_code' => $record->postal_code,
                 'phone' => $record->phone,
                 'profile_type' => $record->profile_type instanceof \BackedEnum ? $record->profile_type->value : $record->profile_type,
-                'description' => $record->description ?? ['uk' => '', 'en' => ''],
+                'description' => $record->description,
 
                 // Профілі
                 'profileLegal' => $legal,

@@ -32,7 +32,7 @@ class ProjectResource extends Resource
 
     protected static ?string $modelLabel = 'Проєкт';
 
-    protected static ?string $recordTitleAttribute = 'title.uk';
+    protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?int $navigationSort = 10;
 

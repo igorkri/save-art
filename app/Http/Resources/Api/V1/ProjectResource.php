@@ -27,14 +27,14 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="status", type="string", enum={"draft", "moderation", "announced", "in_progress", "paused", "completed", "sold", "rejected"}, example="announced"),
  *     @OA\Property(property="status_label", type="string", example="Оголошений"),
  *     @OA\Property(property="status_moderation", type="string", enum={"pending", "approved", "rejected"}, example="approved"),
- *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
- *     @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="title", type="string"),
+ *     @OA\Property(property="short_description", type="string", nullable=true),
  *     @OA\Property(property="cover_url", type="string", nullable=true, example="http://save-art-web.ddev.site/storage/projects/covers/1.jpg"),
  *     @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, example="visual"),
  *     @OA\Property(property="art_category_label", type="string", example="Візуальне мистецтво"),
  *     @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
  *     @OA\Property(property="art_subcategory_label", type="string", nullable=true, example="Живопис"),
- *     @OA\Property(property="tags", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="tags", type="string", nullable=true),
  *     @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
  *     @OA\Property(property="budget_goal", type="number", format="float", example=50000.00),
  *     @OA\Property(property="budget_collected", type="number", format="float", example=12500.00),
@@ -48,7 +48,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="completed_at", type="string", format="date-time", nullable=true),
  *     @OA\Property(property="author", ref="#/components/schemas/Author"),
  *     @OA\Property(property="budget_items", type="array", nullable=true, @OA\Items(type="object",
- *         @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
+ *         @OA\Property(property="name", type="string"),
  *         @OA\Property(property="amount", type="number", example=15000)
  *     )),
  *     @OA\Property(property="content_blocks", type="array", nullable=true, description="Динамічні контент-блоки", @OA\Items(
@@ -80,10 +80,10 @@ use OpenApi\Annotations as OA;
  *     type="object",
  *
  *     @OA\Property(property="parameter_id", type="integer", example=5),
- *     @OA\Property(property="parameter", description="Назва характеристики. Якщо передано language — строка, інакше об'єкт {uk, en}", example="Жанр"),
+ *     @OA\Property(property="parameter", type="string", description="Назва характеристики", example="Жанр"),
  *     @OA\Property(property="type", type="string", enum={"list", "custom"}, example="list"),
  *     @OA\Property(property="value_id", type="integer", nullable=true, example=12),
- *     @OA\Property(property="value", nullable=true, description="Значення. Якщо передано language — строка, інакше об'єкт {uk, en} (для custom) або строка (для list)", example="Роман")
+ *     @OA\Property(property="value", type="string", nullable=true, description="Значення", example="Роман")
  * )
  *
  * @OA\Schema(
@@ -141,8 +141,8 @@ class ProjectResource extends JsonResource
             'status_label' => $this->status->getLabel($language ?? 'uk'),
             'status_moderation' => $this->status_moderation->value,
 
-            'title' => $this->localizeField($this->title, $language),
-            'short_description' => $this->localizeField($this->short_description, $language),
+            'title' => $this->title,
+            'short_description' => $this->short_description,
             'cover_url' => $this->cover ? Storage::url($this->cover) : null,
 
             'art_category' => $this->getArtCategorySlug(),
@@ -150,7 +150,7 @@ class ProjectResource extends JsonResource
             'art_subcategory' => $this->getArtSubcategorySlug(),
             'art_subcategory_label' => $this->getArtSubcategoryLabel($language ?? 'uk'),
 
-            'tags' => $this->localizeField($this->tags, $language),
+            'tags' => $this->tags,
 
             'currency' => $this->currency?->value,
             'budget_goal' => $this->budget_goal ? (float) $this->budget_goal : null,
@@ -174,9 +174,9 @@ class ProjectResource extends JsonResource
 
             'author' => $this->formatAuthor($this->user, $language),
 
-            'budget_items' => $this->localizeArrayField($this->budget_items, $language),
+            'budget_items' => $this->budget_items,
             'additional_info' => $this->localizeField($this->additional_info, $language),
-            'content_blocks' => $this->localizeContentBlocks($this->content_blocks, $language),
+            'content_blocks' => $this->content_blocks,
             'final_result' => $this->localizeFinalResult($this->final_result, $language),
 
             'stages' => ProjectStageResource::collection($this->whenLoaded('stages')),
@@ -300,20 +300,20 @@ class ProjectResource extends JsonResource
             // Юридична особа - дані з ProfileLegal
             return [
                 'id' => $user->id,
-                'name' => $this->localizeField($user->profileLegal->name, $language),
+                'name' => $user->profileLegal->name,
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->profileLegal->logo ? Storage::url($user->profileLegal->logo) : null,
-                'profession' => $this->localizeField($user->profession, $language),
+                'profession' => $user->profession,
                 'type' => 'legal',
             ];
         } else {
             // Фізична особа - дані з User
             return [
                 'id' => $user->id,
-                'name' => $this->localizeField($user->full_name, $language) ?? $user->name,
+                'name' => $user->full_name ?? $user->name,
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
-                'profession' => $this->localizeField($user->profession, $language),
+                'profession' => $user->profession,
                 'type' => 'personal',
             ];
         }

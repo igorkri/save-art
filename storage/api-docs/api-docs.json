@@ -324,23 +324,8 @@
                     "Artist Board"
                 ],
                 "summary": "Дошка художників (10 художників в 10 національних музеях світу)",
-                "description": "Повертає дані про спецпроект '10 художників в 10 національних музеях світу'. Включає інформацію про художників, їх виставки, музеї та роботи. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
+                "description": "Повертає дані про спецпроект '10 художників в 10 національних музеях світу'. Включає інформацію про художників, їх виставки, музеї та роботи.",
                 "operationId": "getArtistBoard",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Успішне отримання даних",
@@ -365,25 +350,16 @@
                                                 "titles": {
                                                     "properties": {
                                                         "title1": {
-                                                            "type": "object",
-                                                            "example": {
-                                                                "uk": "Спецпроєкт",
-                                                                "en": "Special Project"
-                                                            }
+                                                            "type": "string",
+                                                            "example": "Спецпроєкт"
                                                         },
                                                         "title2": {
-                                                            "type": "object",
-                                                            "example": {
-                                                                "uk": "10 художників в 10 національних музеях світу",
-                                                                "en": "10 artists in 10 national museums of the world"
-                                                            }
+                                                            "type": "string",
+                                                            "example": "10 художників в 10 національних музеях світу"
                                                         },
                                                         "description": {
-                                                            "type": "object",
-                                                            "example": {
-                                                                "uk": "Короткий опис спецпроєкту українською",
-                                                                "en": "Short description of the special project in English"
-                                                            }
+                                                            "type": "string",
+                                                            "example": "Короткий опис спецпроєкту"
                                                         }
                                                     },
                                                     "type": "object"
@@ -401,11 +377,8 @@
                                                     }
                                                 },
                                                 "descriptions": {
-                                                    "type": "object",
-                                                    "example": {
-                                                        "uk": "<p>Опис спецпроєкту...</p>",
-                                                        "en": "<p>Special project description...</p>"
-                                                    }
+                                                    "type": "string",
+                                                    "example": "<p>Опис спецпроєкту...</p>"
                                                 },
                                                 "data": {
                                                     "type": "array",
@@ -413,35 +386,20 @@
                                                         "type": "object",
                                                         "example": {
                                                             "image": "https://example.com/storage/artist-boards/artists/artist1.jpg",
-                                                            "name": {
-                                                                "uk": "Іван Петренко",
-                                                                "en": "Ivan Petrenko"
-                                                            },
+                                                            "name": "Іван Петренко",
                                                             "exhibition_link": "https://museum.com/exhibition",
                                                             "facebook_link": "https://facebook.com/artist",
                                                             "museums": [
                                                                 {
-                                                                    "name": {
-                                                                        "uk": "Національний музей мистецтв",
-                                                                        "en": "National Museum of Arts"
-                                                                    },
-                                                                    "exhibition_name": {
-                                                                        "uk": "Виставка сучасного мистецтва",
-                                                                        "en": "Contemporary Art Exhibition"
-                                                                    },
+                                                                    "name": "Національний музей мистецтв",
+                                                                    "exhibition_name": "Виставка сучасного мистецтва",
                                                                     "dates": "01.01.2024 - 01.03.2024"
                                                                 }
                                                             ],
                                                             "works": [
                                                                 {
-                                                                    "title": {
-                                                                        "uk": "Назва роботи",
-                                                                        "en": "Work Title"
-                                                                    },
-                                                                    "description": {
-                                                                        "uk": "<p>Опис роботи...</p>",
-                                                                        "en": "<p>Work description...</p>"
-                                                                    },
+                                                                    "title": "Назва роботи",
+                                                                    "description": "<p>Опис роботи...</p>",
                                                                     "image": "https://example.com/storage/artist-boards/works/work1.jpg"
                                                                 }
                                                             ]
@@ -458,12 +416,6 @@
                                                 }
                                             },
                                             "type": "object"
-                                        },
-                                        "language": {
-                                            "description": "Вказана мова (якщо був переданий параметр)",
-                                            "type": "string",
-                                            "example": "uk",
-                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -529,42 +481,26 @@
                                                         "example": 1
                                                     },
                                                     "page_title": {
-                                                        "properties": {
-                                                            "uk": {
-                                                                "type": "string"
-                                                            },
-                                                            "en": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "title": {
-                                                        "properties": {
-                                                            "uk": {
-                                                                "type": "string"
-                                                            },
-                                                            "en": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "slug": {
                                                         "type": "string",
                                                         "example": "special-projects"
                                                     },
                                                     "content": {
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "meta_title": {
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "meta_description": {
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "meta_keywords": {
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "is_active": {
                                                         "type": "boolean",
@@ -623,25 +559,25 @@
                                                     "type": "integer"
                                                 },
                                                 "page_title": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "title": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "slug": {
                                                     "type": "string"
                                                 },
                                                 "content": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "meta_title": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "meta_description": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "meta_keywords": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "is_active": {
                                                     "type": "boolean"
@@ -854,21 +790,6 @@
                 "summary": "Дані головної сторінки",
                 "description": "Повертає всі дані для рендерингу головної сторінки, включаючи hero-секцію, статистику, партнерів та рекомендовані проекти",
                 "operationId": "getHomePage",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова контенту (uk, en)",
-                        "schema": {
-                            "type": "string",
-                            "default": "uk",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Дані головної сторінки",
@@ -1131,21 +1052,6 @@
                 "summary": "Всі налаштування сайту",
                 "description": "Повертає повні дані для header та footer",
                 "operationId": "getSiteSettings",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова контенту (uk, en)",
-                        "schema": {
-                            "type": "string",
-                            "default": "uk",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Налаштування сайту",
@@ -1184,21 +1090,6 @@
                 "summary": "Дані хедера сайту",
                 "description": "Повертає дані для рендерингу хедера: логотип, меню, соцмережі, кнопки",
                 "operationId": "getSiteHeader",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова контенту (uk, en)",
-                        "schema": {
-                            "type": "string",
-                            "default": "uk",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Дані хедера",
@@ -1229,21 +1120,6 @@
                 "summary": "Дані футера сайту",
                 "description": "Повертає дані для рендерингу футера: бренд, слоган, співпраця, меню сайтів, контакти",
                 "operationId": "getSiteFooter",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова контенту (uk, en)",
-                        "schema": {
-                            "type": "string",
-                            "default": "uk",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Дані футера",
@@ -1352,7 +1228,7 @@
                     {
                         "name": "art_category",
                         "in": "query",
-                        "description": "Slug кореневої категорії мистецтва",
+                        "description": "Slug кореневої категорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
                         }
@@ -1360,9 +1236,47 @@
                     {
                         "name": "art_subcategory",
                         "in": "query",
-                        "description": "Slug підкатегорії мистецтва",
+                        "description": "Slug підкатегорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "author_slug",
+                        "in": "query",
+                        "description": "Slug автора (митця/організації) — обмежує список каталогами лише цього автора",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Пошук по назві каталогу та імені автора",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "likes"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_dir",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
                         }
                     },
                     {
@@ -4010,23 +3924,8 @@
                     "FAQ"
                 ],
                 "summary": "Список FAQ",
-                "description": "Повертає всі FAQ категорії з питаннями та відповідями. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
+                "description": "Повертає всі FAQ категорії з питаннями та відповідями.",
                 "operationId": "getFaq",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Список FAQ",
@@ -4053,11 +3952,8 @@
                                                                 "example": 1
                                                             },
                                                             "name": {
-                                                                "type": "object",
-                                                                "example": {
-                                                                    "uk": "Загальні питання",
-                                                                    "en": "General questions"
-                                                                }
+                                                                "type": "string",
+                                                                "example": "Загальні питання"
                                                             },
                                                             "slug": {
                                                                 "type": "string",
@@ -4072,18 +3968,12 @@
                                                                             "example": 1
                                                                         },
                                                                         "question": {
-                                                                            "type": "object",
-                                                                            "example": {
-                                                                                "uk": "Як це працює?",
-                                                                                "en": "How does it work?"
-                                                                            }
+                                                                            "type": "string",
+                                                                            "example": "Як це працює?"
                                                                         },
                                                                         "answer": {
-                                                                            "type": "object",
-                                                                            "example": {
-                                                                                "uk": "Відповідь...",
-                                                                                "en": "Answer..."
-                                                                            }
+                                                                            "type": "string",
+                                                                            "example": "Відповідь..."
                                                                         }
                                                                     },
                                                                     "type": "object"
@@ -4095,12 +3985,6 @@
                                                 }
                                             },
                                             "type": "object"
-                                        },
-                                        "language": {
-                                            "description": "Вказана мова (якщо був переданий параметр)",
-                                            "type": "string",
-                                            "example": "uk",
-                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -4122,7 +4006,7 @@
                     "FAQ"
                 ],
                 "summary": "FAQ категорії",
-                "description": "Повертає питання конкретної FAQ категорії. Якщо вказано параметр language - повертає контент лише для вказаної мови.",
+                "description": "Повертає питання конкретної FAQ категорії.",
                 "operationId": "getFaqCategory",
                 "parameters": [
                     {
@@ -4132,19 +4016,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
                         }
                     }
                 ],
@@ -4172,11 +4043,8 @@
                                                             "example": 1
                                                         },
                                                         "name": {
-                                                            "type": "object",
-                                                            "example": {
-                                                                "uk": "Загальні питання",
-                                                                "en": "General questions"
-                                                            }
+                                                            "type": "string",
+                                                            "example": "Загальні питання"
                                                         },
                                                         "slug": {
                                                             "type": "string",
@@ -4193,11 +4061,6 @@
                                                 }
                                             },
                                             "type": "object"
-                                        },
-                                        "language": {
-                                            "type": "string",
-                                            "example": "uk",
-                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -4803,7 +4666,7 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "description": "Мова службових міток",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -4857,7 +4720,7 @@
                 "description": "Створює новий проєкт або оновлює існуючий по local_id. Мінімальний запит: {} (порожній об'єкт) створює проєкт зі статусом 'new'. Статуси: 'new'/'draft' - мінімальна валідація, 'moderation' - повна валідація. Повна документація: docs/api/project-create-examples.json",
                 "operationId": "storeProject",
                 "requestBody": {
-                    "description": "Дані проєкту. Мінімальний запит: {} створює проєкт зі статусом 'new'. Для статусу 'moderation' обов'язкові: user_type, title.uk, art_category, currency, budget_goal",
+                    "description": "Дані проєкту. Мінімальний запит: {} створює проєкт зі статусом 'new'. Для статусу 'moderation' обов'язкові: user_type, title, art_category, currency, budget_goal",
                     "required": false,
                     "content": {
                         "application/json": {
@@ -5481,7 +5344,7 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "description": "Мова службових міток",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -5549,7 +5412,7 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
+                        "description": "Мова службових міток",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -5665,10 +5528,11 @@
                             "schema": {
                                 "properties": {
                                     "title": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "type": "string"
                                     },
                                     "short_description": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "type": "string",
+                                        "nullable": true
                                     },
                                     "art_category": {
                                         "type": "string",
@@ -5715,19 +5579,23 @@
                                                     ]
                                                 },
                                                 "heading_text": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 },
                                                 "paragraph_text": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 },
                                                 "image": {
                                                     "type": "string"
                                                 },
                                                 "image_alt": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 },
                                                 "image_caption": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 }
                                             },
                                             "type": "object"
@@ -5902,13 +5770,18 @@
                             "schema": {
                                 "properties": {
                                     "title": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "description": "Нова назва проєкту",
+                                        "type": "string"
                                     },
                                     "short_description": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "description": "Новий короткий опис",
+                                        "type": "string",
+                                        "nullable": true
                                     },
                                     "tags": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "description": "Нові теги",
+                                        "type": "string",
+                                        "nullable": true
                                     },
                                     "additional_info": {
                                         "$ref": "#/components/schemas/LocalizedString"
@@ -5940,19 +5813,23 @@
                                                     ]
                                                 },
                                                 "heading_text": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 },
                                                 "paragraph_text": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 },
                                                 "image": {
                                                     "type": "string"
                                                 },
                                                 "image_alt": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 },
                                                 "image_caption": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "type": "string",
+                                                    "nullable": true
                                                 }
                                             },
                                             "type": "object"
@@ -5989,7 +5866,9 @@
                                                     "nullable": true
                                                 },
                                                 "custom_value": {
-                                                    "$ref": "#/components/schemas/LocalizedString"
+                                                    "description": "Для type=custom",
+                                                    "type": "string",
+                                                    "nullable": true
                                                 }
                                             },
                                             "type": "object"
@@ -8305,18 +8184,6 @@
                         "schema": {
                             "type": "integer"
                         }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
                     }
                 ],
                 "responses": {
@@ -8604,18 +8471,6 @@
                         "schema": {
                             "type": "integer"
                         }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
                     }
                 ],
                 "responses": {
@@ -8673,18 +8528,6 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
                         }
                     }
                 ],
@@ -8757,18 +8600,6 @@
                         "description": "Номер сторінки",
                         "schema": {
                             "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
                         }
                     }
                 ],
@@ -8883,13 +8714,13 @@
                     "Services"
                 ],
                 "summary": "Список послуг",
-                "description": "Повертає список послуг з можливістю фільтрації за категорією мистецтва та типом виконавця",
+                "description": "Повертає список послуг з можливістю фільтрації за категорією мистецтва, ціною, валютою, локацією та пошуком",
                 "operationId": "getServices",
                 "parameters": [
                     {
                         "name": "art_category",
                         "in": "query",
-                        "description": "Slug кореневої категорії мистецтва",
+                        "description": "Slug кореневої категорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
                         }
@@ -8897,7 +8728,7 @@
                     {
                         "name": "art_subcategory",
                         "in": "query",
-                        "description": "Slug підкатегорії мистецтва",
+                        "description": "Slug підкатегорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
                         }
@@ -8912,6 +8743,59 @@
                                 "artist",
                                 "team"
                             ]
+                        }
+                    },
+                    {
+                        "name": "performer_slug",
+                        "in": "query",
+                        "description": "Slug виконавця (митця/організації/команди) — обмежує список послугами лише цього виконавця",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "Валюта",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "UAH",
+                                "USD",
+                                "EUR"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "price_min",
+                        "in": "query",
+                        "description": "Мінімальна ціна",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "price_max",
+                        "in": "query",
+                        "description": "Максимальна ціна",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Пошук за місцезнаходженням",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Пошук по назві та опису послуги",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -8955,6 +8839,59 @@
                                         },
                                         "meta": {
                                             "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/services/locations": {
+            "get": {
+                "tags": [
+                    "Services"
+                ],
+                "summary": "Автопідказки міст виконавців послуг",
+                "description": "Повертає до 8 міст (серед тих, де є хоча б одна послуга), що починаються з пошукового рядка",
+                "operationId": "getServiceLocations",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Початок назви міста",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список міст",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
                                         }
                                     },
                                     "type": "object"
@@ -9014,6 +8951,77 @@
                     },
                     "404": {
                         "description": "Послугу не знайдено"
+                    }
+                }
+            }
+        },
+        "/v1/services/{slug}/order": {
+            "post": {
+                "tags": [
+                    "Services"
+                ],
+                "summary": "Надіслати запит на замовлення послуги",
+                "description": "Надсилає лист виконавцю (з даними замовника) та лист-підтвердження замовнику. Нічого не зберігається в БД.",
+                "operationId": "orderService",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug послуги",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "options": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Запит надіслано"
+                    },
+                    "404": {
+                        "description": "Послугу не знайдено або не вдалося визначити отримувача"
+                    },
+                    "422": {
+                        "description": "Помилка валідації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -9587,88 +9595,34 @@
                                         "nullable": true
                                     },
                                     "full_name": {
-                                        "description": "Повне ім'я (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Іван Петренко"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ivan Petrenko"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Повне ім'я",
+                                        "type": "string",
+                                        "example": "Іван Петренко"
                                     },
                                     "profession": {
-                                        "description": "Професія (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Художник"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Artist"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Професія",
+                                        "type": "string",
+                                        "example": "Художник"
                                     },
                                     "tags": {
-                                        "description": "Теги/спеціалізації (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "живопис, графіка"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "painting, graphics"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Теги/спеціалізації",
+                                        "type": "string",
+                                        "example": "живопис, графіка"
                                     },
                                     "country": {
-                                        "description": "Країна (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Україна"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ukraine"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Країна",
+                                        "type": "string",
+                                        "example": "Україна"
                                     },
                                     "region": {
-                                        "description": "Регіон/область (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Київська область"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Kyiv region"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Регіон/область",
+                                        "type": "string",
+                                        "example": "Київська область"
                                     },
                                     "city": {
-                                        "description": "Місто (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Київ"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Kyiv"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Місто",
+                                        "type": "string",
+                                        "example": "Київ"
                                     },
                                     "postal_code": {
                                         "description": "Поштовий індекс",
@@ -9689,18 +9643,9 @@
                                         "nullable": true
                                     },
                                     "description": {
-                                        "description": "Опис/біографія (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Український художник, працюю в жанрі абстракції"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ukrainian artist, working in abstract genre"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Опис/біографія",
+                                        "type": "string",
+                                        "example": "Український художник, працюю в жанрі абстракції"
                                     }
                                 },
                                 "type": "object"
@@ -9758,88 +9703,34 @@
                                         "nullable": true
                                     },
                                     "full_name": {
-                                        "description": "Повне ім'я (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Іван Петренко"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ivan Petrenko"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Повне ім'я",
+                                        "type": "string",
+                                        "example": "Іван Петренко"
                                     },
                                     "profession": {
-                                        "description": "Професія (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Художник"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Artist"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Професія",
+                                        "type": "string",
+                                        "example": "Художник"
                                     },
                                     "tags": {
-                                        "description": "Теги/спеціалізації (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "живопис, графіка"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "painting, graphics"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Теги/спеціалізації",
+                                        "type": "string",
+                                        "example": "живопис, графіка"
                                     },
                                     "country": {
-                                        "description": "Країна (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Україна"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ukraine"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Країна",
+                                        "type": "string",
+                                        "example": "Україна"
                                     },
                                     "region": {
-                                        "description": "Регіон/область (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Київська область"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Kyiv region"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Регіон/область",
+                                        "type": "string",
+                                        "example": "Київська область"
                                     },
                                     "city": {
-                                        "description": "Місто (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Київ"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Kyiv"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Місто",
+                                        "type": "string",
+                                        "example": "Київ"
                                     },
                                     "postal_code": {
                                         "description": "Поштовий індекс",
@@ -9860,18 +9751,9 @@
                                         "nullable": true
                                     },
                                     "description": {
-                                        "description": "Опис/біографія (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Український художник, працюю в жанрі абстракції"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ukrainian artist, working in abstract genre"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Опис/біографія",
+                                        "type": "string",
+                                        "example": "Український художник, працюю в жанрі абстракції"
                                     }
                                 },
                                 "type": "object"
@@ -9897,9 +9779,6 @@
                     },
                     "401": {
                         "description": "Неавторизовано"
-                    },
-                    "409": {
-                        "description": "Профіль вже існує"
                     },
                     "422": {
                         "description": "Помилка валідації"
@@ -9949,18 +9828,9 @@
                                         "nullable": true
                                     },
                                     "name": {
-                                        "description": "Назва компанії (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "ТОВ Мистецтво"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Art LLC"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Назва компанії",
+                                        "type": "string",
+                                        "example": "ТОВ Мистецтво"
                                     },
                                     "edrpou": {
                                         "description": "Код ЄДРПОУ",
@@ -9968,32 +9838,14 @@
                                         "example": "12345678"
                                     },
                                     "authorized_person": {
-                                        "description": "Уповноважена особа (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Іван Петренко"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ivan Petrenko"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Уповноважена особа",
+                                        "type": "string",
+                                        "example": "Іван Петренко"
                                     },
                                     "address": {
-                                        "description": "Адреса (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "м. Київ, вул. Хрещатик, 1"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Kyiv, Khreshchatyk str., 1"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Адреса",
+                                        "type": "string",
+                                        "example": "м. Київ, вул. Хрещатик, 1"
                                     },
                                     "phone": {
                                         "description": "Телефон",
@@ -10077,18 +9929,9 @@
                                         "nullable": true
                                     },
                                     "name": {
-                                        "description": "Назва компанії (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "ТОВ Мистецтво"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Art LLC"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Назва компанії",
+                                        "type": "string",
+                                        "example": "ТОВ Мистецтво"
                                     },
                                     "edrpou": {
                                         "description": "Код ЄДРПОУ",
@@ -10096,32 +9939,14 @@
                                         "example": "12345678"
                                     },
                                     "authorized_person": {
-                                        "description": "Уповноважена особа (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "Іван Петренко"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Ivan Petrenko"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Уповноважена особа",
+                                        "type": "string",
+                                        "example": "Іван Петренко"
                                     },
                                     "address": {
-                                        "description": "Адреса (мультимовне)",
-                                        "properties": {
-                                            "uk": {
-                                                "type": "string",
-                                                "example": "м. Київ, вул. Хрещатик, 1"
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "example": "Kyiv, Khreshchatyk str., 1"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "description": "Адреса",
+                                        "type": "string",
+                                        "example": "м. Київ, вул. Хрещатик, 1"
                                     },
                                     "phone": {
                                         "description": "Телефон",
@@ -10156,11 +9981,11 @@
                             }
                         }
                     },
+                    "200": {
+                        "description": "Існуючий профіль оновлено"
+                    },
                     "401": {
                         "description": "Неавторизовано"
-                    },
-                    "409": {
-                        "description": "Профіль вже існує"
                     },
                     "422": {
                         "description": "Помилка валідації"
@@ -11119,6 +10944,9 @@
                             },
                             "name": {
                                 "$ref": "#/components/schemas/LocalizedString"
+                            },
+                            "root_name": {
+                                "$ref": "#/components/schemas/LocalizedString"
                             }
                         },
                         "type": "object",
@@ -11127,6 +10955,10 @@
                     "likes_count": {
                         "type": "integer",
                         "example": 10
+                    },
+                    "is_liked": {
+                        "type": "boolean",
+                        "example": false
                     },
                     "is_primary": {
                         "type": "boolean",
@@ -11148,6 +10980,10 @@
                                 "type": "string"
                             },
                             "avatar_url": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "profession": {
                                 "type": "string",
                                 "nullable": true
                             }
@@ -11178,35 +11014,19 @@
                         "nullable": true
                     },
                     "profession": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "bio": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "city": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "country": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "social": {
@@ -11473,7 +11293,7 @@
                         "example": "Новини"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "date": {
                         "description": "Дата публікації у форматі dd.mm.yyyy",
@@ -11523,7 +11343,7 @@
                         "example": "Новини"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "date": {
                         "description": "Дата публікації у форматі dd.mm.yyyy",
@@ -11544,7 +11364,10 @@
                         "items": {
                             "properties": {
                                 "paragraphs": {
-                                    "description": "Якщо передано language — масив строк, інакше об'єкт {uk: string[], en: string[]}"
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 },
                                 "image": {
                                     "type": "string",
@@ -11670,10 +11493,11 @@
                         "example": 1
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "description": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string",
+                        "nullable": true
                     },
                     "min_donation": {
                         "type": "number",
@@ -11899,10 +11723,11 @@
                         "example": "approved"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "short_description": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string",
+                        "nullable": true
                     },
                     "cover_url": {
                         "type": "string",
@@ -11936,7 +11761,8 @@
                         "nullable": true
                     },
                     "tags": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string",
+                        "nullable": true
                     },
                     "currency": {
                         "type": "string",
@@ -12002,7 +11828,7 @@
                         "items": {
                             "properties": {
                                 "name": {
-                                    "$ref": "#/components/schemas/LocalizedString"
+                                    "type": "string"
                                 },
                                 "amount": {
                                     "type": "number",
@@ -12132,7 +11958,8 @@
                         "example": 5
                     },
                     "parameter": {
-                        "description": "Назва характеристики. Якщо передано language — строка, інакше об'єкт {uk, en}",
+                        "description": "Назва характеристики",
+                        "type": "string",
                         "example": "Жанр"
                     },
                     "type": {
@@ -12149,7 +11976,8 @@
                         "nullable": true
                     },
                     "value": {
-                        "description": "Значення. Якщо передано language — строка, інакше об'єкт {uk, en} (для custom) або строка (для list)",
+                        "description": "Значення",
+                        "type": "string",
                         "example": "Роман",
                         "nullable": true
                     }
@@ -12276,14 +12104,10 @@
                         "example": "Заплановано"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "description": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "days_planned": {
@@ -12361,13 +12185,9 @@
                         "example": "чек_матеріали.jpg"
                     },
                     "description": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
-                        "nullable": true,
-                        "description": "Опис документа (uk, en)"
+                        "description": "Опис документа",
+                        "type": "string",
+                        "nullable": true
                     },
                     "uploaded_at": {
                         "description": "Дата завантаження",
@@ -12389,14 +12209,10 @@
                         "type": "string"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "description": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "image_url": {
@@ -12409,24 +12225,24 @@
                                 "type": "string"
                             },
                             "name": {
-                                "$ref": "#/components/schemas/LocalizedString"
+                                "type": "string"
                             }
                         },
                         "type": "object",
                         "nullable": true
                     },
                     "location": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "price": {
                         "type": "number",
                         "format": "float",
                         "nullable": true
+                    },
+                    "price_from": {
+                        "type": "boolean",
+                        "example": false
                     },
                     "currency": {
                         "type": "string",
@@ -12464,6 +12280,69 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "TeamListItem": {
+                "title": "TeamListItem",
+                "description": "Картка команди у публічному списку /authors (легша за повний TeamResource)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "avatar_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "specialization": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "social_links": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "members_count": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "member_avatars": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TeamMember"
+                        }
                     }
                 },
                 "type": "object"
@@ -12527,11 +12406,35 @@
                         ],
                         "nullable": true
                     },
+                    "region": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "zip": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
+                    },
                     "description": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "specialization": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocalizedString"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "social_links": {
                         "type": "array",
@@ -12877,18 +12780,9 @@
                         "nullable": true
                     },
                     "name": {
-                        "description": "Назва компанії (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "ТОВ Мистецтво"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Art LLC"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Назва компанії",
+                        "type": "string",
+                        "example": "ТОВ Мистецтво",
                         "nullable": true
                     },
                     "edrpou": {
@@ -12898,33 +12792,15 @@
                         "nullable": true
                     },
                     "authorized_person": {
-                        "description": "Уповноважена особа (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Іван Петренко"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Ivan Petrenko"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Уповноважена особа",
+                        "type": "string",
+                        "example": "Іван Петренко",
                         "nullable": true
                     },
                     "address": {
-                        "description": "Адреса (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "м. Київ, вул. Хрещатик, 1"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Kyiv, Khreshchatyk str., 1"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Адреса",
+                        "type": "string",
+                        "example": "м. Київ, вул. Хрещатик, 1",
                         "nullable": true
                     },
                     "phone": {
@@ -12969,93 +12845,39 @@
                         "nullable": true
                     },
                     "full_name": {
-                        "description": "Повне ім'я (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Іван Петренко"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Ivan Petrenko"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Повне ім'я",
+                        "type": "string",
+                        "example": "Іван Петренко",
                         "nullable": true
                     },
                     "profession": {
-                        "description": "Професія (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Художник"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Artist"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Професія",
+                        "type": "string",
+                        "example": "Художник",
                         "nullable": true
                     },
                     "tags": {
-                        "description": "Теги/спеціалізації (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "живопис, графіка"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "painting, graphics"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Теги/спеціалізації",
+                        "type": "string",
+                        "example": "живопис, графіка",
                         "nullable": true
                     },
                     "country": {
-                        "description": "Країна (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Україна"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Ukraine"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Країна",
+                        "type": "string",
+                        "example": "Україна",
                         "nullable": true
                     },
                     "region": {
-                        "description": "Регіон/область (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Київська область"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Kyiv region"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Регіон/область",
+                        "type": "string",
+                        "example": "Київська область",
                         "nullable": true
                     },
                     "city": {
-                        "description": "Місто (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Київ"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Kyiv"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Місто",
+                        "type": "string",
+                        "example": "Київ",
                         "nullable": true
                     },
                     "postal_code": {
@@ -13077,18 +12899,9 @@
                         "nullable": true
                     },
                     "description": {
-                        "description": "Опис/біографія (мультимовне)",
-                        "properties": {
-                            "uk": {
-                                "type": "string",
-                                "example": "Український художник"
-                            },
-                            "en": {
-                                "type": "string",
-                                "example": "Ukrainian artist"
-                            }
-                        },
-                        "type": "object",
+                        "description": "Опис/біографія",
+                        "type": "string",
+                        "example": "Український художник",
                         "nullable": true
                     },
                     "created_at": {

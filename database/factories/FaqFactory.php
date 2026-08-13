@@ -19,14 +19,8 @@ class FaqFactory extends Factory
     {
         return [
             'faq_category_id' => FaqCategory::factory(),
-            'question' => [
-                'uk' => $this->faker->sentence().'?',
-                'en' => $this->faker->sentence().'?',
-            ],
-            'answer' => [
-                'uk' => $this->faker->paragraphs(2, true),
-                'en' => $this->faker->paragraphs(2, true),
-            ],
+            'question' => $this->faker->sentence().'?',
+            'answer' => $this->faker->paragraphs(2, true),
             'order' => $this->faker->numberBetween(1, 100),
             'is_active' => $this->faker->boolean(80),
         ];

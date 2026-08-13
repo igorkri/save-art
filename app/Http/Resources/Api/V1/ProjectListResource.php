@@ -69,8 +69,8 @@ class ProjectListResource extends JsonResource
             'status_moderation' => $this->status_moderation?->value,
             'sold_externally' => (bool) $this->sold_externally,
 
-            'title' => $this->localizeField($this->title, $language),
-            'short_description' => $this->localizeField($this->short_description, $language),
+            'title' => $this->title,
+            'short_description' => $this->short_description,
             'cover_url' => $this->cover ? Storage::url($this->cover) : null,
 
             'art_category' => $this->getArtCategorySlug(),
@@ -89,7 +89,7 @@ class ProjectListResource extends JsonResource
             'likes_count' => $this->likes_count,
             'donors_count' => $this->donors_count,
 
-            'tags' => $this->localizeField($this->tags, $language),
+            'tags' => $this->tags,
             'parameters' => $this->buildParameters($language),
 
             'announced_at' => $this->announced_at?->toISOString(),
@@ -130,20 +130,20 @@ class ProjectListResource extends JsonResource
             // Юридична особа - дані з ProfileLegal
             return [
                 'id' => $user->id,
-                'name' => $this->localizeField($user->profileLegal->name, $language),
+                'name' => $user->profileLegal->name,
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->profileLegal->logo ? Storage::url($user->profileLegal->logo) : null,
-                'profession' => $this->localizeField($user->profession, $language),
+                'profession' => $user->profession,
                 'type' => UserType::Legal,
             ];
         } else {
             // Фізична особа - дані з User
             return [
                 'id' => $user->id,
-                'name' => $this->localizeField($user->full_name, $language) ?? $user->name,
+                'name' => $user->full_name ?? $user->name,
                 'slug' => $user->slug ?? null,
                 'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
-                'profession' => $this->localizeField($user->profession, $language),
+                'profession' => $user->profession,
                 'type' => UserType::Personal,
             ];
         }

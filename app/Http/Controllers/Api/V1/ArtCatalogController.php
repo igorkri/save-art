@@ -110,14 +110,11 @@ class ArtCatalogController extends Controller
             $jsonUnquote = (new ArtCatalog)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
             $titleUk = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.uk')");
             $titleEn = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.en')");
-            $authorNameUk = sprintf($jsonUnquote, "JSON_EXTRACT(full_name, '$.uk')");
-            $authorNameEn = sprintf($jsonUnquote, "JSON_EXTRACT(full_name, '$.en')");
-            $query->where(function ($q) use ($search, $titleUk, $titleEn, $authorNameUk, $authorNameEn) {
+            $query->where(function ($q) use ($search, $titleUk, $titleEn) {
                 $q->whereRaw("LOWER({$titleUk}) LIKE ?", ["%{$search}%"])
                     ->orWhereRaw("LOWER({$titleEn}) LIKE ?", ["%{$search}%"])
-                    ->orWhereHas('user', function ($uq) use ($search, $authorNameUk, $authorNameEn) {
-                        $uq->whereRaw("LOWER({$authorNameUk}) LIKE ?", ["%{$search}%"])
-                            ->orWhereRaw("LOWER({$authorNameEn}) LIKE ?", ["%{$search}%"]);
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->whereRaw('LOWER(full_name) LIKE ?', ["%{$search}%"]);
                     });
             });
         }
@@ -143,7 +140,7 @@ class ArtCatalogController extends Controller
                 $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'name' => $child->name,
                     'catalogs_count' => $count,
                 ];
             }
@@ -152,7 +149,7 @@ class ArtCatalogController extends Controller
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'name' => $root->name,
                 'catalogs_count' => $rootCount,
                 'subcategories' => $subcategories,
             ];

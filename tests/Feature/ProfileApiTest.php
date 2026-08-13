@@ -30,7 +30,7 @@ class ProfileApiTest extends TestCase
     {
         $user = User::factory()->create([
             'avatar' => 'test.jpg',
-            'full_name' => ['uk' => 'Тест', 'en' => 'Test'],
+            'full_name' => 'Тест',
         ]);
         ProfileLegal::factory()->create(['user_id' => $user->id]);
         ProfileSocial::factory()->create(['user_id' => $user->id]);
@@ -54,7 +54,7 @@ class ProfileApiTest extends TestCase
 
         $payload = [
             'avatar' => 'path.jpg',
-            'full_name' => ['en' => 'John Doe'],
+            'full_name' => 'John Doe',
         ];
 
         $this->postJson('/api/v1/profile/personal', $payload)
@@ -89,15 +89,15 @@ class ProfileApiTest extends TestCase
 
         $payload = [
             'currency' => 'USD',
-            'name' => ['uk' => 'Тестова компанія', 'en' => 'Test Company'],
+            'name' => 'Тестова компанія',
         ];
         $this->postJson('/api/v1/profile/legal', $payload)
             ->assertCreated()
             ->assertJson(['profileLegal' => ['currency' => 'USD']]);
 
-        // conflict
+        // Повторний POST ідемпотентно оновлює наявний профіль
         $this->postJson('/api/v1/profile/legal', $payload)
-            ->assertStatus(409);
+            ->assertOk();
 
         // update
         $this->putJson('/api/v1/profile/legal', ['currency' => 'EUR'])

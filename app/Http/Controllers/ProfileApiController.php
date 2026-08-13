@@ -146,37 +146,16 @@ class ProfileApiController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="avatar", type="string", nullable=true, example="avatars/user1.jpg", description="Шлях до аватара"),
-     *             @OA\Property(property="full_name", type="object", description="Повне ім'я (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Іван Петренко"),
-     *                 @OA\Property(property="en", type="string", example="Ivan Petrenko")
-     *             ),
-     *             @OA\Property(property="profession", type="object", description="Професія (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Художник"),
-     *                 @OA\Property(property="en", type="string", example="Artist")
-     *             ),
-     *             @OA\Property(property="tags", type="object", description="Теги/спеціалізації (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="живопис, графіка"),
-     *                 @OA\Property(property="en", type="string", example="painting, graphics")
-     *             ),
-     *             @OA\Property(property="country", type="object", description="Країна (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Україна"),
-     *                 @OA\Property(property="en", type="string", example="Ukraine")
-     *             ),
-     *             @OA\Property(property="region", type="object", description="Регіон/область (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Київська область"),
-     *                 @OA\Property(property="en", type="string", example="Kyiv region")
-     *             ),
-     *             @OA\Property(property="city", type="object", description="Місто (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Київ"),
-     *                 @OA\Property(property="en", type="string", example="Kyiv")
-     *             ),
+     *             @OA\Property(property="full_name", type="string", description="Повне ім'я", example="Іван Петренко"),
+     *             @OA\Property(property="profession", type="string", description="Професія", example="Художник"),
+     *             @OA\Property(property="tags", type="string", description="Теги/спеціалізації", example="живопис, графіка"),
+     *             @OA\Property(property="country", type="string", description="Країна", example="Україна"),
+     *             @OA\Property(property="region", type="string", description="Регіон/область", example="Київська область"),
+     *             @OA\Property(property="city", type="string", description="Місто", example="Київ"),
      *              @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
      *              @OA\Property(property="phone", type="string", nullable=true, example="+380501234567", description="Персональний телефон"),
      *                 @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Тип профілю: artist або patron"),
-     *                 @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
-     *                 @OA\Property(property="en", type="string", example="Ukrainian artist, working in abstract genre")
-     *             )
+     *                 @OA\Property(property="description", type="string", description="Опис/біографія", example="Український художник, працюю в жанрі абстракції")
      *         )
      *     ),
      *
@@ -224,37 +203,16 @@ class ProfileApiController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="avatar", type="string", nullable=true, example="avatars/user1.jpg", description="Шлях до аватара"),
-     *             @OA\Property(property="full_name", type="object", description="Повне ім'я (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Іван Петренко"),
-     *                 @OA\Property(property="en", type="string", example="Ivan Petrenko")
-     *             ),
-     *             @OA\Property(property="profession", type="object", description="Професія (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Художник"),
-     *                 @OA\Property(property="en", type="string", example="Artist")
-     *             ),
-     *             @OA\Property(property="tags", type="object", description="Теги/спеціалізації (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="живопис, графіка"),
-     *                 @OA\Property(property="en", type="string", example="painting, graphics")
-     *             ),
-     *             @OA\Property(property="country", type="object", description="Країна (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Україна"),
-     *                 @OA\Property(property="en", type="string", example="Ukraine")
-     *             ),
-     *             @OA\Property(property="region", type="object", description="Регіон/область (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Київська область"),
-     *                 @OA\Property(property="en", type="string", example="Kyiv region")
-     *             ),
-     *             @OA\Property(property="city", type="object", description="Місто (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Київ"),
-     *                 @OA\Property(property="en", type="string", example="Kyiv")
-     *             ),
+     *             @OA\Property(property="full_name", type="string", description="Повне ім'я", example="Іван Петренко"),
+     *             @OA\Property(property="profession", type="string", description="Професія", example="Художник"),
+     *             @OA\Property(property="tags", type="string", description="Теги/спеціалізації", example="живопис, графіка"),
+     *             @OA\Property(property="country", type="string", description="Країна", example="Україна"),
+     *             @OA\Property(property="region", type="string", description="Регіон/область", example="Київська область"),
+     *             @OA\Property(property="city", type="string", description="Місто", example="Київ"),
      *             @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
      *             @OA\Property(property="phone", type="string", nullable=true, example="+380501234567", description="Персональний телефон"),
      *             @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Роль користувача"),
-     *             @OA\Property(property="description", type="object", description="Опис/біографія (мультимовне)",
-     *                 @OA\Property(property="uk", type="string", example="Український художник, працюю в жанрі абстракції"),
-     *                 @OA\Property(property="en", type="string", example="Ukrainian artist, working in abstract genre")
-     *             )
+     *             @OA\Property(property="description", type="string", description="Опис/біографія", example="Український художник, працюю в жанрі абстракції")
      *         )
      *     ),
      *
@@ -264,7 +222,6 @@ class ProfileApiController extends Controller
      *     ),
      *
      *     @OA\Response(response=401, description="Неавторизовано"),
-     *     @OA\Response(response=409, description="Профіль вже існує"),
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
@@ -302,19 +259,10 @@ class ProfileApiController extends Controller
      *         @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH", description="Валюта"),
      *         @OA\Property(property="is_legal", type="boolean", example=true, description="Чи є юридичною особою"),
      *         @OA\Property(property="logo", type="string", nullable=true, example="logos/company.jpg", description="Логотип"),
-     *         @OA\Property(property="name", type="object", description="Назва компанії (мультимовне)",
-     *             @OA\Property(property="uk", type="string", example="ТОВ Мистецтво"),
-     *             @OA\Property(property="en", type="string", example="Art LLC")
-     *         ),
+     *         @OA\Property(property="name", type="string", description="Назва компанії", example="ТОВ Мистецтво"),
      *         @OA\Property(property="edrpou", type="string", example="12345678", description="Код ЄДРПОУ"),
-     *         @OA\Property(property="authorized_person", type="object", description="Уповноважена особа (мультимовне)",
-     *             @OA\Property(property="uk", type="string", example="Іван Петренко"),
-     *             @OA\Property(property="en", type="string", example="Ivan Petrenko")
-     *         ),
-     *         @OA\Property(property="address", type="object", description="Адреса (мультимовне)",
-     *             @OA\Property(property="uk", type="string", example="м. Київ, вул. Хрещатик, 1"),
-     *             @OA\Property(property="en", type="string", example="Kyiv, Khreshchatyk str., 1")
-     *         ),
+     *         @OA\Property(property="authorized_person", type="string", description="Уповноважена особа", example="Іван Петренко"),
+     *         @OA\Property(property="address", type="string", description="Адреса", example="м. Київ, вул. Хрещатик, 1"),
      *         @OA\Property(property="phone", type="string", example="+380501234567", description="Телефон"),
      *         @OA\Property(property="email", type="string", format="email", example="company@example.com", description="Email")
      *     )),
@@ -331,7 +279,7 @@ class ProfileApiController extends Controller
     public function updateLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
-        $profile = $user->profileLegal;
+        $profile = $user->profileLegal()->first();
         if (! $profile) {
             $profile = new ProfileLegal(['user_id' => $user->id]);
         }
@@ -367,19 +315,10 @@ class ProfileApiController extends Controller
      *         @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH", description="Валюта"),
      *         @OA\Property(property="is_legal", type="boolean", example=true, description="Чи є юридичною особою"),
      *         @OA\Property(property="logo", type="string", nullable=true, example="logos/company.jpg", description="Логотип"),
-     *         @OA\Property(property="name", type="object", description="Назва компанії (мультимовне)",
-     *             @OA\Property(property="uk", type="string", example="ТОВ Мистецтво"),
-     *             @OA\Property(property="en", type="string", example="Art LLC")
-     *         ),
+     *         @OA\Property(property="name", type="string", description="Назва компанії", example="ТОВ Мистецтво"),
      *         @OA\Property(property="edrpou", type="string", example="12345678", description="Код ЄДРПОУ"),
-     *         @OA\Property(property="authorized_person", type="object", description="Уповноважена особа (мультимовне)",
-     *             @OA\Property(property="uk", type="string", example="Іван Петренко"),
-     *             @OA\Property(property="en", type="string", example="Ivan Petrenko")
-     *         ),
-     *         @OA\Property(property="address", type="object", description="Адреса (мультимовне)",
-     *             @OA\Property(property="uk", type="string", example="м. Київ, вул. Хрещатик, 1"),
-     *             @OA\Property(property="en", type="string", example="Kyiv, Khreshchatyk str., 1")
-     *         ),
+     *         @OA\Property(property="authorized_person", type="string", description="Уповноважена особа", example="Іван Петренко"),
+     *         @OA\Property(property="address", type="string", description="Адреса", example="м. Київ, вул. Хрещатик, 1"),
      *         @OA\Property(property="phone", type="string", example="+380501234567", description="Телефон"),
      *         @OA\Property(property="email", type="string", format="email", example="company@example.com", description="Email")
      *     )),
@@ -389,15 +328,15 @@ class ProfileApiController extends Controller
      *         @OA\JsonContent(@OA\Property(property="profileLegal", ref="#/components/schemas/ProfileLegal"))
      *     ),
      *
+     *     @OA\Response(response=200, description="Існуючий профіль оновлено"),
      *     @OA\Response(response=401, description="Неавторизовано"),
-     *     @OA\Response(response=409, description="Профіль вже існує"),
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
     public function createLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
-        $profile = $user->profileLegal;
+        $profile = $user->profileLegal()->first();
 
         $isNewProfile = ! $profile;
         if (! $profile) {

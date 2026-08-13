@@ -19,7 +19,7 @@ class DonationsTable
                     ->label('ID')
                     ->sortable(),
 
-                TextColumn::make('project.title.uk')
+                TextColumn::make('project.title')
                     ->label('Проєкт')
                     ->limit(30)
                     ->searchable()
@@ -69,7 +69,7 @@ class DonationsTable
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('bonus.title.uk')
+                TextColumn::make('bonus.title')
                     ->label('Бонус')
                     ->limit(20)
                     ->placeholder('-')

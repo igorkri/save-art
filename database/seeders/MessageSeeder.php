@@ -56,7 +56,7 @@ class MessageSeeder extends Seeder
                     'user_id' => $owner->id,
                     'admin_id' => $admins->random()->id,
                     'project_id' => $project->id,
-                    'subject' => 'Питання щодо проєкту: '.($project->title['uk'] ?? 'Без назви'),
+                    'subject' => 'Питання щодо проєкту: '.($project->title ?: 'Без назви'),
                 ]);
 
             // Відповідь від адміністратора

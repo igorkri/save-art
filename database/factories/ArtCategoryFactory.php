@@ -19,10 +19,7 @@ class ArtCategoryFactory extends Factory
         return [
             'parent_id' => null,
             'slug' => $this->faker->unique()->slug(2),
-            'name' => [
-                'uk' => $this->faker->words(2, true),
-                'en' => $this->faker->words(2, true),
-            ],
+            'name' => $this->faker->words(2, true),
             'sort_order' => $this->faker->numberBetween(0, 10),
         ];
     }

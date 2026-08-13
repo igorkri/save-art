@@ -123,14 +123,8 @@ class GenerateReportsCommand extends Command
 
         $report->fill([
             'user_id' => $project->user_id,
-            'title' => [
-                'uk' => $project->title['uk'] ?? '',
-                'en' => $project->title['en'] ?? '',
-            ],
-            'description' => [
-                'uk' => $this->generateDescriptionUk($project),
-                'en' => $this->generateDescriptionEn($project),
-            ],
+            'title' => $project->title,
+            'description' => $this->generateDescriptionUk($project),
             'cover' => $project->cover,
             'images' => null,
             'attachments' => null,
@@ -151,24 +145,11 @@ class GenerateReportsCommand extends Command
      */
     private function generateDescriptionUk(Project $project): string
     {
-        $description = $project->short_description['uk'] ?? '';
+        $description = $project->short_description ?? '';
 
         return "Автоматично згенерований звіт для проєкту.\n\n"
             ."Зібрана сума: {$project->budget_collected} грн\n"
             ."Ціль збору: {$project->budget_goal} грн\n\n"
             .($description ? "Опис проєкту:\n{$description}" : '');
-    }
-
-    /**
-     * Генерувати опис англійською
-     */
-    private function generateDescriptionEn(Project $project): string
-    {
-        $description = $project->short_description['en'] ?? '';
-
-        return "Automatically generated report for the project.\n\n"
-            ."Collected amount: {$project->budget_collected} UAH\n"
-            ."Funding goal: {$project->budget_goal} UAH\n\n"
-            .($description ? "Project description:\n{$description}" : '');
     }
 }

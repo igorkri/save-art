@@ -8,7 +8,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ParameterForm
 {
@@ -20,12 +19,11 @@ class ParameterForm
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('name')
-                                ->label('Назва')
-                                ->required()
-                                ->maxLength(255),
-                        ])->columnSpanFull(),
+                        TextInput::make('name')
+                            ->label('Назва')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
 
                         Select::make('art_category_id')
                             ->label('Категорія мистецтва')

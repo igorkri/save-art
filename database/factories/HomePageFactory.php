@@ -28,27 +28,15 @@ class HomePageFactory extends Factory
     public function definition(): array
     {
         return [
-            'hero_title' => [
-                'uk' => 'Мистецтво допомоги — найсучасніше з мистецтв',
-                'en' => 'The Art of Help — the Most Contemporary of Arts',
-            ],
+            'hero_title' => 'Мистецтво допомоги — найсучасніше з мистецтв',
             'hero_video_poster' => 'hero-videos/hero.webp',
             'hero_video_poster_m' => 'hero-videos/hero-mobile.webp',
             'hero_image_poster' => 'hero-images/hero-image.webp',
             'hero_image_poster_m' => 'hero-images/hero-image-mobile.webp',
 
-            'donates_subtitle' => [
-                'uk' => 'ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ ТА РОЗВИТКУ УКРАЇНСЬКОЇ КУЛЬТУРИ',
-                'en' => 'JOIN THE REVIVAL AND DEVELOPMENT OF UKRAINIAN CULTURE',
-            ],
-            'donates_title' => [
-                'uk' => 'Твоя підтримка — натхнення для митця',
-                'en' => 'Your Support — Inspiration for the Artist',
-            ],
-            'donates_text' => [
-                'uk' => 'Ми пропонуємо прозору систему донатів, яка забезпечить майбутній проєкт в будь-якій галузі мистецтва стабільною підтримкою. Донатерами можуть бути як фізичні так і юридичні особи. Навіть 10₴ допоможуть митцю реалізувати свій творчий потенціал.',
-                'en' => 'We offer a transparent donation system that will provide future projects in any field of art with stable support. Donors can be both individuals and legal entities. Even ₴10 will help an artist realize their creative potential.',
-            ],
+            'donates_subtitle' => 'ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ ТА РОЗВИТКУ УКРАЇНСЬКОЇ КУЛЬТУРИ',
+            'donates_title' => 'Твоя підтримка — натхнення для митця',
+            'donates_text' => 'Ми пропонуємо прозору систему донатів, яка забезпечить майбутній проєкт в будь-якій галузі мистецтва стабільною підтримкою. Донатерами можуть бути як фізичні так і юридичні особи. Навіть 10₴ допоможуть митцю реалізувати свій творчий потенціал.',
 
             'total_collected' => 2325250,
             'declared_projects' => 624,
@@ -56,105 +44,48 @@ class HomePageFactory extends Factory
             'completed_projects' => 1126,
             'sold_projects' => 107,
 
-            'partners_title' => [
-                'uk' => 'Партнери',
-                'en' => 'Partners',
-            ],
+            'partners_title' => 'Партнери',
             'partners' => [
                 [
                     'logo' => 'partners/partner1.webp',
-                    'name' => [
-                        'uk' => 'Партнер 1',
-                        'en' => 'Partner 1',
-                    ],
-                    'description' => [
-                        'uk' => 'Опис партнера 1',
-                        'en' => 'Description of partner 1',
-                    ],
+                    'name' => 'Партнер 1',
+                    'description' => 'Опис партнера 1',
                 ],
                 [
                     'logo' => 'partners/partner2.webp',
-                    'name' => [
-                        'uk' => 'Партнер 2',
-                        'en' => 'Partner 2',
-                    ],
-                    'description' => [
-                        'uk' => 'Опис партнера 2',
-                        'en' => 'Description of partner 2',
-                    ],
+                    'name' => 'Партнер 2',
+                    'description' => 'Опис партнера 2',
                 ],
             ],
 
-            'ad_first_title' => [
-                'uk' => 'Долучайтесь до Мистецтва Перемоги!',
-                'en' => 'Join the Art of Victory!',
-            ],
-            'ad_first_button_text' => [
-                'uk' => 'Підтримати платформу',
-                'en' => 'Support the Platform',
-            ],
+            'ad_first_title' => 'Долучайтесь до Мистецтва Перемоги!',
+            'ad_first_button_text' => 'Підтримати платформу',
             'ad_first_image' => 'advertising/advert1.webp',
 
-            'ad_second_title' => [
-                'uk' => 'Ваша допомога та підтримка стане світловим імпульсом відбудови сучасного ренесансу!',
-                'en' => 'Your help and support will become a light impulse for the reconstruction of a modern renaissance!',
-            ],
-            'ad_second_button_text' => [
-                'uk' => 'Підтримати митців',
-                'en' => 'Support Artists',
-            ],
+            'ad_second_title' => 'Ваша допомога та підтримка стане світловим імпульсом відбудови сучасного ренесансу!',
+            'ad_second_button_text' => 'Підтримати митців',
             'ad_second_image' => 'advertising/advert2.webp',
 
-            'footer_expert_title' => [
-                'uk' => 'Запрошуємо експертів до співпраці',
-                'en' => 'We Invite Experts to Cooperate',
-            ],
-            'footer_expert_text' => [
-                'uk' => 'Благодійний фонд ID_Art UA відкритий до співпраці з експертами у галузі мистецтва, кураторами, галереями та колекціонерами.',
-                'en' => 'ID_Art UA Charitable Foundation is open for cooperation with art experts, curators, galleries and collectors.',
-            ],
+            'footer_expert_title' => 'Запрошуємо експертів до співпраці',
+            'footer_expert_text' => 'Благодійний фонд ID_Art UA відкритий до співпраці з експертами у галузі мистецтва, кураторами, галереями та колекціонерами.',
             'footer_expert_features' => [
-                'uk' => ['Створення сучасного українського мистецтва', 'Участь у проведенні виставок та мистецьких заходів', 'Популяризація українських митців в усьому світі'],
-                'en' => ['Creation of contemporary Ukrainian art', 'Participation in exhibitions and artistic events', 'Promotion of Ukrainian artists worldwide'],
+                'Створення сучасного українського мистецтва',
+                'Участь у проведенні виставок та мистецьких заходів',
+                'Популяризація українських митців в усьому світі',
             ],
-            'footer_expert_button_text' => [
-                'uk' => 'Відправити заявку',
-                'en' => 'Send Application',
-            ],
+            'footer_expert_button_text' => 'Відправити заявку',
 
-            'platform_description_tagline' => [
-                'uk' => 'art-ua',
-                'en' => 'art-ua',
-            ],
-            'platform_description_title' => [
-                'uk' => 'Про платформу',
-                'en' => 'About the Platform',
-            ],
-            'platform_description_subtitle' => [
-                'uk' => "Спільнота підтримки\nукраїнських митців",
-                'en' => "A Community Supporting\nUkrainian Artists",
-            ],
+            'platform_description_tagline' => 'art-ua',
+            'platform_description_title' => 'Про платформу',
+            'platform_description_subtitle' => "Спільнота підтримки\nукраїнських митців",
             'platform_description_paragraphs' => [
-                'uk' => [
-                    'Ми створюємо всеукраїнську платформу особистостей з різних культурних сфер діяльності.',
-                    'Для подолання глобальної культурної кризи в країні ми надаємо можливість формувати новітню мистецьку спадщину.',
-                ],
-                'en' => [
-                    'We are building a nationwide platform for individuals from various cultural fields.',
-                    'To overcome the global cultural crisis, we provide the opportunity to form a new artistic heritage.',
-                ],
+                'Ми створюємо всеукраїнську платформу особистостей з різних культурних сфер діяльності.',
+                'Для подолання глобальної культурної кризи в країні ми надаємо можливість формувати новітню мистецьку спадщину.',
             ],
             'platform_features' => [
-                'uk' => [
-                    ['title' => 'Творче натхнення', 'description' => 'Досліджуй роботи інших, надихайся і вдосконалюй свої власні проєкти.'],
-                    ['title' => 'Визнання та нові можливості', 'description' => 'Підвищуй свою видимість і знайди нові проєкти та співпрацю.'],
-                    ['title' => 'Навчання у кращих', 'description' => 'Відвідуй вебінари та майстер-класи.'],
-                ],
-                'en' => [
-                    ['title' => 'Creative Inspiration', 'description' => 'Explore the work of others, get inspired, and improve your own projects.'],
-                    ['title' => 'Recognition and New Opportunities', 'description' => 'Increase your visibility and find new projects and collaborations.'],
-                    ['title' => 'Learn from the Best', 'description' => 'Attend webinars and workshops.'],
-                ],
+                ['title' => 'Творче натхнення', 'description' => 'Досліджуй роботи інших, надихайся і вдосконалюй свої власні проєкти.'],
+                ['title' => 'Визнання та нові можливості', 'description' => 'Підвищуй свою видимість і знайди нові проєкти та співпрацю.'],
+                ['title' => 'Навчання у кращих', 'description' => 'Відвідуй вебінари та майстер-класи.'],
             ],
 
             'is_active' => true,

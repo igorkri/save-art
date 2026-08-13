@@ -24,10 +24,10 @@ class ServiceFactory extends Factory
         return [
             'serviceable_type' => User::class,
             'serviceable_id' => User::factory(),
-            'title' => ['uk' => $title, 'en' => $title],
+            'title' => $title,
             'slug' => Str::slug($title).'-'.Str::random(6),
-            'description' => ['uk' => fake()->paragraph(), 'en' => fake()->paragraph()],
-            'location' => ['uk' => fake()->city(), 'en' => fake()->city()],
+            'description' => fake()->paragraph(),
+            'location' => fake()->city(),
             'price' => fake()->randomFloat(2, 500, 20000),
             'currency' => fake()->randomElement(Currency::cases())->value,
         ];

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $project_id
  * @property int $parameter_id
  * @property int|null $parameter_value_id
- * @property array|null $custom_value
+ * @property string|null $custom_value
  * @property-read \App\Models\Project $project
  * @property-read \App\Models\Parameter $parameter
  * @property-read \App\Models\ParameterValue|null $parameterValue
@@ -29,11 +29,9 @@ class ProjectParameter extends Model
         'custom_value',
     ];
 
-    protected function casts(): array
+    public function setCustomValueAttribute(mixed $value): void
     {
-        return [
-            'custom_value' => 'array',
-        ];
+        $this->attributes['custom_value'] = is_array($value) ? ($value['uk'] ?? null) : $value;
     }
 
     public function project(): BelongsTo

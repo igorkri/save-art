@@ -11,7 +11,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class HomePageForm
 {
@@ -26,12 +25,10 @@ class HomePageForm
 
                 Section::make('Секція з відео')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('hero_title')
-                                ->label('Заголовок героїчної секції')
-                                ->required()
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('hero_title')
+                            ->label('Заголовок героїчної секції')
+                            ->required()
+                            ->maxLength(255),
 
                         Grid::make(2)
                             ->schema([
@@ -82,23 +79,21 @@ class HomePageForm
 
                 Section::make('Секція донатів')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('donates_subtitle')
-                                ->label('Підзаголовок')
-                                ->placeholder('ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ...')
-                                ->maxLength(255),
+                        TextInput::make('donates_subtitle')
+                            ->label('Підзаголовок')
+                            ->placeholder('ДОЛУЧАЙТЕСЬ ДО ВІДРОДЖЕННЯ...')
+                            ->maxLength(255),
 
-                            TextInput::make('donates_title')
-                                ->label('Заголовок')
-                                ->placeholder('Твоя підтримка — натхнення для митця')
-                                ->maxLength(255)
-                                ->required(),
+                        TextInput::make('donates_title')
+                            ->label('Заголовок')
+                            ->placeholder('Твоя підтримка — натхнення для митця')
+                            ->maxLength(255)
+                            ->required(),
 
-                            RichEditor::make('donates_text')
-                                ->label('Опис системи донатів')
-                                ->placeholder('Ми пропонуємо прозору систему донатів...')
-                                ->required(),
-                        ]),
+                        RichEditor::make('donates_text')
+                            ->label('Опис системи донатів')
+                            ->placeholder('Ми пропонуємо прозору систему донатів...')
+                            ->required(),
                     ])
                     ->collapsible()->collapsed(),
 
@@ -148,64 +143,58 @@ class HomePageForm
 
                 Section::make('Секція "Про платформу" (art-ua-info)')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('platform_description_tagline')
-                                ->label('Тег (над заголовком)')
-                                ->placeholder('art-ua')
-                                ->maxLength(50),
+                        TextInput::make('platform_description_tagline')
+                            ->label('Тег (над заголовком)')
+                            ->placeholder('art-ua')
+                            ->maxLength(50),
 
-                            TextInput::make('platform_description_title')
-                                ->label('Заголовок')
-                                ->placeholder('Про платформу')
-                                ->maxLength(255),
+                        TextInput::make('platform_description_title')
+                            ->label('Заголовок')
+                            ->placeholder('Про платформу')
+                            ->maxLength(255),
 
-                            TextInput::make('platform_description_subtitle')
-                                ->label('Підзаголовок')
-                                ->placeholder('Спільнота підтримки українських митців')
-                                ->maxLength(255),
+                        TextInput::make('platform_description_subtitle')
+                            ->label('Підзаголовок')
+                            ->placeholder('Спільнота підтримки українських митців')
+                            ->maxLength(255),
 
-                            \Filament\Forms\Components\Repeater::make('platform_description_paragraphs')
-                                ->label('Абзаци опису')
-                                ->simple(
-                                    RichEditor::make('paragraph')->label('Абзац')
-                                )
-                                ->addActionLabel('+ Додати абзац')
-                                ->minItems(0)
-                                ->maxItems(5),
-                        ]),
+                        \Filament\Forms\Components\Repeater::make('platform_description_paragraphs')
+                            ->label('Абзаци опису')
+                            ->simple(
+                                RichEditor::make('paragraph')->label('Абзац')
+                            )
+                            ->addActionLabel('+ Додати абзац')
+                            ->minItems(0)
+                            ->maxItems(5),
                     ])
                     ->collapsible()->collapsed(),
 
                 Section::make('Секція переваг платформи (art-ua-info)')
                     ->schema([
-                        LanguageTabs::make([
-                            \Filament\Forms\Components\Repeater::make('platform_features')
-                                ->label('Переваги')
-                                ->schema([
-                                    TextInput::make('title')
-                                        ->label('Заголовок')
-                                        ->required()
-                                        ->maxLength(255),
-                                    RichEditor::make('description')
-                                        ->label('Опис')
-                                        ->required(),
-                                ])
-                                ->addActionLabel('+ Додати перевагу')
-                                ->minItems(0)
-                                ->maxItems(6)
-                                ->cloneable(),
-                        ]),
+                        \Filament\Forms\Components\Repeater::make('platform_features')
+                            ->label('Переваги')
+                            ->schema([
+                                TextInput::make('title')
+                                    ->label('Заголовок')
+                                    ->required()
+                                    ->maxLength(255),
+                                RichEditor::make('description')
+                                    ->label('Опис')
+                                    ->required(),
+                            ])
+                            ->addActionLabel('+ Додати перевагу')
+                            ->minItems(0)
+                            ->maxItems(6)
+                            ->cloneable(),
                     ])
                     ->collapsible()->collapsed(),
 
                 Section::make('Секція партнерів')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('partners_title')
-                                ->label('Заголовок секції партнерів')
-                                ->placeholder('Партнери')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('partners_title')
+                            ->label('Заголовок секції партнерів')
+                            ->placeholder('Партнери')
+                            ->maxLength(255),
 
                         \Filament\Forms\Components\Repeater::make('partners')
                             ->label('Партнери')
@@ -219,16 +208,14 @@ class HomePageForm
                                     ->deleteUploadedFileUsing(function ($file) {
                                         Storage::disk('public')->delete($file);
                                     }),
-                                LanguageTabs::make([
-                                    TextInput::make('name')
-                                        ->label('Назва')
-                                        ->maxLength(255)
-                                        ->required(),
-                                    TextInput::make('description')
-                                        ->label('Короткий опис')
-                                        ->maxLength(255)
-                                        ->required(),
-                                ]),
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->maxLength(255)
+                                    ->required(),
+                                TextInput::make('description')
+                                    ->label('Короткий опис')
+                                    ->maxLength(255)
+                                    ->required(),
                             ])
                             ->minItems(0)
                             ->maxItems(10)
@@ -241,17 +228,15 @@ class HomePageForm
                     ->schema([
                         Section::make('Перший рекламний блок')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('ad_first_title')
-                                        ->label('Заголовок')
-                                        ->placeholder('Долучайтесь до Мистецтва Перемоги!')
-                                        ->maxLength(255),
+                                TextInput::make('ad_first_title')
+                                    ->label('Заголовок')
+                                    ->placeholder('Долучайтесь до Мистецтва Перемоги!')
+                                    ->maxLength(255),
 
-                                    TextInput::make('ad_first_button_text')
-                                        ->label('Текст кнопки')
-                                        ->placeholder('Підтримати платформу')
-                                        ->maxLength(100),
-                                ]),
+                                TextInput::make('ad_first_button_text')
+                                    ->label('Текст кнопки')
+                                    ->placeholder('Підтримати платформу')
+                                    ->maxLength(100),
 
                                 FileUpload::make('ad_first_image')
                                     ->label('Зображення')
@@ -265,17 +250,15 @@ class HomePageForm
 
                         Section::make('Другий рекламний блок')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('ad_second_title')
-                                        ->label('Заголовок')
-                                        ->placeholder('Ваша допомога та підтримка...')
-                                        ->maxLength(255),
+                                TextInput::make('ad_second_title')
+                                    ->label('Заголовок')
+                                    ->placeholder('Ваша допомога та підтримка...')
+                                    ->maxLength(255),
 
-                                    TextInput::make('ad_second_button_text')
-                                        ->label('Текст кнопки')
-                                        ->placeholder('Підтримати митців')
-                                        ->maxLength(100),
-                                ]),
+                                TextInput::make('ad_second_button_text')
+                                    ->label('Текст кнопки')
+                                    ->placeholder('Підтримати митців')
+                                    ->maxLength(100),
 
                                 FileUpload::make('ad_second_image')
                                     ->label('Зображення')

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Enums\ProjectStatus;
+use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
 use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Rules\ImageOrBase64Rule;
@@ -26,6 +27,8 @@ use Illuminate\Validation\Validator;
  */
 class UpdatePublishedProjectRequest extends FormRequest
 {
+    use NormalizesProjectUkrainianFields;
+
     public function authorize(): bool
     {
         $project = $this->route('project');
@@ -61,22 +64,16 @@ class UpdatePublishedProjectRequest extends FormRequest
     {
         return [
             // Назва
-            'title' => ['sometimes', 'array'],
-            'title.uk' => ['required_with:title', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
+            'title' => ['sometimes', 'string', 'max:255'],
 
             // Короткий опис
-            'short_description' => ['sometimes', 'array'],
-            'short_description.uk' => ['nullable', 'string', 'max:1000'],
-            'short_description.en' => ['nullable', 'string', 'max:1000'],
+            'short_description' => ['sometimes', 'nullable', 'string', 'max:1000'],
 
             // Обкладинка
             'cover' => ['nullable', new ImageOrBase64Rule(15360)], // 15MB, підтримує файл, Base64, URL
 
             // Теги
-            'tags' => ['sometimes', 'array'],
-            'tags.uk' => ['nullable', 'string', 'max:500'],
-            'tags.en' => ['nullable', 'string', 'max:500'],
+            'tags' => ['sometimes', 'nullable', 'string', 'max:500'],
 
             // Категорія (slug з БД)
             'art_category' => ['sometimes', 'nullable', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
@@ -85,9 +82,7 @@ class UpdatePublishedProjectRequest extends FormRequest
             // Бюджет: goal для 'announced' обмежений в withValidator() (лише збільшення)
             'budget_goal' => ['sometimes', 'numeric', 'min:100'],
             'budget_items' => ['sometimes', 'nullable', 'array'],
-            'budget_items.*.name' => ['required_with:budget_items', 'array'],
-            'budget_items.*.name.uk' => ['required_with:budget_items', 'string', 'max:255'],
-            'budget_items.*.name.en' => ['nullable', 'string', 'max:255'],
+            'budget_items.*.name' => ['required_with:budget_items', 'string', 'max:255'],
             'budget_items.*.amount' => ['required_with:budget_items', 'numeric', 'min:0'],
 
             // Додаткова інформація
@@ -99,28 +94,18 @@ class UpdatePublishedProjectRequest extends FormRequest
             'content_blocks' => ['nullable', 'array', 'max:50'],
             'content_blocks.*.type' => ['required_with:content_blocks', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['nullable', 'string', 'in:h2,h3,h4,h5,h6'],
-            'content_blocks.*.heading_text' => ['nullable', 'array'],
-            'content_blocks.*.heading_text.uk' => ['nullable', 'string', 'max:255'],
-            'content_blocks.*.heading_text.en' => ['nullable', 'string', 'max:255'],
-            'content_blocks.*.paragraph_text' => ['nullable', 'array'],
-            'content_blocks.*.paragraph_text.uk' => ['nullable', 'string', 'max:10000'],
-            'content_blocks.*.paragraph_text.en' => ['nullable', 'string', 'max:10000'],
+            'content_blocks.*.heading_text' => ['nullable', 'string', 'max:255'],
+            'content_blocks.*.paragraph_text' => ['nullable', 'string', 'max:10000'],
             'content_blocks.*.image' => ['nullable', new ImageOrBase64Rule(15360)],
-            'content_blocks.*.image_alt' => ['nullable', 'array'],
-            'content_blocks.*.image_alt.uk' => ['nullable', 'string', 'max:255'],
-            'content_blocks.*.image_alt.en' => ['nullable', 'string', 'max:255'],
-            'content_blocks.*.image_caption' => ['nullable', 'array'],
-            'content_blocks.*.image_caption.uk' => ['nullable', 'string', 'max:500'],
-            'content_blocks.*.image_caption.en' => ['nullable', 'string', 'max:500'],
+            'content_blocks.*.image_alt' => ['nullable', 'string', 'max:255'],
+            'content_blocks.*.image_caption' => ['nullable', 'string', 'max:500'],
             'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // Характеристики (прив'язані до категорії)
             'parameters' => ['nullable', 'array'],
             'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
             'parameters.*.parameter_value_id' => ['nullable', 'integer', 'exists:parameter_values,id'],
-            'parameters.*.custom_value' => ['nullable', 'array'],
-            'parameters.*.custom_value.uk' => ['nullable', 'string', 'max:255'],
-            'parameters.*.custom_value.en' => ['nullable', 'string', 'max:255'],
+            'parameters.*.custom_value' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -167,7 +152,7 @@ class UpdatePublishedProjectRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.uk.required_with' => 'Назва проєкту українською є обов\'язковою',
+            'title.required_with' => 'Назва проєкту є обов\'язковою',
             'cover.max' => 'Максимальний розмір обкладинки — 15 МБ',
             'budget_goal.min' => 'Мінімальна ціль збору — 100',
 

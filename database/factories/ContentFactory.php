@@ -17,22 +17,16 @@ class ContentFactory extends Factory
      */
     public function definition(): array
     {
-        $pageTitleUk = $this->faker->sentence();
-        $pageTitleEn = $this->faker->sentence();
-        $titleUk = $this->faker->sentence();
-        $titleEn = $this->faker->sentence();
+        $pageTitle = $this->faker->sentence();
 
         return [
-            'page_title' => ['uk' => $pageTitleUk, 'en' => $pageTitleEn],
-            'title' => ['uk' => $titleUk, 'en' => $titleEn],
-            'slug' => Str::slug($pageTitleEn),
-            'content' => [
-                'uk' => $this->faker->paragraphs(3, true),
-                'en' => $this->faker->paragraphs(3, true),
-            ],
-            'meta_title' => ['uk' => $this->faker->sentence(), 'en' => $this->faker->sentence()],
-            'meta_description' => ['uk' => $this->faker->sentence(), 'en' => $this->faker->sentence()],
-            'meta_keywords' => ['uk' => $this->faker->words(5), 'en' => $this->faker->words(5)],
+            'page_title' => $pageTitle,
+            'title' => $this->faker->sentence(),
+            'slug' => Str::slug($pageTitle),
+            'content' => $this->faker->paragraphs(3, true),
+            'meta_title' => $this->faker->sentence(),
+            'meta_description' => $this->faker->sentence(),
+            'meta_keywords' => implode(', ', $this->faker->words(5)),
             'is_active' => $this->faker->boolean(80),
         ];
     }

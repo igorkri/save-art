@@ -134,16 +134,10 @@ class CatalogController extends Controller
 
         $categories = $roots->map(fn (ArtCategoryModel $cat) => [
             'slug' => $cat->slug,
-            'name' => [
-                'uk' => $cat->getLabel('uk'),
-                'en' => $cat->getLabel('en'),
-            ],
+            'name' => $cat->name,
             'subcategories' => $cat->children->map(fn (ArtCategoryModel $sub) => [
                 'slug' => $sub->slug,
-                'name' => [
-                    'uk' => $sub->getLabel('uk'),
-                    'en' => $sub->getLabel('en'),
-                ],
+                'name' => $sub->name,
             ])->values()->all(),
         ])->all();
 
@@ -285,11 +279,11 @@ class CatalogController extends Controller
         return response()->json([
             'data' => $parameters->map(fn (Parameter $parameter) => [
                 'id' => $parameter->id,
-                'name' => $language !== null ? $parameter->getLabel($language) : $parameter->getTranslations('name'),
+                'name' => $parameter->name,
                 'type' => $parameter->type->value,
                 'values' => $parameter->values->map(fn ($value) => [
                     'id' => $value->id,
-                    'value' => $language !== null ? $value->getLabel($language) : $value->getTranslations('value'),
+                    'value' => $value->value,
                 ])->values()->all(),
             ])->values()->all(),
         ]);

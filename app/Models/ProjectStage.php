@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $project_id
  * @property int $order
  * @property string $status
- * @property array $title
- * @property array|null $description
+ * @property string $title
+ * @property string|null $description
  * @property float $budget_planned
  * @property float|null $budget_actual
  * @property int|null $days_planned
@@ -48,8 +48,6 @@ class ProjectStage extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
-            'description' => 'array',
             'documents' => 'array',
             'budget_planned' => 'decimal:2',
             'budget_actual' => 'decimal:2',
@@ -57,6 +55,34 @@ class ProjectStage extends Model
             'started_at' => 'date',
             'completed_at' => 'date',
         ];
+    }
+
+    public function setTitleAttribute(mixed $value): void
+    {
+        $this->attributes['title'] = is_array($value) ? ($value['uk'] ?? '') : $value;
+    }
+
+    public function setDescriptionAttribute(mixed $value): void
+    {
+        $this->attributes['description'] = is_array($value) ? ($value['uk'] ?? null) : $value;
+    }
+
+    public function setDocumentsAttribute(mixed $value): void
+    {
+        if ($value === null) {
+            $this->attributes['documents'] = null;
+
+            return;
+        }
+
+        foreach ($value as &$document) {
+            if (is_array($document) && is_array($document['description'] ?? null)) {
+                $document['description'] = $document['description']['uk'] ?? null;
+            }
+        }
+        unset($document);
+
+        $this->attributes['documents'] = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**

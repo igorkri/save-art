@@ -33,13 +33,9 @@ class ValuesRelationManager extends RelationManager
         return $schema
             ->columns(2)
             ->components([
-                TextInput::make('value.uk')
-                    ->label('Значення (UK)')
+                TextInput::make('value')
+                    ->label('Значення')
                     ->required()
-                    ->maxLength(255),
-
-                TextInput::make('value.en')
-                    ->label('Значення (EN)')
                     ->maxLength(255),
 
                 TextInput::make('sort_order')

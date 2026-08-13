@@ -30,7 +30,7 @@ class MessageForm
                         Select::make('project_id')
                             ->label('Проєкт')
                             ->relationship('project')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->title['uk'] ?? $record->title['en'] ?? 'Без назви')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->title ?: 'Без назви')
                             ->searchable()
                             ->preload(),
                         TextInput::make('subject')

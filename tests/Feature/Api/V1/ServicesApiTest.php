@@ -127,8 +127,8 @@ class ServicesApiTest extends ApiTestCase
     {
         // SQLite (тестова БД) не вміє LOWER() для кирилиці — використовуємо вже
         // нижній регістр, щоб перевірити саму логіку фільтра незалежно від цієї особливості.
-        $kyivArtist = User::factory()->create(['city' => ['uk' => 'київ', 'en' => 'kyiv']]);
-        $lvivArtist = User::factory()->create(['city' => ['uk' => 'львів', 'en' => 'lviv']]);
+        $kyivArtist = User::factory()->create(['city' => 'київ']);
+        $lvivArtist = User::factory()->create(['city' => 'львів']);
         Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $kyivArtist->id]);
         Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $lvivArtist->id]);
 
@@ -140,8 +140,8 @@ class ServicesApiTest extends ApiTestCase
 
     public function test_returns_city_suggestions_by_prefix(): void
     {
-        $kryvyiRihArtist = User::factory()->create(['city' => ['uk' => 'Кривий Ріг', 'en' => 'Kryvyi Rih']]);
-        $kyivArtist = User::factory()->create(['city' => ['uk' => 'Київ', 'en' => 'Kyiv']]);
+        $kryvyiRihArtist = User::factory()->create(['city' => 'Кривий Ріг']);
+        $kyivArtist = User::factory()->create(['city' => 'Київ']);
         Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $kryvyiRihArtist->id]);
         Service::factory()->create(['serviceable_type' => User::class, 'serviceable_id' => $kyivArtist->id]);
 
@@ -153,7 +153,7 @@ class ServicesApiTest extends ApiTestCase
 
     public function test_location_suggestions_ignore_authors_without_services(): void
     {
-        User::factory()->create(['city' => ['uk' => 'Крижопіль', 'en' => 'Kryzhopil']]);
+        User::factory()->create(['city' => 'Крижопіль']);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson('/api/v1/services/locations?search=Криж');
@@ -163,8 +163,8 @@ class ServicesApiTest extends ApiTestCase
 
     public function test_can_search_services_by_title(): void
     {
-        Service::factory()->create(['title' => ['uk' => 'Розпис портрету', 'en' => 'Portrait painting']]);
-        Service::factory()->create(['title' => ['uk' => 'Пошиття одягу', 'en' => 'Sewing clothes']]);
+        Service::factory()->create(['title' => 'Розпис портрету']);
+        Service::factory()->create(['title' => 'Пошиття одягу']);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
             ->getJson('/api/v1/services?search=портрет');
@@ -200,7 +200,7 @@ class ServicesApiTest extends ApiTestCase
         $service = Service::factory()->create([
             'serviceable_type' => User::class,
             'serviceable_id' => $artist->id,
-            'title' => ['uk' => 'Розпис портрету'],
+            'title' => 'Розпис портрету',
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])

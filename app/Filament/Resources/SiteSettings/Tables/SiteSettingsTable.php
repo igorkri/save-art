@@ -22,7 +22,6 @@ class SiteSettingsTable
 
                 TextColumn::make('header_brand_name')
                     ->label('Назва бренду')
-                    ->formatStateUsing(static fn ($state): ?string => is_array($state) ? ($state['uk'] ?? $state['en'] ?? null) : $state)
                     ->searchable(),
 
                 TextColumn::make('created_at')

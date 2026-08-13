@@ -56,8 +56,8 @@ class MyTeamServicesApiTest extends ApiTestCase
         $category = ArtCategory::factory()->create();
 
         $data = [
-            'title' => ['uk' => 'Послуга команди'],
-            'description' => ['uk' => 'Опис послуги команди'],
+            'title' => 'Послуга команди',
+            'description' => 'Опис послуги команди',
             'art_category' => $category->slug,
             'price' => 2000,
             'currency' => 'UAH',
@@ -84,7 +84,7 @@ class MyTeamServicesApiTest extends ApiTestCase
 
         $response = $this->withHeaders($this->authHeaders())
             ->postJson("/api/v1/art-ua-info/my/teams/{$team->slug}/services", [
-                'title' => ['uk' => 'Послуга команди'],
+                'title' => 'Послуга команди',
                 'art_category' => $category->slug,
             ]);
 
@@ -103,7 +103,7 @@ class MyTeamServicesApiTest extends ApiTestCase
 
         $response = $this->withHeaders($this->authHeaders())
             ->putJson("/api/v1/art-ua-info/my/services/{$service->slug}?language=uk", [
-                'title' => ['uk' => 'Оновлена назва'],
+                'title' => 'Оновлена назва',
                 'art_category' => $category->slug,
             ]);
 
@@ -121,7 +121,7 @@ class MyTeamServicesApiTest extends ApiTestCase
 
         $response = $this->withHeaders($this->authHeaders())
             ->putJson("/api/v1/art-ua-info/my/services/{$service->slug}", [
-                'title' => ['uk' => 'Хак'],
+                'title' => 'Хак',
                 'art_category' => $category->slug,
             ]);
 

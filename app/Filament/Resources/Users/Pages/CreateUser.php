@@ -14,7 +14,6 @@ class CreateUser extends CreateRecord
 
     protected function afterCreate(): void
     {
-        parent::afterCreate();
         $user = $this->record;
         $data = $this->form->getState();
 
@@ -23,23 +22,11 @@ class CreateUser extends CreateRecord
         $legal = new \App\Models\ProfileLegal;
         $legal->user_id = $user->id;
 
-        // Заповнюємо звичайні поля
-        foreach ($legalData as $key => $value) {
-            if (! in_array($key, ['name', 'authorized_person', 'address'])) {
-                $legal->$key = $value;
-            }
-        }
+        $legal->fill($legalData);
 
         // Встановлюємо значення за замовчуванням для currency, якщо воно null
         if (empty($legal->currency)) {
             $legal->currency = 'UAH';
-        }
-
-        // Для полів з array cast використовуємо setAttribute
-        foreach (['name', 'authorized_person', 'address'] as $field) {
-            if (isset($legalData[$field])) {
-                $legal->setAttribute($field, $legalData[$field]);
-            }
         }
 
         $legal->save();

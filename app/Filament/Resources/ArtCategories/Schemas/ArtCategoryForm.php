@@ -32,13 +32,9 @@ class ArtCategoryForm
                             ->unique(ArtCategory::class, 'slug', ignoreRecord: true)
                             ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
-                        TextInput::make('name.uk')
-                            ->label('Назва (UK)')
+                        TextInput::make('name')
+                            ->label('Назва')
                             ->required()
-                            ->maxLength(255),
-
-                        TextInput::make('name.en')
-                            ->label('Назва (EN)')
                             ->maxLength(255),
 
                         TextInput::make('sort_order')

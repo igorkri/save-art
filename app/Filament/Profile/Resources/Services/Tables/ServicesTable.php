@@ -21,7 +21,7 @@ class ServicesTable
                     ->disk('public')
                     ->size(50),
 
-                TextColumn::make('title.uk')
+                TextColumn::make('title')
                     ->label('Назва')
                     ->limit(50)
                     ->searchable()

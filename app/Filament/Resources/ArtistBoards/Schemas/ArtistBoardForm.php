@@ -9,7 +9,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ArtistBoardForm
 {
@@ -22,11 +21,9 @@ class ArtistBoardForm
                 Section::make('Назви')
                     ->columns(1)
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('titles.title1')->label('Заголовок 1')->placeholder('Спецпроєкт')->required(),
-                            TextInput::make('titles.title2')->label('Заголовок 2')->placeholder('10 художників в 10 національних музеях світу')->required(),
-                            Textarea::make('titles.description')->label('Короткий опис')->rows(2),
-                        ]),
+                        TextInput::make('titles.title1')->label('Заголовок 1')->placeholder('Спецпроєкт')->required(),
+                        TextInput::make('titles.title2')->label('Заголовок 2')->placeholder('10 художників в 10 національних музеях світу')->required(),
+                        Textarea::make('titles.description')->label('Короткий опис')->rows(2),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -57,9 +54,7 @@ class ArtistBoardForm
                 Section::make('Опис')
                     ->columns(1)
                     ->schema([
-                        LanguageTabs::make([
-                            RichEditor::make('descriptions')->label('Опис')->required(),
-                        ]),
+                        RichEditor::make('descriptions')->label('Опис')->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -78,9 +73,7 @@ class ArtistBoardForm
                                     ->directory('artist-boards/artists')
                                     ->preserveFilenames()
                                     ->required(),
-                                LanguageTabs::make([
-                                    TextInput::make('name')->label('Ім\'я артиста')->required(),
-                                ]),
+                                TextInput::make('name')->label('Ім\'я артиста')->required(),
                                 TextInput::make('exhibition_link')->label('Посилання на виставку')->url(),
                                 TextInput::make('facebook_link')->label('Посилання на Facebook')->url(),
 
@@ -89,10 +82,8 @@ class ArtistBoardForm
                                         Repeater::make('museums')
                                             ->label('Музеї')
                                             ->schema([
-                                                LanguageTabs::make([
-                                                    TextInput::make('name')->label('Назва музею'),
-                                                    TextInput::make('exhibition_name')->label('Назва виставки'),
-                                                ]),
+                                                TextInput::make('name')->label('Назва музею'),
+                                                TextInput::make('exhibition_name')->label('Назва виставки'),
                                                 TextInput::make('dates')->label('Дати')->placeholder('01.01.2024 - 01.03.2024'),
                                             ])
                                             ->columns(1)
@@ -109,10 +100,8 @@ class ArtistBoardForm
                                         Repeater::make('works')
                                             ->label('Роботи')
                                             ->schema([
-                                                LanguageTabs::make([
-                                                    TextInput::make('title')->label('Назва роботи')->required(),
-                                                    RichEditor::make('description')->label('Опис'),
-                                                ]),
+                                                TextInput::make('title')->label('Назва роботи')->required(),
+                                                RichEditor::make('description')->label('Опис'),
                                                 FileUpload::make('image')
                                                     ->label('Зображення роботи')
                                                     ->image()

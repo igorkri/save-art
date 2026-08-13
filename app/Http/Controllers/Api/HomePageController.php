@@ -32,14 +32,6 @@ class HomePageController extends Controller
      *     description="Повертає всі дані для рендерингу головної сторінки, включаючи hero-секцію, статистику, партнерів та рекомендовані проекти",
      *     security={{"apiKey": {}}},
      *
-     *     @OA\Parameter(
-     *         name="language",
-     *         in="query",
-     *         description="Мова контенту (uk, en)",
-     *
-     *         @OA\Schema(type="string", enum={"uk", "en"}, default="uk")
-     *     ),
-     *
      *     @OA\Response(
      *         response=200,
      *         description="Дані головної сторінки",
@@ -85,15 +77,6 @@ class HomePageController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $language = $request->get('language', 'uk');
-
-        // Валідація мови
-        if (! in_array($language, ['uk', 'en'])) {
-            $language = 'uk';
-        }
-
-        app()->setLocale($language);
-
         $homePage = HomePage::getActive();
 
         if (! $homePage) {
@@ -113,8 +96,8 @@ class HomePageController extends Controller
             ->map(fn (Project $project) => [
                 'id' => $project->id,
                 'slug' => $project->slug,
-                'title' => $this->extractTranslation($project->title, $language),
-                'short_description' => $this->extractTranslation($project->short_description, $language),
+                'title' => $this->extractTranslation($project->title),
+                'short_description' => $this->extractTranslation($project->short_description),
                 'cover_url' => $project->cover ? asset('storage/'.$project->cover) : null,
                 'status' => $project->status->value,
                 'status_label' => $project->status->getLabel(),
@@ -481,18 +464,19 @@ class HomePageController extends Controller
     }
 
     /**
-     * Витягти переклад з мультимовного поля
+     * Витягти українське значення з поля, що досі може містити мультимовний масив
+     * (наприклад, ще не сконвертовані поля Project)
      *
      * @param  array|string|null  $value
      */
-    private function extractTranslation($value, string $language): ?string
+    private function extractTranslation($value): ?string
     {
         if (is_string($value)) {
             return $value;
         }
 
         if (is_array($value)) {
-            return $value[$language] ?? $value['uk'] ?? null;
+            return $value['uk'] ?? null;
         }
 
         return null;

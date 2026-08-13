@@ -21,19 +21,10 @@ class ProfileLegalFactory extends Factory
             'is_active' => true,
             'currency' => fake()->randomElement(['UAH', 'USD', 'EUR']),
             'logo' => fake()->imageUrl(400, 400, 'business'),
-            'name' => [
-                'uk' => fake()->company(),
-                'en' => fake()->company(),
-            ],
+            'name' => fake()->company(),
             'edrpou' => fake()->numerify('########'),
-            'authorized_person' => [
-                'uk' => fake()->name(),
-                'en' => fake()->name(),
-            ],
-            'address' => [
-                'uk' => fake()->address(),
-                'en' => fake()->address(),
-            ],
+            'authorized_person' => fake()->name(),
+            'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
             'email' => fake()->companyEmail(),
         ];

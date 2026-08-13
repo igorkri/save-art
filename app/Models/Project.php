@@ -25,8 +25,8 @@ use Illuminate\Support\Str;
  * @property string $slug
  * @property string $status
  * @property string $status_moderation
- * @property array $title
- * @property array|null $short_description
+ * @property string $title
+ * @property string|null $short_description
  * @property string|null $cover
  * @property array|null $tags
  * @property int|null $art_category_id
@@ -96,9 +96,6 @@ class Project extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
-            'short_description' => 'array',
-            'tags' => 'array',
             'budget_items' => 'array',
             'additional_info' => 'array',
             'content_blocks' => 'array',
@@ -147,15 +144,75 @@ class Project extends Model
         return $code;
     }
 
+    public function setTitleAttribute(mixed $value): void
+    {
+        $this->attributes['title'] = $this->ukValue($value) ?? '';
+    }
+
+    public function setShortDescriptionAttribute(mixed $value): void
+    {
+        $this->attributes['short_description'] = $this->ukValue($value);
+    }
+
+    public function setTagsAttribute(mixed $value): void
+    {
+        $value = $this->ukValue($value);
+        $this->attributes['tags'] = is_array($value) ? implode(', ', $value) : $value;
+    }
+
+    public function setBudgetItemsAttribute(mixed $value): void
+    {
+        $this->attributes['budget_items'] = $this->encodeNestedUkFields($value, ['name']);
+    }
+
+    public function setContentBlocksAttribute(mixed $value): void
+    {
+        $this->attributes['content_blocks'] = $this->encodeNestedUkFields($value, [
+            'heading_text',
+            'paragraph_text',
+            'image_alt',
+            'image_caption',
+        ]);
+    }
+
+    private function ukValue(mixed $value): mixed
+    {
+        return is_array($value) && (array_key_exists('uk', $value) || array_key_exists('en', $value))
+            ? ($value['uk'] ?? null)
+            : $value;
+    }
+
+    /**
+     * @param  list<string>  $keys
+     */
+    private function encodeNestedUkFields(mixed $value, array $keys): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        foreach ($value as &$item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            foreach ($keys as $key) {
+                if (array_key_exists($key, $item)) {
+                    $item[$key] = $this->ukValue($item[$key]);
+                }
+            }
+        }
+        unset($item);
+
+        return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
     /**
      * Генерація slug з назви
-     *
-     * @param  array<string, string>  $title
      */
-    public static function generateSlugFromTitle(array $title): string
+    public static function generateSlugFromTitle(string $title): string
     {
-        $titleText = $title['uk'] ?? $title['en'] ?? Str::random(10);
-        $slug = Str::slug($titleText);
+        $slug = Str::slug($title) ?: Str::random(10);
 
         $count = 1;
         $originalSlug = $slug;
@@ -167,21 +224,18 @@ class Project extends Model
     }
 
     /**
-     * Перегенерувати slug на основі поточної назви (title.uk/title.en), замінивши
+     * Перегенерувати slug на основі поточної назви, замінивши
      * автогенерований при створенні плейсхолдер на змістовний. Викликається рівно один раз —
      * саме в момент переходу зі статусу New до наступного (submit на модерацію або
      * збереження в чернетку) — не при кожному збереженні.
      */
     public function regenerateSlugFromTitle(): bool
     {
-        $title = is_array($this->title) ? $this->title : [];
-        $titleText = $title['uk'] ?? $title['en'] ?? null;
-
-        if (! $titleText || trim($titleText) === '') {
+        if (trim($this->title) === '') {
             return false;
         }
 
-        $slug = Str::slug($titleText);
+        $slug = Str::slug($this->title);
         $originalSlug = $slug;
         $count = 1;
         while (self::where('slug', $slug)->where($this->getKeyName(), '!=', $this->getKey())->exists()) {

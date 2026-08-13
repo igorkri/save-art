@@ -15,7 +15,7 @@ class MyTeamsSearchMembersTest extends ApiTestCase
 
     public function test_can_find_user_by_full_name(): void
     {
-        User::factory()->create(['full_name' => ['uk' => 'Іван Франко', 'en' => 'Ivan Franko']]);
+        User::factory()->create(['full_name' => 'Іван Франко']);
 
         $response = $this->withHeaders($this->authHeaders())
             ->getJson('/api/v1/art-ua-info/my/teams/search-members?search=Франко');
@@ -36,7 +36,7 @@ class MyTeamsSearchMembersTest extends ApiTestCase
     public function test_excludes_blocked_users(): void
     {
         User::factory()->create([
-            'full_name' => ['uk' => 'Заблокований Юзер', 'en' => 'Blocked User'],
+            'full_name' => 'Заблокований Юзер',
             'is_blocked' => true,
         ]);
 

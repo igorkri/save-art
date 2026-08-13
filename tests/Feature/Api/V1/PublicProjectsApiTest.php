@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\V1;
 
-use App\Enums\ArtCategory;
 use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Models\ArtCategory as ArtCategoryModel;
@@ -74,7 +73,7 @@ class PublicProjectsApiTest extends ApiTestCase
         $this->assertIsString($categories[0]['name']);
     }
 
-    public function test_projects_list_filters_without_language_returns_objects(): void
+    public function test_projects_list_filters_without_language_returns_ukrainian_strings(): void
     {
         Project::factory()->create([
             'status' => ProjectStatus::InProgress,
@@ -85,11 +84,9 @@ class PublicProjectsApiTest extends ApiTestCase
 
         $response->assertOk();
 
-        // Перевіряємо що назви фільтрів - це об'єкти з uk і en
+        // Назви категорій завжди повертаються українськими рядками
         $categories = $response->json('filters.categories');
-        $this->assertIsArray($categories[0]['name']);
-        $this->assertArrayHasKey('uk', $categories[0]['name']);
-        $this->assertArrayHasKey('en', $categories[0]['name']);
+        $this->assertIsString($categories[0]['name']);
     }
 
     public function test_can_filter_projects_by_status(): void
@@ -106,13 +103,16 @@ class PublicProjectsApiTest extends ApiTestCase
 
     public function test_can_filter_projects_by_category(): void
     {
+        $music = ArtCategoryModel::factory()->create(['slug' => 'music']);
+        $fineArt = ArtCategoryModel::factory()->create(['slug' => 'fine-art']);
+
         Project::factory()->create([
             'status' => ProjectStatus::InProgress,
-            'art_category' => ArtCategory::Music,
+            'art_category_id' => $music->id,
         ]);
         Project::factory()->create([
             'status' => ProjectStatus::InProgress,
-            'art_category' => ArtCategory::FineArt,
+            'art_category_id' => $fineArt->id,
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
@@ -168,7 +168,7 @@ class PublicProjectsApiTest extends ApiTestCase
         $child = ArtCategoryModel::factory()->create(['parent_id' => $root->getKey()]);
 
         $listParameter = Parameter::factory()->for($child)->create([
-            'name' => ['uk' => 'Формат друку', 'en' => 'Print format'],
+            'name' => 'Формат друку',
             'type' => ParameterType::List,
             'sort_order' => 0,
         ]);
@@ -240,11 +240,11 @@ class PublicProjectsApiTest extends ApiTestCase
     {
         Project::factory()->create([
             'status' => ProjectStatus::InProgress,
-            'title' => ['uk' => 'Унікальний проект', 'en' => 'Unique project'],
+            'title' => 'Унікальний проект',
         ]);
         Project::factory()->create([
             'status' => ProjectStatus::InProgress,
-            'title' => ['uk' => 'Інший проект', 'en' => 'Other project'],
+            'title' => 'Інший проект',
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
@@ -440,7 +440,7 @@ class PublicProjectsApiTest extends ApiTestCase
             'status' => ProjectStatus::InProgress,
         ]);
 
-        $donor = User::factory()->create(['full_name' => ['uk' => 'Real Author Name', 'en' => 'Real Author Name'], 'slug' => 'anon-donor']);
+        $donor = User::factory()->create(['full_name' => 'Real Author Name', 'slug' => 'anon-donor']);
         Donation::factory()->fromUser($donor)->create([
             'project_id' => $project->id,
             'status' => 'paid',

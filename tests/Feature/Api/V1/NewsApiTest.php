@@ -93,7 +93,7 @@ class NewsApiTest extends ApiTestCase
     public function test_can_get_news_list_localized(): void
     {
         News::factory()->create([
-            'title' => ['uk' => 'Заголовок', 'en' => 'Title'],
+            'title' => 'Заголовок',
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
@@ -134,16 +134,13 @@ class NewsApiTest extends ApiTestCase
             ->assertJsonPath('data.id', $news->id);
     }
 
-    public function test_news_item_localized_text_blocks(): void
+    public function test_news_item_text_blocks_paragraphs(): void
     {
         News::factory()->create([
             'slug' => 'localized-news',
             'text_blocks' => [
                 [
-                    'paragraphs' => [
-                        'uk' => ['Перший абзац'],
-                        'en' => ['First paragraph'],
-                    ],
+                    'paragraphs' => ['Перший абзац'],
                     'image' => null,
                 ],
             ],

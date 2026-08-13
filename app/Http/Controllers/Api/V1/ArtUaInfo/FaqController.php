@@ -28,38 +28,20 @@ class FaqController extends Controller
      *     description="Повертає всі FAQ категорії з питаннями та відповідями.",
      *     security={{"apiKey": {}}},
      *
-     *     @OA\Parameter(name="language", in="query", description="Код мови (uk або en)", @OA\Schema(type="string", enum={"uk", "en"})),
-     *
      *     @OA\Response(response=200, description="Список FAQ")
      * )
      */
     public function index(Request $request): JsonResponse
     {
-        $language = $request->query('language');
-
-        $cacheKey = $language ? "faq_all_{$language}" : 'faq_all';
-        $data = Cache::remember($cacheKey, 3600, function () {
+        $data = Cache::remember('faq_all', 3600, function () {
             return $this->getAllFaq();
         });
 
-        $response = [
+        return response()->json([
             'result' => true,
             'message' => 'FAQ data retrieved successfully',
-        ];
-
-        if ($language) {
-            $supportedLanguages = ['uk', 'en'];
-            if (! in_array($language, $supportedLanguages)) {
-                $language = 'uk';
-            }
-
-            $data = $this->filterByLanguage($data, $language);
-            $response['language'] = $language;
-        }
-
-        $response['data'] = $data;
-
-        return response()->json($response);
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -74,7 +56,6 @@ class FaqController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(name="slug", in="path", required=true, description="Slug категорії", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="language", in="query", description="Код мови (uk або en)", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(response=200, description="FAQ категорії"),
      *     @OA\Response(response=404, description="Категорію не знайдено")
@@ -99,25 +80,11 @@ class FaqController extends Controller
             ])->toArray(),
         ];
 
-        $response = [
+        return response()->json([
             'result' => true,
             'message' => 'FAQ category retrieved successfully',
-        ];
-
-        $language = $request->query('language');
-        if ($language) {
-            $supportedLanguages = ['uk', 'en'];
-            if (! in_array($language, $supportedLanguages)) {
-                $language = 'uk';
-            }
-
-            $categoryData = $this->filterCategoryByLanguage($categoryData, $language);
-            $response['language'] = $language;
-        }
-
-        $response['data'] = ['category' => $categoryData];
-
-        return response()->json($response);
+            'data' => ['category' => $categoryData],
+        ]);
     }
 
     /**
@@ -143,46 +110,5 @@ class FaqController extends Controller
                 ])->toArray(),
             ])->toArray(),
         ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
-     */
-    private function filterByLanguage(array $data, string $language): array
-    {
-        if (isset($data['categories']) && is_array($data['categories'])) {
-            $data['categories'] = array_map(function ($category) use ($language) {
-                return $this->filterCategoryByLanguage($category, $language);
-            }, $data['categories']);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param  array<string, mixed>  $category
-     * @return array<string, mixed>
-     */
-    private function filterCategoryByLanguage(array $category, string $language): array
-    {
-        if (isset($category['name']) && is_array($category['name'])) {
-            $category['name'] = $category['name'][$language] ?? $category['name']['uk'] ?? '';
-        }
-
-        if (isset($category['questions']) && is_array($category['questions'])) {
-            $category['questions'] = array_map(function ($question) use ($language) {
-                if (isset($question['question']) && is_array($question['question'])) {
-                    $question['question'] = $question['question'][$language] ?? $question['question']['uk'] ?? '';
-                }
-                if (isset($question['answer']) && is_array($question['answer'])) {
-                    $question['answer'] = $question['answer'][$language] ?? $question['answer']['uk'] ?? '';
-                }
-
-                return $question;
-            }, $category['questions']);
-        }
-
-        return $category;
     }
 }

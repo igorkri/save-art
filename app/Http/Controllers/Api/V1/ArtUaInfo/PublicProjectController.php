@@ -92,10 +92,7 @@ class PublicProjectController extends Controller
 
         if ($sortBy === 'name') {
             $sortDir = $request->input('sort_dir', 'asc');
-            $jsonPath = '$.'.($language ?: 'uk');
-            $query->orderByRaw(
-                "LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '{$jsonPath}'))) ".($sortDir === 'desc' ? 'desc' : 'asc')
-            );
+            $query->orderByRaw('LOWER(title) '.($sortDir === 'desc' ? 'desc' : 'asc'));
         } else {
             $sortDir = $request->input('sort_dir', 'desc');
             $query->orderBy('announced_at', $sortDir === 'asc' ? 'asc' : 'desc');
@@ -186,7 +183,7 @@ class PublicProjectController extends Controller
         if ($request->filled('tags')) {
             $tags = array_map('trim', explode(',', $request->input('tags')));
             foreach ($tags as $tag) {
-                $query->whereRaw('JSON_CONTAINS(tags, ?)', [json_encode($tag)]);
+                $query->where('tags', 'like', "%{$tag}%");
             }
         }
 
@@ -202,12 +199,10 @@ class PublicProjectController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = mb_strtolower($request->input('search'));
+            $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.en'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(short_description, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(short_description, '$.en'))) LIKE ?", ["%{$search}%"]);
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('short_description', 'like', "%{$search}%");
             });
         }
 
@@ -329,14 +324,14 @@ class PublicProjectController extends Controller
                 $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'name' => $child->name,
                     'projects_count' => $count,
                 ];
             }
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'name' => $root->name,
                 'subcategories' => $subcategories,
             ];
         }
@@ -386,18 +381,18 @@ class PublicProjectController extends Controller
 
         return $parameters
             ->filter(fn (Parameter $parameter) => $parameter->values->isNotEmpty())
-            ->map(function (Parameter $parameter) use ($baseQuery, $language) {
+            ->map(function (Parameter $parameter) use ($baseQuery) {
                 return [
                     'id' => $parameter->id,
-                    'name' => $this->getFilterTranslation($parameter->getTranslations('name'), $language),
-                    'values' => $parameter->values->map(function ($value) use ($baseQuery, $language) {
+                    'name' => $parameter->name,
+                    'values' => $parameter->values->map(function ($value) use ($baseQuery) {
                         $count = (clone $baseQuery)->whereHas('projectParameters', function (Builder $q) use ($value) {
                             $q->where('parameter_value_id', $value->id);
                         })->count();
 
                         return [
                             'id' => $value->id,
-                            'value' => $this->getFilterTranslation($value->getTranslations('value'), $language),
+                            'value' => $value->value,
                             'projects_count' => $count,
                         ];
                     })->values()->all(),

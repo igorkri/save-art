@@ -72,7 +72,7 @@ class MyProjectController extends Controller
      *
      *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15, maximum=50)),
      *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer", default=1)),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *     @OA\Parameter(name="language", in="query", description="Мова службових міток", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -142,7 +142,7 @@ class MyProjectController extends Controller
      *
      *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15, maximum=50)),
      *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer", default=1)),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *     @OA\Parameter(name="language", in="query", description="Мова службових міток", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -187,7 +187,7 @@ class MyProjectController extends Controller
      *
      *     @OA\RequestBody(
      *         required=false,
-     *         description="Дані проєкту. Мінімальний запит: {} створює проєкт зі статусом 'new'. Для статусу 'moderation' обов'язкові: user_type, title.uk, art_category, currency, budget_goal",
+     *         description="Дані проєкту. Мінімальний запит: {} створює проєкт зі статусом 'new'. Для статусу 'moderation' обов'язкові: user_type, title, art_category, currency, budget_goal",
      *
      *         @OA\JsonContent(
      *             type="object",
@@ -363,13 +363,13 @@ class MyProjectController extends Controller
         $data['code'] = strtoupper(Str::random(8));
 
         // Генеруємо slug з назви або випадковий для новых проектов
-        if (isset($data['title']['uk'])) {
-            $data['slug'] = Str::slug($data['title']['uk']).'-'.Str::random(6);
+        if (filled($data['title'] ?? null)) {
+            $data['slug'] = Str::slug($data['title']).'-'.Str::random(6);
         } else {
             $titleText = $status === ProjectStatus::New ? 'Новий проект' : 'Чернетка';
             $data['slug'] = Str::slug($titleText).'-'.now()->format('dmY-Hi').'-'.Str::random(4);
             // Встановлюємо дефолтну назву, якщо не передана
-            $data['title'] = $data['title'] ?? ['uk' => $titleText.' '.now()->format('d.m.Y H:i')];
+            $data['title'] = $data['title'] ?? $titleText.' '.now()->format('d.m.Y H:i');
         }
 
         // Обробка обкладинки (файл або Base64)
@@ -460,7 +460,7 @@ class MyProjectController extends Controller
 
                 foreach ($stagesData as $index => $stageData) {
                     $project->stages()->create([
-                        'title' => $stageData['title'] ?? ['uk' => 'Этап '.($index + 1)],
+                        'title' => $stageData['title'] ?? 'Етап '.($index + 1),
                         'description' => $stageData['description'] ?? null,
                         'days_planned' => $stageData['days_planned'] ?? null,
                         'budget_planned' => $stageData['budget_planned'] ?? 0,
@@ -475,7 +475,7 @@ class MyProjectController extends Controller
 
                 foreach ($bonusesData as $index => $bonusData) {
                     $project->bonuses()->create([
-                        'title' => $bonusData['title'] ?? ['uk' => 'Бонус '.($index + 1)],
+                        'title' => $bonusData['title'] ?? 'Бонус '.($index + 1),
                         'description' => $bonusData['description'] ?? null,
                         'min_donation' => $bonusData['min_donation'] ?? 1,
                         'max_donation' => $bonusData['max_donation'] ?? null,
@@ -500,7 +500,7 @@ class MyProjectController extends Controller
      *     security={{"sanctum":{}, "apiKey":{}}},
      *
      *     @OA\Parameter(name="project", in="path", required=true, @OA\Schema(type="string"), example="cernetka-16022026-1245"),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
+     *     @OA\Parameter(name="language", in="query", description="Мова службових міток", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -561,8 +561,8 @@ class MyProjectController extends Controller
      *
      *             @OA\Schema(
      *
-     *                 @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
-     *                 @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString"),
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="short_description", type="string", nullable=true),
      *                 @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}),
      *                 @OA\Property(property="budget_goal", type="number", format="float"),
      *                 @OA\Property(property="estimated_days", type="integer"),
@@ -573,11 +573,11 @@ class MyProjectController extends Controller
      *
      *                         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}),
      *                         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}),
-     *                         @OA\Property(property="heading_text", ref="#/components/schemas/LocalizedString"),
-     *                         @OA\Property(property="paragraph_text", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="heading_text", type="string", nullable=true),
+     *                         @OA\Property(property="paragraph_text", type="string", nullable=true),
      *                         @OA\Property(property="image", type="string"),
-     *                         @OA\Property(property="image_alt", ref="#/components/schemas/LocalizedString"),
-     *                         @OA\Property(property="image_caption", ref="#/components/schemas/LocalizedString")
+     *                         @OA\Property(property="image_alt", type="string", nullable=true),
+     *                         @OA\Property(property="image_caption", type="string", nullable=true)
      *                     )
      *                 )
      *             )
@@ -786,9 +786,9 @@ class MyProjectController extends Controller
      *
      *             @OA\Schema(
      *
-     *                 @OA\Property(property="title", ref="#/components/schemas/LocalizedString", description="Нова назва проєкту"),
-     *                 @OA\Property(property="short_description", ref="#/components/schemas/LocalizedString", description="Новий короткий опис"),
-     *                 @OA\Property(property="tags", ref="#/components/schemas/LocalizedString", description="Нові теги"),
+     *                 @OA\Property(property="title", type="string", description="Нова назва проєкту"),
+     *                 @OA\Property(property="short_description", type="string", nullable=true, description="Новий короткий опис"),
+     *                 @OA\Property(property="tags", type="string", nullable=true, description="Нові теги"),
      *                 @OA\Property(property="additional_info", ref="#/components/schemas/LocalizedString", description="Нова додаткова інформація"),
      *                 @OA\Property(property="content_blocks", type="array", description="Контент-блоки (до 50)", maxItems=50,
      *
@@ -797,11 +797,11 @@ class MyProjectController extends Controller
      *
      *                         @OA\Property(property="type", type="string", enum={"heading", "paragraph", "image"}),
      *                         @OA\Property(property="heading_level", type="string", enum={"h2", "h3", "h4", "h5", "h6"}),
-     *                         @OA\Property(property="heading_text", ref="#/components/schemas/LocalizedString"),
-     *                         @OA\Property(property="paragraph_text", ref="#/components/schemas/LocalizedString"),
+     *                         @OA\Property(property="heading_text", type="string", nullable=true),
+     *                         @OA\Property(property="paragraph_text", type="string", nullable=true),
      *                         @OA\Property(property="image", type="string"),
-     *                         @OA\Property(property="image_alt", ref="#/components/schemas/LocalizedString"),
-     *                         @OA\Property(property="image_caption", ref="#/components/schemas/LocalizedString")
+     *                         @OA\Property(property="image_alt", type="string", nullable=true),
+     *                         @OA\Property(property="image_caption", type="string", nullable=true)
      *                     )
      *                 ),
      *                 @OA\Property(property="art_category", type="string", description="Slug кореневої категорії"),
@@ -814,7 +814,7 @@ class MyProjectController extends Controller
      *
      *                         @OA\Property(property="parameter_id", type="integer", example=11),
      *                         @OA\Property(property="parameter_value_id", type="integer", nullable=true, description="Для type=list"),
-     *                         @OA\Property(property="custom_value", ref="#/components/schemas/LocalizedString", description="Для type=custom")
+     *                         @OA\Property(property="custom_value", type="string", nullable=true, description="Для type=custom")
      *                     )
      *                 )
      *             )
@@ -971,7 +971,7 @@ class MyProjectController extends Controller
 
         // Валідація обов'язкових полів перед відправкою
         $errors = [];
-        if (empty($project->title['uk'])) {
+        if (blank($project->title)) {
             $errors['title'] = ['Назва проєкту є обов\'язковою'];
         }
         if (empty($project->art_category_id)) {

@@ -24,21 +24,21 @@ class About extends Model
         'partners',
     ];
 
-    protected $casts = [
-        'title' => 'array',
-        'feats' => 'array',
-        'description' => 'array',
-        'goals' => 'array',
-        'tasks' => 'array',
-        'implementation' => 'array',
-        'results' => 'array',
-        'id_art' => 'array',
-        'events' => 'array',
-        'project' => 'array',
-        'artists' => 'array',
-        'partners' => 'array',
-        'is_active_artist' => 'boolean',
-    ];
-
-
+    protected function casts(): array
+    {
+        return [
+            'feats' => 'array',
+            'description' => 'array',
+            'goals' => 'array',
+            'tasks' => 'array',
+            'implementation' => 'array',
+            'results' => 'array',
+            'id_art' => 'array',
+            'events' => 'array',
+            'project' => 'array',
+            'artists' => 'array',
+            'partners' => 'array',
+            'is_active_artist' => 'boolean',
+        ];
+    }
 }

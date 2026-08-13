@@ -58,9 +58,7 @@ class ProjectsKanban extends Page
             ->label('Переглянути')
             ->icon('heroicon-o-eye')
             ->modalWidth(Width::Screen)
-            ->modalHeading(fn (array $arguments): string => $this->findProject($arguments)->title['uk']
-                ?? $this->findProject($arguments)->title['en']
-                ?? 'Проєкт')
+            ->modalHeading(fn (array $arguments): string => $this->findProject($arguments)->title ?: 'Проєкт')
             ->modalContent(fn (array $arguments) => view(
                 'filament.resources.projects.pages.partials.project-view',
                 [
@@ -116,8 +114,7 @@ class ProjectsKanban extends Page
                 $query->whereRaw("lower(json_extract(title, '$.\"uk\"')) like ?", [$search])
                     ->orWhereRaw("lower(json_extract(title, '$.\"en\"')) like ?", [$search])
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->whereRaw("lower(json_unquote(json_extract(full_name, '$.uk'))) like ?", [$search])
-                            ->orWhereRaw("lower(json_unquote(json_extract(full_name, '$.en'))) like ?", [$search]);
+                        $userQuery->whereRaw('lower(full_name) like ?', [$search]);
                     });
             });
         }

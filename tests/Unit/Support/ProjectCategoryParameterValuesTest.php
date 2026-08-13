@@ -19,8 +19,8 @@ class ProjectCategoryParameterValuesTest extends TestCase
     public function test_builds_rows_for_all_category_parameters(): void
     {
         $category = ArtCategory::factory()->create();
-        Parameter::factory()->for($category)->create(['name' => ['uk' => 'Матеріал'], 'sort_order' => 1]);
-        Parameter::factory()->for($category)->create(['name' => ['uk' => 'Розмір'], 'sort_order' => 2]);
+        Parameter::factory()->for($category)->create(['name' => 'Матеріал', 'sort_order' => 1]);
+        Parameter::factory()->for($category)->create(['name' => 'Розмір', 'sort_order' => 2]);
 
         $rows = ProjectCategoryParameterValues::rowsForCategoryId((int) $category->getKey());
 
@@ -52,7 +52,7 @@ class ProjectCategoryParameterValuesTest extends TestCase
         $byParameterId = collect($rows)->keyBy('parameter_id');
 
         $this->assertSame($value->getKey(), $byParameterId[$listParameter->getKey()]['parameter_value_id']);
-        $this->assertSame('50 см', $byParameterId[$customParameter->getKey()]['custom_value']['uk']);
+        $this->assertSame('50 см', $byParameterId[$customParameter->getKey()]['custom_value']);
     }
 
     public function test_sync_creates_updates_and_prunes_rows(): void
@@ -67,7 +67,7 @@ class ProjectCategoryParameterValuesTest extends TestCase
 
         ProjectCategoryParameterValues::syncForProject($project, [
             ['parameter_id' => $listParameter->getKey(), 'parameter_value_id' => $valueOne->getKey()],
-            ['parameter_id' => $customParameter->getKey(), 'custom_value' => ['uk' => 'Значення', 'en' => 'Value']],
+            ['parameter_id' => $customParameter->getKey(), 'custom_value' => 'Значення'],
         ]);
 
         $this->assertDatabaseHas('project_parameters', [
@@ -77,10 +77,10 @@ class ProjectCategoryParameterValuesTest extends TestCase
         ]);
         $this->assertCount(2, $project->projectParameters()->get());
 
-        // Update value + remove custom value (empty uk) -> that row must be pruned; unknown parameter ignored.
+        // Update value + remove empty custom value.
         ProjectCategoryParameterValues::syncForProject($project, [
             ['parameter_id' => $listParameter->getKey(), 'parameter_value_id' => $valueTwo->getKey()],
-            ['parameter_id' => $customParameter->getKey(), 'custom_value' => ['uk' => '', 'en' => '']],
+            ['parameter_id' => $customParameter->getKey(), 'custom_value' => ''],
         ]);
 
         $project->refresh();

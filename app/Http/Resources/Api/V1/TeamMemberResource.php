@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -25,8 +24,6 @@ use OpenApi\Annotations as OA;
  */
 class TeamMemberResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -34,11 +31,9 @@ class TeamMemberResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->getLanguage($request);
-
         return [
             'id' => $this->id,
-            'name' => $language ? ($this->localizeField($this->full_name, $language) ?? $this->name) : $this->name,
+            'name' => $this->full_name ?? $this->name,
             'slug' => $this->slug,
             'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
         ];

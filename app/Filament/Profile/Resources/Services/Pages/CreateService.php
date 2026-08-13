@@ -20,7 +20,7 @@ class CreateService extends CreateRecord
     {
         $data['serviceable_type'] = User::class;
         $data['serviceable_id'] = auth()->id();
-        $data['slug'] = $this->generateUniqueSlug($data['title']['uk'] ?? $data['title']['en'] ?? Str::random(8));
+        $data['slug'] = $this->generateUniqueSlug($data['title'] ?? Str::random(8));
 
         return $data;
     }

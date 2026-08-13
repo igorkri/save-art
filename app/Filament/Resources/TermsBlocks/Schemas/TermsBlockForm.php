@@ -8,7 +8,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class TermsBlockForm
 {
@@ -21,7 +20,7 @@ class TermsBlockForm
                         Select::make('terms_section_id')
                             ->label('Розділ')
                             ->relationship('section')
-                            ->getOptionLabelFromRecordUsing(fn (TermsSection $record) => $record->heading['uk'] ?? $record->heading['en'] ?? "Розділ #{$record->id}")
+                            ->getOptionLabelFromRecordUsing(fn (TermsSection $record) => $record->heading ?? "Розділ #{$record->id}")
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -34,14 +33,14 @@ class TermsBlockForm
 
                 Section::make('Контент')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('heading')
-                                ->label('Заголовок блоку')
-                                ->maxLength(500),
-                            Textarea::make('paragraphs')
-                                ->label('Абзаци (кожен абзац з нового рядка)')
-                                ->rows(6),
-                        ])->columnSpanFull(),
+                        TextInput::make('heading')
+                            ->label('Заголовок блоку')
+                            ->maxLength(500)
+                            ->columnSpanFull(),
+                        Textarea::make('paragraphs')
+                            ->label('Абзаци (кожен абзац з нового рядка)')
+                            ->rows(6)
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Список (необов’язково)')
@@ -54,11 +53,10 @@ class TermsBlockForm
                             ])
                             ->native(false),
 
-                        LanguageTabs::make([
-                            Textarea::make('list_items')
-                                ->label('Пункти списку (кожен пункт з нового рядка)')
-                                ->rows(6),
-                        ])->columnSpanFull(),
+                        Textarea::make('list_items')
+                            ->label('Пункти списку (кожен пункт з нового рядка)')
+                            ->rows(6)
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

@@ -30,7 +30,6 @@ class ReportController extends Controller
      *     @OA\Parameter(name="sort", in="query", description="Сортування: newest (за замовчуванням), most_funded", @OA\Schema(type="string", enum={"newest", "most_funded"})),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=12)),
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -49,8 +48,6 @@ class ReportController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $language = $this->getLanguage($request) ?? 'uk';
-
         $donatedFilter = fn ($q) => $q->where('status', 'paid')->where('donation_type', 'project');
 
         $query = Project::query()
@@ -74,8 +71,7 @@ class ReportController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.uk')) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.en')) LIKE ?", ["%{$search}%"]);
+                $q->where('title', 'like', "%{$search}%");
             });
         }
 
@@ -87,7 +83,7 @@ class ReportController extends Controller
         $perPage = min($request->input('per_page', 12), 50);
         $projects = $query->paginate($perPage);
 
-        $reports = collect($projects->items())->map(fn (Project $project) => $this->formatDonatedProject($project, $language));
+        $reports = collect($projects->items())->map(fn (Project $project) => $this->formatDonatedProject($project));
         $total = $projects->total();
 
         // Донати на платформу без прив'язки до проєкту показуємо окремим рядком,
@@ -115,7 +111,7 @@ class ReportController extends Controller
                     ->with('user:id,full_name,slug,avatar')
                     ->latest('paid_at')
                     ->first();
-                $reports->prepend($this->formatPlatformDonations($language, (float) $platformTotal, $lastDonation));
+                $reports->prepend($this->formatPlatformDonations((float) $platformTotal, $lastDonation));
                 $total++;
             }
         }
@@ -148,7 +144,6 @@ class ReportController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(name="id", in="path", required=true, description="ID звіту", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -168,8 +163,6 @@ class ReportController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $language = $this->getLanguage($request);
-
         $report = Report::query()
             ->with([
                 'project' => fn ($q) => $q->select('id', 'title', 'slug', 'cover', 'status', 'budget_goal', 'budget_collected'),
@@ -181,7 +174,7 @@ class ReportController extends Controller
         return response()->json([
             'result' => true,
             'data' => [
-                'report' => $this->formatReport($report, $language),
+                'report' => $this->formatReport($report),
             ],
         ]);
     }
@@ -200,7 +193,6 @@ class ReportController extends Controller
      *     @OA\Parameter(name="slug", in="path", required=true, description="Slug проекту", @OA\Schema(type="string")),
      *     @OA\Parameter(name="per_page", in="query", description="Кількість на сторінку (макс 50)", @OA\Schema(type="integer", default=10)),
      *     @OA\Parameter(name="page", in="query", description="Номер сторінки", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -222,8 +214,6 @@ class ReportController extends Controller
      */
     public function byProject(string $slug, Request $request): JsonResponse
     {
-        $language = $this->getLanguage($request);
-
         $project = \App\Models\Project::query()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->where('slug', $slug)
@@ -243,10 +233,10 @@ class ReportController extends Controller
             'data' => [
                 'project' => [
                     'id' => $project->id,
-                    'title' => $this->localizeValue($project->title, $language),
+                    'title' => $project->title,
                     'slug' => $project->slug,
                 ],
-                'reports' => collect($reports->items())->map(fn (Report $report) => $this->formatReport($report, $language)),
+                'reports' => collect($reports->items())->map(fn (Report $report) => $this->formatReport($report)),
                 'pagination' => [
                     'current_page' => $reports->currentPage(),
                     'per_page' => $reports->perPage(),
@@ -262,7 +252,7 @@ class ReportController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function formatDonatedProject(Project $project, ?string $language): array
+    private function formatDonatedProject(Project $project): array
     {
         $status = match ($project->status) {
             ProjectStatus::Completed, ProjectStatus::Sold => 'completed',
@@ -272,7 +262,7 @@ class ReportController extends Controller
 
         return [
             'id' => $project->id,
-            'title' => $this->localizeValue($project->title, $language),
+            'title' => $project->title,
             'cover' => $project->cover,
             'collected_amount' => (float) $project->collected_amount,
             'goal_amount' => (float) $project->budget_goal,
@@ -283,7 +273,7 @@ class ReportController extends Controller
             'created_at' => $project->created_at->toISOString(),
             'project' => [
                 'id' => $project->id,
-                'title' => $this->localizeValue($project->title, $language),
+                'title' => $project->title,
                 'slug' => $project->slug,
                 'cover' => $project->cover,
             ],
@@ -301,10 +291,8 @@ class ReportController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function formatPlatformDonations(?string $language, float $total, ?\App\Models\Donation $lastDonation): array
+    private function formatPlatformDonations(float $total, ?\App\Models\Donation $lastDonation): array
     {
-        $title = ['uk' => 'Донати платформі', 'en' => 'Platform donations'];
-
         $user = null;
         if ($lastDonation) {
             if ($lastDonation->is_anonymous) {
@@ -336,7 +324,7 @@ class ReportController extends Controller
 
         return [
             'id' => 'platform',
-            'title' => $this->localizeValue($title, $language),
+            'title' => 'Донати платформі',
             'cover' => null,
             'collected_amount' => $total,
             'goal_amount' => $total,
@@ -351,16 +339,16 @@ class ReportController extends Controller
     }
 
     /**
-     * Форматувати звіт з локалізацією
+     * Форматувати звіт
      *
      * @return array<string, mixed>
      */
-    private function formatReport(Report $report, ?string $language): array
+    private function formatReport(Report $report): array
     {
         $data = [
             'id' => $report->id,
-            'title' => $this->localizeValue($report->title, $language),
-            'description' => $this->localizeValue($report->description, $language),
+            'title' => $report->title,
+            'description' => $report->description,
             'cover' => $report->cover,
             'images' => $report->images,
             'attachments' => $report->attachments,
@@ -375,7 +363,7 @@ class ReportController extends Controller
         if ($report->relationLoaded('project') && $report->project) {
             $data['project'] = [
                 'id' => $report->project->id,
-                'title' => $this->localizeValue($report->project->title, $language),
+                'title' => $report->project->title,
                 'slug' => $report->project->slug,
                 'cover' => $report->project->cover,
             ];
@@ -389,31 +377,5 @@ class ReportController extends Controller
         }
 
         return $data;
-    }
-
-    /**
-     * Отримати мову з запиту
-     */
-    private function getLanguage(Request $request): ?string
-    {
-        $language = $request->query('language');
-
-        return ($language && in_array($language, ['uk', 'en'])) ? $language : null;
-    }
-
-    /**
-     * Локалізувати значення поля
-     */
-    private function localizeValue(mixed $value, ?string $language): mixed
-    {
-        if ($language === null || ! is_array($value)) {
-            return $value;
-        }
-
-        if (isset($value['uk']) || isset($value['en'])) {
-            return $value[$language] ?? $value['uk'] ?? reset($value);
-        }
-
-        return $value;
     }
 }

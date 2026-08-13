@@ -19,14 +19,8 @@ class ProjectBonusFactory extends Factory
     {
         return [
             'project_id' => Project::factory(),
-            'title' => [
-                'uk' => $this->faker->sentence(3),
-                'en' => $this->faker->sentence(3),
-            ],
-            'description' => [
-                'uk' => $this->faker->paragraph(),
-                'en' => $this->faker->paragraph(),
-            ],
+            'title' => $this->faker->sentence(3),
+            'description' => $this->faker->paragraph(),
             'min_donation' => $this->faker->randomFloat(2, 50, 1000),
             'quantity' => $this->faker->optional(0.7)->numberBetween(5, 100),
             'quantity_claimed' => 0,

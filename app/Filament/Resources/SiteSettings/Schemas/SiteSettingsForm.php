@@ -12,7 +12,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class SiteSettingsForm
 {
@@ -38,23 +37,19 @@ class SiteSettingsForm
                 // Header секція
                 Section::make('Шапка сайту (Header)')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('header_brand_name')
-                                ->label('Назва бренду')
-                                ->placeholder('save-art.in.ua')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('header_brand_name')
+                            ->label('Назва бренду')
+                            ->placeholder('save-art.in.ua')
+                            ->maxLength(255),
 
                         Repeater::make('header_dropdown_sites')
                             ->label('Випадаючий список сайтів')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('name')
-                                        ->label('Назва')
-                                        ->placeholder('save-art.in.ua')
-                                        ->required()
-                                        ->maxLength(255),
-                                ]),
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->placeholder('save-art.in.ua')
+                                    ->required()
+                                    ->maxLength(255),
 
                                 TextInput::make('url')
                                     ->label('Посилання')
@@ -73,13 +68,11 @@ class SiteSettingsForm
                         Repeater::make('header_menu')
                             ->label('Меню навігації')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('label')
-                                        ->label('Назва')
-                                        ->placeholder('Проєкти')
-                                        ->required()
-                                        ->maxLength(255),
-                                ]),
+                                TextInput::make('label')
+                                    ->label('Назва')
+                                    ->placeholder('Проєкти')
+                                    ->required()
+                                    ->maxLength(255),
 
                                 TextInput::make('url')
                                     ->label('Посилання')
@@ -116,52 +109,40 @@ class SiteSettingsForm
                             ->placeholder('/support-platform')
                             ->maxLength(255),
 
-                        LanguageTabs::make([
-                            TextInput::make('header_support_button_text')
-                                ->label('Текст кнопки "Підтримати"')
-                                ->placeholder('Підтримати')
-                                ->maxLength(50),
-                        ]),
+                        TextInput::make('header_support_button_text')
+                            ->label('Текст кнопки "Підтримати"')
+                            ->placeholder('Підтримати')
+                            ->maxLength(50),
 
-                        LanguageTabs::make([
-                            TextInput::make('header_login_button_text')
-                                ->label('Текст кнопки "Увійти"')
-                                ->placeholder('Увійти')
-                                ->maxLength(50),
-                        ]),
+                        TextInput::make('header_login_button_text')
+                            ->label('Текст кнопки "Увійти"')
+                            ->placeholder('Увійти')
+                            ->maxLength(50),
                     ])
                     ->collapsible(),
 
                 // Footer Top секція
                 Section::make('Підвал — Верхня частина (Footer Top)')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('footer_brand_name')
-                                ->label('Назва бренду')
-                                ->placeholder('save-art.in.ua')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('footer_brand_name')
+                            ->label('Назва бренду')
+                            ->placeholder('save-art.in.ua')
+                            ->maxLength(255),
 
-                        LanguageTabs::make([
-                            TextInput::make('footer_slogan')
-                                ->label('Слоган')
-                                ->placeholder('Мистецтво допомоги — найсучасніше з мистецтв')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('footer_slogan')
+                            ->label('Слоган')
+                            ->placeholder('Мистецтво допомоги — найсучасніше з мистецтв')
+                            ->maxLength(255),
 
-                        LanguageTabs::make([
-                            TextInput::make('footer_collaboration_title')
-                                ->label('Заголовок блоку співпраці')
-                                ->placeholder('Запрошуємо експертів до співпраці')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('footer_collaboration_title')
+                            ->label('Заголовок блоку співпраці')
+                            ->placeholder('Запрошуємо експертів до співпраці')
+                            ->maxLength(255),
 
-                        LanguageTabs::make([
-                            RichEditor::make('footer_collaboration_text')
-                                ->label('Текст блоку співпраці')
-                                ->placeholder('Благодійний фонд ID_Art UA відкритий до співпраці...')
-                                ->maxLength(1000),
-                        ]),
+                        RichEditor::make('footer_collaboration_text')
+                            ->label('Текст блоку співпраці')
+                            ->placeholder('Благодійний фонд ID_Art UA відкритий до співпраці...')
+                            ->maxLength(1000),
 
                         Repeater::make('footer_collaboration_items')
                             ->label('Елементи співпраці')
@@ -172,23 +153,19 @@ class SiteSettingsForm
                                     ->directory('site-settings/footer')
                                     ->disk('public'),
 
-                                LanguageTabs::make([
-                                    TextInput::make('text')
-                                        ->label('Текст')
-                                        ->placeholder('Створення сучасного українського мистецтва')
-                                        ->required()
-                                        ->maxLength(255),
-                                ]),
+                                TextInput::make('text')
+                                    ->label('Текст')
+                                    ->placeholder('Створення сучасного українського мистецтва')
+                                    ->required()
+                                    ->maxLength(255),
                             ])
                             ->collapsible()
                             ->createItemButtonLabel('Додати елемент'),
 
-                        LanguageTabs::make([
-                            TextInput::make('footer_collaboration_button_text')
-                                ->label('Текст кнопки')
-                                ->placeholder('Відправити заявку')
-                                ->maxLength(50),
-                        ]),
+                        TextInput::make('footer_collaboration_button_text')
+                            ->label('Текст кнопки')
+                            ->placeholder('Відправити заявку')
+                            ->maxLength(50),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -199,13 +176,11 @@ class SiteSettingsForm
                         Repeater::make('footer_sites_menu')
                             ->label('Меню сайтів')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('site_name')
-                                        ->label('Назва сайту')
-                                        ->placeholder('save-art.in.ua')
-                                        ->required()
-                                        ->maxLength(255),
-                                ]),
+                                TextInput::make('site_name')
+                                    ->label('Назва сайту')
+                                    ->placeholder('save-art.in.ua')
+                                    ->required()
+                                    ->maxLength(255),
 
                                 TextInput::make('site_url')
                                     ->label('URL сайту')
@@ -216,13 +191,11 @@ class SiteSettingsForm
                                 Repeater::make('links')
                                     ->label('Посилання')
                                     ->schema([
-                                        LanguageTabs::make([
-                                            TextInput::make('label')
-                                                ->label('Назва')
-                                                ->placeholder('Проєкти')
-                                                ->required()
-                                                ->maxLength(255),
-                                        ]),
+                                        TextInput::make('label')
+                                            ->label('Назва')
+                                            ->placeholder('Проєкти')
+                                            ->required()
+                                            ->maxLength(255),
 
                                         TextInput::make('url')
                                             ->label('Посилання')
@@ -242,19 +215,15 @@ class SiteSettingsForm
                 // Footer Bottom секція - контактна інформація
                 Section::make('Підвал — Контакти (Footer Bottom)')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('footer_company_name')
-                                ->label('Назва компанії')
-                                ->placeholder('БЛАГОДІЙНИЙ ФОНД ID_Art UA')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('footer_company_name')
+                            ->label('Назва компанії')
+                            ->placeholder('БЛАГОДІЙНИЙ ФОНД ID_Art UA')
+                            ->maxLength(255),
 
-                        LanguageTabs::make([
-                            TextInput::make('footer_address')
-                                ->label('Адреса')
-                                ->placeholder('м. Івано-Франківськ, Україна')
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('footer_address')
+                            ->label('Адреса')
+                            ->placeholder('м. Івано-Франківськ, Україна')
+                            ->maxLength(255),
 
                         Grid::make(2)
                             ->schema([

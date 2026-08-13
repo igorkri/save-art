@@ -25,7 +25,6 @@ class NewsTable
 
                 TextColumn::make('title')
                     ->label('Заголовок')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : $state)
                     ->searchable()
                     ->limit(60),
 

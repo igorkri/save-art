@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         // Створюємо адміністратора
         if (! User::where('email', 'admin@saveart.com')->exists()) {
             $admin = User::factory()->create([
-                'full_name' => ['uk' => 'Адміністратор SaveArt', 'en' => 'SaveArt Administrator'],
+                'full_name' => 'Адміністратор SaveArt',
                 'slug' => 'admin-saveart',
                 'email' => 'admin@saveart.com',
                 'password' => Hash::make('password'),
@@ -40,18 +40,9 @@ class UserSeeder extends Seeder
                 'role' => UserRole::Moderator->value,
                 'email_verified_at' => now(),
                 'avatar' => ImageSeederHelper::getUserAvatar('woman'),
-                'full_name' => [
-                    'uk' => 'Ірина Коваль',
-                    'en' => 'Iryna Koval',
-                ],
-                'profession' => [
-                    'uk' => 'Модератор платформи',
-                    'en' => 'Platform Moderator',
-                ],
-                'city' => [
-                    'uk' => 'Київ',
-                    'en' => 'Kyiv',
-                ],
+                'full_name' => 'Ірина Коваль',
+                'profession' => 'Модератор платформи',
+                'city' => 'Київ',
             ]);
 
             \App\Models\ProfileLegal::factory()->create(['user_id' => $moderator->id]);
@@ -66,16 +57,13 @@ class UserSeeder extends Seeder
                 'email' => 'oksana.petrenko@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
-                    'full_name' => ['uk' => 'Оксана Петренко', 'en' => 'Oksana Petrenko'],
-                    'profession' => ['uk' => 'Художниця, майстриня портретного живопису', 'en' => 'Artist, Portrait Painter'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Львівська область', 'en' => 'Lviv Region'],
-                    'city' => ['uk' => 'Львів', 'en' => 'Lviv'],
-                    'description' => [
-                        'uk' => 'Займаюсь живописом більше 15 років. Спеціалізуюсь на портретах та композиціях на теми української історії та культури.',
-                        'en' => 'I have been painting for over 15 years. I specialize in portraits and compositions on themes of Ukrainian history and culture.',
-                    ],
-                    'tags' => ['uk' => 'живопис, портрети, українська культура', 'en' => 'painting, portraits, Ukrainian culture'],
+                    'full_name' => 'Оксана Петренко',
+                    'profession' => 'Художниця, майстриня портретного живопису',
+                    'country' => 'Україна',
+                    'region' => 'Львівська область',
+                    'city' => 'Львів',
+                    'description' => 'Займаюсь живописом більше 15 років. Спеціалізуюсь на портретах та композиціях на теми української історії та культури.',
+                    'tags' => 'живопис, портрети, українська культура',
                 ],
             ],
             [
@@ -84,16 +72,13 @@ class UserSeeder extends Seeder
                 'email' => 'taras.kovalenko@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('man'),
-                    'full_name' => ['uk' => 'Тарас Коваленко', 'en' => 'Taras Kovalenko'],
-                    'profession' => ['uk' => 'Скульптор, монументаліст', 'en' => 'Sculptor, Monumentalist'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Київська область', 'en' => 'Kyiv Region'],
-                    'city' => ['uk' => 'Київ', 'en' => 'Kyiv'],
-                    'description' => [
-                        'uk' => 'Створюю скульптури та монументи, що відображають історичні події та героїв України. Працюю з бронзою, камінем та сучасними матеріалами.',
-                        'en' => 'I create sculptures and monuments reflecting historical events and heroes of Ukraine. I work with bronze, stone and modern materials.',
-                    ],
-                    'tags' => ['uk' => 'скульптура, монументалізм, бронза', 'en' => 'sculpture, monumentalism, bronze'],
+                    'full_name' => 'Тарас Коваленко',
+                    'profession' => 'Скульптор, монументаліст',
+                    'country' => 'Україна',
+                    'region' => 'Київська область',
+                    'city' => 'Київ',
+                    'description' => 'Створюю скульптури та монументи, що відображають історичні події та героїв України. Працюю з бронзою, камінем та сучасними матеріалами.',
+                    'tags' => 'скульптура, монументалізм, бронза',
                 ],
             ],
             [
@@ -102,16 +87,13 @@ class UserSeeder extends Seeder
                 'email' => 'maria.shevchenko@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
-                    'full_name' => ['uk' => 'Марія Шевченко', 'en' => 'Maria Shevchenko'],
-                    'profession' => ['uk' => 'Театральна режисерка', 'en' => 'Theatre Director'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Одеська область', 'en' => 'Odesa Region'],
-                    'city' => ['uk' => 'Одеса', 'en' => 'Odesa'],
-                    'description' => [
-                        'uk' => 'Режисую сучасні театральні постановки, що торкаються актуальних соціальних тем та історії України. Поєдную класику з новітніми театральними формами.',
-                        'en' => 'I direct modern theatrical productions touching on current social themes and Ukrainian history. I combine classics with innovative theatrical forms.',
-                    ],
-                    'tags' => ['uk' => 'театр, режисура, сучасна драма', 'en' => 'theatre, directing, modern drama'],
+                    'full_name' => 'Марія Шевченко',
+                    'profession' => 'Театральна режисерка',
+                    'country' => 'Україна',
+                    'region' => 'Одеська область',
+                    'city' => 'Одеса',
+                    'description' => 'Режисую сучасні театральні постановки, що торкаються актуальних соціальних тем та історії України. Поєдную класику з новітніми театральними формами.',
+                    'tags' => 'театр, режисура, сучасна драма',
                 ],
             ],
             [
@@ -120,16 +102,13 @@ class UserSeeder extends Seeder
                 'email' => 'dmytro.lytvyn@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('man'),
-                    'full_name' => ['uk' => 'Дмитро Литвин', 'en' => 'Dmytro Lytvyn'],
-                    'profession' => ['uk' => 'Музикант, композитор', 'en' => 'Musician, Composer'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Харківська область', 'en' => 'Kharkiv Region'],
-                    'city' => ['uk' => 'Харків', 'en' => 'Kharkiv'],
-                    'description' => [
-                        'uk' => 'Створюю музику на перетині традицій та сучасності. Працюю з українськими народними мелодіями, адаптуючи їх до сучасного звучання.',
-                        'en' => 'I create music at the intersection of tradition and modernity. I work with Ukrainian folk melodies, adapting them to contemporary sound.',
-                    ],
-                    'tags' => ['uk' => 'музика, композиція, фолк', 'en' => 'music, composition, folk'],
+                    'full_name' => 'Дмитро Литвин',
+                    'profession' => 'Музикант, композитор',
+                    'country' => 'Україна',
+                    'region' => 'Харківська область',
+                    'city' => 'Харків',
+                    'description' => 'Створюю музику на перетині традицій та сучасності. Працюю з українськими народними мелодіями, адаптуючи їх до сучасного звучання.',
+                    'tags' => 'музика, композиція, фолк',
                 ],
             ],
             [
@@ -138,16 +117,13 @@ class UserSeeder extends Seeder
                 'email' => 'anna.pavlenko@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
-                    'full_name' => ['uk' => 'Анна Павленко', 'en' => 'Anna Pavlenko'],
-                    'profession' => ['uk' => 'Фотографка-документалістка', 'en' => 'Documentary Photographer'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Дніпропетровська область', 'en' => 'Dnipropetrovsk Region'],
-                    'city' => ['uk' => 'Дніпро', 'en' => 'Dnipro'],
-                    'description' => [
-                        'uk' => 'Документую життя українців у різних регіонах країни, фіксую історичні події та портрети сучасників. Мої роботи публікувались у провідних виданнях.',
-                        'en' => 'I document the lives of Ukrainians in different regions of the country, capturing historical events and portraits of contemporaries. My work has been published in leading publications.',
-                    ],
-                    'tags' => ['uk' => 'фотографія, документалістика, портрет', 'en' => 'photography, documentary, portrait'],
+                    'full_name' => 'Анна Павленко',
+                    'profession' => 'Фотографка-документалістка',
+                    'country' => 'Україна',
+                    'region' => 'Дніпропетровська область',
+                    'city' => 'Дніпро',
+                    'description' => 'Документую життя українців у різних регіонах країни, фіксую історичні події та портрети сучасників. Мої роботи публікувались у провідних виданнях.',
+                    'tags' => 'фотографія, документалістика, портрет',
                 ],
             ],
         ];
@@ -176,15 +152,12 @@ class UserSeeder extends Seeder
                 'email' => 'petro.vasylenko@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('man'),
-                    'full_name' => ['uk' => 'Петро Василенко', 'en' => 'Petro Vasylenko'],
-                    'profession' => ['uk' => 'Підприємець, меценат', 'en' => 'Entrepreneur, Patron'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Київська область', 'en' => 'Kyiv Region'],
-                    'city' => ['uk' => 'Київ', 'en' => 'Kyiv'],
-                    'description' => [
-                        'uk' => 'Підтримую українське мистецтво та культуру. Вірю, що через мистецтво ми зберігаємо нашу ідентичність.',
-                        'en' => 'I support Ukrainian art and culture. I believe that through art we preserve our identity.',
-                    ],
+                    'full_name' => 'Петро Василенко',
+                    'profession' => 'Підприємець, меценат',
+                    'country' => 'Україна',
+                    'region' => 'Київська область',
+                    'city' => 'Київ',
+                    'description' => 'Підтримую українське мистецтво та культуру. Вірю, що через мистецтво ми зберігаємо нашу ідентичність.',
                 ],
             ],
             [
@@ -193,15 +166,12 @@ class UserSeeder extends Seeder
                 'email' => 'olena.melnyk@example.com',
                 'profile' => [
                     'avatar' => ImageSeederHelper::getUserAvatar('woman'),
-                    'full_name' => ['uk' => 'Олена Мельник', 'en' => 'Olena Melnyk'],
-                    'profession' => ['uk' => 'Колекціонер, благодійниця', 'en' => 'Collector, Philanthropist'],
-                    'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                    'region' => ['uk' => 'Львівська область', 'en' => 'Lviv Region'],
-                    'city' => ['uk' => 'Львів', 'en' => 'Lviv'],
-                    'description' => [
-                        'uk' => 'Колекціоную сучасне українське мистецтво. Регулярно підтримую талановитих митців на початку їхнього шляху.',
-                        'en' => 'I collect contemporary Ukrainian art. I regularly support talented artists at the beginning of their journey.',
-                    ],
+                    'full_name' => 'Олена Мельник',
+                    'profession' => 'Колекціонер, благодійниця',
+                    'country' => 'Україна',
+                    'region' => 'Львівська область',
+                    'city' => 'Львів',
+                    'description' => 'Колекціоную сучасне українське мистецтво. Регулярно підтримую талановитих митців на початку їхнього шляху.',
                 ],
             ],
         ];

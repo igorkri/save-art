@@ -69,7 +69,7 @@ class RegisterController extends Controller
         $data = $request->validated();
 
         $user = User::create([
-            'full_name' => ['uk' => $data['name'], 'en' => $data['name']],
+            'full_name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'slug' => Str::slug($data['name']).'-'.Str::random(6),

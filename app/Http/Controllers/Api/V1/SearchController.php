@@ -64,30 +64,26 @@ class SearchController extends Controller
             ->forSaveArt()
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->where(function ($q) use ($query) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.uk'))) LIKE ?", ["%{$query}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.en'))) LIKE ?", ["%{$query}%"]);
+                $q->whereRaw('LOWER(title) LIKE ?', ["%{$query}%"]);
             })
             ->limit(self::SUGGESTIONS_LIMIT)
             ->get()
             ->map(fn (Project $project) => [
                 'id' => $project->id,
                 'slug' => $project->slug,
-                'title' => $this->localizeField($project->title, $language),
+                'title' => $project->title,
                 'cover_url' => $project->cover ? Storage::url($project->cover) : null,
             ]);
 
         $artists = User::query()
             ->whereHas('projects', fn ($q) => $q->forSaveArt()->whereIn('status', ProjectStatus::publicStatuses()))
-            ->where(function ($q) use ($query) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk'))) LIKE ?", ["%{$query}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en'))) LIKE ?", ["%{$query}%"]);
-            })
+            ->whereRaw('LOWER(full_name) LIKE ?', ["%{$query}%"])
             ->limit(self::SUGGESTIONS_LIMIT)
             ->get()
             ->map(fn (User $user) => [
                 'id' => $user->id,
                 'slug' => $user->slug,
-                'name' => $this->localizeField($user->full_name, $language),
+                'name' => $user->full_name,
                 'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
             ]);
 

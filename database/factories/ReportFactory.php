@@ -24,14 +24,8 @@ class ReportFactory extends Factory
         return [
             'project_id' => Project::factory(),
             'user_id' => User::factory(),
-            'title' => [
-                'uk' => $this->faker->sentence(3),
-                'en' => $this->faker->sentence(3),
-            ],
-            'description' => [
-                'uk' => $this->faker->paragraphs(2, true),
-                'en' => $this->faker->paragraphs(2, true),
-            ],
+            'title' => $this->faker->sentence(3),
+            'description' => $this->faker->paragraphs(2, true),
             'cover' => '/assets/img/report-'.$this->faker->numberBetween(1, 5).'.webp',
             'images' => [
                 '/assets/img/report-gallery-1.webp',

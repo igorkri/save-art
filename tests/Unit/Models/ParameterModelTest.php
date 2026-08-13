@@ -33,19 +33,17 @@ class ParameterModelTest extends TestCase
         $this->assertEquals([$first->id, $second->id], $parameter->values->pluck('id')->all());
     }
 
-    public function test_parameter_and_value_labels_are_translatable(): void
+    public function test_parameter_label_returns_plain_name(): void
     {
         $parameter = Parameter::factory()->create([
-            'name' => ['uk' => 'Матеріал', 'en' => 'Material'],
+            'name' => 'Матеріал',
         ]);
-        $value = ParameterValue::factory()->for($parameter)->create([
-            'value' => ['uk' => 'Полотно', 'en' => 'Canvas'],
-        ]);
+        $value = ParameterValue::factory()->for($parameter)->create(['value' => 'Полотно']);
 
         $this->assertSame('Матеріал', $parameter->getLabel('uk'));
-        $this->assertSame('Material', $parameter->getLabel('en'));
+        $this->assertSame('Матеріал', $parameter->getLabel('en'));
         $this->assertSame('Полотно', $value->getLabel('uk'));
-        $this->assertSame('Canvas', $value->getLabel('en'));
+        $this->assertSame('Полотно', $value->getLabel('en'));
     }
 
     public function test_project_can_have_a_list_type_parameter_value(): void
@@ -77,6 +75,6 @@ class ParameterModelTest extends TestCase
         ]);
 
         $this->assertNull($link->parameter_value_id);
-        $this->assertSame('50 см', $link->custom_value['uk']);
+        $this->assertSame('50 см', $link->custom_value);
     }
 }

@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int $project_id
- * @property array $title
- * @property array|null $description
+ * @property string $title
+ * @property string|null $description
  * @property float $min_donation
  * @property float|null $max_donation
  * @property int|null $quantity
@@ -43,11 +43,19 @@ class ProjectBonus extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
-            'description' => 'array',
             'min_donation' => 'decimal:2',
             'max_donation' => 'decimal:2',
         ];
+    }
+
+    public function setTitleAttribute(mixed $value): void
+    {
+        $this->attributes['title'] = is_array($value) ? ($value['uk'] ?? '') : $value;
+    }
+
+    public function setDescriptionAttribute(mixed $value): void
+    {
+        $this->attributes['description'] = is_array($value) ? ($value['uk'] ?? null) : $value;
     }
 
     /**

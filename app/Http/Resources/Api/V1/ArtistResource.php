@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -21,10 +20,10 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="name", type="string", example="Іван Франко"),
  *     @OA\Property(property="slug", type="string", example="ivan-franko"),
  *     @OA\Property(property="avatar_url", type="string", nullable=true),
- *     @OA\Property(property="profession", ref="#/components/schemas/LocalizedString", nullable=true),
- *     @OA\Property(property="bio", ref="#/components/schemas/LocalizedString", nullable=true),
- *     @OA\Property(property="city", ref="#/components/schemas/LocalizedString", nullable=true),
- *     @OA\Property(property="country", ref="#/components/schemas/LocalizedString", nullable=true),
+ *     @OA\Property(property="profession", type="string", nullable=true),
+ *     @OA\Property(property="bio", type="string", nullable=true),
+ *     @OA\Property(property="city", type="string", nullable=true),
+ *     @OA\Property(property="country", type="string", nullable=true),
  *     @OA\Property(property="social", type="object", nullable=true,
  *         @OA\Property(property="website", type="string", nullable=true),
  *         @OA\Property(property="facebook", type="string", nullable=true),
@@ -39,8 +38,6 @@ use OpenApi\Annotations as OA;
  */
 class ArtistResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -48,19 +45,17 @@ class ArtistResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->getLanguage($request);
-
         return [
             'id' => $this->id,
-            'name' => $language ? ($this->localizeField($this->full_name, $language) ?? $this->name) : $this->name,
+            'name' => $this->full_name ?? $this->name,
             'slug' => $this->slug,
             'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
 
             // Публічні дані з профілю
-            'profession' => $this->localizeField($this->profession, $language),
-            'bio' => $this->localizeField($this->description, $language),
-            'city' => $this->localizeField($this->city, $language),
-            'country' => $this->localizeField($this->country, $language),
+            'profession' => $this->profession,
+            'bio' => $this->description,
+            'city' => $this->city,
+            'country' => $this->country,
 
             // Соціальні мережі
             'social' => $this->whenLoaded('profileSocial', function () {

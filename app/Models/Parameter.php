@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Translatable\HasTranslations;
 
 /**
  * @property int $id
  * @property int $art_category_id
- * @property array $name
+ * @property string $name
  * @property ParameterType $type
  * @property int $sort_order
  * @property-read \App\Models\ArtCategory $artCategory
@@ -21,9 +20,6 @@ use Spatie\Translatable\HasTranslations;
 class Parameter extends Model
 {
     use HasFactory;
-    use HasTranslations;
-
-    public array $translatable = ['name'];
 
     protected $fillable = [
         'art_category_id',
@@ -41,7 +37,7 @@ class Parameter extends Model
 
     public function getLabel(?string $language = 'uk'): string
     {
-        return $this->getTranslation('name', $language) ?: '';
+        return $this->name ?: '';
     }
 
     public function artCategory(): BelongsTo

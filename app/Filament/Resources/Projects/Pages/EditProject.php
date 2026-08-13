@@ -81,7 +81,7 @@ class EditProject extends EditRecord
                 ->form([
                     TextInput::make('subject')
                         ->label('Тема')
-                        ->default(fn () => 'Щодо проєкту: '.($this->record->title['uk'] ?? $this->record->title['en'] ?? ''))
+                        ->default(fn () => 'Щодо проєкту: '.$this->record->title)
                         ->maxLength(255),
                     Textarea::make('content')
                         ->label('Повідомлення')

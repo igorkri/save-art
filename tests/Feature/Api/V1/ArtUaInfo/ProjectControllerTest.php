@@ -106,7 +106,7 @@ class ProjectControllerTest extends ApiTestCase
             ]);
 
         $response->assertOk()
-            ->assertJsonPath('data.title.uk', 'Нова назва')
+            ->assertJsonPath('data.title', 'Нова назва')
             ->assertJsonPath('data.status', 'completed');
 
         $this->assertDatabaseHas('projects', [
@@ -280,7 +280,7 @@ class ProjectControllerTest extends ApiTestCase
             ]);
 
         $response->assertOk()
-            ->assertJsonPath('data.title.uk', 'Нова назва');
+            ->assertJsonPath('data.title', 'Нова назва');
     }
 
     public function test_team_member_cannot_reassign_team_project_owner(): void

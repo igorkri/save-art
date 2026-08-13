@@ -26,14 +26,6 @@ class SiteSettingsController extends Controller
      *     summary="Всі налаштування сайту",
      *     description="Повертає повні дані для header та footer",
      *
-     *     @OA\Parameter(
-     *         name="language",
-     *         in="query",
-     *         description="Мова контенту (uk, en)",
-     *
-     *         @OA\Schema(type="string", enum={"uk", "en"}, default="uk")
-     *     ),
-     *
      *     @OA\Response(
      *         response=200,
      *         description="Налаштування сайту",
@@ -52,9 +44,6 @@ class SiteSettingsController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $language = $this->getLanguage($request);
-        app()->setLocale($language);
-
         $settings = SiteSettings::first();
 
         if (! $settings) {
@@ -65,8 +54,8 @@ class SiteSettingsController extends Controller
 
         return response()->json([
             'data' => [
-                'header' => $this->formatHeader($settings, $language),
-                'footer' => $this->formatFooter($settings, $language),
+                'header' => $this->formatHeader($settings),
+                'footer' => $this->formatFooter($settings),
             ],
         ]);
     }
@@ -80,14 +69,6 @@ class SiteSettingsController extends Controller
      *     tags={"SiteSettings"},
      *     summary="Дані хедера сайту",
      *     description="Повертає дані для рендерингу хедера: логотип, меню, соцмережі, кнопки",
-     *
-     *     @OA\Parameter(
-     *         name="language",
-     *         in="query",
-     *         description="Мова контенту (uk, en)",
-     *
-     *         @OA\Schema(type="string", enum={"uk", "en"}, default="uk")
-     *     ),
      *
      *     @OA\Response(
      *         response=200,
@@ -104,9 +85,6 @@ class SiteSettingsController extends Controller
      */
     public function header(Request $request): JsonResponse
     {
-        $language = $this->getLanguage($request);
-        app()->setLocale($language);
-
         $settings = SiteSettings::first();
 
         if (! $settings) {
@@ -116,7 +94,7 @@ class SiteSettingsController extends Controller
         }
 
         return response()->json([
-            'data' => $this->formatHeader($settings, $language),
+            'data' => $this->formatHeader($settings),
         ]);
     }
 
@@ -129,14 +107,6 @@ class SiteSettingsController extends Controller
      *     tags={"SiteSettings"},
      *     summary="Дані футера сайту",
      *     description="Повертає дані для рендерингу футера: бренд, слоган, співпраця, меню сайтів, контакти",
-     *
-     *     @OA\Parameter(
-     *         name="language",
-     *         in="query",
-     *         description="Мова контенту (uk, en)",
-     *
-     *         @OA\Schema(type="string", enum={"uk", "en"}, default="uk")
-     *     ),
      *
      *     @OA\Response(
      *         response=200,
@@ -153,9 +123,6 @@ class SiteSettingsController extends Controller
      */
     public function footer(Request $request): JsonResponse
     {
-        $language = $this->getLanguage($request);
-        app()->setLocale($language);
-
         $settings = SiteSettings::first();
 
         if (! $settings) {
@@ -165,27 +132,27 @@ class SiteSettingsController extends Controller
         }
 
         return response()->json([
-            'data' => $this->formatFooter($settings, $language),
+            'data' => $this->formatFooter($settings),
         ]);
     }
 
     /**
      * Форматування даних хедера
      */
-    private function formatHeader(SiteSettings $settings, string $language): array
+    private function formatHeader(SiteSettings $settings): array
     {
         return [
             'logo' => $settings->site_logo ? asset('storage/'.$settings->site_logo) : null,
-            'brand_name' => $settings->getTranslation('header_brand_name', $language, false),
-            'dropdown_sites' => $this->formatDropdownSites($settings->header_dropdown_sites, $language),
-            'menu' => $this->formatMenu($settings->header_menu, $language),
+            'brand_name' => $settings->header_brand_name,
+            'dropdown_sites' => $this->formatDropdownSites($settings->header_dropdown_sites),
+            'menu' => $this->formatMenu($settings->header_menu),
             'socials' => $settings->header_socials,
             'support_button' => [
                 'url' => $settings->header_support_button_url,
-                'text' => $settings->getTranslation('header_support_button_text', $language, false),
+                'text' => $settings->header_support_button_text,
             ],
             'login_button' => [
-                'text' => $settings->getTranslation('header_login_button_text', $language, false),
+                'text' => $settings->header_login_button_text,
             ],
         ];
     }
@@ -193,25 +160,25 @@ class SiteSettingsController extends Controller
     /**
      * Форматування даних футера
      */
-    private function formatFooter(SiteSettings $settings, string $language): array
+    private function formatFooter(SiteSettings $settings): array
     {
         return [
             'top' => [
-                'brand_name' => $settings->getTranslation('footer_brand_name', $language, false),
-                'slogan' => $settings->getTranslation('footer_slogan', $language, false),
+                'brand_name' => $settings->footer_brand_name,
+                'slogan' => $settings->footer_slogan,
                 'collaboration' => [
-                    'title' => $settings->getTranslation('footer_collaboration_title', $language, false),
-                    'text' => $settings->getTranslation('footer_collaboration_text', $language, false),
-                    'items' => $this->formatCollaborationItems($settings->footer_collaboration_items, $language),
-                    'button_text' => $settings->getTranslation('footer_collaboration_button_text', $language, false),
+                    'title' => $settings->footer_collaboration_title,
+                    'text' => $settings->footer_collaboration_text,
+                    'items' => $this->formatCollaborationItems($settings->footer_collaboration_items),
+                    'button_text' => $settings->footer_collaboration_button_text,
                 ],
             ],
             'middle' => [
-                'sites_menu' => $this->formatSitesMenu($settings->footer_sites_menu, $language),
+                'sites_menu' => $this->formatSitesMenu($settings->footer_sites_menu),
             ],
             'bottom' => [
-                'company_name' => $settings->getTranslation('footer_company_name', $language, false),
-                'address' => $settings->getTranslation('footer_address', $language, false),
+                'company_name' => $settings->footer_company_name,
+                'address' => $settings->footer_address,
                 'email' => $settings->footer_email,
                 'phone' => $settings->footer_phone,
                 'social_links' => $settings->footer_social_links,
@@ -223,14 +190,14 @@ class SiteSettingsController extends Controller
     /**
      * Форматування dropdown сайтів
      */
-    private function formatDropdownSites(?array $sites, string $language): array
+    private function formatDropdownSites(?array $sites): array
     {
         if (empty($sites)) {
             return [];
         }
 
         return array_map(fn ($site) => [
-            'name' => $this->getTranslatedValue($site['name'] ?? null, $language),
+            'name' => $site['name'] ?? null,
             'url' => $site['url'] ?? '#',
             'is_active' => $site['is_active'] ?? false,
         ], $sites);
@@ -239,14 +206,14 @@ class SiteSettingsController extends Controller
     /**
      * Форматування меню
      */
-    private function formatMenu(?array $menu, string $language): array
+    private function formatMenu(?array $menu): array
     {
         if (empty($menu)) {
             return [];
         }
 
         return array_map(fn ($item) => [
-            'label' => $this->getTranslatedValue($item['label'] ?? null, $language),
+            'label' => $item['label'] ?? null,
             'url' => $item['url'] ?? '#',
         ], $menu);
     }
@@ -254,7 +221,7 @@ class SiteSettingsController extends Controller
     /**
      * Форматування елементів співпраці
      */
-    private function formatCollaborationItems(?array $items, string $language): array
+    private function formatCollaborationItems(?array $items): array
     {
         if (empty($items)) {
             return [];
@@ -262,68 +229,34 @@ class SiteSettingsController extends Controller
 
         return array_map(fn ($item) => [
             'image' => ! empty($item['image']) ? asset('storage/'.$item['image']) : null,
-            'text' => $this->getTranslatedValue($item['text'] ?? null, $language),
+            'text' => $item['text'] ?? null,
         ], $items);
     }
 
     /**
      * Форматування меню сайтів футера
      */
-    private function formatSitesMenu(?array $sitesMenu, string $language): array
+    private function formatSitesMenu(?array $sitesMenu): array
     {
         if (empty($sitesMenu)) {
             return [];
         }
 
         return array_map(fn ($site) => [
-            'site_name' => $this->getTranslatedValue($site['site_name'] ?? null, $language),
+            'site_name' => $site['site_name'] ?? null,
             'site_url' => $site['site_url'] ?? '#',
-            'links' => $this->formatLinksArray($site['links'] ?? [], $language),
+            'links' => $this->formatLinksArray($site['links'] ?? []),
         ], $sitesMenu);
     }
 
     /**
      * Форматування масиву посилань
      */
-    private function formatLinksArray(array $links, string $language): array
+    private function formatLinksArray(array $links): array
     {
         return array_map(fn ($item) => [
-            'label' => $this->getTranslatedValue($item['label'] ?? null, $language),
+            'label' => $item['label'] ?? null,
             'url' => $item['url'] ?? '#',
         ], $links);
-    }
-
-    /**
-     * Отримати переклад з масиву або рядка
-     */
-    private function getTranslatedValue($value, string $language): ?string
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        if (is_string($value)) {
-            return $value;
-        }
-
-        if (is_array($value)) {
-            return $value[$language] ?? $value['uk'] ?? null;
-        }
-
-        return null;
-    }
-
-    /**
-     * Отримати мову з запиту
-     */
-    private function getLanguage(Request $request): string
-    {
-        $language = $request->get('language', 'uk');
-
-        if (! in_array($language, ['uk', 'en'])) {
-            $language = 'uk';
-        }
-
-        return $language;
     }
 }

@@ -17,7 +17,6 @@ class FaqCategoriesTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Назва')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : $state)
                     ->searchable()
                     ->sortable(),
 

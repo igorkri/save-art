@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
- * @property array|null $heading
+ * @property string|null $heading
  * @property string|null $date
  * @property int $order
  * @property bool $is_active
@@ -33,7 +33,6 @@ class TermsSection extends Model
     protected function casts(): array
     {
         return [
-            'heading' => 'array',
             'is_active' => 'boolean',
         ];
     }

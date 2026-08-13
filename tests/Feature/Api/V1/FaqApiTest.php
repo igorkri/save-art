@@ -69,53 +69,19 @@ class FaqApiTest extends ApiTestCase
     }
 
     // ==========================================
-    // FAQ по мові (через query параметр)
+    // FAQ повертає контент як рядок (лише uk)
     // ==========================================
 
-    public function test_can_get_faq_by_language(): void
+    public function test_faq_fields_are_returned_as_plain_strings(): void
     {
         $category = FaqCategory::factory()->create([
+            'name' => 'Загальні питання',
             'is_active' => true,
         ]);
         Faq::factory()->create([
             'faq_category_id' => $category->id,
-            'is_active' => true,
-        ]);
-
-        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->getJson('/api/v1/faq?language=uk');
-
-        $response->assertOk()
-            ->assertJsonPath('language', 'uk')
-            ->assertJsonPath('result', true);
-    }
-
-    public function test_returns_faq_with_fallback_for_unsupported_language(): void
-    {
-        $category = FaqCategory::factory()->create([
-            'is_active' => true,
-        ]);
-        Faq::factory()->create([
-            'faq_category_id' => $category->id,
-            'is_active' => true,
-        ]);
-
-        // Unsupported language falls back to 'uk'
-        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->getJson('/api/v1/faq?language=fr');
-
-        $response->assertOk()
-            ->assertJsonPath('language', 'uk')
-            ->assertJsonPath('result', true);
-    }
-
-    public function test_returns_all_languages_when_no_language_specified(): void
-    {
-        $category = FaqCategory::factory()->create([
-            'is_active' => true,
-        ]);
-        Faq::factory()->create([
-            'faq_category_id' => $category->id,
+            'question' => 'Як це працює?',
+            'answer' => 'Відповідь на питання.',
             'is_active' => true,
         ]);
 
@@ -123,7 +89,9 @@ class FaqApiTest extends ApiTestCase
             ->getJson('/api/v1/faq');
 
         $response->assertOk()
-            ->assertJsonMissing(['language'])
+            ->assertJsonPath('data.categories.0.name', 'Загальні питання')
+            ->assertJsonPath('data.categories.0.questions.0.question', 'Як це працює?')
+            ->assertJsonPath('data.categories.0.questions.0.answer', 'Відповідь на питання.')
             ->assertJsonPath('result', true);
     }
 

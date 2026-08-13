@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
 use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateBonusRequest extends FormRequest
 {
+    use NormalizesProjectUkrainianFields;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -31,12 +34,8 @@ class UpdateBonusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'array'],
-            'title.uk' => ['required_with:title', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.uk' => ['nullable', 'string', 'max:2000'],
-            'description.en' => ['nullable', 'string', 'max:2000'],
+            'title' => ['sometimes', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
             'min_donation' => ['sometimes', 'numeric', 'min:10'],
             'max_donation' => ['nullable', 'numeric', 'gt:min_donation'],
             'quantity' => ['nullable', 'integer', 'min:1'],
@@ -50,7 +49,7 @@ class UpdateBonusRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.uk.required_with' => 'Назва бонусу українською є обов\'язковою',
+            'title.required_with' => 'Назва бонусу є обов\'язковою',
             'min_donation.min' => 'Мінімальна сума підтримки — 10',
             'max_donation.gt' => 'Максимальна сума має бути більшою за мінімальну',
         ];

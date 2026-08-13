@@ -23,7 +23,6 @@ class ReportsTable
 
                 TextColumn::make('title')
                     ->label('Заголовок')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : $state)
                     ->searchable()
                     ->limit(50),
 
@@ -86,9 +85,7 @@ class ReportsTable
                     ->options(function () {
                         return \App\Models\Project::all()
                             ->mapWithKeys(function ($project) {
-                                $label = is_array($project->title)
-                                    ? ($project->title['uk'] ?? $project->title['en'] ?? 'Без назви')
-                                    : $project->title;
+                                $label = $project->title ?: 'Без назви';
 
                                 return [$project->id => $label];
                             });

@@ -11,7 +11,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class DocumentForm
 {
@@ -22,21 +21,19 @@ class DocumentForm
                 Grid::make(3)
                     ->columnSpanFull()
                     ->schema([
-                        Section::make('Переводи')
-                            ->description('Назва та опис мовами')
+                        Section::make('Основна інформація')
+                            ->description('Назва та опис документа')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('name')
-                                        ->label('Назва')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->placeholder('Введіть назву документа')
-                                        ->columnSpanFull(),
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('Введіть назву документа')
+                                    ->columnSpanFull(),
 
-                                    RichEditor::make('description')
-                                        ->label('Опис')
-                                        ->columnSpanFull(),
-                                ]),
+                                RichEditor::make('description')
+                                    ->label('Опис')
+                                    ->columnSpanFull(),
                             ])
                             ->columnSpan(2),
 

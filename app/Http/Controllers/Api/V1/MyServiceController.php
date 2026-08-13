@@ -123,7 +123,7 @@ class MyServiceController extends Controller
             $data['image'] = $this->imageProcessor->saveBase64Image($data['image'], 'services');
         }
 
-        $data['slug'] = Str::slug($data['title']['uk']).'-'.Str::random(6);
+        $data['slug'] = Str::slug($data['title']).'-'.Str::random(6);
         $data['serviceable_type'] = Team::class;
         $data['serviceable_id'] = $team->id;
 
@@ -190,8 +190,8 @@ class MyServiceController extends Controller
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
-     *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true),
+     *             @OA\Property(property="title", type="string"),
+     *             @OA\Property(property="description", type="string", nullable=true),
      *             @OA\Property(property="image", type="string", nullable=true, description="Файл або Base64 data URL"),
      *             @OA\Property(property="art_category", type="string", description="Slug кореневої галузі мистецтва"),
      *             @OA\Property(property="art_subcategory", type="string", nullable=true, description="Slug підкатегорії"),
@@ -223,7 +223,7 @@ class MyServiceController extends Controller
             $data['image'] = $this->imageProcessor->saveBase64Image($data['image'], 'services');
         }
 
-        $data['slug'] = Str::slug($data['title']['uk']).'-'.Str::random(6);
+        $data['slug'] = Str::slug($data['title']).'-'.Str::random(6);
         $data['serviceable_type'] = User::class;
         $data['serviceable_id'] = $request->user()->id;
 

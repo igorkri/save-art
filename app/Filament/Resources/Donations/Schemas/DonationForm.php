@@ -82,12 +82,12 @@ class DonationForm
                 Section::make('Проєкт та бонус')
                     ->columnSpanFull()
                     ->schema([
-                        TextInput::make('project.title.uk')
+                        TextInput::make('project.title')
                             ->label('Проєкт')
                             ->disabled()
                             ->columnSpan(1),
 
-                        TextInput::make('bonus.title.uk')
+                        TextInput::make('bonus.title')
                             ->label('Обраний бонус')
                             ->disabled()
                             ->columnSpan(1),

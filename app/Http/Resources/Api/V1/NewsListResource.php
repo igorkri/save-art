@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -20,7 +19,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="slug", type="string", example="vystavka-suchasnogo-mystetstva-cymy-vyhidnymy"),
  *     @OA\Property(property="category", type="string", enum={"news", "event"}, example="news"),
  *     @OA\Property(property="category_label", type="string", example="Новини"),
- *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="title", type="string"),
  *     @OA\Property(property="date", type="string", example="12.01.2026", description="Дата публікації у форматі dd.mm.yyyy"),
  *     @OA\Property(property="published_at", type="string", format="date-time", nullable=true),
  *     @OA\Property(property="main_image_url", type="string", nullable=true)
@@ -28,8 +27,6 @@ use OpenApi\Annotations as OA;
  */
 class NewsListResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -37,16 +34,14 @@ class NewsListResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->getLanguage($request);
-
         return [
             'id' => $this->id,
             'slug' => $this->slug,
 
             'category' => $this->category->value,
-            'category_label' => $this->category->getLabel($language ?? 'uk'),
+            'category_label' => $this->category->getLabel('uk'),
 
-            'title' => $this->localizeField($this->title, $language),
+            'title' => $this->title,
 
             'date' => $this->published_at?->format('d.m.Y'),
             'published_at' => $this->published_at?->toISOString(),

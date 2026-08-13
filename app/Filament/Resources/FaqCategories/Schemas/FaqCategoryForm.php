@@ -7,7 +7,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class FaqCategoryForm
 {
@@ -17,12 +16,11 @@ class FaqCategoryForm
             ->components([
                 Section::make('Інформація про категорію')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('name')
-                                ->label('Назва категорії')
-                                ->required()
-                                ->maxLength(255),
-                        ])->columnSpanFull(),
+                        TextInput::make('name')
+                            ->label('Назва категорії')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
 
                         TextInput::make('slug')
                             ->label('Slug')

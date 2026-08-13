@@ -9,7 +9,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ReportForm
 {
@@ -24,7 +23,7 @@ class ReportForm
                         Select::make('project_id')
                             ->label('Проєкт')
                             ->relationship('project')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->title['uk'] ?? $record->title['en'] ?? 'Без назви')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->title ?: 'Без назви')
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -54,14 +53,15 @@ class ReportForm
                 Section::make('Контент')
                     ->columnSpan(2)
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('title')
-                                ->label('Заголовок')
-                                ->required()
-                                ->maxLength(255),
-                            RichEditor::make('description')
-                                ->label('Опис'),
-                        ])->columnSpanFull(),
+                        TextInput::make('title')
+                            ->label('Заголовок')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+
+                        RichEditor::make('description')
+                            ->label('Опис')
+                            ->columnSpanFull(),
 
                         FileUpload::make('cover')
                             ->label('Обкладинка')

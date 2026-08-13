@@ -7,15 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Openplain\FilamentTreeView\Concerns\HasTreeStructure;
-use Spatie\Translatable\HasTranslations;
 
 class ArtCategory extends Model
 {
     use HasFactory;
-    use HasTranslations;
     use HasTreeStructure;
-
-    public array $translatable = ['name'];
 
     protected $fillable = [
         'parent_id',
@@ -50,7 +46,7 @@ class ArtCategory extends Model
      */
     public function getTitleAttribute(): string
     {
-        return $this->getTranslation('name', 'uk') ?: '';
+        return $this->name ?: '';
     }
 
     public function parent(): BelongsTo
@@ -75,7 +71,12 @@ class ArtCategory extends Model
 
     public function getLabel(?string $language = 'uk'): string
     {
-        return $this->getTranslation('name', $language) ?: '';
+        return $this->name ?: '';
+    }
+
+    public function setNameAttribute(mixed $value): void
+    {
+        $this->attributes['name'] = is_array($value) ? ($value['uk'] ?? '') : $value;
     }
 
     /** Slug категорії для API (корінь — свій slug, нащадок — slug батька) */

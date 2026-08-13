@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $id
  * @property string $serviceable_type
  * @property int $serviceable_id
- * @property array $title
+ * @property string $title
  * @property string $slug
- * @property array|null $description
+ * @property string|null $description
  * @property string|null $image
  * @property int|null $art_category_id
- * @property array|null $location
+ * @property string|null $location
  * @property string|null $price
  * @property bool $price_from
  * @property Currency|null $currency
@@ -50,9 +50,6 @@ class Service extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
-            'description' => 'array',
-            'location' => 'array',
             'price' => 'decimal:2',
             'price_from' => 'boolean',
             'currency' => Currency::class,

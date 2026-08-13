@@ -11,12 +11,12 @@ use Illuminate\Support\Str;
  * Клас News — новини та події для інформаційного порталу (art-ua-info).
  *
  * @property int $id
- * @property array $title
+ * @property string $title
  * @property string $slug
  * @property NewsCategory $category
  * @property \Carbon\Carbon|null $published_at
  * @property string|null $main_image
- * @property array|null $text_blocks
+ * @property array|null $text_blocks Список блоків виду [['paragraphs' => string[], 'image' => string|null], ...]
  * @property bool $is_active
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -48,7 +48,6 @@ class News extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
             'category' => NewsCategory::class,
             'published_at' => 'datetime',
             'text_blocks' => 'array',
@@ -65,19 +64,17 @@ class News extends Model
 
         static::creating(function (News $news) {
             if (empty($news->slug)) {
-                $news->slug = self::generateSlugFromTitle($news->title);
+                $news->slug = self::generateSlugFromTitle((string) $news->title);
             }
         });
     }
 
     /**
      * Генерація унікального slug з назви
-     *
-     * @param  array<string, string>  $title
      */
-    public static function generateSlugFromTitle(array $title): string
+    public static function generateSlugFromTitle(string $title): string
     {
-        $titleText = $title['uk'] ?? $title['en'] ?? Str::random(10);
+        $titleText = $title !== '' ? $title : Str::random(10);
         $slug = Str::slug($titleText);
 
         $count = 1;

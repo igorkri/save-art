@@ -18,10 +18,7 @@ class TermsSectionSeeder extends Seeder
         }
 
         TermsSection::create([
-            'heading' => [
-                'uk' => 'Дізнайтеся про ваші права та обов\'язки як користувача платформи.',
-                'en' => 'Learn about your rights and responsibilities as a platform user.',
-            ],
+            'heading' => 'Дізнайтеся про ваші права та обов\'язки як користувача платформи.',
             'date' => '02.01.2025',
             'order' => 1,
             'is_active' => true,

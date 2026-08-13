@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Currency;
-use App\Traits\LocalizesAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,10 +14,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $is_active Чи активний юридичний профіль
  * @property string $currency Валюта за замовчуванням (ISO 4217 currency code)
  * @property string|null $logo Логотип компанії
- * @property array $name Назва компанії або ПІБ приватної особи
+ * @property string $name Назва компанії або ПІБ приватної особи
  * @property string|null $edrpou ЄДРПОУ
- * @property array|null $authorized_person Уповноважена особа
- * @property array|null $address Адреса
+ * @property string|null $authorized_person Уповноважена особа
+ * @property string|null $address Адреса
  * @property string|null $phone Телефон
  * @property string|null $email Email
  * @property \Illuminate\Support\Carbon|null $created_at Дата створення запису
@@ -27,7 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ProfileLegal extends Model
 {
-    use HasFactory, LocalizesAttributes;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -43,9 +42,6 @@ class ProfileLegal extends Model
     ];
 
     protected $casts = [
-        'name' => 'array',
-        'authorized_person' => 'array',
-        'address' => 'array',
         'currency' => Currency::class,
         'is_active' => 'boolean',
     ];
@@ -86,47 +82,26 @@ class ProfileLegal extends Model
     }
 
     /**
-     * Получить название компании/ФИО на текущем языке.
+     * Получить название компании/ФИО.
      */
     public function getNameCurrentAttribute(): ?string
     {
-        $locale = app()->getLocale();
-        $fallback = config('app.fallback_locale');
-        $name = $this->name;
-        if (is_array($name)) {
-            return $name[$locale] ?? $name[$fallback] ?? null;
-        }
-
-        return $name;
+        return $this->name;
     }
 
     /**
-     * Получить адрес на текущем языке.
+     * Получить адрес.
      */
     public function getAddressCurrentAttribute(): ?string
     {
-        $locale = app()->getLocale();
-        $fallback = config('app.fallback_locale');
-        $address = $this->address;
-        if (is_array($address)) {
-            return $address[$locale] ?? $address[$fallback] ?? null;
-        }
-
-        return $address;
+        return $this->address;
     }
 
     /**
-     * Получить уполномоченное лицо на текущем языке.
+     * Получить уполномоченное лицо.
      */
     public function getAuthorizedPersonCurrentAttribute(): ?string
     {
-        $locale = app()->getLocale();
-        $fallback = config('app.fallback_locale');
-        $person = $this->authorized_person;
-        if (is_array($person)) {
-            return $person[$locale] ?? $person[$fallback] ?? null;
-        }
-
-        return $person;
+        return $this->authorized_person;
     }
 }

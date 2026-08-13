@@ -28,7 +28,7 @@ class UserFactory extends Factory
         $name = fake()->name();
 
         return [
-            'full_name' => ['uk' => $name, 'en' => $name],
+            'full_name' => $name,
             'slug' => Str::slug($name).'-'.Str::random(6),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
@@ -49,14 +49,14 @@ class UserFactory extends Factory
 
             return [
                 'avatar' => 'avatars/'.fake()->uuid().'.jpg',
-                'full_name' => ['uk' => $fullName, 'en' => $fullName],
-                'profession' => ['uk' => fake()->jobTitle(), 'en' => fake()->jobTitle()],
-                'tags' => ['uk' => fake()->words(3, true), 'en' => fake()->words(3, true)],
-                'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-                'region' => ['uk' => fake()->city().' область', 'en' => fake()->city().' region'],
-                'city' => ['uk' => fake()->city(), 'en' => fake()->city()],
+                'full_name' => $fullName,
+                'profession' => fake()->jobTitle(),
+                'tags' => fake()->words(3, true),
+                'country' => 'Україна',
+                'region' => fake()->city().' область',
+                'city' => fake()->city(),
                 'postal_code' => fake()->postcode(),
-                'description' => ['uk' => fake()->paragraph(), 'en' => fake()->paragraph()],
+                'description' => fake()->paragraph(),
             ];
         })->afterCreating(function ($user) {
             \App\Models\ProfileLegal::factory()->create(['user_id' => $user->id]);

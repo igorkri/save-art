@@ -41,7 +41,7 @@ class ProjectsTable
                     ->size(50)
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('title.uk')
+                TextColumn::make('title')
                     ->label('Назва')
                     ->limit(50)
                     ->searchable()
@@ -51,8 +51,7 @@ class ProjectsTable
                     ->label('Автор')
                     ->searchable(query: function ($query, string $search) {
                         return $query->whereHas('user', function ($q) use ($search) {
-                            $q->whereRaw("json_unquote(json_extract(full_name, '$.uk')) like ?", ["%{$search}%"])
-                                ->orWhereRaw("json_unquote(json_extract(full_name, '$.en')) like ?", ["%{$search}%"]);
+                            $q->where('full_name', 'like', "%{$search}%");
                         });
                     })
                     ->sortable(),

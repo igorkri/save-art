@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -19,8 +18,8 @@ use OpenApi\Annotations as OA;
  *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="order", type="integer", example=1),
- *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
- *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="title", type="string"),
+ *     @OA\Property(property="description", type="string", nullable=true),
  *     @OA\Property(property="min_donation", type="number", format="float", example=500.00),
  *     @OA\Property(property="max_donation", type="number", format="float", nullable=true, example=1500.00),
  *     @OA\Property(property="quantity", type="integer", nullable=true, example=10),
@@ -32,8 +31,6 @@ use OpenApi\Annotations as OA;
  */
 class ProjectBonusResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -41,14 +38,12 @@ class ProjectBonusResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->getLanguage($request);
-
         return [
             'id' => $this->id,
             'order' => $this->order,
 
-            'title' => $this->localizeField($this->title, $language),
-            'description' => $this->localizeField($this->description, $language),
+            'title' => $this->title,
+            'description' => $this->description,
 
             'min_donation' => (float) $this->min_donation,
             'max_donation' => $this->max_donation !== null ? (float) $this->max_donation : null,

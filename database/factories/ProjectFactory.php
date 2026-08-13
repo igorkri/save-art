@@ -35,19 +35,10 @@ class ProjectFactory extends Factory
             'slug' => $this->faker->unique()->slug(),
             'status' => ProjectStatus::Draft,
             'status_moderation' => ModerationStatus::Pending,
-            'title' => [
-                'uk' => $this->faker->sentence(4),
-                'en' => $this->faker->sentence(4),
-            ],
-            'short_description' => [
-                'uk' => $this->faker->paragraph(),
-                'en' => $this->faker->paragraph(),
-            ],
+            'title' => $this->faker->sentence(4),
+            'short_description' => $this->faker->paragraph(),
             'cover' => null,
-            'tags' => [
-                'uk' => $this->faker->words(3),
-                'en' => $this->faker->words(3),
-            ],
+            'tags' => implode(', ', $this->faker->words(3)),
             'art_category_id' => $artCategoryId,
             'currency' => $this->faker->randomElement(Currency::cases()),
             'budget_goal' => $this->faker->randomFloat(2, 1000, 100000),
@@ -146,32 +137,20 @@ class ProjectFactory extends Factory
                 [
                     'type' => 'heading',
                     'heading_level' => 'h2',
-                    'heading_text' => [
-                        'uk' => 'Про проєкт',
-                        'en' => 'About the project',
-                    ],
+                    'heading_text' => 'Про проєкт',
                 ],
                 [
                     'type' => 'paragraph',
-                    'paragraph_text' => [
-                        'uk' => $this->faker->paragraphs(3, true),
-                        'en' => $this->faker->paragraphs(3, true),
-                    ],
+                    'paragraph_text' => $this->faker->paragraphs(3, true),
                 ],
                 [
                     'type' => 'heading',
                     'heading_level' => 'h3',
-                    'heading_text' => [
-                        'uk' => 'Чому це важливо',
-                        'en' => 'Why it matters',
-                    ],
+                    'heading_text' => 'Чому це важливо',
                 ],
                 [
                     'type' => 'paragraph',
-                    'paragraph_text' => [
-                        'uk' => $this->faker->paragraphs(2, true),
-                        'en' => $this->faker->paragraphs(2, true),
-                    ],
+                    'paragraph_text' => $this->faker->paragraphs(2, true),
                 ],
             ],
         ]);

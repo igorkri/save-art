@@ -27,7 +27,7 @@ class DonationsApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->postJson("/api/v1/projects/{$project->id}/donate", [
+            ->postJson("/api/v1/projects/{$project->slug}/donate", [
                 'amount' => 100,
                 'currency' => 'UAH',
                 'donor_type' => 'personal',
@@ -53,7 +53,7 @@ class DonationsApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->postJson("/api/v1/projects/{$project->id}/donate", [
+            ->postJson("/api/v1/projects/{$project->slug}/donate", [
                 'amount' => 100,
                 'currency' => 'UAH',
                 'donor_type' => 'personal',
@@ -72,7 +72,7 @@ class DonationsApiTest extends ApiTestCase
         ]);
 
         $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->postJson("/api/v1/projects/{$project->id}/donate", [
+            ->postJson("/api/v1/projects/{$project->slug}/donate", [
                 'amount' => 0,
                 'currency' => 'UAH',
             ]);
@@ -105,7 +105,7 @@ class DonationsApiTest extends ApiTestCase
 
     public function test_authenticated_anonymous_donation_uses_pseudonym_not_real_name(): void
     {
-        $this->user->update(['full_name' => ['uk' => 'Real Author Name', 'en' => 'Real Author Name']]);
+        $this->user->update(['full_name' => 'Real Author Name']);
 
         $project = Project::factory()->create([
             'status' => ProjectStatus::InProgress,
@@ -182,7 +182,7 @@ class DonationsApiTest extends ApiTestCase
 
     public function test_authenticated_anonymous_platform_donation_uses_pseudonym(): void
     {
-        $this->user->update(['full_name' => ['uk' => 'Real Author Name', 'en' => 'Real Author Name']]);
+        $this->user->update(['full_name' => 'Real Author Name']);
 
         $response = $this->withHeaders($this->authHeaders())
             ->postJson('/api/v1/donations/platform', [

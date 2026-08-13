@@ -18,31 +18,21 @@ class NewsFactory extends Factory
      */
     public function definition(): array
     {
-        $titleUk = $this->faker->sentence(6);
-        $titleEn = $this->faker->sentence(6);
+        $title = $this->faker->sentence(6);
 
         return [
-            'title' => [
-                'uk' => $titleUk,
-                'en' => $titleEn,
-            ],
-            'slug' => Str::slug($titleEn).'-'.$this->faker->unique()->numberBetween(1, 100000),
+            'title' => $title,
+            'slug' => Str::slug($title).'-'.$this->faker->unique()->numberBetween(1, 100000),
             'category' => $this->faker->randomElement(NewsCategory::cases()),
             'published_at' => $this->faker->dateTimeBetween('-3 months', 'now'),
             'main_image' => null,
             'text_blocks' => [
                 [
-                    'paragraphs' => [
-                        'uk' => [$this->faker->paragraph(), $this->faker->paragraph()],
-                        'en' => [$this->faker->paragraph(), $this->faker->paragraph()],
-                    ],
+                    'paragraphs' => [$this->faker->paragraph(), $this->faker->paragraph()],
                     'image' => null,
                 ],
                 [
-                    'paragraphs' => [
-                        'uk' => [$this->faker->paragraph()],
-                        'en' => [$this->faker->paragraph()],
-                    ],
+                    'paragraphs' => [$this->faker->paragraph()],
                     'image' => null,
                 ],
             ],

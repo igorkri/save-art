@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -21,8 +20,8 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="order", type="integer", example=1),
  *     @OA\Property(property="status", type="string", enum={"planned", "in_progress", "completed"}, example="planned"),
  *     @OA\Property(property="status_label", type="string", example="Заплановано"),
- *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
- *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true),
+ *     @OA\Property(property="title", type="string"),
+ *     @OA\Property(property="description", type="string", nullable=true),
  *     @OA\Property(property="days_planned", type="integer", nullable=true, example=30),
  *     @OA\Property(property="budget_planned", type="number", format="float", nullable=true, example=5000.00),
  *     @OA\Property(property="budget_actual", type="number", format="float", nullable=true, example=4800.00),
@@ -50,14 +49,12 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="file", type="string", example="projects/1/stages/1/receipt.jpg", description="Шлях до файлу"),
  *     @OA\Property(property="file_url", type="string", example="http://save-art-web.ddev.site/storage/projects/1/stages/1/receipt.jpg", description="Повний URL файлу"),
  *     @OA\Property(property="original_name", type="string", example="чек_матеріали.jpg", description="Оригінальна назва файлу"),
- *     @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true, description="Опис документа (uk, en)"),
+ *     @OA\Property(property="description", type="string", nullable=true, description="Опис документа"),
  *     @OA\Property(property="uploaded_at", type="string", format="date-time", description="Дата завантаження")
  * )
  */
 class ProjectStageResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -74,8 +71,8 @@ class ProjectStageResource extends JsonResource
             'status' => $this->status->value,
             'status_label' => $this->getStageStatusLabel($language),
 
-            'title' => $this->localizeField($this->title, $language),
-            'description' => $this->localizeField($this->description, $language),
+            'title' => $this->title,
+            'description' => $this->description,
 
             'days_planned' => $this->days_planned,
             'budget_planned' => $this->budget_planned ? (float) $this->budget_planned : null,
@@ -87,7 +84,7 @@ class ProjectStageResource extends JsonResource
             'is_completed' => $this->isCompleted(),
             'is_in_progress' => $this->isInProgress(),
 
-            'documents' => $this->localizeDocuments($this->documents, $language),
+            'documents' => $this->documents,
         ];
     }
 
@@ -105,27 +102,5 @@ class ProjectStageResource extends JsonResource
         $statusLabels = $labels[$this->status->value] ?? ['uk' => $this->status->value, 'en' => $this->status->value];
 
         return $statusLabels[$language ?? 'uk'];
-    }
-
-    /**
-     * Локалізація documents масиву
-     */
-    private function localizeDocuments($documents, ?string $language): mixed
-    {
-        if ($language === null || ! is_array($documents)) {
-            return $documents;
-        }
-
-        return array_map(function ($doc) use ($language) {
-            if (! is_array($doc)) {
-                return $doc;
-            }
-
-            if (isset($doc['description'])) {
-                $doc['description'] = $this->localizeField($doc['description'], $language);
-            }
-
-            return $doc;
-        }, $documents);
     }
 }

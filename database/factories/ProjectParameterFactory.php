@@ -34,10 +34,7 @@ class ProjectParameterFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'parameter_value_id' => null,
-            'custom_value' => [
-                'uk' => $this->faker->word(),
-                'en' => $this->faker->word(),
-            ],
+            'custom_value' => $this->faker->word(),
         ]);
     }
 }

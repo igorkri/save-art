@@ -77,10 +77,10 @@ class ArtCatalogResource extends JsonResource
             'pdf_url' => $this->pdf_file ? Storage::url('catalogs/'.$this->pdf_file) : null,
             'author' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,
-                'name' => $language ? ($this->localizeField($this->user->full_name, $language) ?? $this->user->name) : $this->user->name,
+                'name' => $this->user->full_name ?? $this->user->name,
                 'slug' => $this->user->slug,
                 'avatar_url' => $this->user->avatar ? Storage::url($this->user->avatar) : null,
-                'profession' => $this->localizeField($this->user->profession, $language),
+                'profession' => $this->user->profession,
             ]),
         ];
     }

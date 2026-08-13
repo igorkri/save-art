@@ -22,14 +22,8 @@ class ProjectStageFactory extends Factory
             'project_id' => Project::factory(),
             'order' => $this->faker->numberBetween(0, 5),
             'status' => StageStatus::Planned,
-            'title' => [
-                'uk' => $this->faker->sentence(2),
-                'en' => $this->faker->sentence(2),
-            ],
-            'description' => [
-                'uk' => $this->faker->paragraph(),
-                'en' => $this->faker->paragraph(),
-            ],
+            'title' => $this->faker->sentence(2),
+            'description' => $this->faker->paragraph(),
             'budget_planned' => $this->faker->randomFloat(2, 1000, 10000),
             'budget_actual' => null,
             'days_planned' => $this->faker->numberBetween(7, 60),

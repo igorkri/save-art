@@ -36,10 +36,6 @@ class ArtistBoardResource extends Resource
 
     public static function getRecordTitle($record): ?string
     {
-        if ($record->title && is_array($record->title)) {
-            return $record->title[app()->getLocale()] ?? $record->title['uk'] ?? reset($record->title) ?? '10 художників в 10 національних музеях';
-        }
-
         return '10 художників в 10 національних музеях';
     }
 

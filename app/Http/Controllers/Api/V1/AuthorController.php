@@ -36,10 +36,7 @@ abstract class AuthorController extends Controller
 
         if ($request->filled('search')) {
             $search = mb_strtolower($request->input('search'));
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en'))) LIKE ?", ["%{$search}%"]);
-            });
+            $query->whereRaw('LOWER(full_name) LIKE ?', ["%{$search}%"]);
         }
 
         $perPage = min($request->input('per_page', 20), 50);

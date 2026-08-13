@@ -24,7 +24,6 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ProjectForm
 {
@@ -72,19 +71,17 @@ class ProjectForm
                                     })
                                     ->required(),
 
-                                LanguageTabs::make([
-                                    TextInput::make('title')
-                                        ->label('Назва проєкту')
-                                        ->required()
-                                        ->maxLength(255),
+                                TextInput::make('title')
+                                    ->label('Назва проєкту')
+                                    ->required()
+                                    ->maxLength(255),
 
-                                    Textarea::make('short_description')
-                                        ->label('Короткий опис')
-                                        ->rows(3),
+                                Textarea::make('short_description')
+                                    ->label('Короткий опис')
+                                    ->rows(3),
 
-                                    TextInput::make('tags')
-                                        ->label('Теги (через кому)'),
-                                ])->columnSpanFull(),
+                                TextInput::make('tags')
+                                    ->label('Теги (через кому)'),
 
                                 FileUpload::make('cover')
                                     ->label('Обкладинка')
@@ -127,11 +124,10 @@ class ProjectForm
                                 Repeater::make('budget_items')
                                     ->label('Деталі бюджету')
                                     ->schema([
-                                        LanguageTabs::make([
-                                            TextInput::make('name')
-                                                ->label('Назва')
-                                                ->required(),
-                                        ])->columnSpan(2),
+                                        TextInput::make('name')
+                                            ->label('Назва')
+                                            ->required()
+                                            ->columnSpan(2),
                                         TextInput::make('amount')
                                             ->label('Сума')
                                             ->numeric()
@@ -148,7 +144,7 @@ class ProjectForm
                                     ->reorderable()
                                     ->collapsible()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => ($state['name']['uk'] ?? 'Без назви').
+                                    ->itemLabel(fn (array $state): ?string => ($state['name'] ?? 'Без назви').
                                         (isset($state['amount']) ? ' — '.number_format($state['amount'], 2).' ₴' : '')
                                     ),
                             ]),
@@ -194,10 +190,8 @@ class ProjectForm
                                                     ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value)
                                                     ->columnSpan(2),
 
-                                                LanguageTabs::make([
-                                                    TextInput::make('custom_value')
-                                                        ->label('Значення'),
-                                                ])
+                                                TextInput::make('custom_value')
+                                                    ->label('Значення')
                                                     ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value)
                                                     ->columnSpan(2),
                                             ])
@@ -226,14 +220,14 @@ class ProjectForm
                                             ->required()
                                             ->columnSpan(2),
 
-                                        LanguageTabs::make([
-                                            TextInput::make('title')
-                                                ->label('Назва етапу')
-                                                ->required(),
-                                            Textarea::make('description')
-                                                ->label('Опис')
-                                                ->rows(2),
-                                        ])->columnSpanFull(),
+                                        TextInput::make('title')
+                                            ->label('Назва етапу')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                        Textarea::make('description')
+                                            ->label('Опис')
+                                            ->rows(2)
+                                            ->columnSpanFull(),
 
                                         TextInput::make('days_planned')
                                             ->label('Днів')
@@ -253,7 +247,7 @@ class ProjectForm
                                     ->defaultItems(0)
                                     ->reorderable()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['title']['uk'] ?? 'Новий етап'),
+                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Новий етап'),
                             ]),
 
                         Tabs\Tab::make('Бонуси')
@@ -288,21 +282,21 @@ class ProjectForm
                                             ->helperText('Порожнє = необмежено')
                                             ->columnSpan(1),
 
-                                        LanguageTabs::make([
-                                            TextInput::make('title')
-                                                ->label('Назва бонусу')
-                                                ->required(),
-                                            Textarea::make('description')
-                                                ->label('Опис бонусу')
-                                                ->rows(2),
-                                        ])->columnSpanFull(),
+                                        TextInput::make('title')
+                                            ->label('Назва бонусу')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                        Textarea::make('description')
+                                            ->label('Опис бонусу')
+                                            ->rows(2)
+                                            ->columnSpanFull(),
                                     ])
                                     ->columns(4)
                                     ->columnSpanFull()
                                     ->defaultItems(0)
                                     ->reorderable()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['title']['uk'] ?? 'Новий бонус'),
+                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Новий бонус'),
                             ]),
                     ]),
 

@@ -18,13 +18,11 @@ class FaqsTable
             ->columns([
                 TextColumn::make('question')
                     ->label('Питання')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : $state)
                     ->searchable()
                     ->limit(60),
 
                 TextColumn::make('category.name')
                     ->label('Категорія')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : $state)
                     ->sortable(),
 
                 TextColumn::make('order')
@@ -49,13 +47,7 @@ class FaqsTable
                     ->label('Категорія')
                     ->options(function () {
                         return \App\Models\FaqCategory::all()
-                            ->mapWithKeys(function ($category) {
-                                $label = is_array($category->name)
-                                    ? ($category->name['uk'] ?? $category->name['en'] ?? 'Без назви')
-                                    : $category->name;
-
-                                return [$category->id => $label];
-                            });
+                            ->mapWithKeys(fn ($category) => [$category->id => $category->name ?? 'Без назви']);
                     })
                     ->searchable()
                     ->preload(),

@@ -43,7 +43,7 @@ class NotificationService
         // донатив авторизований користувач.
         $donorUser = $donation->is_anonymous ? null : $donation->user;
 
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         return $this->createNotification(
             user: $user,
@@ -63,7 +63,7 @@ class NotificationService
                 'en' => sprintf(
                     '%s supported your project "%s" with %s %s',
                     $donorName,
-                    $project->title['en'] ?? $projectTitle,
+                    $projectTitle,
                     number_format($donation->amount, 0, '.', ' '),
                     $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
                 ),
@@ -95,7 +95,7 @@ class NotificationService
         $project = $donation->project;
 
         if ($project) {
-            $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+            $projectTitle = $project->title ?: 'Проєкт';
 
             return $this->createNotification(
                 user: $donation->user,
@@ -113,7 +113,7 @@ class NotificationService
                     ),
                     'en' => sprintf(
                         'You supported the project "%s" with %s %s. Thank you!',
-                        $project->title['en'] ?? $projectTitle,
+                        $projectTitle,
                         number_format($donation->amount, 0, '.', ' '),
                         $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
                     ),
@@ -160,7 +160,7 @@ class NotificationService
      */
     public function notifyProjectApproved(Project $project): Notification
     {
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         return $this->createNotification(
             user: $project->user,
@@ -176,7 +176,7 @@ class NotificationService
                 ),
                 'en' => sprintf(
                     'Your project "%s" has been approved and published. Now your project is available for viewing and support by all users. Good luck!',
-                    $project->title['en'] ?? $projectTitle
+                    $projectTitle
                 ),
             ],
             data: [
@@ -191,10 +191,10 @@ class NotificationService
      */
     public function notifyProjectModerationFailed(Project $project, ?string $reason = null): Notification
     {
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         $messageUk = sprintf('Ваш проєкт "%s" не пройшов перевірку.', $projectTitle);
-        $messageEn = sprintf('Your project "%s" did not pass moderation.', $project->title['en'] ?? $projectTitle);
+        $messageEn = sprintf('Your project "%s" did not pass moderation.', $projectTitle);
 
         if ($reason) {
             $messageUk .= ' Причина: '.$reason.'. Виправте зауваження та надішліть на повторну модерацію.';
@@ -224,7 +224,7 @@ class NotificationService
      */
     public function notifyProjectRejected(Project $project, ?string $reason = null): Notification
     {
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         $messageUk = sprintf(
             'Ваш проєкт "%s" остаточно відхилено. Щиро дякуємо за старанність, але він не пройшов перевірку. Врахуйте усі помилки та підготуйте новий проєкт.',
@@ -232,7 +232,7 @@ class NotificationService
         );
         $messageEn = sprintf(
             'Your project "%s" has been permanently rejected. Thank you for your effort, but it did not pass moderation. Please consider the feedback and prepare a new project.',
-            $project->title['en'] ?? $projectTitle
+            $projectTitle
         );
 
         if ($reason) {
@@ -263,7 +263,7 @@ class NotificationService
      */
     public function notifyProjectFundingComplete(Project $project): Notification
     {
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         return $this->createNotification(
             user: $project->user,
@@ -279,7 +279,7 @@ class NotificationService
                 ),
                 'en' => sprintf(
                     'Congratulations! Your project "%s" has reached its funding goal. You can now start working. Remember to document your progress.',
-                    $project->title['en'] ?? $projectTitle
+                    $projectTitle
                 ),
             ],
             data: [
@@ -296,7 +296,7 @@ class NotificationService
      */
     public function notifyProjectModerationPending(Project $project): Notification
     {
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         return $this->createNotification(
             user: $project->user,
@@ -307,7 +307,7 @@ class NotificationService
             ],
             message: [
                 'uk' => sprintf('Ваш проєкт "%s" відправлено на модерацію. Це займе декілька днів.', $projectTitle),
-                'en' => sprintf('Your project "%s" has been sent for moderation. This may take a few days.', $project->title['en'] ?? $projectTitle),
+                'en' => sprintf('Your project "%s" has been sent for moderation. This may take a few days.', $projectTitle),
             ],
             data: [
                 'project_id' => $project->id,
@@ -321,8 +321,8 @@ class NotificationService
      */
     public function notifyBonusClaimed(User $user, ProjectBonus $bonus, Donation $donation): Notification
     {
-        $bonusTitle = $bonus->title['uk'] ?? $bonus->title['en'] ?? 'Бонус';
-        $bonusTitleEn = $bonus->title['en'] ?? $bonusTitle;
+        $bonusTitle = $bonus->title ?: 'Бонус';
+        $bonusTitleEn = $bonusTitle;
         $currency = $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency;
 
         return $this->createNotification(
@@ -362,7 +362,7 @@ class NotificationService
      */
     public function notifyProjectCompleted(Project $project): Notification
     {
-        $projectTitle = $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт';
+        $projectTitle = $project->title ?: 'Проєкт';
 
         return $this->createNotification(
             user: $project->user,
@@ -373,7 +373,7 @@ class NotificationService
             ],
             message: [
                 'uk' => sprintf('Ваш проєкт "%s" успішно завершено. Дякуємо за вашу творчість!', $projectTitle),
-                'en' => sprintf('Your project "%s" has been completed. Thank you for your creativity!', $project->title['en'] ?? $projectTitle),
+                'en' => sprintf('Your project "%s" has been completed. Thank you for your creativity!', $projectTitle),
             ],
             data: [
                 'project_id' => $project->id,
@@ -412,7 +412,7 @@ class NotificationService
      */
     public function notifyServiceOrdered(User $user, Service $service, array $customer): Notification
     {
-        $serviceTitle = $service->title['uk'] ?? $service->title['en'] ?? '';
+        $serviceTitle = $service->title;
 
         return $this->createNotification(
             user: $user,
@@ -423,7 +423,7 @@ class NotificationService
             ],
             message: [
                 'uk' => sprintf('%s замовив(-ла) вашу послугу «%s».', $customer['name'], $serviceTitle),
-                'en' => sprintf('%s ordered your service "%s".', $customer['name'], $service->title['en'] ?? $service->title['uk'] ?? ''),
+                'en' => sprintf('%s ordered your service "%s".', $customer['name'], $serviceTitle),
             ],
             data: [
                 'service_id' => $service->id,

@@ -11,7 +11,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class ServiceForm
 {
@@ -22,16 +21,17 @@ class ServiceForm
                 Section::make('Основна інформація')
                     ->columns(2)
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('title')
-                                ->label('Назва послуги')
-                                ->required()
-                                ->maxLength(255),
-                            TextInput::make('description')
-                                ->label('Опис'),
-                            TextInput::make('location')
-                                ->label('Локація'),
-                        ])->columnSpanFull(),
+                        TextInput::make('title')
+                            ->label('Назва послуги')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        TextInput::make('description')
+                            ->label('Опис')
+                            ->columnSpanFull(),
+                        TextInput::make('location')
+                            ->label('Локація')
+                            ->columnSpanFull(),
 
                         Select::make('art_category_id')
                             ->label('Галузь мистецтва')

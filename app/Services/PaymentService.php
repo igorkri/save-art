@@ -236,9 +236,13 @@ class PaymentService
     {
         $project = $donation->project;
 
+        if (! $project) {
+            return 'Донат на підтримку save-art.in.ua';
+        }
+
         return sprintf(
             'Донат для проєкту "%s" на save-art.in.ua',
-            $project->title['uk'] ?? $project->title['en'] ?? 'Проєкт'
+            $project->title ?: 'Проєкт'
         );
     }
 }

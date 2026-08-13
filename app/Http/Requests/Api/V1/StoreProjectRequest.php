@@ -5,6 +5,7 @@ namespace App\Http\Requests\Api\V1;
 use App\Enums\Currency;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
+use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,6 +14,8 @@ use Illuminate\Validation\Rule;
  */
 class StoreProjectRequest extends FormRequest
 {
+    use NormalizesProjectUkrainianFields { prepareForValidation as normalizeProjectUkrainianFields; }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,6 +30,7 @@ class StoreProjectRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $this->normalizeProjectUkrainianFields();
         $this->merge(['currency' => Currency::USD->value]);
     }
 
@@ -48,13 +52,8 @@ class StoreProjectRequest extends FormRequest
             // ========== Основні поля проекту ==========
             'user_type' => [$isDraft ? 'nullable' : 'required', Rule::enum(UserType::class)],
 
-            'title' => [$isDraft ? 'nullable' : 'required', 'array'],
-            'title.uk' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-
-            'short_description' => ['nullable', 'array'],
-            'short_description.uk' => ['nullable', 'string', 'max:1000'],
-            'short_description.en' => ['nullable', 'string', 'max:1000'],
+            'title' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
+            'short_description' => ['nullable', 'string', 'max:1000'],
 
             'cover' => ['nullable'], // Может быть файл или Base64
 
@@ -62,9 +61,7 @@ class StoreProjectRequest extends FormRequest
             'art_category' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
-            'tags' => ['nullable', 'array'],
-            'tags.uk' => ['nullable', 'string', 'max:500'],
-            'tags.en' => ['nullable', 'string', 'max:500'],
+            'tags' => ['nullable', 'string', 'max:500'],
 
             // ========== Бюджет та валюта ==========
             'currency' => [$isDraft ? 'nullable' : 'required', Rule::enum(Currency::class)],
@@ -73,9 +70,7 @@ class StoreProjectRequest extends FormRequest
 
             // ========== Структуровані дані ==========
             'budget_items' => ['nullable', 'array', 'max:50'],
-            'budget_items.*.name' => ['sometimes', 'array'],
-            'budget_items.*.name.uk' => ['sometimes', 'string', 'max:255'],
-            'budget_items.*.name.en' => ['nullable', 'string', 'max:255'],
+            'budget_items.*.name' => ['sometimes', 'string', 'max:255'],
             'budget_items.*.amount' => ['sometimes', 'numeric', 'min:0'],
 
             'additional_info' => ['nullable', 'array'],
@@ -86,32 +81,24 @@ class StoreProjectRequest extends FormRequest
             'content_blocks' => ['nullable', 'array', 'max:50'],
             'content_blocks.*.type' => ['sometimes', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['sometimes', 'string', 'in:h1,h2,h3,h4,h5,h6'],
-            'content_blocks.*.heading_text' => ['sometimes', 'array'],
-            'content_blocks.*.paragraph_text' => ['sometimes', 'array'],
+            'content_blocks.*.heading_text' => ['sometimes', 'string', 'max:255'],
+            'content_blocks.*.paragraph_text' => ['sometimes', 'string', 'max:10000'],
             'content_blocks.*.image' => ['sometimes', 'string'],
-            'content_blocks.*.image_alt' => ['sometimes', 'array'],
+            'content_blocks.*.image_alt' => ['sometimes', 'string', 'max:255'],
             'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // ========== Етапи (опціонально для чернеток) ==========
             'stages' => ['nullable', 'array'],
-            'stages.*.title' => ['sometimes', 'array'],
-            'stages.*.title.uk' => ['sometimes', 'string', 'max:255'],
-            'stages.*.title.en' => ['nullable', 'string', 'max:255'],
-            'stages.*.description' => ['sometimes', 'array'],
-            'stages.*.description.uk' => ['sometimes', 'string'],
-            'stages.*.description.en' => ['nullable', 'string'],
+            'stages.*.title' => ['sometimes', 'string', 'max:255'],
+            'stages.*.description' => ['sometimes', 'string', 'max:2000'],
             'stages.*.days_planned' => ['sometimes', 'integer', 'min:1'],
             'stages.*.budget_planned' => ['sometimes', 'numeric', 'min:0'],
             'stages.*.order' => ['nullable', 'integer', 'min:0'],
 
             // ========== Бонуси (опціонально для чернеток) ==========
             'bonuses' => ['nullable', 'array'],
-            'bonuses.*.title' => ['sometimes', 'array'],
-            'bonuses.*.title.uk' => ['sometimes', 'string', 'max:255'],
-            'bonuses.*.title.en' => ['nullable', 'string', 'max:255'],
-            'bonuses.*.description' => ['sometimes', 'array'],
-            'bonuses.*.description.uk' => ['sometimes', 'string'],
-            'bonuses.*.description.en' => ['nullable', 'string'],
+            'bonuses.*.title' => ['sometimes', 'string', 'max:255'],
+            'bonuses.*.description' => ['sometimes', 'string', 'max:2000'],
             'bonuses.*.min_donation' => ['sometimes', 'numeric', 'min:1'],
             'bonuses.*.max_donation' => ['nullable', 'numeric', 'gt:bonuses.*.min_donation'],
             'bonuses.*.quantity' => ['nullable', 'integer', 'min:1'],
@@ -121,9 +108,7 @@ class StoreProjectRequest extends FormRequest
             'parameters' => ['nullable', 'array'],
             'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
             'parameters.*.parameter_value_id' => ['nullable', 'integer', 'exists:parameter_values,id'],
-            'parameters.*.custom_value' => ['nullable', 'array'],
-            'parameters.*.custom_value.uk' => ['nullable', 'string', 'max:255'],
-            'parameters.*.custom_value.en' => ['nullable', 'string', 'max:255'],
+            'parameters.*.custom_value' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -148,7 +133,7 @@ class StoreProjectRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.uk.required' => 'Українська назва проекту є обов\'язковою.',
+            'title.required' => 'Назва проекту є обов\'язковою.',
             'user_type.required' => 'Тип користувача є обов\'язковим.',
             'art_category.required' => 'Категорія мистецтва є обов\'язковою.',
             'currency.required' => 'Валюта є обов\'язковою.',

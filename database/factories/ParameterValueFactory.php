@@ -19,10 +19,7 @@ class ParameterValueFactory extends Factory
     {
         return [
             'parameter_id' => Parameter::factory(),
-            'value' => [
-                'uk' => $this->faker->word(),
-                'en' => $this->faker->word(),
-            ],
+            'value' => $this->faker->word(),
             'sort_order' => $this->faker->numberBetween(0, 10),
         ];
     }

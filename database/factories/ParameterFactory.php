@@ -20,10 +20,7 @@ class ParameterFactory extends Factory
     {
         return [
             'art_category_id' => ArtCategory::factory(),
-            'name' => [
-                'uk' => $this->faker->words(2, true),
-                'en' => $this->faker->words(2, true),
-            ],
+            'name' => $this->faker->words(2, true),
             'type' => ParameterType::List,
             'sort_order' => $this->faker->numberBetween(0, 10),
         ];

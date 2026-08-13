@@ -19,31 +19,31 @@ class FaqCategorySeeder extends Seeder
 
         $categories = [
             [
-                'name' => ['uk' => 'Загальні питання', 'en' => 'General Questions'],
+                'name' => 'Загальні питання',
                 'slug' => 'general',
                 'order' => 1,
                 'is_active' => true,
             ],
             [
-                'name' => ['uk' => 'Донати та оплата', 'en' => 'Donations and Payment'],
+                'name' => 'Донати та оплата',
                 'slug' => 'donations',
                 'order' => 2,
                 'is_active' => true,
             ],
             [
-                'name' => ['uk' => 'Для митців', 'en' => 'For Artists'],
+                'name' => 'Для митців',
                 'slug' => 'artists',
                 'order' => 3,
                 'is_active' => true,
             ],
             [
-                'name' => ['uk' => 'Для меценатів', 'en' => 'For Patrons'],
+                'name' => 'Для меценатів',
                 'slug' => 'patrons',
                 'order' => 4,
                 'is_active' => true,
             ],
             [
-                'name' => ['uk' => 'Технічна підтримка', 'en' => 'Technical Support'],
+                'name' => 'Технічна підтримка',
                 'slug' => 'support',
                 'order' => 5,
                 'is_active' => true,

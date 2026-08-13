@@ -18,11 +18,10 @@ class FaqCategoryFactory extends Factory
     public function definition(): array
     {
         $nameUk = $this->faker->words(3, true);
-        $nameEn = $this->faker->words(3, true);
 
         return [
-            'name' => ['uk' => $nameUk, 'en' => $nameEn],
-            'slug' => Str::slug($nameEn),
+            'name' => $nameUk,
+            'slug' => Str::slug($nameUk),
             'order' => $this->faker->numberBetween(1, 100),
             'is_active' => $this->faker->boolean(80),
         ];

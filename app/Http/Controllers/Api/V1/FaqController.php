@@ -25,17 +25,8 @@ class FaqController extends Controller
      *     operationId="getFaq",
      *     tags={"FAQ"},
      *     summary="Список FAQ",
-     *     description="Повертає всі FAQ категорії з питаннями та відповідями. Якщо вказано параметр language - повертає контент лише для вказаної мови, інакше повертає всі мовні версії.",
+     *     description="Повертає всі FAQ категорії з питаннями та відповідями.",
      *     security={{"apiKey": {}}},
-     *
-     *     @OA\Parameter(
-     *         name="language",
-     *         in="query",
-     *         required=false,
-     *         description="Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-     *
-     *         @OA\Schema(type="string", enum={"uk", "en"})
-     *     ),
      *
      *     @OA\Response(
      *         response=200,
@@ -51,54 +42,35 @@ class FaqController extends Controller
      *                     @OA\Items(type="object",
      *
      *                         @OA\Property(property="id", type="integer", example=1),
-     *                         @OA\Property(property="name", type="object", example={"uk": "Загальні питання", "en": "General questions"}),
+     *                         @OA\Property(property="name", type="string", example="Загальні питання"),
      *                         @OA\Property(property="slug", type="string", example="general"),
      *                         @OA\Property(property="questions", type="array",
      *
      *                             @OA\Items(type="object",
      *
      *                                 @OA\Property(property="id", type="integer", example=1),
-     *                                 @OA\Property(property="question", type="object", example={"uk": "Як це працює?", "en": "How does it work?"}),
-     *                                 @OA\Property(property="answer", type="object", example={"uk": "Відповідь...", "en": "Answer..."})
+     *                                 @OA\Property(property="question", type="string", example="Як це працює?"),
+     *                                 @OA\Property(property="answer", type="string", example="Відповідь...")
      *                             )
      *                         )
      *                     )
      *                 )
-     *             ),
-     *             @OA\Property(property="language", type="string", nullable=true, example="uk", description="Вказана мова (якщо був переданий параметр)")
+     *             )
      *         )
      *     )
      * )
      */
     public function index(Request $request): JsonResponse
     {
-        $language = $request->query('language');
-
-        $cacheKey = $language ? "faq_all_{$language}" : 'faq_all';
-        $data = Cache::remember($cacheKey, 3600, function () {
+        $data = Cache::remember('faq_all', 3600, function () {
             return $this->getAllFaq();
         });
 
-        $response = [
+        return response()->json([
             'result' => true,
             'message' => 'FAQ data retrieved successfully',
-        ];
-
-        if ($language) {
-            // Validate language
-            $supportedLanguages = ['uk', 'en'];
-            if (! in_array($language, $supportedLanguages)) {
-                $language = 'uk';
-            }
-
-            // Filter data by language
-            $data = $this->filterByLanguage($data, $language);
-            $response['language'] = $language;
-        }
-
-        $response['data'] = $data;
-
-        return response()->json($response);
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -109,18 +81,10 @@ class FaqController extends Controller
      *     operationId="getFaqCategory",
      *     tags={"FAQ"},
      *     summary="FAQ категорії",
-     *     description="Повертає питання конкретної FAQ категорії. Якщо вказано параметр language - повертає контент лише для вказаної мови.",
+     *     description="Повертає питання конкретної FAQ категорії.",
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(name="slug", in="path", required=true, description="Slug категорії", @OA\Schema(type="string")),
-     *     @OA\Parameter(
-     *         name="language",
-     *         in="query",
-     *         required=false,
-     *         description="Код мови (uk або en). Якщо не вказано - повертає всі мовні версії.",
-     *
-     *         @OA\Schema(type="string", enum={"uk", "en"})
-     *     ),
      *
      *     @OA\Response(
      *         response=200,
@@ -133,12 +97,11 @@ class FaqController extends Controller
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="category", type="object",
      *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="name", type="object", example={"uk": "Загальні питання", "en": "General questions"}),
+     *                     @OA\Property(property="name", type="string", example="Загальні питання"),
      *                     @OA\Property(property="slug", type="string", example="general"),
      *                     @OA\Property(property="questions", type="array", @OA\Items(type="object"))
      *                 )
-     *             ),
-     *             @OA\Property(property="language", type="string", nullable=true, example="uk")
+     *             )
      *         )
      *     ),
      *
@@ -164,27 +127,11 @@ class FaqController extends Controller
             ])->toArray(),
         ];
 
-        $response = [
+        return response()->json([
             'result' => true,
             'message' => 'FAQ category retrieved successfully',
-        ];
-
-        $language = $request->query('language');
-        if ($language) {
-            // Validate language
-            $supportedLanguages = ['uk', 'en'];
-            if (! in_array($language, $supportedLanguages)) {
-                $language = 'uk';
-            }
-
-            // Filter category data by language
-            $categoryData = $this->filterCategoryByLanguage($categoryData, $language);
-            $response['language'] = $language;
-        }
-
-        $response['data'] = ['category' => $categoryData];
-
-        return response()->json($response);
+            'data' => ['category' => $categoryData],
+        ]);
     }
 
     /**
@@ -212,52 +159,5 @@ class FaqController extends Controller
                 ])->toArray(),
             ])->toArray(),
         ];
-    }
-
-    /**
-     * Filter FAQ data by language
-     *
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
-     */
-    private function filterByLanguage(array $data, string $language): array
-    {
-        if (isset($data['categories']) && is_array($data['categories'])) {
-            $data['categories'] = array_map(function ($category) use ($language) {
-                return $this->filterCategoryByLanguage($category, $language);
-            }, $data['categories']);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Filter category data by language
-     *
-     * @param  array<string, mixed>  $category
-     * @return array<string, mixed>
-     */
-    private function filterCategoryByLanguage(array $category, string $language): array
-    {
-        // Filter name
-        if (isset($category['name']) && is_array($category['name'])) {
-            $category['name'] = $category['name'][$language] ?? $category['name']['uk'] ?? '';
-        }
-
-        // Filter questions
-        if (isset($category['questions']) && is_array($category['questions'])) {
-            $category['questions'] = array_map(function ($question) use ($language) {
-                if (isset($question['question']) && is_array($question['question'])) {
-                    $question['question'] = $question['question'][$language] ?? $question['question']['uk'] ?? '';
-                }
-                if (isset($question['answer']) && is_array($question['answer'])) {
-                    $question['answer'] = $question['answer'][$language] ?? $question['answer']['uk'] ?? '';
-                }
-
-                return $question;
-            }, $category['questions']);
-        }
-
-        return $category;
     }
 }

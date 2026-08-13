@@ -15,7 +15,6 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class UserForm
 {
@@ -112,18 +111,16 @@ class UserForm
                                 Section::make('Основна інформація')
                                     ->columns(1)
                                     ->schema([
-                                        LanguageTabs::make([
-                                            TextInput::make('full_name')->label('ПІБ'),
-                                            TextInput::make('profession')->label('Професія'),
-                                            TextInput::make('tags')->label('Теги'),
-                                            TextInput::make('country')->label('Країна'),
-                                            TextInput::make('region')->label('Область / Регіон'),
-                                            TextInput::make('city')->label('Місто'),
-                                            Textarea::make('description')
-                                                ->label('Опис')
-                                                ->rows(5)
-                                                ->columnSpanFull(),
-                                        ]),
+                                        TextInput::make('full_name')->label('ПІБ'),
+                                        TextInput::make('profession')->label('Професія'),
+                                        TextInput::make('tags')->label('Теги'),
+                                        TextInput::make('country')->label('Країна'),
+                                        TextInput::make('region')->label('Область / Регіон'),
+                                        TextInput::make('city')->label('Місто'),
+                                        Textarea::make('description')
+                                            ->label('Опис')
+                                            ->rows(5)
+                                            ->columnSpanFull(),
                                     ])
                                     ->collapsible(),
 
@@ -176,11 +173,9 @@ class UserForm
                                 Section::make('Реквізити компанії')
                                     ->columns(2)
                                     ->schema([
-                                        LanguageTabs::make([
-                                            TextInput::make('profileLegal.name')->label('Назва компанії'),
-                                            TextInput::make('profileLegal.authorized_person')->label('Уповноважена особа'),
-                                            TextInput::make('profileLegal.address')->label('Адреса'),
-                                        ]),
+                                        TextInput::make('profileLegal.name')->label('Назва компанії'),
+                                        TextInput::make('profileLegal.authorized_person')->label('Уповноважена особа'),
+                                        TextInput::make('profileLegal.address')->label('Адреса'),
                                         TextInput::make('profileLegal.phone')->label('Телефон'),
                                         TextInput::make('profileLegal.email')->label('Email')->email(),
                                         TextInput::make('profileLegal.edrpou')->label('ЄДРПОУ'),

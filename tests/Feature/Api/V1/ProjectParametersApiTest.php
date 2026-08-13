@@ -27,13 +27,13 @@ class ProjectParametersApiTest extends ApiTestCase
     {
         $category = ArtCategory::factory()->create();
         $listParameter = Parameter::factory()->for($category)->create([
-            'name' => ['uk' => 'Жанр', 'en' => 'Genre'],
+            'name' => 'Жанр',
             'type' => ParameterType::List,
             'sort_order' => 0,
         ]);
         ParameterValue::factory()->for($listParameter)->create(['value' => ['uk' => 'Роман', 'en' => 'Novel']]);
         Parameter::factory()->for($category)->create([
-            'name' => ['uk' => 'Матеріал', 'en' => 'Material'],
+            'name' => 'Матеріал',
             'type' => ParameterType::Custom,
             'sort_order' => 1,
         ]);
@@ -52,29 +52,27 @@ class ProjectParametersApiTest extends ApiTestCase
             ->assertJsonPath('data.1.type', 'custom');
     }
 
-    public function test_can_get_parameters_with_language(): void
+    public function test_parameter_name_ignores_language_param(): void
     {
         $category = ArtCategory::factory()->create();
-        Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр', 'en' => 'Genre']]);
+        Parameter::factory()->for($category)->create(['name' => 'Жанр']);
 
         $response = $this->apiGet("/api/v1/parameters?art_category={$category->slug}&language=en");
 
-        $response->assertOk()->assertJsonPath('data.0.name', 'Genre');
+        $response->assertOk()->assertJsonPath('data.0.name', 'Жанр');
     }
 
     public function test_parameters_return_all_languages_when_language_not_passed(): void
     {
         $category = ArtCategory::factory()->create();
-        $parameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр', 'en' => 'Genre']]);
+        $parameter = Parameter::factory()->for($category)->create(['name' => 'Жанр']);
         ParameterValue::factory()->for($parameter)->create(['value' => ['uk' => 'Роман', 'en' => 'Novel']]);
 
         $response = $this->apiGet("/api/v1/parameters?art_category={$category->slug}");
 
         $response->assertOk()
-            ->assertJsonPath('data.0.name.uk', 'Жанр')
-            ->assertJsonPath('data.0.name.en', 'Genre')
-            ->assertJsonPath('data.0.values.0.value.uk', 'Роман')
-            ->assertJsonPath('data.0.values.0.value.en', 'Novel');
+            ->assertJsonPath('data.0.name', 'Жанр')
+            ->assertJsonPath('data.0.values.0.value', 'Роман');
     }
 
     public function test_parameters_endpoint_returns_empty_list_for_unknown_category(): void
@@ -91,9 +89,9 @@ class ProjectParametersApiTest extends ApiTestCase
     public function test_project_detail_includes_parameters(): void
     {
         $category = ArtCategory::factory()->create();
-        $listParameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр'], 'type' => ParameterType::List]);
+        $listParameter = Parameter::factory()->for($category)->create(['name' => 'Жанр', 'type' => ParameterType::List]);
         $value = ParameterValue::factory()->for($listParameter)->create(['value' => ['uk' => 'Роман']]);
-        $customParameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Матеріал'], 'type' => ParameterType::Custom]);
+        $customParameter = Parameter::factory()->for($category)->create(['name' => 'Матеріал', 'type' => ParameterType::Custom]);
 
         $project = Project::factory()->create([
             'art_category_id' => $category->getKey(),
@@ -124,9 +122,9 @@ class ProjectParametersApiTest extends ApiTestCase
     public function test_project_detail_parameters_return_all_languages_when_language_not_passed(): void
     {
         $category = ArtCategory::factory()->create();
-        $listParameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр', 'en' => 'Genre'], 'type' => ParameterType::List]);
+        $listParameter = Parameter::factory()->for($category)->create(['name' => 'Жанр', 'type' => ParameterType::List]);
         $value = ParameterValue::factory()->for($listParameter)->create(['value' => ['uk' => 'Роман', 'en' => 'Novel']]);
-        $customParameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Матеріал', 'en' => 'Material'], 'type' => ParameterType::Custom]);
+        $customParameter = Parameter::factory()->for($category)->create(['name' => 'Матеріал', 'type' => ParameterType::Custom]);
 
         $project = Project::factory()->create([
             'art_category_id' => $category->getKey(),
@@ -148,12 +146,9 @@ class ProjectParametersApiTest extends ApiTestCase
         $response->assertOk();
         $parameters = collect($response->json('data.parameters'))->keyBy('parameter_id');
 
-        $this->assertSame('Жанр', $parameters[$listParameter->getKey()]['parameter']['uk']);
-        $this->assertSame('Genre', $parameters[$listParameter->getKey()]['parameter']['en']);
-        $this->assertSame('Роман', $parameters[$listParameter->getKey()]['value']['uk']);
-        $this->assertSame('Novel', $parameters[$listParameter->getKey()]['value']['en']);
-        $this->assertSame('Полотно, олія', $parameters[$customParameter->getKey()]['value']['uk']);
-        $this->assertSame('Canvas, oil', $parameters[$customParameter->getKey()]['value']['en']);
+        $this->assertSame('Жанр', $parameters[$listParameter->getKey()]['parameter']);
+        $this->assertSame('Роман', $parameters[$listParameter->getKey()]['value']);
+        $this->assertSame('Полотно, олія', $parameters[$customParameter->getKey()]['value']);
     }
 
     // ==========================================
@@ -300,7 +295,7 @@ class ProjectParametersApiTest extends ApiTestCase
     public function test_public_projects_list_includes_parameters(): void
     {
         $category = ArtCategory::factory()->create();
-        $parameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр'], 'type' => ParameterType::List]);
+        $parameter = Parameter::factory()->for($category)->create(['name' => 'Жанр', 'type' => ParameterType::List]);
         $value = ParameterValue::factory()->for($parameter)->create(['value' => ['uk' => 'Роман']]);
 
         $project = Project::factory()->create([
@@ -324,7 +319,7 @@ class ProjectParametersApiTest extends ApiTestCase
     public function test_my_projects_list_includes_parameters(): void
     {
         $category = ArtCategory::factory()->create();
-        $parameter = Parameter::factory()->for($category)->create(['name' => ['uk' => 'Жанр'], 'type' => ParameterType::Custom]);
+        $parameter = Parameter::factory()->for($category)->create(['name' => 'Жанр', 'type' => ParameterType::Custom]);
 
         $project = Project::factory()->create([
             'user_id' => $this->user->id,

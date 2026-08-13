@@ -20,70 +20,40 @@ class SiteSettingsTest extends TestCase
         // Створюємо налаштування сайту
         SiteSettings::create([
             'site_logo' => 'logo.svg',
-            'header_brand_name' => [
-                'uk' => 'save-art.in.ua',
-                'en' => 'save-art.in.ua',
-            ],
+            'header_brand_name' => 'save-art.in.ua',
             'header_dropdown_sites' => [
-                ['name' => ['uk' => 'save-art.in.ua', 'en' => 'save-art.in.ua'], 'url' => '/', 'is_active' => true],
+                ['name' => 'save-art.in.ua', 'url' => '/', 'is_active' => true],
             ],
             'header_menu' => [
-                ['label' => ['uk' => 'Проєкти', 'en' => 'Projects'], 'url' => '/projects'],
-                ['label' => ['uk' => 'Звіти', 'en' => 'Reports'], 'url' => '/reports'],
+                ['label' => 'Проєкти', 'url' => '/projects'],
+                ['label' => 'Звіти', 'url' => '/reports'],
             ],
             'header_socials' => [
                 'instagram' => 'https://instagram.com/',
                 'facebook' => 'https://facebook.com/',
             ],
             'header_support_button_url' => '/support-platform',
-            'header_support_button_text' => [
-                'uk' => 'Підтримати',
-                'en' => 'Support',
-            ],
-            'header_login_button_text' => [
-                'uk' => 'Увійти',
-                'en' => 'Login',
-            ],
-            'footer_brand_name' => [
-                'uk' => 'save-art.in.ua',
-                'en' => 'save-art.in.ua',
-            ],
-            'footer_slogan' => [
-                'uk' => 'Мистецтво допомоги',
-                'en' => 'The art of helping',
-            ],
-            'footer_collaboration_title' => [
-                'uk' => 'Запрошуємо експертів до співпраці',
-                'en' => 'We invite experts to collaborate',
-            ],
-            'footer_collaboration_text' => [
-                'uk' => 'Благодійний фонд ID_Art UA відкритий до співпраці',
-                'en' => 'ID_Art UA Charitable Foundation is open to collaboration',
-            ],
+            'header_support_button_text' => 'Підтримати',
+            'header_login_button_text' => 'Увійти',
+            'footer_brand_name' => 'save-art.in.ua',
+            'footer_slogan' => 'Мистецтво допомоги',
+            'footer_collaboration_title' => 'Запрошуємо експертів до співпраці',
+            'footer_collaboration_text' => 'Благодійний фонд ID_Art UA відкритий до співпраці',
             'footer_collaboration_items' => [
-                ['image' => null, 'text' => ['uk' => 'Створення мистецтва', 'en' => 'Creating art']],
+                ['image' => null, 'text' => 'Створення мистецтва'],
             ],
-            'footer_collaboration_button_text' => [
-                'uk' => 'Відправити заявку',
-                'en' => 'Send application',
-            ],
+            'footer_collaboration_button_text' => 'Відправити заявку',
             'footer_sites_menu' => [
                 [
-                    'site_name' => ['uk' => 'save-art.in.ua', 'en' => 'save-art.in.ua'],
+                    'site_name' => 'save-art.in.ua',
                     'site_url' => '/',
                     'links' => [
-                        ['label' => ['uk' => 'Проєкти', 'en' => 'Projects'], 'url' => '/projects'],
+                        ['label' => 'Проєкти', 'url' => '/projects'],
                     ],
                 ],
             ],
-            'footer_company_name' => [
-                'uk' => 'БЛАГОДІЙНИЙ ФОНД ID_Art UA',
-                'en' => 'ID_Art UA CHARITABLE FOUNDATION',
-            ],
-            'footer_address' => [
-                'uk' => 'м. Івано-Франківськ, Україна',
-                'en' => 'Ivano-Frankivsk, Ukraine',
-            ],
+            'footer_company_name' => 'БЛАГОДІЙНИЙ ФОНД ID_Art UA',
+            'footer_address' => 'м. Івано-Франківськ, Україна',
             'footer_email' => 'test@example.com',
             'footer_phone' => '+380 67 000 0000',
             'footer_social_links' => [
@@ -93,7 +63,7 @@ class SiteSettingsTest extends TestCase
         ]);
     }
 
-    public function test_footer_returns_ukrainian_by_default(): void
+    public function test_footer_returns_ukrainian_content(): void
     {
         $response = $this->getJson('/api/site/footer');
 
@@ -101,16 +71,6 @@ class SiteSettingsTest extends TestCase
             ->assertJsonPath('data.top.collaboration.title', 'Запрошуємо експертів до співпраці')
             ->assertJsonPath('data.top.collaboration.text', 'Благодійний фонд ID_Art UA відкритий до співпраці')
             ->assertJsonPath('data.top.collaboration.button_text', 'Відправити заявку');
-    }
-
-    public function test_footer_returns_english_when_requested(): void
-    {
-        $response = $this->getJson('/api/site/footer?language=en');
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.top.collaboration.title', 'We invite experts to collaborate')
-            ->assertJsonPath('data.top.collaboration.text', 'ID_Art UA Charitable Foundation is open to collaboration')
-            ->assertJsonPath('data.top.collaboration.button_text', 'Send application');
     }
 
     public function test_footer_returns_404_when_no_settings(): void
@@ -141,14 +101,14 @@ class SiteSettingsTest extends TestCase
             ]);
     }
 
-    public function test_header_accepts_language_parameter(): void
+    public function test_header_returns_ukrainian_content(): void
     {
-        $response = $this->getJson('/api/site/header?language=en');
+        $response = $this->getJson('/api/site/header');
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.menu.0.label', 'Projects')
-            ->assertJsonPath('data.support_button.text', 'Support')
-            ->assertJsonPath('data.login_button.text', 'Login');
+            ->assertJsonPath('data.menu.0.label', 'Проєкти')
+            ->assertJsonPath('data.support_button.text', 'Підтримати')
+            ->assertJsonPath('data.login_button.text', 'Увійти');
     }
 
     public function test_settings_returns_both_header_and_footer(): void

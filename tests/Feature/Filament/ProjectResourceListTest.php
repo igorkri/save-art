@@ -36,17 +36,11 @@ class ProjectResourceListTest extends TestCase
     {
         // Створюємо користувачів з повними іменами
         $user1 = User::factory()->create([
-            'full_name' => [
-                'uk' => 'Олег Коваленко',
-                'en' => 'Oleg Kovalenko',
-            ],
+            'full_name' => 'Олег Коваленко',
         ]);
 
         $user2 = User::factory()->create([
-            'full_name' => [
-                'uk' => 'Марія Петренко',
-                'en' => 'Maria Petrenko',
-            ],
+            'full_name' => 'Марія Петренко',
         ]);
 
         // Створюємо проекти для кожного користувача
@@ -100,10 +94,7 @@ class ProjectResourceListTest extends TestCase
     public function test_search_by_multiple_keywords(): void
     {
         $user = User::factory()->create([
-            'full_name' => [
-                'uk' => 'Іван Бондаренко',
-                'en' => 'Ivan Bondarenko',
-            ],
+            'full_name' => 'Іван Бондаренко',
         ]);
 
         Project::factory(3)->create(['user_id' => $user->id]);

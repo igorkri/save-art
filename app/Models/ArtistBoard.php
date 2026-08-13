@@ -18,7 +18,6 @@ class ArtistBoard extends Model
     protected $casts = [
         'titles' => 'array',
         'logo_museums' => 'array',
-        'descriptions' => 'array',
         'data' => 'array',
     ];
 }

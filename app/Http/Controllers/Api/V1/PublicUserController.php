@@ -28,7 +28,6 @@ class PublicUserController extends Controller
      *     security={{"apiKey": {}}},
      *
      *     @OA\Parameter(name="id", in="path", required=true, description="ID користувача", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="language", in="query", description="Мова відповіді (uk, en). Якщо не вказано — повертає об'єкт з усіма мовами", @OA\Schema(type="string", enum={"uk", "en"})),
      *
      *     @OA\Response(
      *         response=200,
@@ -53,8 +52,6 @@ class PublicUserController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $language = $this->getLanguage($request);
-
         $user = User::query()
             ->with(['profileSocial'])
             ->findOrFail($id);
@@ -86,10 +83,10 @@ class PublicUserController extends Controller
                     'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
                     'role' => $user->role->value ?? 'user',
                     'profile_type' => $user->profile_type?->value,
-                    'profession' => $this->localizeValue($user->profession, $language),
-                    'description' => $this->localizeValue($user->description, $language),
-                    'country' => $this->localizeValue($user->country, $language),
-                    'city' => $this->localizeValue($user->city, $language),
+                    'profession' => $user->profession,
+                    'description' => $user->description,
+                    'country' => $user->country,
+                    'city' => $user->city,
                     'social_links' => [
                         'website' => $social?->website ?? null,
                         'instagram' => $social?->instagram ?? null,

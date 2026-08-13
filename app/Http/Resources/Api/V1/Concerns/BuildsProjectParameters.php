@@ -27,20 +27,18 @@ trait BuildsProjectParameters
             ->where('art_category_id', $this->art_category_id)
             ->orderBy('sort_order')
             ->get()
-            ->map(function (Parameter $parameter) use ($existingByParameterId, $language) {
+            ->map(function (Parameter $parameter) use ($existingByParameterId) {
                 $existing = $existingByParameterId->get($parameter->getKey());
 
                 if ($parameter->type === ParameterType::List) {
-                    $value = $language !== null
-                        ? $existing?->parameterValue?->getLabel($language)
-                        : $existing?->parameterValue?->getTranslations('value');
+                    $value = $existing?->parameterValue?->value;
                 } else {
-                    $value = $this->localizeField($existing?->custom_value, $language);
+                    $value = $existing?->custom_value;
                 }
 
                 return [
                     'parameter_id' => $parameter->getKey(),
-                    'parameter' => $language !== null ? $parameter->getLabel($language) : $parameter->getTranslations('name'),
+                    'parameter' => $parameter->name,
                     'type' => $parameter->type->value,
                     'value_id' => $existing?->parameter_value_id,
                     'value' => $value,

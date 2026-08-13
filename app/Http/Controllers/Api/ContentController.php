@@ -39,19 +39,13 @@ class ContentController extends Controller
      *                 @OA\Items(type="object",
      *
      *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="page_title", type="object",
-     *                         @OA\Property(property="uk", type="string"),
-     *                         @OA\Property(property="en", type="string")
-     *                     ),
-     *                     @OA\Property(property="title", type="object",
-     *                         @OA\Property(property="uk", type="string"),
-     *                         @OA\Property(property="en", type="string")
-     *                     ),
+     *                     @OA\Property(property="page_title", type="string"),
+     *                     @OA\Property(property="title", type="string"),
      *                     @OA\Property(property="slug", type="string", example="special-projects"),
-     *                     @OA\Property(property="content", type="object"),
-     *                     @OA\Property(property="meta_title", type="object"),
-     *                     @OA\Property(property="meta_description", type="object"),
-     *                     @OA\Property(property="meta_keywords", type="object"),
+     *                     @OA\Property(property="content", type="string"),
+     *                     @OA\Property(property="meta_title", type="string"),
+     *                     @OA\Property(property="meta_description", type="string"),
+     *                     @OA\Property(property="meta_keywords", type="string"),
      *                     @OA\Property(property="is_active", type="boolean", example=true)
      *                 )
      *             )
@@ -100,13 +94,13 @@ class ContentController extends Controller
      *             @OA\Property(property="message", type="string", example="Content retrieved successfully"),
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="id", type="integer"),
-     *                 @OA\Property(property="page_title", type="object"),
-     *                 @OA\Property(property="title", type="object"),
+     *                 @OA\Property(property="page_title", type="string"),
+     *                 @OA\Property(property="title", type="string"),
      *                 @OA\Property(property="slug", type="string"),
-     *                 @OA\Property(property="content", type="object"),
-     *                 @OA\Property(property="meta_title", type="object"),
-     *                 @OA\Property(property="meta_description", type="object"),
-     *                 @OA\Property(property="meta_keywords", type="object"),
+     *                 @OA\Property(property="content", type="string"),
+     *                 @OA\Property(property="meta_title", type="string"),
+     *                 @OA\Property(property="meta_description", type="string"),
+     *                 @OA\Property(property="meta_keywords", type="string"),
      *                 @OA\Property(property="is_active", type="boolean")
      *             )
      *         )
@@ -212,18 +206,14 @@ class ContentController extends Controller
             ], 404);
         }
 
-        $supported = ['uk', 'en'];
-        if (! in_array($language, $supported)) {
-            $language = 'uk';
-        }
+        $language = 'uk';
 
         $data = (new ContentResource($content))->toArray(request());
-        $filtered = $this->filterByLanguage($data, $language);
 
         return response()->json([
             'result' => true,
             'message' => 'Content retrieved successfully',
-            'data' => $filtered,
+            'data' => $data,
             'language' => $language,
         ]);
     }
@@ -285,64 +275,15 @@ class ContentController extends Controller
             ], 404);
         }
 
-        $supported = ['uk', 'en'];
-        if (! in_array($language, $supported)) {
-            $language = 'uk';
-        }
+        $language = 'uk';
 
         $data = (new ContentResource($content))->toArray(request());
-        $filtered = $this->filterByLanguage($data, $language);
 
         return response()->json([
             'result' => true,
             'message' => 'Content retrieved successfully',
-            'data' => $filtered,
+            'data' => $data,
             'language' => $language,
         ]);
-    }
-
-    /**
-     * Filter multilingual content fields by language.
-     */
-    private function filterByLanguage(array $data, string $language): array
-    {
-        $fields = ['page_title', 'title', 'content', 'meta_title', 'meta_description', 'meta_keywords'];
-
-        foreach ($fields as $field) {
-            if (isset($data[$field]) && is_array($data[$field])) {
-                $data[$field] = $this->extractLanguageContent($data[$field], $language);
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * Extract content for a specific language.
-     */
-    private function extractLanguageContent($content, string $language)
-    {
-        if (! is_array($content)) {
-            return $content;
-        }
-
-        if (isset($content[$language])) {
-            return $content[$language];
-        }
-
-        $extracted = [];
-        foreach ($content as $key => $value) {
-            if (is_array($value)) {
-                if (isset($value[$language])) {
-                    $extracted[$key] = $value[$language];
-                } else {
-                    $extracted[$key] = $this->extractLanguageContent($value, $language);
-                }
-            } else {
-                $extracted[$key] = $value;
-            }
-        }
-
-        return $extracted;
     }
 }

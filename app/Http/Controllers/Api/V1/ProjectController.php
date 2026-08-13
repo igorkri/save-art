@@ -310,7 +310,7 @@ class ProjectController extends Controller
         if ($request->filled('tags')) {
             $tags = array_map('trim', explode(',', $request->input('tags')));
             foreach ($tags as $tag) {
-                $query->whereRaw('JSON_CONTAINS(tags, ?)', [json_encode($tag)]);
+                $query->where('tags', 'like', "%{$tag}%");
             }
         }
 
@@ -348,14 +348,12 @@ class ProjectController extends Controller
             }
         }
 
-        // Пошук по назві та опису (LOWER — щоб не залежати від регістру, бо JSON_EXTRACT повертає бінарне значення)
+        // Пошук по назві та опису без урахування регістру.
         if ($request->filled('search')) {
-            $search = mb_strtolower($request->input('search'));
+            $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(title, '$.en'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(short_description, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(short_description, '$.en'))) LIKE ?", ["%{$search}%"]);
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('short_description', 'like', "%{$search}%");
             });
         }
 
@@ -557,14 +555,14 @@ class ProjectController extends Controller
                 $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'name' => $child->name,
                     'projects_count' => $count,
                 ];
             }
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'name' => $root->name,
                 'subcategories' => $subcategories,
             ];
         }
@@ -624,18 +622,18 @@ class ProjectController extends Controller
 
         return $parameters
             ->filter(fn (Parameter $parameter) => $parameter->values->isNotEmpty())
-            ->map(function (Parameter $parameter) use ($baseQuery, $language) {
+            ->map(function (Parameter $parameter) use ($baseQuery) {
                 return [
                     'id' => $parameter->id,
-                    'name' => $this->getFilterTranslation($parameter->getTranslations('name'), $language),
-                    'values' => $parameter->values->map(function ($value) use ($baseQuery, $language) {
+                    'name' => $parameter->name,
+                    'values' => $parameter->values->map(function ($value) use ($baseQuery) {
                         $count = (clone $baseQuery)->whereHas('projectParameters', function (Builder $q) use ($value) {
                             $q->where('parameter_value_id', $value->id);
                         })->count();
 
                         return [
                             'id' => $value->id,
-                            'value' => $this->getFilterTranslation($value->getTranslations('value'), $language),
+                            'value' => $value->value,
                             'projects_count' => $count,
                         ];
                     })->values()->all(),

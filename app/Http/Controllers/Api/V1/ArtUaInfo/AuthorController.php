@@ -64,8 +64,7 @@ abstract class AuthorController extends Controller
 
         $sortBy = $request->input('sort_by', 'projects_count');
         if ($sortBy === 'name') {
-            $jsonPath = '$.'.($language ?: 'uk');
-            $query->orderByRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '{$jsonPath}'))) asc");
+            $query->orderByRaw('LOWER(full_name) asc');
         } else {
             $query->orderByDesc('projects_count');
         }
@@ -99,10 +98,7 @@ abstract class AuthorController extends Controller
 
         if ($request->filled('search')) {
             $search = mb_strtolower($request->input('search'));
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(full_name, '$.en'))) LIKE ?", ["%{$search}%"]);
-            });
+            $query->whereRaw('LOWER(full_name) LIKE ?', ["%{$search}%"]);
         }
 
         return $query;
@@ -128,7 +124,7 @@ abstract class AuthorController extends Controller
 
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'name' => $child->name,
                     'authors_count' => $count,
                 ];
             }
@@ -140,7 +136,7 @@ abstract class AuthorController extends Controller
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'name' => $root->name,
                 'authors_count' => $rootCount,
                 'subcategories' => $subcategories,
             ];
@@ -191,11 +187,11 @@ abstract class AuthorController extends Controller
 
         return $parameters
             ->filter(fn (Parameter $parameter) => $parameter->values->isNotEmpty())
-            ->map(function (Parameter $parameter) use ($baseQuery, $language) {
+            ->map(function (Parameter $parameter) use ($baseQuery) {
                 return [
                     'id' => $parameter->id,
-                    'name' => $this->getFilterTranslation($parameter->getTranslations('name'), $language),
-                    'values' => $parameter->values->map(function ($value) use ($baseQuery, $language) {
+                    'name' => $parameter->name,
+                    'values' => $parameter->values->map(function ($value) use ($baseQuery) {
                         $count = (clone $baseQuery)->whereHas('projects', fn ($q) => $q->forArtUaInfo()->ownedIndividually()
                             ->whereIn('status', ProjectStatus::publicStatuses())
                             ->whereHas('projectParameters', fn ($pq) => $pq->where('parameter_value_id', $value->id)))
@@ -203,7 +199,7 @@ abstract class AuthorController extends Controller
 
                         return [
                             'id' => $value->id,
-                            'value' => $this->getFilterTranslation($value->getTranslations('value'), $language),
+                            'value' => $value->value,
                             'authors_count' => $count,
                         ];
                     })->values()->all(),

@@ -6,7 +6,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class TermsSectionForm
 {
@@ -16,11 +15,10 @@ class TermsSectionForm
             ->components([
                 Section::make('Інформація про розділ')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('heading')
-                                ->label('Заголовок')
-                                ->maxLength(500),
-                        ])->columnSpanFull(),
+                        TextInput::make('heading')
+                            ->label('Заголовок')
+                            ->maxLength(500)
+                            ->columnSpanFull(),
 
                         TextInput::make('date')
                             ->label('Дата'),

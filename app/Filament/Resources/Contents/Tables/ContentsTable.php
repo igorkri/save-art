@@ -15,8 +15,8 @@ class ContentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('title.uk')
-                    ->label('Заголовок (укр)')
+                TextColumn::make('title')
+                    ->label('Заголовок')
                     ->limit(150)
                     ->sortable()
                     ->searchable(),

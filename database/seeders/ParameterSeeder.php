@@ -360,10 +360,10 @@ class ParameterSeeder extends Seeder
             $parameter = Parameter::query()->updateOrCreate(
                 [
                     'art_category_id' => $category->id,
-                    'name->uk' => $definition['name']['uk'],
+                    'name' => $definition['name']['uk'],
                 ],
                 [
-                    'name' => $definition['name'],
+                    'name' => $definition['name']['uk'],
                     'type' => $definition['type'],
                     'sort_order' => $index,
                 ]
@@ -371,9 +371,9 @@ class ParameterSeeder extends Seeder
 
             foreach ($definition['values'] as $valueIndex => $value) {
                 $parameter->values()->updateOrCreate(
-                    ['value->uk' => $value['uk']],
+                    ['value' => $value['uk']],
                     [
-                        'value' => $value,
+                        'value' => $value['uk'],
                         'sort_order' => $valueIndex,
                     ]
                 );

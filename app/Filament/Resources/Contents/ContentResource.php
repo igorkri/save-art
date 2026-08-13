@@ -23,7 +23,7 @@ class ContentResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Контент';
 
-    protected static ?string $recordTitleAttribute = 'title.uk';
+    protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?string $navigationLabel = 'Контент';
 

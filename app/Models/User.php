@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\ProfileType;
-use App\Traits\LocalizesAttributes;
 use App\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -22,16 +21,16 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $slug
  * @property UserRole $role Системна роль (admin, moderator, user)
  * @property string|null $avatar Шлях до аватара
- * @property array|null $full_name ПІБ (мультимовне)
- * @property array|null $profession Професія (мультимовне)
- * @property array|null $tags Теги (мультимовне)
- * @property array|null $country Країна (мультимовне)
- * @property array|null $region Область/регіон (мультимовне)
- * @property array|null $city Місто (мультимовне)
+ * @property string|null $full_name ПІБ
+ * @property string|null $profession Професія
+ * @property string|null $tags Теги
+ * @property string|null $country Країна
+ * @property string|null $region Область/регіон
+ * @property string|null $city Місто
  * @property string|null $postal_code Поштовий індекс
  * @property string|null $phone Персональний телефон
  * @property ProfileType|null $profile_type Тип профілю (artist/patron)
- * @property array|null $description Опис/біографія (мультимовне)
+ * @property string|null $description Опис/біографія
  * @property bool $is_blocked Чи заблокований
  * @property \Carbon\Carbon|null $blocked_until Дата закінчення блокування
  * @property \Carbon\Carbon|null $deletion_requested_at Дата запиту на видалення
@@ -42,7 +41,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, \Laravel\Sanctum\HasApiTokens, LocalizesAttributes, Notifiable;
+    use HasFactory, \Laravel\Sanctum\HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -102,13 +101,6 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
-            'full_name' => 'array',
-            'profession' => 'array',
-            'tags' => 'array',
-            'country' => 'array',
-            'region' => 'array',
-            'city' => 'array',
-            'description' => 'array',
             'profile_type' => ProfileType::class,
             'is_blocked' => 'boolean',
             'blocked_until' => 'datetime',
@@ -328,15 +320,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Отримати відображуване ім'я користувача
-     * Повертає full_name['uk'] або full_name['en']
      */
     public function getDisplayNameAttribute(): string
     {
-        if (! $this->full_name || ! is_array($this->full_name)) {
-            return 'Не вказано';
-        }
-
-        return $this->full_name['uk'] ?: ($this->full_name['en'] ?: 'Не вказано');
+        return $this->full_name ?: 'Не вказано';
     }
 
     /**
@@ -345,11 +332,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
      */
     public function getNameAttribute(): string
     {
-        if (! $this->full_name || ! is_array($this->full_name)) {
-            return 'User #'.$this->id;
-        }
-
-        return $this->full_name['uk'] ?? $this->full_name['en'] ?? 'User #'.$this->id;
+        return $this->full_name ?: 'User #'.$this->id;
     }
 
     /**

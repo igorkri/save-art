@@ -22,12 +22,8 @@ class UpdateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'array'],
-            'title.uk' => ['sometimes', 'string', 'max:255'],
-            'title.en' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'array'],
-            'description.uk' => ['nullable', 'string', 'max:5000'],
-            'description.en' => ['nullable', 'string', 'max:5000'],
+            'title' => ['sometimes', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:5000'],
             'image' => ['nullable'], // файл або Base64
             'art_category' => ['required', 'string', 'max:100'],
             'art_subcategory' => ['nullable', 'string', 'max:100'],

@@ -17,13 +17,13 @@ class TermsBlocksTable
             ->columns([
                 TextColumn::make('heading')
                     ->label('Заголовок')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : ($state ?: '-'))
+                    ->formatStateUsing(fn (?string $state) => $state ?: '-')
                     ->searchable()
                     ->limit(60),
 
                 TextColumn::make('section.heading')
                     ->label('Розділ')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : ($state ?: '-'))
+                    ->formatStateUsing(fn (?string $state) => $state ?: '-')
                     ->sortable(),
 
                 TextColumn::make('list_type')
@@ -52,13 +52,9 @@ class TermsBlocksTable
                     ->label('Розділ')
                     ->options(function () {
                         return \App\Models\TermsSection::all()
-                            ->mapWithKeys(function ($section) {
-                                $label = is_array($section->heading)
-                                    ? ($section->heading['uk'] ?? $section->heading['en'] ?? "Розділ #{$section->id}")
-                                    : ($section->heading ?: "Розділ #{$section->id}");
-
-                                return [$section->id => $label];
-                            });
+                            ->mapWithKeys(fn ($section) => [
+                                $section->id => $section->heading ?: "Розділ #{$section->id}",
+                            ]);
                     })
                     ->searchable()
                     ->preload(),

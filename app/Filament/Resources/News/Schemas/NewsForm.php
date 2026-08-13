@@ -17,7 +17,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class NewsForm
 {
@@ -47,7 +46,7 @@ class NewsForm
                                             ->label('Згенерувати')
                                             ->icon('heroicon-m-arrow-path')
                                             ->action(function (Get $get, Set $set) {
-                                                $title = $get('title.uk') ?: $get('title.en');
+                                                $title = $get('title');
 
                                                 if (filled($title)) {
                                                     $set('slug', Str::slug($title));
@@ -68,12 +67,11 @@ class NewsForm
 
                         Tab::make('Контент')
                             ->schema([
-                                LanguageTabs::make([
-                                    TextInput::make('title')
-                                        ->label('Заголовок')
-                                        ->required()
-                                        ->maxLength(255),
-                                ])->columnSpanFull(),
+                                TextInput::make('title')
+                                    ->label('Заголовок')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->columnSpanFull(),
 
                                 FileUpload::make('main_image')
                                     ->label('Головне зображення')
@@ -89,18 +87,17 @@ class NewsForm
                                 Repeater::make('text_blocks')
                                     ->label('')
                                     ->schema([
-                                        LanguageTabs::make([
-                                            Textarea::make('paragraphs')
-                                                ->label('Абзаци (кожен абзац з нового рядка)')
-                                                ->rows(5)
-                                                ->dehydrateStateUsing(fn (?string $state): array => array_values(array_filter(
-                                                    array_map('trim', explode("\n", (string) $state)),
-                                                    fn (string $paragraph): bool => $paragraph !== ''
-                                                )))
-                                                ->afterStateHydrated(function (TextInput|Textarea $component, mixed $state) {
-                                                    $component->state(is_array($state) ? implode("\n", $state) : (string) $state);
-                                                }),
-                                        ])->columnSpanFull(),
+                                        Textarea::make('paragraphs')
+                                            ->label('Абзаци (кожен абзац з нового рядка)')
+                                            ->rows(5)
+                                            ->columnSpanFull()
+                                            ->dehydrateStateUsing(fn (?string $state): array => array_values(array_filter(
+                                                array_map('trim', explode("\n", (string) $state)),
+                                                fn (string $paragraph): bool => $paragraph !== ''
+                                            )))
+                                            ->afterStateHydrated(function (TextInput|Textarea $component, mixed $state) {
+                                                $component->state(is_array($state) ? implode("\n", $state) : (string) $state);
+                                            }),
 
                                         FileUpload::make('image')
                                             ->label('Зображення блоку (опційно)')
@@ -111,7 +108,7 @@ class NewsForm
                                             ->columnSpanFull(),
                                     ])
                                     ->itemLabel(function (array $state): ?string {
-                                        $paragraphs = $state['paragraphs']['uk'] ?? $state['paragraphs']['en'] ?? '';
+                                        $paragraphs = $state['paragraphs'] ?? '';
                                         $text = is_array($paragraphs) ? implode(' ', $paragraphs) : (string) $paragraphs;
 
                                         return Str::limit($text, 50) ?: 'Блок';

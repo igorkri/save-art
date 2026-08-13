@@ -29,7 +29,7 @@ class LatestPendingProjects extends TableWidget
                 ->limit(5)
             )
             ->columns([
-                TextColumn::make('title.uk')
+                TextColumn::make('title')
                     ->label('Назва')
                     ->limit(40)
                     ->url(fn (Project $record): string => ProjectResource::getUrl('edit', ['record' => $record])),

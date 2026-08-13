@@ -17,7 +17,7 @@ class TermsSectionsTable
             ->columns([
                 TextColumn::make('heading')
                     ->label('Заголовок')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? ($state['uk'] ?? $state['en'] ?? '-') : ($state ?: '-'))
+                    ->formatStateUsing(fn (?string $state) => $state ?: '-')
                     ->searchable()
                     ->limit(60),
 

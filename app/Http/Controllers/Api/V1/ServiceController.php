@@ -135,11 +135,17 @@ class ServiceController extends Controller
 
         if ($request->filled('location')) {
             $location = mb_strtolower((string) $request->input('location'));
-            $jsonUnquote = (new Service)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
-            $cityUk = sprintf($jsonUnquote, "JSON_EXTRACT(city, '$.uk')");
-            $cityEn = sprintf($jsonUnquote, "JSON_EXTRACT(city, '$.en')");
             // Місто послуги власного поля не має — шукаємо за містом виконавця (митця/команди).
-            $query->whereHasMorph('serviceable', [User::class, Team::class], function ($q) use ($location, $cityUk, $cityEn) {
+            $query->whereHasMorph('serviceable', [User::class, Team::class], function ($q, string $type) use ($location) {
+                if ($type === User::class) {
+                    $q->whereRaw('LOWER(city) LIKE ?', ["%{$location}%"]);
+
+                    return;
+                }
+
+                $jsonUnquote = (new Service)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
+                $cityUk = sprintf($jsonUnquote, "JSON_EXTRACT(city, '$.uk')");
+                $cityEn = sprintf($jsonUnquote, "JSON_EXTRACT(city, '$.en')");
                 $q->whereRaw("LOWER({$cityUk}) LIKE ?", ["%{$location}%"])
                     ->orWhereRaw("LOWER({$cityEn}) LIKE ?", ["%{$location}%"]);
             });
@@ -147,16 +153,9 @@ class ServiceController extends Controller
 
         if ($request->filled('search')) {
             $search = mb_strtolower((string) $request->input('search'));
-            $jsonUnquote = (new Service)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
-            $titleUk = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.uk')");
-            $titleEn = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.en')");
-            $descriptionUk = sprintf($jsonUnquote, "JSON_EXTRACT(description, '$.uk')");
-            $descriptionEn = sprintf($jsonUnquote, "JSON_EXTRACT(description, '$.en')");
-            $query->where(function ($q) use ($search, $titleUk, $titleEn, $descriptionUk, $descriptionEn) {
-                $q->whereRaw("LOWER({$titleUk}) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER({$titleEn}) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER({$descriptionUk}) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER({$descriptionEn}) LIKE ?", ["%{$search}%"]);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$search}%"]);
             });
         }
 
@@ -181,7 +180,7 @@ class ServiceController extends Controller
                 $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $this->getFilterTranslation(['uk' => $child->getLabel('uk'), 'en' => $child->getLabel('en')], $language),
+                    'name' => $child->name,
                     'services_count' => $count,
                 ];
             }
@@ -190,7 +189,7 @@ class ServiceController extends Controller
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $this->getFilterTranslation(['uk' => $root->getLabel('uk'), 'en' => $root->getLabel('en')], $language),
+                'name' => $root->name,
                 'services_count' => $rootCount,
                 'subcategories' => $subcategories,
             ];
@@ -241,7 +240,7 @@ class ServiceController extends Controller
 
         $names = $cities
             ->filter()
-            ->map(fn (array $city) => $city[$language] ?? $city['uk'] ?? reset($city))
+            ->map(fn (array|string $city) => is_array($city) ? ($city[$language] ?? $city['uk'] ?? reset($city)) : $city)
             ->filter()
             ->unique();
 
@@ -341,7 +340,7 @@ class ServiceController extends Controller
 
         SendServiceOrderEmails::dispatch(
             service: [
-                'title' => $service->title['uk'] ?? $service->title['en'] ?? '',
+                'title' => $service->title,
                 'url' => rtrim(config('services.art_ua_info_frontend_url'), '/')."/services/{$service->slug}",
             ],
             performer: ['name' => $performer['name'], 'email' => $performer['email']],

@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
 
 class HomePage extends Model
 {
-    use HasFactory, HasTranslations;
+    use HasFactory;
 
     /**
      * Получить общую сумму собранных средств
@@ -17,27 +16,6 @@ class HomePage extends Model
     {
         return $this->total_collected;
     }
-
-    public $translatable = [
-        'hero_title',
-        'donates_subtitle',
-        'donates_title',
-        'donates_text',
-        'partners_title',
-        'ad_first_title',
-        'ad_first_button_text',
-        'ad_second_title',
-        'ad_second_button_text',
-        'footer_expert_title',
-        'footer_expert_text',
-        'footer_expert_features',
-        'footer_expert_button_text',
-        'platform_description_tagline',
-        'platform_description_title',
-        'platform_description_subtitle',
-        'platform_description_paragraphs',
-        'platform_features',
-    ];
 
     protected $fillable = [
         'hero_title',
@@ -77,22 +55,7 @@ class HomePage extends Model
     protected function casts(): array
     {
         return [
-            'hero_title' => 'array',
-            'donates_subtitle' => 'array',
-            'donates_title' => 'array',
-            'donates_text' => 'array',
-            'partners_title' => 'array',
-            'ad_first_title' => 'array',
-            'ad_first_button_text' => 'array',
-            'ad_second_title' => 'array',
-            'ad_second_button_text' => 'array',
-            'footer_expert_title' => 'array',
-            'footer_expert_text' => 'array',
             'footer_expert_features' => 'array',
-            'footer_expert_button_text' => 'array',
-            'platform_description_tagline' => 'array',
-            'platform_description_title' => 'array',
-            'platform_description_subtitle' => 'array',
             'platform_description_paragraphs' => 'array',
             'platform_features' => 'array',
             'total_collected' => 'integer',
@@ -151,65 +114,45 @@ class HomePage extends Model
     }
 
     /**
-     * Отримання hero_title з автоопеределением мови
-     * 'ua', 'en'
+     * Отримання hero_title
      */
     public function getHeroTitle(): ?string
     {
-        $locale = app()->getLocale(); // 'ua', 'en' або інші
-
-        return $this->getTranslation('hero_title', $locale);
-        // return $this->hero_title[$locale] ?? null;
+        return $this->hero_title;
     }
 
     // ----------------- DONATES SECTION -----------------
     /**
-     * Отримання donates_subtitle з автоопеределением мови
-     * 'ua', 'en'
+     * Отримання donates_subtitle
      */
     public function getDonatesSubtitle(): ?string
     {
-        $locale = app()->getLocale(); // 'ua', 'en' або інші
-
-        return $this->getTranslation('donates_subtitle', $locale);
-        // return $this->donates_subtitle[$locale] ?? null;
+        return $this->donates_subtitle;
     }
 
     /**
-     * Отримання donates_title з автоопеределением мови
-     * 'ua', 'en'
+     * Отримання donates_title
      */
     public function getDonatesTitle(): ?string
     {
-        $locale = app()->getLocale(); // 'ua', 'en' або інші
-
-        return $this->getTranslation('donates_title', $locale);
-        // return $this->donates_title[$locale] ?? null;
+        return $this->donates_title;
     }
 
     /**
-     * Отримання donates_text з автоопеределением мови
-     * 'ua', 'en'
+     * Отримання donates_text
      */
     public function getDonatesText(): ?string
     {
-        $locale = app()->getLocale(); // 'ua', 'en' або інші
-
-        return $this->getTranslation('donates_text', $locale);
-        // return $this->donates_text[$locale] ?? null;
+        return $this->donates_text;
     }
 
     // ----------------- PARTNERS SECTION -----------------
     /**
-     * Отримання partners_title з автоопеределением мови
-     * 'ua', 'en'
+     * Отримання partners_title
      */
     public function getPartnersTitle(): ?string
     {
-        $locale = app()->getLocale(); // 'ua', 'en' або інші
-
-        return $this->getTranslation('partners_title', $locale);
-        // return $this->partners_title[$locale] ?? null;
+        return $this->partners_title;
     }
 
     /**
@@ -227,7 +170,7 @@ class HomePage extends Model
     }
 
     /**
-     * Получить название партнера по индексу с учетом локали
+     * Получить название партнера по индексу
      */
     public function getPartnerName(int $index): ?string
     {
@@ -235,26 +178,18 @@ class HomePage extends Model
         if (! $partner || empty($partner['name'])) {
             return null;
         }
-        $locale = app()->getLocale();
-        if (is_array($partner['name'])) {
-            return $partner['name'][$locale] ?? reset($partner['name']);
-        }
 
         return $partner['name'];
     }
 
     /**
-     * Получить описание партнера по индексу с учетом локали
+     * Получить описание партнера по индексу
      */
     public function getPartnerDescription(int $index): ?string
     {
         $partner = $this->partners[$index] ?? null;
         if (! $partner || empty($partner['description'])) {
             return null;
-        }
-        $locale = app()->getLocale();
-        if (is_array($partner['description'])) {
-            return $partner['description'][$locale] ?? reset($partner['description']);
         }
 
         return $partner['description'];

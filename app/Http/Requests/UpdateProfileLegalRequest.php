@@ -38,17 +38,10 @@ class UpdateProfileLegalRequest extends FormRequest
             'currency' => ['nullable', 'string', 'in:UAH,USD,EUR'],
             // logo може бути шляхом до файлу або base64 строкою
             'logo' => ['nullable', 'string'],
-            // Багатомовні JSON об'єкти
-            'name' => ['nullable', 'array'],
-            'name.en' => ['nullable', 'string', 'max:255'],
-            'name.uk' => ['nullable', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'],
             'edrpou' => ['nullable', 'string', 'max:50'],
-            'authorized_person' => ['nullable', 'array'],
-            'authorized_person.en' => ['nullable', 'string', 'max:255'],
-            'authorized_person.uk' => ['nullable', 'string', 'max:255'],
-            'address' => ['nullable', 'array'],
-            'address.en' => ['nullable', 'string'],
-            'address.uk' => ['nullable', 'string'],
+            'authorized_person' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
         ];

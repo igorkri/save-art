@@ -26,7 +26,7 @@ class RecentDonations extends TableWidget
                 ->limit(10)
             )
             ->columns([
-                TextColumn::make('project.title.uk')
+                TextColumn::make('project.title')
                     ->label('Проєкт')
                     ->limit(30),
 

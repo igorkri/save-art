@@ -295,10 +295,7 @@ class StatisticsController extends Controller
                 'count' => $count,
                 'collected' => $collected,
                 'goal' => $goal,
-                'label' => [
-                    'uk' => $category->getLabel('uk'),
-                    'en' => $category->getLabel('en'),
-                ],
+                'label' => $category->name,
             ];
         }
 
@@ -450,10 +447,7 @@ class StatisticsController extends Controller
 
             if ($count > 0) {
                 $result[] = [
-                    'art_form' => [
-                        'uk' => $category->getLabel('uk'),
-                        'en' => $category->getLabel('en'),
-                    ],
+                    'art_form' => $category->name,
                     'count' => $count,
                     'collected' => $collected,
                 ];

@@ -87,8 +87,7 @@ class MyTeamController extends Controller
             ->where('is_blocked', false)
             ->where('id', '!=', $request->user()->id)
             ->where(function ($query) use ($search) {
-                $query->where('full_name->uk', 'like', "%{$search}%")
-                    ->orWhere('full_name->en', 'like', "%{$search}%")
+                $query->where('full_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             })
             ->limit(20)

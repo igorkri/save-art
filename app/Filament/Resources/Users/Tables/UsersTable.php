@@ -27,7 +27,7 @@ class UsersTable
                     ->label('ПІБ')
                     ->copyable()
                     ->copyableState(fn (User $record): string => $record->display_name)
-                    ->searchable('full_name->uk'),
+                    ->searchable('full_name'),
 
                 TextColumn::make('email')
                     ->label('Email')

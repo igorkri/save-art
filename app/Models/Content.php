@@ -8,21 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Content
  *
- * @package App\Models
  *
  * @property int $id
- * @property array|null $page_title
- * @property array|null $title
+ * @property string|null $page_title
+ * @property string|null $title
  * @property string $slug
- * @property array|null $content
- * @property array|null $meta_title
- * @property array|null $meta_description
- * @property array|null $meta_keywords
+ * @property string|null $content
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property string|null $meta_keywords
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
-
 class Content extends Model
 {
     use HasFactory;
@@ -44,20 +42,11 @@ class Content extends Model
     ];
 
     /**
-     *
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
-        'page_title' => 'array',
-        'title' => 'array',
-        'content' => 'array',
-        'meta_title' => 'array',
-        'meta_description' => 'array',
-        'meta_keywords' => 'array',
         'is_active' => 'boolean',
     ];
-
-
 }

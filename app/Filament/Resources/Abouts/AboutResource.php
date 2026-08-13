@@ -35,11 +35,7 @@ class AboutResource extends Resource
 
     public static function getRecordTitle($record): ?string
     {
-        if ($record->title && is_array($record->title)) {
-            return $record->title[app()->getLocale()] ?? $record->title['uk'] ?? reset($record->title) ?? 'About';
-        }
-
-        return 'About';
+        return $record->title ?: 'About';
     }
 
     public static function form(Schema $schema): Schema

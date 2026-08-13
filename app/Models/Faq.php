@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $faq_category_id
- * @property array $question
- * @property array $answer
+ * @property string $question
+ * @property string $answer
  * @property int $order
  * @property bool $is_active
  * @property \Carbon\Carbon $created_at
@@ -35,8 +35,6 @@ class Faq extends Model
     protected function casts(): array
     {
         return [
-            'question' => 'array',
-            'answer' => 'array',
             'is_active' => 'boolean',
         ];
     }

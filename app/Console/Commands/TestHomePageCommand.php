@@ -30,7 +30,7 @@ class TestHomePageCommand extends Command
 
         if ($homePage) {
             $this->info("Active HomePage ID: {$homePage->id}");
-            $this->info("statistics_is_active: " . ($homePage->statistics_is_active ? 'true' : 'false'));
+            $this->info('statistics_is_active: '.($homePage->statistics_is_active ? 'true' : 'false'));
         } else {
             $this->info('No active HomePage found');
 
@@ -38,12 +38,11 @@ class TestHomePageCommand extends Command
             $homePage = HomePage::create([
                 'is_active' => true,
                 'statistics_is_active' => false, // Установим в false для теста
-                'hero_title' => json_encode(['uk' => 'Тест', 'en' => 'Test']),
-                'hero_subtitle' => json_encode(['uk' => 'Тест підзаголовок', 'en' => 'Test subtitle']),
+                'hero_title' => 'Тест',
             ]);
 
             $this->info("Created test HomePage with ID: {$homePage->id}");
-            $this->info("statistics_is_active: " . ($homePage->statistics_is_active ? 'true' : 'false'));
+            $this->info('statistics_is_active: '.($homePage->statistics_is_active ? 'true' : 'false'));
         }
 
         return 0;

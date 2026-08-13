@@ -14,7 +14,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
-use Pixelpeter\FilamentLanguageTabs\Forms\Components\LanguageTabs;
 
 class AboutForm
 {
@@ -28,11 +27,9 @@ class AboutForm
 
                 Section::make('Основна інформація')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('title')
-                                ->label('Заголовок')
-                                ->required(),
-                        ]),
+                        TextInput::make('title')
+                            ->label('Заголовок')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -68,26 +65,24 @@ class AboutForm
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 1440х600 пікселів або співвідношення 12:5.'),
 
-                        LanguageTabs::make([
-                            Repeater::make('feats')
-                                ->label('Список особливостей')
-                                ->schema([
-                                    TextInput::make('name')
-                                        ->label('Назва')
-                                        ->required(),
-                                    TextInput::make('title')
-                                        ->label('Заголовок')
-                                        ->required(),
-                                    Textarea::make('description')
-                                        ->label('Опис')
-                                        ->required(),
-                                ])
-                                ->columns(1)
-                                ->minItems(1)
-                                ->maxItems(10)
-                                ->defaultItems(1)
-                                ->required(),
-                        ]),
+                        Repeater::make('feats')
+                            ->label('Список особливостей')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->required(),
+                                TextInput::make('title')
+                                    ->label('Заголовок')
+                                    ->required(),
+                                Textarea::make('description')
+                                    ->label('Опис')
+                                    ->required(),
+                            ])
+                            ->columns(1)
+                            ->minItems(1)
+                            ->maxItems(10)
+                            ->defaultItems(1)
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -152,19 +147,17 @@ class AboutForm
                                     ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 16:9 або розмір 1600x862 пікселів.'),
                             ]),
 
-                        LanguageTabs::make([
-                            TextInput::make('description.title_date')
-                                ->label('Дата')
-                                ->required(),
+                        TextInput::make('description.title_date')
+                            ->label('Дата')
+                            ->required(),
 
-                            Textarea::make('description.description_date')
-                                ->label('Опис дати')
-                                ->required(),
+                        Textarea::make('description.description_date')
+                            ->label('Опис дати')
+                            ->required(),
 
-                            RichEditor::make('description.text')
-                                ->label('Опис')
-                                ->required(),
-                        ]),
+                        RichEditor::make('description.text')
+                            ->label('Опис')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -199,43 +192,39 @@ class AboutForm
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 16:9 або розмір 1600x900 пікселів.'),
 
-                        LanguageTabs::make([
-                            TextInput::make('goals.title')
-                                ->label('Заголовок')
-                                ->required(),
-                            TextInput::make('goals.task')
-                                ->label('Завдання')
-                                ->required(),
-                            RichEditor::make('goals.description')
-                                ->label('Опис')
-                                ->required(),
-                        ]),
+                        TextInput::make('goals.title')
+                            ->label('Заголовок')
+                            ->required(),
+                        TextInput::make('goals.task')
+                            ->label('Завдання')
+                            ->required(),
+                        RichEditor::make('goals.description')
+                            ->label('Опис')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
 
                 Section::make('Завдання')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('title')
-                                ->label('Заголовок')
-                                ->required(),
-                            Textarea::make('description')
-                                ->label('Опис')
-                                ->required(),
-                            Repeater::make('tasks')
-                                ->label('Список завдань')
-                                ->schema([
-                                    TextInput::make('task')
-                                        ->label('Завдання')
-                                        ->required(),
-                                ])
-                                ->columns(1)
-                                ->minItems(1)
-                                ->maxItems(20)
-                                ->defaultItems(1)
-                                ->required(),
-                        ]),
+                        TextInput::make('title')
+                            ->label('Заголовок')
+                            ->required(),
+                        Textarea::make('description')
+                            ->label('Опис')
+                            ->required(),
+                        Repeater::make('tasks')
+                            ->label('Список завдань')
+                            ->schema([
+                                TextInput::make('task')
+                                    ->label('Завдання')
+                                    ->required(),
+                            ])
+                            ->columns(1)
+                            ->minItems(1)
+                            ->maxItems(20)
+                            ->defaultItems(1)
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -270,26 +259,24 @@ class AboutForm
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 800:507 або розмір 1600x1014 пікселів.'),
 
-                        LanguageTabs::make([
-                            TextInput::make('implementation.title')
-                                ->label('Реалізація')
-                                ->required(),
-                            Repeater::make('implementation.items')
-                                ->label('Пункти реалізації')
-                                ->schema([
-                                    TextInput::make('item.title')
-                                        ->label('Заголовок')
-                                        ->required(),
-                                    Textarea::make('item.description')
-                                        ->label('Опис')
-                                        ->required(),
-                                ])
-                                ->columns(1)
-                                ->minItems(1)
-                                ->maxItems(20)
-                                ->defaultItems(1)
-                                ->required(),
-                        ]),
+                        TextInput::make('implementation.title')
+                            ->label('Реалізація')
+                            ->required(),
+                        Repeater::make('implementation.items')
+                            ->label('Пункти реалізації')
+                            ->schema([
+                                TextInput::make('item.title')
+                                    ->label('Заголовок')
+                                    ->required(),
+                                Textarea::make('item.description')
+                                    ->label('Опис')
+                                    ->required(),
+                            ])
+                            ->columns(1)
+                            ->minItems(1)
+                            ->maxItems(20)
+                            ->defaultItems(1)
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -324,14 +311,12 @@ class AboutForm
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 47:20 або розмір 940х400 пікселів.'),
 
-                        LanguageTabs::make([
-                            TextInput::make('results.title')
-                                ->label('Заголовок')
-                                ->required(),
-                            RichEditor::make('results.description')
-                                ->label('Опис')
-                                ->required(),
-                        ]),
+                        TextInput::make('results.title')
+                            ->label('Заголовок')
+                            ->required(),
+                        RichEditor::make('results.description')
+                            ->label('Опис')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -366,28 +351,24 @@ class AboutForm
                             })
                             ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 16:9 або розмір 1600x900 пікселів.'),
 
-                        LanguageTabs::make([
-                            TextInput::make('id_art.title')
-                                ->label('ID мистецтва')
-                                ->required(),
-                            RichEditor::make('id_art.description')
-                                ->label('Опис')
-                                ->required(),
-                        ]),
+                        TextInput::make('id_art.title')
+                            ->label('ID мистецтва')
+                            ->required(),
+                        RichEditor::make('id_art.description')
+                            ->label('Опис')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
 
                 Section::make('Події')
                     ->schema([
-                        LanguageTabs::make([
-                            TextInput::make('events.title')
-                                ->label('Заголовок')
-                                ->required(),
-                            RichEditor::make('events.h2')
-                                ->label('Опис')
-                                ->required(),
-                        ]),
+                        TextInput::make('events.title')
+                            ->label('Заголовок')
+                            ->required(),
+                        RichEditor::make('events.h2')
+                            ->label('Опис')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -453,11 +434,9 @@ class AboutForm
                                     ->helperText('Максимальний розмір файлу: 5 МБ. Рекомендований формат: 440x600 пікселів або співвідношення 11:15.'),
                             ]),
 
-                        LanguageTabs::make([
-                            RichEditor::make('project.description')
-                                ->label('Опис')
-                                ->required(),
-                        ]),
+                        RichEditor::make('project.description')
+                            ->label('Опис')
+                            ->required(),
                     ])
                     ->collapsible()
                     ->collapsed(),

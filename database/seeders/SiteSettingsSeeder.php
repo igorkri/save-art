@@ -14,42 +14,39 @@ class SiteSettingsSeeder extends Seeder
     {
         SiteSettings::create([
             // Header
-            'header_brand_name' => [
-                'uk' => 'save-art.in.ua',
-                'en' => 'save-art.in.ua',
-            ],
+            'header_brand_name' => 'save-art.in.ua',
             'header_dropdown_sites' => [
                 [
-                    'name' => ['uk' => 'save-art.in.ua', 'en' => 'save-art.in.ua'],
+                    'name' => 'save-art.in.ua',
                     'url' => 'https://save-art.in.ua',
                     'is_active' => true,
                 ],
                 [
-                    'name' => ['uk' => 'art-ua.info', 'en' => 'art-ua.info'],
+                    'name' => 'art-ua.info',
                     'url' => 'https://art-ua.info',
                     'is_active' => false,
                 ],
                 [
-                    'name' => ['uk' => 'art-ua.com', 'en' => 'art-ua.com'],
+                    'name' => 'art-ua.com',
                     'url' => 'https://art-ua.com',
                     'is_active' => false,
                 ],
             ],
             'header_menu' => [
                 [
-                    'label' => ['uk' => 'Проєкти', 'en' => 'Projects'],
+                    'label' => 'Проєкти',
                     'url' => '/projects/page/1',
                 ],
                 [
-                    'label' => ['uk' => 'Звіти', 'en' => 'Reports'],
+                    'label' => 'Звіти',
                     'url' => '/reports',
                 ],
                 [
-                    'label' => ['uk' => 'Спецпроєкти', 'en' => 'Special Projects'],
+                    'label' => 'Спецпроєкти',
                     'url' => '/special-projects',
                 ],
                 [
-                    'label' => ['uk' => 'Про нас', 'en' => 'About Us'],
+                    'label' => 'Про нас',
                     'url' => '/about-us',
                 ],
             ],
@@ -59,102 +56,75 @@ class SiteSettingsSeeder extends Seeder
                 'youtube' => 'https://youtube.com/',
             ],
             'header_support_button_url' => '/support-platform',
-            'header_support_button_text' => [
-                'uk' => 'Підтримати',
-                'en' => 'Support',
-            ],
-            'header_login_button_text' => [
-                'uk' => 'Увійти',
-                'en' => 'Login',
-            ],
+            'header_support_button_text' => 'Підтримати',
+            'header_login_button_text' => 'Увійти',
 
             // Footer Top
-            'footer_brand_name' => [
-                'uk' => 'save-art.in.ua',
-                'en' => 'save-art.in.ua',
-            ],
-            'footer_slogan' => [
-                'uk' => 'Мистецтво допомоги — найсучасніше з мистецтв',
-                'en' => 'The art of helping is the most modern of arts',
-            ],
-            'footer_collaboration_title' => [
-                'uk' => 'Запрошуємо експертів до співпраці',
-                'en' => 'We invite experts to collaborate',
-            ],
-            'footer_collaboration_text' => [
-                'uk' => 'Благодійний фонд ID_Art UA відкритий до співпраці ...',
-                'en' => 'The ID_Art UA Charitable Foundation is open to collaboration ...',
-            ],
+            'footer_brand_name' => 'save-art.in.ua',
+            'footer_slogan' => 'Мистецтво допомоги — найсучасніше з мистецтв',
+            'footer_collaboration_title' => 'Запрошуємо експертів до співпраці',
+            'footer_collaboration_text' => 'Благодійний фонд ID_Art UA відкритий до співпраці ...',
             'footer_collaboration_items' => [
                 [
                     'image' => null,
-                    'text' => ['uk' => 'Створення сучасного українського мистецтва', 'en' => 'Creating modern Ukrainian art'],
+                    'text' => 'Створення сучасного українського мистецтва',
                 ],
                 [
                     'image' => null,
-                    'text' => ['uk' => 'Участь у проведенні виставок та мистецьких заходів', 'en' => 'Participation in exhibitions and art events'],
+                    'text' => 'Участь у проведенні виставок та мистецьких заходів',
                 ],
                 [
                     'image' => null,
-                    'text' => ['uk' => 'Популяризація українських митців в усьому світі', 'en' => 'Promoting Ukrainian artists worldwide'],
+                    'text' => 'Популяризація українських митців в усьому світі',
                 ],
             ],
-            'footer_collaboration_button_text' => [
-                'uk' => 'Відправити заявку',
-                'en' => 'Send application',
-            ],
+            'footer_collaboration_button_text' => 'Відправити заявку',
 
             // Footer Middle - меню сайтів
             'footer_sites_menu' => [
                 [
-                    'site_name' => ['uk' => 'save-art.in.ua', 'en' => 'save-art.in.ua'],
+                    'site_name' => 'save-art.in.ua',
                     'site_url' => '/',
                     'links' => [
-                        ['label' => ['uk' => 'Проєкти', 'en' => 'Projects'], 'url' => '/projects/page/1'],
-                        ['label' => ['uk' => 'Звіти', 'en' => 'Reports'], 'url' => '/reports'],
-                        ['label' => ['uk' => 'Спецпроєкти', 'en' => 'Special Projects'], 'url' => '/special-projects'],
-                        ['label' => ['uk' => 'Про нас', 'en' => 'About Us'], 'url' => '/about-us'],
-                        ['label' => ['uk' => 'Часті питання', 'en' => 'FAQ'], 'url' => '/faq'],
-                        ['label' => ['uk' => 'Умови використання', 'en' => 'Terms of Use'], 'url' => '/terms-of-use'],
+                        ['label' => 'Проєкти', 'url' => '/projects/page/1'],
+                        ['label' => 'Звіти', 'url' => '/reports'],
+                        ['label' => 'Спецпроєкти', 'url' => '/special-projects'],
+                        ['label' => 'Про нас', 'url' => '/about-us'],
+                        ['label' => 'Часті питання', 'url' => '/faq'],
+                        ['label' => 'Умови використання', 'url' => '/terms-of-use'],
                     ],
                 ],
                 [
-                    'site_name' => ['uk' => 'art-ua.info', 'en' => 'art-ua.info'],
+                    'site_name' => 'art-ua.info',
                     'site_url' => 'https://art-ua.info',
                     'links' => [
-                        ['label' => ['uk' => 'Учасники', 'en' => 'Participants'], 'url' => '#'],
-                        ['label' => ['uk' => 'Каталоги', 'en' => 'Catalogs'], 'url' => '#'],
-                        ['label' => ['uk' => 'Проєкти', 'en' => 'Projects'], 'url' => '#'],
-                        ['label' => ['uk' => 'Послуги', 'en' => 'Services'], 'url' => '#'],
-                        ['label' => ['uk' => 'Новини та події', 'en' => 'News and Events'], 'url' => '#'],
-                        ['label' => ['uk' => 'Часті питання', 'en' => 'FAQ'], 'url' => '#'],
-                        ['label' => ['uk' => 'Умови використання', 'en' => 'Terms of Use'], 'url' => '/terms-of-use'],
+                        ['label' => 'Учасники', 'url' => '#'],
+                        ['label' => 'Каталоги', 'url' => '#'],
+                        ['label' => 'Проєкти', 'url' => '#'],
+                        ['label' => 'Послуги', 'url' => '#'],
+                        ['label' => 'Новини та події', 'url' => '#'],
+                        ['label' => 'Часті питання', 'url' => '#'],
+                        ['label' => 'Умови використання', 'url' => '/terms-of-use'],
                     ],
                 ],
                 [
-                    'site_name' => ['uk' => 'art-ua.com', 'en' => 'art-ua.com'],
+                    'site_name' => 'art-ua.com',
                     'site_url' => 'https://art-ua.com',
                     'links' => [
-                        ['label' => ['uk' => 'Учасники', 'en' => 'Participants'], 'url' => '#'],
-                        ['label' => ['uk' => 'Каталоги', 'en' => 'Catalogs'], 'url' => '#'],
-                        ['label' => ['uk' => 'Проєкти', 'en' => 'Projects'], 'url' => '#'],
-                        ['label' => ['uk' => 'Послуги', 'en' => 'Services'], 'url' => '#'],
-                        ['label' => ['uk' => 'Новини та події', 'en' => 'News and Events'], 'url' => '#'],
-                        ['label' => ['uk' => 'Часті питання', 'en' => 'FAQ'], 'url' => '#'],
-                        ['label' => ['uk' => 'Умови використання', 'en' => 'Terms of Use'], 'url' => '/terms-of-use'],
+                        ['label' => 'Учасники', 'url' => '#'],
+                        ['label' => 'Каталоги', 'url' => '#'],
+                        ['label' => 'Проєкти', 'url' => '#'],
+                        ['label' => 'Послуги', 'url' => '#'],
+                        ['label' => 'Новини та події', 'url' => '#'],
+                        ['label' => 'Часті питання', 'url' => '#'],
+                        ['label' => 'Умови використання', 'url' => '/terms-of-use'],
                     ],
                 ],
             ],
 
             // Footer Bottom - контактна інформація
-            'footer_company_name' => [
-                'uk' => 'БЛАГОДІЙНИЙ ФОНД ID_Art UA',
-                'en' => 'ID_Art UA CHARITABLE FOUNDATION',
-            ],
-            'footer_address' => [
-                'uk' => 'м. Івано-Франківськ, Україна',
-                'en' => 'Ivano-Frankivsk, Ukraine',
-            ],
+            'footer_company_name' => 'БЛАГОДІЙНИЙ ФОНД ID_Art UA',
+            'footer_address' => 'м. Івано-Франківськ, Україна',
             'footer_email' => 'idartua.bo@gmail.com',
             'footer_phone' => '+380 67 734 5938',
             'footer_social_links' => [

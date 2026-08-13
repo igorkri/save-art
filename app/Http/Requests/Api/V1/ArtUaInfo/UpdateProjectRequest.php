@@ -5,6 +5,7 @@ namespace App\Http\Requests\Api\V1\ArtUaInfo;
 use App\Enums\Currency;
 use App\Enums\ProjectSource;
 use App\Enums\UserType;
+use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
 use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -20,6 +21,8 @@ use Illuminate\Validation\Validator;
  */
 class UpdateProjectRequest extends FormRequest
 {
+    use NormalizesProjectUkrainianFields { prepareForValidation as normalizeProjectUkrainianFields; }
+
     public function authorize(): bool
     {
         /** @var Project|null $project */
@@ -46,6 +49,7 @@ class UpdateProjectRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $this->normalizeProjectUkrainianFields();
         $this->merge(['currency' => Currency::USD->value]);
     }
 
@@ -97,24 +101,15 @@ class UpdateProjectRequest extends FormRequest
                 },
             ],
 
-            'title' => ['required', 'array'],
-            'title.uk' => ['required', 'string', 'max:255'],
-            'title.en' => ['required', 'string', 'max:255'],
-
-            'short_description' => ['nullable', 'array'],
-            'short_description.uk' => ['nullable', 'string', 'max:1000'],
-            'short_description.en' => ['nullable', 'string', 'max:1000'],
+            'title' => ['required', 'string', 'max:255'],
+            'short_description' => ['nullable', 'string', 'max:1000'],
 
             'cover' => ['nullable'],
 
             'art_category' => ['required', 'string', 'max:100'],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
-            'tags' => ['nullable', 'array'],
-            'tags.uk' => ['nullable', 'array', 'max:30'],
-            'tags.uk.*' => ['string', 'max:100'],
-            'tags.en' => ['nullable', 'array', 'max:30'],
-            'tags.en.*' => ['string', 'max:100'],
+            'tags' => ['nullable', 'string', 'max:500'],
 
             'currency' => ['nullable', Rule::enum(Currency::class)],
 
@@ -128,10 +123,10 @@ class UpdateProjectRequest extends FormRequest
             'content_blocks' => ['nullable', 'array', 'max:50'],
             'content_blocks.*.type' => ['sometimes', 'string', 'in:heading,paragraph,image,link'],
             'content_blocks.*.heading_level' => ['sometimes', 'string', 'in:h1,h2,h3,h4,h5,h6'],
-            'content_blocks.*.heading_text' => ['sometimes', 'array'],
-            'content_blocks.*.paragraph_text' => ['sometimes', 'array'],
+            'content_blocks.*.heading_text' => ['sometimes', 'string', 'max:255'],
+            'content_blocks.*.paragraph_text' => ['sometimes', 'string', 'max:10000'],
             'content_blocks.*.image' => ['sometimes', 'string'],
-            'content_blocks.*.image_alt' => ['sometimes', 'array'],
+            'content_blocks.*.image_alt' => ['sometimes', 'string', 'max:255'],
             'content_blocks.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // Проєкт уже продано на іншій платформі (art-ua.com чи іншій).
@@ -140,9 +135,7 @@ class UpdateProjectRequest extends FormRequest
             'parameters' => ['nullable', 'array'],
             'parameters.*.parameter_id' => ['required_with:parameters', 'integer', 'exists:parameters,id'],
             'parameters.*.parameter_value_id' => ['nullable', 'integer', 'exists:parameter_values,id'],
-            'parameters.*.custom_value' => ['nullable', 'array'],
-            'parameters.*.custom_value.uk' => ['nullable', 'string', 'max:255'],
-            'parameters.*.custom_value.en' => ['nullable', 'string', 'max:255'],
+            'parameters.*.custom_value' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -150,8 +143,7 @@ class UpdateProjectRequest extends FormRequest
     {
         return [
             'user_type.required' => 'Оберіть власника проєкту.',
-            'title.uk.required' => 'Введіть назву проєкту українською.',
-            'title.en.required' => 'Введіть назву проєкту англійською.',
+            'title.required' => 'Введіть назву проєкту.',
             'art_category.required' => 'Оберіть галузь мистецтва.',
             'final_result.required' => 'Додайте роботу.',
         ];

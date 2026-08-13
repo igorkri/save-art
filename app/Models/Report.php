@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $project_id
  * @property int $user_id
- * @property array $title
- * @property array|null $description
+ * @property string $title
+ * @property string|null $description
  * @property string|null $cover
  * @property array|null $images
  * @property array|null $attachments
@@ -50,8 +50,6 @@ class Report extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
-            'description' => 'array',
             'images' => 'array',
             'attachments' => 'array',
             'collected_amount' => 'decimal:2',
