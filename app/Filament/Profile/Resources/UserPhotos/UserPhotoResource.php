@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Filament\Profile\Resources\UserPhotos;
+
+use App\Filament\Profile\Resources\UserPhotos\Pages\CreateUserPhoto;
+use App\Filament\Profile\Resources\UserPhotos\Pages\EditUserPhoto;
+use App\Filament\Profile\Resources\UserPhotos\Pages\ListUserPhotos;
+use App\Filament\Profile\Resources\UserPhotos\Schemas\UserPhotoForm;
+use App\Filament\Profile\Resources\UserPhotos\Tables\UserPhotosTable;
+use App\Models\UserPhoto;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
+
+class UserPhotoResource extends Resource
+{
+    protected static ?string $model = UserPhoto::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
+
+    protected static UnitEnum|string|null $navigationGroup = 'Роботи';
+
+    public static function getModelLabel(): string
+    {
+        return 'Робота';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Портфоліо';
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('user_id', auth()->id());
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return UserPhotoForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return UserPhotosTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListUserPhotos::route('/'),
+            'create' => CreateUserPhoto::route('/create'),
+            'edit' => EditUserPhoto::route('/{record}/edit'),
+        ];
+    }
+}

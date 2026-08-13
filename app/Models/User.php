@@ -144,6 +144,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return $this->isAdmin();
         }
 
+        if ($panel->getId() === 'profile') {
+            return $this->isArtist();
+        }
+
         return false;
     }
 
