@@ -2,7 +2,7 @@
     {{-- wire:key на дропдауні вмикає wire:ignore.self у компоненті Filament,
     тож панель не втрачає стан "відкрито" й не закривається щоразу, коли
     клік всередині (наприклад, позначення прочитаним) робить Livewire-запит. --}}
-    <x-filament::dropdown placement="bottom-end" width="sm" wire:key="notifications-bell-panel">
+    <x-filament::dropdown placement="bottom-end" width="sm" shift wire:key="notifications-bell-panel">
         <x-slot name="trigger">
             <x-filament::icon-button
                 icon="heroicon-o-bell"
