@@ -147,24 +147,48 @@ class EditProfile extends BaseEditProfile
                             ->schema([
                                 Section::make(__('profile_edit.sections.legal_details.title'))
                                     ->description(__('profile_edit.sections.legal_details.description'))
-                                    ->columns(2)
                                     ->schema([
                                         Toggle::make('profileLegal.is_active')
                                             ->label(__('profile_edit.fields.legal_active'))
                                             ->helperText(__('profile_edit.helpers.legal_active'))
                                             ->live()
-                                            ->default(true)
-                                            ->columnSpanFull(),
-                                        Select::make('profileLegal.currency')
-                                            ->label(__('profile_edit.fields.currency'))
-                                            ->options([
-                                                Currency::UAH->value => __('profile_edit.currency.uah'),
-                                                Currency::USD->value => __('profile_edit.currency.usd'),
-                                                Currency::EUR->value => __('profile_edit.currency.eur'),
+                                            ->default(true),
+                                    ]),
+
+                                Section::make(__('profile_edit.sections.legal_company.title'))
+                                    ->description(__('profile_edit.sections.legal_company.description'))
+                                    ->columns(2)
+                                    ->schema([
+                                        Grid::make(1)
+                                            ->schema([
+                                                TextInput::make('profileLegal.name')
+                                                    ->label(__('profile_edit.fields.company_name'))
+                                                    ->placeholder(__('profile_edit.placeholders.company_name'))
+                                                    ->maxLength(255)
+                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                                TextInput::make('profileLegal.edrpou')
+                                                    ->label(__('profile_edit.fields.edrpou'))
+                                                    ->placeholder(__('profile_edit.placeholders.edrpou'))
+                                                    ->helperText(__('profile_edit.helpers.edrpou'))
+                                                    ->maxLength(20)
+                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                                TextInput::make('profileLegal.authorized_person')
+                                                    ->label(__('profile_edit.fields.authorized_person'))
+                                                    ->placeholder(__('profile_edit.placeholders.authorized_person'))
+                                                    ->maxLength(255)
+                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                                Select::make('profileLegal.currency')
+                                                    ->label(__('profile_edit.fields.currency'))
+                                                    ->options([
+                                                        Currency::UAH->value => __('profile_edit.currency.uah'),
+                                                        Currency::USD->value => __('profile_edit.currency.usd'),
+                                                        Currency::EUR->value => __('profile_edit.currency.eur'),
+                                                    ])
+                                                    ->default(Currency::UAH->value)
+                                                    ->required()
+                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                             ])
-                                            ->default(Currency::UAH->value)
-                                            ->required()
-                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                            ->columnSpan(1),
                                         FileUpload::make('profileLegal.logo')
                                             ->label(__('profile_edit.fields.logo'))
                                             ->image()
@@ -173,32 +197,30 @@ class EditProfile extends BaseEditProfile
                                             ->maxSize(5120)
                                             ->disk('public')
                                             ->directory('logos')
+                                            ->helperText(__('profile_edit.helpers.legal_logo'))
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
-                                            ->columnSpanFull(),
-                                        TextInput::make('profileLegal.name')
-                                            ->label(__('profile_edit.fields.company_name'))
-                                            ->maxLength(255)
-                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
-                                        TextInput::make('profileLegal.edrpou')
-                                            ->label(__('profile_edit.fields.edrpou'))
-                                            ->maxLength(20)
-                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
-                                        TextInput::make('profileLegal.authorized_person')
-                                            ->label(__('profile_edit.fields.authorized_person'))
-                                            ->maxLength(255)
-                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                            ->columnSpan(1),
+                                    ]),
+
+                                Section::make(__('profile_edit.sections.legal_contacts.title'))
+                                    ->description(__('profile_edit.sections.legal_contacts.description'))
+                                    ->columns(2)
+                                    ->schema([
                                         TextInput::make('profileLegal.phone')
                                             ->label(__('profile_edit.fields.legal_phone'))
                                             ->tel()
+                                            ->placeholder(__('profile_edit.placeholders.phone'))
                                             ->maxLength(50)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.email')
                                             ->label(__('profile_edit.fields.email'))
                                             ->email()
+                                            ->placeholder(__('profile_edit.placeholders.legal_email'))
                                             ->maxLength(255)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.address')
                                             ->label(__('profile_edit.fields.legal_address'))
+                                            ->placeholder(__('profile_edit.placeholders.legal_address'))
                                             ->maxLength(500)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
                                             ->columnSpanFull(),

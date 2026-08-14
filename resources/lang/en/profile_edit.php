@@ -29,8 +29,16 @@ return [
             'description' => 'Tell us about yourself — visitors of your public page will see this text.',
         ],
         'legal_details' => [
-            'title' => 'Legal details',
+            'title' => 'Legal profile',
             'description' => 'Fill this in if you receive payments as a legal entity or sole proprietor. Turn off the switch below if this isn\'t needed right now.',
+        ],
+        'legal_company' => [
+            'title' => 'Company',
+            'description' => 'Company details and logo used on documents.',
+        ],
+        'legal_contacts' => [
+            'title' => 'Contacts and address',
+            'description' => 'Used for communication and on company documents.',
         ],
         'social_links' => [
             'title' => 'Links',
@@ -75,6 +83,11 @@ return [
         'city' => 'Kyiv',
         'postal_code' => '01001',
         'description' => 'Tell us about your creative path, style, and sources of inspiration...',
+        'company_name' => 'E.g. Art Studio LLC',
+        'edrpou' => '12345678',
+        'authorized_person' => 'E.g. John Smith',
+        'legal_email' => 'company@example.com',
+        'legal_address' => 'Street, building, city, postal code',
     ],
 
     'helpers' => [
@@ -82,6 +95,8 @@ return [
         'tags' => 'They help patrons find you.',
         'avatar' => 'Square image, up to 5 MB.',
         'legal_active' => 'When turned off, the details below aren\'t used for payouts.',
+        'edrpou' => 'EDRPOU code (8 digits) or tax ID for sole proprietors.',
+        'legal_logo' => 'Square image, up to 5 MB.',
     ],
 
     'currency' => [
