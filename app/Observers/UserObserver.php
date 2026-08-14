@@ -3,10 +3,13 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Observers\Concerns\DeletesReplacedFile;
 use App\Services\NotificationService;
 
 class UserObserver
 {
+    use DeletesReplacedFile;
+
     public function __construct(
         private NotificationService $notificationService
     ) {}
@@ -21,10 +24,12 @@ class UserObserver
 
     /**
      * Handle the User "updated" event.
-     * Надсилаємо сповіщення при блокуванні/розблокуванні профілю.
+     * Надсилаємо сповіщення при блокуванні/розблокуванні профілю та прибираємо старий аватар.
      */
     public function updated(User $user): void
     {
+        $this->deleteReplacedFile($user, 'avatar');
+
         if (! $user->wasChanged('is_blocked')) {
             return;
         }

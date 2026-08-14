@@ -5,20 +5,25 @@ namespace App\Observers;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
+use App\Observers\Concerns\DeletesReplacedFile;
 use App\Services\NotificationService;
 
 class ProjectObserver
 {
+    use DeletesReplacedFile;
+
     public function __construct(
         private NotificationService $notificationService
     ) {}
 
     /**
      * Handle the Project "updated" event.
-     * Надсилаємо сповіщення при зміні статусу та синхронізуємо статуси
+     * Надсилаємо сповіщення при зміні статусу, синхронізуємо статуси та прибираємо стару обкладинку.
      */
     public function updated(Project $project): void
     {
+        $this->deleteReplacedFile($project, 'cover');
+
         // Обрабатываем изменения статуса модерации
         if ($project->wasChanged('status_moderation')) {
             $this->handleModerationStatusChange($project);

@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Console\Commands\RouteTranslationsListCommand;
 use App\Models\Donation;
+use App\Models\ProfileLegal;
 use App\Models\Project;
 use App\Models\User;
 use App\Observers\DonationObserver;
+use App\Observers\ProfileLegalObserver;
 use App\Observers\ProjectObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -40,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         Donation::observe(DonationObserver::class);
         Project::observe(ProjectObserver::class);
         User::observe(UserObserver::class);
+        ProfileLegal::observe(ProfileLegalObserver::class);
 
         // Редирект з /uk/... на /... якщо основна мова
         Route::matched(function ($event) {
