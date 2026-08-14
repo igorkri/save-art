@@ -16,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -38,6 +39,7 @@ class EditProfile extends BaseEditProfile
                             ->icon('heroicon-o-user')
                             ->schema([
                                 Section::make('Облікові дані')
+                                    ->description('Email та пароль, які використовуються для входу в кабінет.')
                                     ->columns(2)
                                     ->schema([
                                         $this->getEmailFormComponent(),
@@ -51,7 +53,8 @@ class EditProfile extends BaseEditProfile
                                         $this->getCurrentPasswordFormComponent(),
                                     ]),
 
-                                Section::make('Основна інформація')
+                                Section::make('Аватар та ім\'я')
+                                    ->description('Ці дані відображаються на вашій публічній сторінці.')
                                     ->columns(2)
                                     ->schema([
                                         FileUpload::make('avatar')
@@ -72,7 +75,15 @@ class EditProfile extends BaseEditProfile
                                             ->maxLength(255),
                                         TextInput::make('tags')
                                             ->label('Теги')
-                                            ->maxLength(255),
+                                            ->helperText('Через кому, наприклад: живопис, ілюстрація')
+                                            ->maxLength(255)
+                                            ->columnSpanFull(),
+                                    ]),
+
+                                Section::make('Контакти та адреса')
+                                    ->description('Використовуються для зв\'язку з вами та доставки нагород меценатам.')
+                                    ->columns(2)
+                                    ->schema([
                                         TextInput::make('phone')
                                             ->label('Телефон')
                                             ->tel()
@@ -89,6 +100,11 @@ class EditProfile extends BaseEditProfile
                                         TextInput::make('postal_code')
                                             ->label('Поштовий індекс')
                                             ->maxLength(20),
+                                    ]),
+
+                                Section::make('Про себе')
+                                    ->description('Розкажіть про себе — цей текст побачать відвідувачі вашої публічної сторінки.')
+                                    ->schema([
                                         Textarea::make('description')
                                             ->label('Опис / біографія')
                                             ->rows(6)
@@ -101,11 +117,15 @@ class EditProfile extends BaseEditProfile
                             ->icon('heroicon-o-building-office')
                             ->schema([
                                 Section::make('Реквізити')
+                                    ->description('Заповніть, якщо отримуєте платежі як юридична особа або ФОП. Вимкніть перемикач нижче, якщо це наразі не потрібно.')
                                     ->columns(2)
                                     ->schema([
                                         Toggle::make('profileLegal.is_active')
-                                            ->label('Активний профіль')
-                                            ->default(true),
+                                            ->label('Активний юридичний профіль')
+                                            ->helperText('Коли вимкнено, реквізити нижче не використовуються під час виплат.')
+                                            ->live()
+                                            ->default(true)
+                                            ->columnSpanFull(),
                                         Select::make('profileLegal.currency')
                                             ->label('Основна валюта')
                                             ->options([
@@ -114,7 +134,8 @@ class EditProfile extends BaseEditProfile
                                                 Currency::EUR->value => 'Євро (EUR)',
                                             ])
                                             ->default(Currency::UAH->value)
-                                            ->required(),
+                                            ->required()
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         FileUpload::make('profileLegal.logo')
                                             ->label('Логотип')
                                             ->image()
@@ -123,27 +144,34 @@ class EditProfile extends BaseEditProfile
                                             ->maxSize(5120)
                                             ->disk('public')
                                             ->directory('logos')
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
                                             ->columnSpanFull(),
                                         TextInput::make('profileLegal.name')
                                             ->label('Назва компанії')
-                                            ->maxLength(255),
+                                            ->maxLength(255)
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.edrpou')
                                             ->label('ЄДРПОУ')
-                                            ->maxLength(20),
+                                            ->maxLength(20)
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.authorized_person')
                                             ->label('Уповноважена особа')
-                                            ->maxLength(255),
+                                            ->maxLength(255)
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.phone')
                                             ->label('Телефон')
                                             ->tel()
-                                            ->maxLength(50),
+                                            ->maxLength(50)
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.email')
                                             ->label('Email')
                                             ->email()
-                                            ->maxLength(255),
+                                            ->maxLength(255)
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.address')
                                             ->label('Адреса')
                                             ->maxLength(500)
+                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
@@ -152,6 +180,7 @@ class EditProfile extends BaseEditProfile
                             ->icon('heroicon-o-share')
                             ->schema([
                                 Section::make('Посилання')
+                                    ->description('Додайте посилання на ваші профілі та сайт. Усі поля необов\'язкові — заповніть лише ті, що маєте.')
                                     ->columns(2)
                                     ->schema($this->socialFields()),
                             ]),
