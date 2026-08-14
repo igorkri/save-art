@@ -7,6 +7,8 @@ use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Observers\Concerns\DeletesReplacedFile;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProjectObserver
 {
@@ -99,6 +101,21 @@ class ProjectObserver
         if ($newStatus === ProjectStatus::Announced) {
             $project->announced_at = now();
         }
+    }
+
+    /**
+     * Handle the Project "force deleted" event.
+     * Прибираємо обкладинку з диска при остаточному видаленні проєкту.
+     */
+    public function forceDeleted(Project $project): void
+    {
+        $cover = $project->cover;
+
+        if (blank($cover) || Str::startsWith($cover, ['http://', 'https://', 'data:image/'])) {
+            return;
+        }
+
+        Storage::disk('public')->delete($cover);
     }
 
     /**

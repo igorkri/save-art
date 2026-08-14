@@ -38,6 +38,7 @@ class ProjectForm
                     ->persistTabInQueryString()
                     ->tabs([
                         Tabs\Tab::make(__('profile_projects.tabs.general'))
+                            ->key('general')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
                                 Select::make('art_category_id')
@@ -88,12 +89,18 @@ class ProjectForm
                                     ->label(__('profile_projects.fields.cover'))
                                     ->image()
                                     ->imageEditor()
+                                    ->imageEditorAspectRatioOptions([
+                                        null,
+                                        '4:3',
+                                        //                                        '1:1',
+                                    ])
                                     ->disk('public')
                                     ->directory('projects/covers')
                                     ->columnSpanFull(),
                             ]),
 
                         Tabs\Tab::make(__('profile_projects.tabs.budget'))
+                            ->key('budget')
                             ->icon('heroicon-o-currency-dollar')
                             ->columns(2)
                             ->schema([
@@ -151,6 +158,7 @@ class ProjectForm
                             ]),
 
                         Tabs\Tab::make(__('profile_projects.tabs.parameters'))
+                            ->key('parameters')
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
                                 Section::make(__('profile_projects.sections.parameters.title'))
@@ -202,6 +210,7 @@ class ProjectForm
                             ]),
 
                         Tabs\Tab::make(__('profile_projects.tabs.stages'))
+                            ->key('stages')
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
                                 Repeater::make('stages')
@@ -252,6 +261,7 @@ class ProjectForm
                             ]),
 
                         Tabs\Tab::make(__('profile_projects.tabs.bonuses'))
+                            ->key('bonuses')
                             ->icon('heroicon-o-gift')
                             ->schema([
                                 Repeater::make('bonuses')

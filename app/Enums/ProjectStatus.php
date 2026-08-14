@@ -48,6 +48,21 @@ enum ProjectStatus: string
     }
 
     /**
+     * Отримати колір статусу для відображення в UI (Filament)
+     */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::New, self::Draft, self::Paused => 'gray',
+            self::Moderation => 'warning',
+            self::Announced => 'info',
+            self::InProgress => 'primary',
+            self::Completed, self::Sold => 'success',
+            self::Rejected => 'danger',
+        };
+    }
+
+    /**
      * Отримати всі статуси з перекладами
      *
      * @return array<string, string>

@@ -34,17 +34,7 @@ class ProjectsTable
                     ->label(__('profile_projects.table.status'))
                     ->badge()
                     ->formatStateUsing(fn (ProjectStatus $state): string => $state->getLabel())
-                    ->color(fn (ProjectStatus $state): string => match ($state) {
-                        ProjectStatus::New => 'gray',
-                        ProjectStatus::Draft => 'gray',
-                        ProjectStatus::Moderation => 'warning',
-                        ProjectStatus::Announced => 'info',
-                        ProjectStatus::InProgress => 'primary',
-                        ProjectStatus::Paused => 'gray',
-                        ProjectStatus::Completed => 'success',
-                        ProjectStatus::Sold => 'success',
-                        ProjectStatus::Rejected => 'danger',
-                    })
+                    ->color(fn (ProjectStatus $state): string => $state->getColor())
                     ->sortable(),
 
                 TextColumn::make('status_moderation')

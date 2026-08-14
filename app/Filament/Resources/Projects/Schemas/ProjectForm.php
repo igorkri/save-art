@@ -26,10 +26,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class ProjectForm
 {
@@ -118,6 +120,9 @@ class ProjectForm
                                     ->label('Обкладинка')
                                     ->image()
                                     ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        '4:3',
+                                    ])
                                     ->disk('public')
                                     ->directory('projects/covers')
                                     ->columnSpanFull(),
@@ -289,7 +294,7 @@ class ProjectForm
                                     ->collapsed()
                                     ->itemLabel(fn (array $state): ?string => match ($state['type'] ?? null) {
                                         'heading' => strtoupper($state['heading_level'] ?? 'h2').': '.($state['heading_text'] ?? 'Новий заголовок'),
-                                        'paragraph' => 'Параграф: '.\Illuminate\Support\Str::limit($state['paragraph_text'] ?? 'Новий параграф', 50),
+                                        'paragraph' => 'Параграф: '.Str::limit($state['paragraph_text'] ?? 'Новий параграф', 50),
                                         'image' => 'Зображення'.(isset($state['image_alt']) ? ': '.$state['image_alt'] : ''),
                                         default => 'Новий блок',
                                     }),
@@ -560,7 +565,7 @@ class ProjectForm
     }
 
     /**
-     * @return list<\Filament\Schemas\Components\Component>
+     * @return list<Component>
      */
     private static function categoryParameterValueRowSchema(): array
     {
