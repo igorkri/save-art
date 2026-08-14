@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Profile\Pages\Auth\EditProfile;
 use App\Filament\Profile\Pages\Auth\Login;
+use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -26,12 +27,14 @@ class ProfilePanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $user = auth()->user();
+
         return $panel
             ->id('profile')
             ->path('profile')
             ->login(Login::class)
             ->profile(EditProfile::class, isSimple: false)
-            ->brandName('Кабінет автора')
+            ->brandName('Кабінет ')
             ->globalSearch()
             ->globalSearchDebounce('300ms')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
@@ -121,6 +124,12 @@ class ProfilePanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+            ])
+            ->plugins([
+                FilamentLanguageSwitcherPlugin::make()
+                    ->locales(['uk', 'en'])
+                    ->rememberLocale(days: 30)
+                    ->showOnAuthPages(),
             ])
             ->maxContentWidth(Width::Full)
             ->authMiddleware([

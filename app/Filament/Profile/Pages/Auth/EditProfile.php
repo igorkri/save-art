@@ -29,7 +29,10 @@ use Illuminate\Validation\ValidationException;
 
 class EditProfile extends BaseEditProfile
 {
-    protected static ?string $title = 'Мій профіль';
+    public function getTitle(): string
+    {
+        return __('profile_edit.title');
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -39,17 +42,17 @@ class EditProfile extends BaseEditProfile
                 Tabs::make('profile')
                     ->persistTabInQueryString()
                     ->tabs([
-                        Tab::make('Персональний профіль')
+                        Tab::make(__('profile_edit.tabs.personal'))
                             ->key('personal')
                             ->icon('heroicon-o-user')
                             ->schema([
-                                Section::make('Облікові дані')
-                                    ->description('Email та пароль, які використовуються для входу в кабінет.')
+                                Section::make(__('profile_edit.sections.account.title'))
+                                    ->description(__('profile_edit.sections.account.description'))
                                     ->columns(2)
                                     ->schema([
                                         $this->getEmailFormComponent(),
                                         Select::make('profile_type')
-                                            ->label('Тип профілю')
+                                            ->label(__('profile_edit.fields.profile_type'))
                                             ->options(ProfileType::getOptions())
                                             ->disabled()
                                             ->dehydrated(false),
@@ -57,41 +60,41 @@ class EditProfile extends BaseEditProfile
                                         $this->getPasswordConfirmationFormComponent(),
                                         $this->getCurrentPasswordFormComponent(),
                                         TextInput::make('phone')
-                                            ->label('Телефон')
+                                            ->label(__('profile_edit.fields.phone'))
                                             ->required()
                                             ->tel()
                                             ->telRegex('/^\+[1-9]\d{6,14}$/')
-                                            ->placeholder('+380 XX XXX XX XX')
-                                            ->helperText('У міжнародному форматі, починаючи з +.')
+                                            ->placeholder(__('profile_edit.placeholders.phone'))
+                                            ->helperText(__('profile_edit.helpers.phone'))
                                             ->maxLength(50),
                                     ]),
 
-                                Section::make('Аватар та ім\'я')
-                                    ->description('Ці дані відображаються на вашій публічній сторінці.')
+                                Section::make(__('profile_edit.sections.avatar.title'))
+                                    ->description(__('profile_edit.sections.avatar.description'))
                                     ->columns(2)
                                     ->schema([
                                         Grid::make(1)
                                             ->schema([
                                                 TextInput::make('full_name')
-                                                    ->label('ПІБ')
+                                                    ->label(__('profile_edit.fields.full_name'))
                                                     ->required()
-                                                    ->placeholder('Наприклад: Олена Коваленко')
+                                                    ->placeholder(__('profile_edit.placeholders.full_name'))
                                                     ->maxLength(255),
                                                 TextInput::make('profession')
-                                                    ->label('Професія')
-                                                    ->placeholder('Наприклад: Художниця, ілюстраторка')
+                                                    ->label(__('profile_edit.fields.profession'))
+                                                    ->placeholder(__('profile_edit.placeholders.profession'))
                                                     ->maxLength(255),
                                                 TagsInput::make('tags')
-                                                    ->label('Теги')
-                                                    ->placeholder('живопис, ілюстрація, акварель')
-                                                    ->helperText('Вони допоможуть меценатам знайти вас.')
+                                                    ->label(__('profile_edit.fields.tags'))
+                                                    ->placeholder(__('profile_edit.placeholders.tags'))
+                                                    ->helperText(__('profile_edit.helpers.tags'))
                                                     ->afterStateHydrated(fn (TagsInput $component, array|string|null $state) => $component->state(
                                                         is_string($state) ? array_map('trim', explode(',', $state)) : ($state ?? []),
                                                     )),
                                             ])
                                             ->columnSpan(1),
                                         FileUpload::make('avatar')
-                                            ->label('Аватар')
+                                            ->label(__('profile_edit.fields.avatar'))
                                             ->required()
                                             ->image()
                                             ->imageCropAspectRatio('1:1')
@@ -99,71 +102,71 @@ class EditProfile extends BaseEditProfile
                                             ->maxSize(5120)
                                             ->disk('public')
                                             ->directory('avatars')
-                                            ->helperText('Квадратне зображення, до 5 МБ.')
+                                            ->helperText(__('profile_edit.helpers.avatar'))
                                             ->columnSpan(1),
                                     ]),
 
-                                Section::make('Адреса доставки')
-                                    ->description('Використовується для доставки нагород меценатам.')
+                                Section::make(__('profile_edit.sections.address.title'))
+                                    ->description(__('profile_edit.sections.address.description'))
                                     ->columns(2)
                                     ->schema([
                                         Select::make('country')
-                                            ->label('Країна')
+                                            ->label(__('profile_edit.fields.country'))
                                             ->options(Countries::options())
                                             ->searchable()
                                             ->default('Україна'),
                                         TextInput::make('region')
-                                            ->label('Область / регіон')
-                                            ->placeholder('Київська область')
+                                            ->label(__('profile_edit.fields.region'))
+                                            ->placeholder(__('profile_edit.placeholders.region'))
                                             ->maxLength(255),
                                         TextInput::make('city')
-                                            ->label('Місто')
-                                            ->placeholder('Київ')
+                                            ->label(__('profile_edit.fields.city'))
+                                            ->placeholder(__('profile_edit.placeholders.city'))
                                             ->maxLength(255),
                                         TextInput::make('postal_code')
-                                            ->label('Поштовий індекс')
-                                            ->placeholder('01001')
+                                            ->label(__('profile_edit.fields.postal_code'))
+                                            ->placeholder(__('profile_edit.placeholders.postal_code'))
                                             ->maxLength(20),
                                     ]),
 
-                                Section::make('Про себе')
-                                    ->description('Розкажіть про себе — цей текст побачать відвідувачі вашої публічної сторінки.')
+                                Section::make(__('profile_edit.sections.about.title'))
+                                    ->description(__('profile_edit.sections.about.description'))
                                     ->schema([
                                         Textarea::make('description')
-                                            ->label('Опис / біографія')
-                                            ->placeholder('Розкажіть про свій творчий шлях, стиль та джерела натхнення...')
+                                            ->label(__('profile_edit.fields.description'))
+                                            ->placeholder(__('profile_edit.placeholders.description'))
                                             ->rows(6)
                                             ->maxLength(10000)
                                             ->columnSpanFull(),
                                     ]),
                             ]),
 
-                        Tab::make('Юридичний профіль')
+                        Tab::make(__('profile_edit.tabs.legal'))
                             ->key('legal')
                             ->icon('heroicon-o-building-office')
                             ->schema([
-                                Section::make('Реквізити')
-                                    ->description('Заповніть, якщо отримуєте платежі як юридична особа або ФОП. Вимкніть перемикач нижче, якщо це наразі не потрібно.')
+                                Section::make(__('profile_edit.sections.legal_details.title'))
+                                    ->description(__('profile_edit.sections.legal_details.description'))
                                     ->columns(2)
                                     ->schema([
                                         Toggle::make('profileLegal.is_active')
-                                            ->label('Активний юридичний профіль')
-                                            ->helperText('Коли вимкнено, реквізити нижче не використовуються під час виплат.')
+                                            ->label(__('profile_edit.fields.legal_active'))
+                                            ->helperText(__('profile_edit.helpers.legal_active'))
                                             ->live()
                                             ->default(true)
                                             ->columnSpanFull(),
                                         Select::make('profileLegal.currency')
-                                            ->label('Основна валюта')
+                                            ->label(__('profile_edit.fields.currency'))
                                             ->options([
-                                                Currency::UAH->value => 'Гривня (UAH)',
-                                                Currency::USD->value => 'Долар (USD)',
-                                                Currency::EUR->value => 'Євро (EUR)',
+                                                Currency::UAH->value => __('profile_edit.currency.uah'),
+                                                Currency::USD->value => __('profile_edit.currency.usd'),
+                                                Currency::EUR->value => __('profile_edit.currency.eur'),
                                             ])
                                             ->default(Currency::UAH->value)
                                             ->required()
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         FileUpload::make('profileLegal.logo')
-                                            ->label('Логотип')
+                                            ->label(__('profile_edit.fields.logo'))
                                             ->image()
                                             ->imageCropAspectRatio('1:1')
                                             ->imageEditor()
@@ -173,54 +176,54 @@ class EditProfile extends BaseEditProfile
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
                                             ->columnSpanFull(),
                                         TextInput::make('profileLegal.name')
-                                            ->label('Назва компанії')
+                                            ->label(__('profile_edit.fields.company_name'))
                                             ->maxLength(255)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.edrpou')
-                                            ->label('ЄДРПОУ')
+                                            ->label(__('profile_edit.fields.edrpou'))
                                             ->maxLength(20)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.authorized_person')
-                                            ->label('Уповноважена особа')
+                                            ->label(__('profile_edit.fields.authorized_person'))
                                             ->maxLength(255)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.phone')
-                                            ->label('Телефон')
+                                            ->label(__('profile_edit.fields.legal_phone'))
                                             ->tel()
                                             ->maxLength(50)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.email')
-                                            ->label('Email')
+                                            ->label(__('profile_edit.fields.email'))
                                             ->email()
                                             ->maxLength(255)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                         TextInput::make('profileLegal.address')
-                                            ->label('Адреса')
+                                            ->label(__('profile_edit.fields.legal_address'))
                                             ->maxLength(500)
                                             ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
 
-                        Tab::make('Соціальні мережі')
+                        Tab::make(__('profile_edit.tabs.social'))
                             ->key('social')
                             ->icon('heroicon-o-share')
                             ->schema([
-                                Section::make('Посилання')
-                                    ->description('Додайте посилання на ваші профілі та сайт. Усі поля необов\'язкові — заповніть лише ті, що маєте.')
+                                Section::make(__('profile_edit.sections.social_links.title'))
+                                    ->description(__('profile_edit.sections.social_links.description'))
                                     ->columns(2)
                                     ->schema($this->socialFields()),
                             ]),
 
-                        Tab::make('Документи')
+                        Tab::make(__('profile_edit.tabs.documents'))
                             ->key('documents')
                             ->icon('heroicon-o-document-text')
                             ->schema([
-                                Section::make('Документи профілю')
-                                    ->description('Завантажені документи зберігаються у вашому профілі та можуть використовуватися для електронного підпису.')
+                                Section::make(__('profile_edit.sections.documents.title'))
+                                    ->description(__('profile_edit.sections.documents.description'))
                                     ->schema([
                                         FileUpload::make('profileDocuments')
-                                            ->label('Файли')
+                                            ->label(__('profile_edit.fields.files'))
                                             ->multiple()
                                             ->downloadable()
                                             ->openable()
@@ -318,7 +321,7 @@ class EditProfile extends BaseEditProfile
 
             if ($hash === false) {
                 throw ValidationException::withMessages([
-                    'data.profileDocuments' => 'Не вдалося прочитати документ.',
+                    'data.profileDocuments' => __('profile_edit.messages.document_unreadable'),
                 ]);
             }
             $duplicate = ProfileDocument::query()->where('hash', $hash)->first();
@@ -327,7 +330,7 @@ class EditProfile extends BaseEditProfile
                 Storage::disk('public')->delete($filePath);
 
                 throw ValidationException::withMessages([
-                    'data.profileDocuments' => 'Такий документ уже завантажено.',
+                    'data.profileDocuments' => __('profile_edit.messages.document_duplicate'),
                 ]);
             }
 
@@ -354,24 +357,24 @@ class EditProfile extends BaseEditProfile
     private function socialFieldLabels(): array
     {
         return [
-            'website' => 'Вебсайт',
-            'facebook' => 'Facebook',
-            'instagram' => 'Instagram',
-            'linkedin' => 'LinkedIn',
-            'twitter' => 'X / Twitter',
-            'telegram' => 'Telegram',
-            'youtube' => 'YouTube',
-            'youtube_channel' => 'YouTube-канал',
-            'tiktok' => 'TikTok',
-            'github' => 'GitHub',
-            'pinterest' => 'Pinterest',
-            'whatsapp' => 'WhatsApp',
-            'deviantart' => 'DeviantArt',
+            'website' => __('profile_edit.social.website'),
+            'facebook' => __('profile_edit.social.facebook'),
+            'instagram' => __('profile_edit.social.instagram'),
+            'linkedin' => __('profile_edit.social.linkedin'),
+            'twitter' => __('profile_edit.social.twitter'),
+            'telegram' => __('profile_edit.social.telegram'),
+            'youtube' => __('profile_edit.social.youtube'),
+            'youtube_channel' => __('profile_edit.social.youtube_channel'),
+            'tiktok' => __('profile_edit.social.tiktok'),
+            'github' => __('profile_edit.social.github'),
+            'pinterest' => __('profile_edit.social.pinterest'),
+            'whatsapp' => __('profile_edit.social.whatsapp'),
+            'deviantart' => __('profile_edit.social.deviantart'),
         ];
     }
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'Профіль збережено';
+        return __('profile_edit.saved_notification');
     }
 }
