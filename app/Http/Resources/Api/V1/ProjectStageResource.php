@@ -2,12 +2,14 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use App\Models\ProjectStage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
 
 /**
- * @mixin \App\Models\ProjectStage
+ * @mixin ProjectStage
  *
  * @OA\Schema(
  *     schema="ProjectStage",
@@ -55,6 +57,8 @@ use OpenApi\Annotations as OA;
  */
 class ProjectStageResource extends JsonResource
 {
+    use LocalizesFields;
+
     /**
      * Transform the resource into an array.
      *
