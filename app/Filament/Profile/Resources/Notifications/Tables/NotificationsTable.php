@@ -55,6 +55,13 @@ class NotificationsTable
                     ->sortable(),
             ])
             ->recordActions([
+                Action::make('viewProject')
+                    ->label(__('profile_notifications.actions.view_project'))
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->color('gray')
+                    ->visible(fn (Notification $record) => filled($record->data['project_slug'] ?? null))
+                    ->url(fn (Notification $record) => rtrim(config('app.frontend_url'), '/').'/projects/'.$record->data['project_slug'])
+                    ->openUrlInNewTab(),
                 Action::make('markAsRead')
                     ->label(__('profile_notifications.actions.mark_as_read'))
                     ->icon(Heroicon::OutlinedCheck)

@@ -76,6 +76,35 @@ class NotificationResourceTest extends TestCase
         $this->assertDatabaseMissing('app_notifications', ['id' => $notification->id]);
     }
 
+    public function test_view_project_action_is_visible_only_when_data_has_project_slug(): void
+    {
+        $withProject = Notification::factory()->create([
+            'user_id' => $this->user->id,
+            'data' => ['project_slug' => 'moye-polotno'],
+        ]);
+        $withoutProject = Notification::factory()->create([
+            'user_id' => $this->user->id,
+            'data' => [],
+        ]);
+
+        Livewire::test(ListNotifications::class)
+            ->assertTableActionVisible('viewProject', $withProject)
+            ->assertTableActionHidden('viewProject', $withoutProject);
+    }
+
+    public function test_view_project_action_links_to_frontend_project_page(): void
+    {
+        config(['app.frontend_url' => 'https://save-art.in.ua']);
+
+        $notification = Notification::factory()->create([
+            'user_id' => $this->user->id,
+            'data' => ['project_slug' => 'moye-polotno'],
+        ]);
+
+        Livewire::test(ListNotifications::class)
+            ->assertTableActionHasUrl('viewProject', 'https://save-art.in.ua/projects/moye-polotno', $notification);
+    }
+
     public function test_notifications_page_is_registered_in_profile_panel(): void
     {
         Notification::factory()->create([
