@@ -16,4 +16,9 @@ return [
         'mark_all_as_read' => 'Mark all as read',
         'mark_all_as_read_success' => 'Marked as read: :count',
     ],
+    'bell' => [
+        'label' => 'Notifications',
+        'empty' => 'No notifications yet',
+        'view_all' => 'View all',
+    ],
 ];

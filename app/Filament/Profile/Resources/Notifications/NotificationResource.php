@@ -18,8 +18,6 @@ class NotificationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBell;
 
-    protected static ?int $navigationSort = -1;
-
     public static function getNavigationGroup(): string|UnitEnum|null
     {
         return __('profile_panel.nav_groups.notifications');
@@ -40,16 +38,12 @@ class NotificationResource extends Resource
         return __('profile_notifications.model.plural');
     }
 
-    public static function getNavigationBadge(): ?string
+    // Сповіщення відображаються через дзвіночок у шапці (NotificationsBell),
+    // тож окремий пункт у бічному меню не потрібен — сторінка лишається
+    // доступною за прямим посиланням із випадаючого списку.
+    public static function shouldRegisterNavigation(): bool
     {
-        $count = static::getEloquentQuery()->whereNull('read_at')->count();
-
-        return $count > 0 ? (string) $count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'danger';
+        return false;
     }
 
     public static function table(Table $table): Table
