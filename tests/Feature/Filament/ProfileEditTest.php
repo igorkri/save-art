@@ -6,7 +6,6 @@ use App\Enums\Currency;
 use App\Filament\Profile\Pages\Auth\EditProfile;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Profile\Resources\Services\ServiceResource;
-use App\Models\ProfileDocument;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\User;
@@ -96,31 +95,5 @@ class ProfileEditTest extends TestCase
         $this->assertSame($ownProject->title, (string) $projectResults->first()->title);
         $this->assertCount(1, $serviceResults);
         $this->assertSame($ownService->title, (string) $serviceResults->first()->title);
-    }
-
-    public function test_artist_can_add_and_remove_own_profile_documents(): void
-    {
-        Storage::disk('public')->put('profile_documents/old.pdf', 'old document');
-        Storage::disk('public')->put('profile_documents/new.pdf', 'new document');
-
-        $oldDocument = $this->user->profileDocuments()->create([
-            'file_path' => 'profile_documents/old.pdf',
-            'hash' => hash('sha256', 'old document'),
-            'sign_status' => 'pending',
-            'service' => 'diia',
-        ]);
-
-        Livewire::test(EditProfile::class)
-            ->set('data.profileDocuments', ['profile_documents/new.pdf'])
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseMissing('profile_documents', ['id' => $oldDocument->id]);
-        $this->assertDatabaseHas('profile_documents', [
-            'user_id' => $this->user->id,
-            'file_path' => 'profile_documents/new.pdf',
-            'hash' => hash('sha256', 'new document'),
-        ]);
-        $this->assertSame(1, ProfileDocument::query()->where('user_id', $this->user->id)->count());
     }
 }

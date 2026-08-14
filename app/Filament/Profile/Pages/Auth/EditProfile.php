@@ -4,8 +4,6 @@ namespace App\Filament\Profile\Pages\Auth;
 
 use App\Enums\Currency;
 use App\Enums\ProfileType;
-use App\Enums\SignService;
-use App\Models\ProfileDocument;
 use App\Models\User;
 use App\Support\Countries;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
@@ -23,9 +21,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 class EditProfile extends BaseEditProfile
 {
@@ -237,25 +232,6 @@ class EditProfile extends BaseEditProfile
                                     ->columns(2)
                                     ->schema($this->socialFields()),
                             ]),
-
-                        Tab::make(__('profile_edit.tabs.documents'))
-                            ->key('documents')
-                            ->icon('heroicon-o-document-text')
-                            ->schema([
-                                Section::make(__('profile_edit.sections.documents.title'))
-                                    ->description(__('profile_edit.sections.documents.description'))
-                                    ->schema([
-                                        FileUpload::make('profileDocuments')
-                                            ->label(__('profile_edit.fields.files'))
-                                            ->multiple()
-                                            ->downloadable()
-                                            ->openable()
-                                            ->maxSize(15360)
-                                            ->disk('public')
-                                            ->directory('profile_documents')
-                                            ->columnSpanFull(),
-                                    ]),
-                            ]),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -299,7 +275,6 @@ class EditProfile extends BaseEditProfile
         }
 
         $data['profileSocial'] = $user->profileSocial?->only(array_keys($this->socialFieldLabels())) ?? [];
-        $data['profileDocuments'] = $user->profileDocuments()->pluck('file_path')->all();
 
         return $data;
     }
@@ -309,7 +284,6 @@ class EditProfile extends BaseEditProfile
         /** @var User $record */
         $legalData = Arr::pull($data, 'profileLegal', []);
         $socialData = Arr::pull($data, 'profileSocial', []);
-        $documentPaths = Arr::pull($data, 'profileDocuments', []);
 
         $record = parent::handleRecordUpdate($record, $data);
 
@@ -320,58 +294,8 @@ class EditProfile extends BaseEditProfile
         ]);
 
         $record->profileSocial()->updateOrCreate([], $socialData);
-        $this->syncProfileDocuments($record, is_array($documentPaths) ? $documentPaths : []);
 
         return $record;
-    }
-
-    /**
-     * @param  list<string>  $documentPaths
-     */
-    private function syncProfileDocuments(User $user, array $documentPaths): void
-    {
-        $documentPaths = array_values(array_unique(array_filter($documentPaths)));
-        $existingDocuments = $user->profileDocuments()->get()->keyBy('file_path');
-        $pathsToDelete = $existingDocuments->keys()->diff($documentPaths);
-        $pathsToAdd = collect($documentPaths)->diff($existingDocuments->keys());
-
-        foreach ($pathsToAdd as $filePath) {
-            if (! Storage::disk('public')->exists($filePath)) {
-                continue;
-            }
-
-            $hash = hash_file('sha256', Storage::disk('public')->path($filePath));
-
-            if ($hash === false) {
-                throw ValidationException::withMessages([
-                    'data.profileDocuments' => __('profile_edit.messages.document_unreadable'),
-                ]);
-            }
-            $duplicate = ProfileDocument::query()->where('hash', $hash)->first();
-
-            if ($duplicate !== null) {
-                Storage::disk('public')->delete($filePath);
-
-                throw ValidationException::withMessages([
-                    'data.profileDocuments' => __('profile_edit.messages.document_duplicate'),
-                ]);
-            }
-
-            $user->profileDocuments()->create([
-                'file_path' => $filePath,
-                'hash' => $hash,
-                'sign_status' => 'pending',
-                'service' => SignService::Diia->value,
-            ]);
-        }
-
-        if ($pathsToDelete->isEmpty()) {
-            return;
-        }
-
-        $user->profileDocuments()->whereIn('file_path', $pathsToDelete)->delete();
-
-        DB::afterCommit(fn () => Storage::disk('public')->delete($pathsToDelete->all()));
     }
 
     /**
