@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\Currency;
+use App\Traits\LocalizesAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\ProfileLegal
@@ -20,13 +22,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $address Адреса
  * @property string|null $phone Телефон
  * @property string|null $email Email
- * @property \Illuminate\Support\Carbon|null $created_at Дата створення запису
- * @property \Illuminate\Support\Carbon|null $updated_at Дата останнього оновлення запису
- * @property-read \App\Models\User $user
+ * @property Carbon|null $created_at Дата створення запису
+ * @property Carbon|null $updated_at Дата останнього оновлення запису
+ * @property-read User $user
  */
 class ProfileLegal extends Model
 {
-    use HasFactory;
+    use HasFactory, LocalizesAttributes;
 
     protected $fillable = [
         'user_id',

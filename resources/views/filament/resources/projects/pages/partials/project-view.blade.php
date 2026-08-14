@@ -75,7 +75,7 @@
         'result' => ['label' => 'Результат', 'icon' => 'heroicon-o-sparkles'],
     ];
 
-    $title = $project->title['uk'] ?? $project->title['en'] ?? $project->slug;
+    $title = $project->title ?: $project->slug;
 @endphp
 
 @once
@@ -435,21 +435,13 @@
                 x-transition:enter-end="opacity-100 translate-y-0"
             >
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Назва (UK)</p>
-                    <p class="project-view-display mt-0.5 text-xl text-white">{{ $project->title['uk'] ?? '—' }}</p>
-                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Назва (EN)</p>
-                    <p class="project-view-display mt-0.5 text-xl text-white">{{ $project->title['en'] ?? '—' }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Назва</p>
+                    <p class="project-view-display mt-0.5 text-xl text-white">{{ $project->title ?: '—' }}</p>
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Короткий опис (UK)</p>
-                        <p class="mt-1.5 whitespace-pre-line text-base leading-relaxed text-gray-200">{{ $project->short_description['uk'] ?? '—' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Короткий опис (EN)</p>
-                        <p class="mt-1.5 whitespace-pre-line text-base leading-relaxed text-gray-200">{{ $project->short_description['en'] ?? '—' }}</p>
-                    </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Короткий опис</p>
+                    <p class="mt-1.5 whitespace-pre-line text-base leading-relaxed text-gray-200">{{ $project->short_description ?: '—' }}</p>
                 </div>
 
                 @if (! empty($project->additional_info['uk']) || ! empty($project->additional_info['en']))
@@ -465,17 +457,11 @@
                     </div>
                 @endif
 
-                @if (! empty($project->tags['uk']) || ! empty($project->tags['en']))
+                @if (! empty($project->tags))
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Теги (UK)</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Теги</p>
                         <div class="mt-1.5 flex flex-wrap gap-1.5">
-                            @foreach ($tagList($project->tags['uk'] ?? null) as $tag)
-                                <span class="inline-flex items-center rounded-full bg-[#FECC39]/10 px-2.5 py-0.5 text-sm font-medium text-[#FECC39] ring-1 ring-inset ring-[#FECC39]/20">{{ $tag }}</span>
-                            @endforeach
-                        </div>
-                        <p class="mt-3 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Теги (EN)</p>
-                        <div class="mt-1.5 flex flex-wrap gap-1.5">
-                            @foreach ($tagList($project->tags['en'] ?? null) as $tag)
+                            @foreach ($tagList($project->tags) as $tag)
                                 <span class="inline-flex items-center rounded-full bg-[#FECC39]/10 px-2.5 py-0.5 text-sm font-medium text-[#FECC39] ring-1 ring-inset ring-[#FECC39]/20">{{ $tag }}</span>
                             @endforeach
                         </div>
@@ -498,12 +484,7 @@
                         <div class="mt-4 divide-y divide-white/5 overflow-hidden rounded-xl border border-white/5">
                             @foreach ($project->budget_items as $item)
                                 <div class="flex items-center justify-between gap-3 bg-white/[0.02] px-4 py-3 text-base even:bg-white/[0.04]">
-                                    <span>
-                                        <span class="block text-white">{{ $item['name']['uk'] ?? '—' }}</span>
-                                        @if (! empty($item['name']['en']))
-                                            <span class="block text-sm text-gray-400">{{ $item['name']['en'] }}</span>
-                                        @endif
-                                    </span>
+                                    <span class="block text-white">{{ $item['name'] ?? '—' }}</span>
                                     <span class="project-view-display text-white">{{ number_format($item['amount'] ?? 0, 0, ',', ' ') }} {{ $project->currency?->value }}</span>
                                 </div>
                             @endforeach
@@ -572,35 +553,26 @@
                                 $headingSizes = ['h1' => 'text-3xl', 'h2' => 'text-2xl', 'h3' => 'text-xl', 'h4' => 'text-lg'];
                                 $headingLevel = $block['heading_level'] ?? 'h2';
                             @endphp
-                            <{{ $headingLevel }} class="project-view-display {{ $headingSizes[$headingLevel] ?? 'text-2xl' }} text-white">{{ $block['heading_text']['uk'] ?? '—' }}</{{ $headingLevel }}>
-                            @if (! empty($block['heading_text']['en']))
-                                <p class="project-view-display {{ $headingSizes[$headingLevel] ?? 'text-2xl' }} text-gray-400">{{ $block['heading_text']['en'] }}</p>
-                            @endif
+                            <{{ $headingLevel }} class="project-view-display {{ $headingSizes[$headingLevel] ?? 'text-2xl' }} text-white">{{ $block['heading_text'] ?? '—' }}</{{ $headingLevel }}>
                         @elseif (($block['type'] ?? null) === 'paragraph')
-                            <p class="whitespace-pre-line text-base leading-relaxed text-gray-200">{{ $block['paragraph_text']['uk'] ?? '—' }}</p>
-                            @if (! empty($block['paragraph_text']['en']))
-                                <p class="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-400">{{ $block['paragraph_text']['en'] }}</p>
-                            @endif
+                            <p class="whitespace-pre-line text-base leading-relaxed text-gray-200">{{ $block['paragraph_text'] ?? '—' }}</p>
                         @elseif (($block['type'] ?? null) === 'image' && ! empty($block['image']))
                             <button
                                 type="button"
-                                x-on:click="lightbox = { src: '{{ \Illuminate\Support\Facades\Storage::disk('public')->url($block['image']) }}', alt: '{{ $block['image_alt']['uk'] ?? '' }}' }"
+                                x-on:click="lightbox = { src: '{{ \Illuminate\Support\Facades\Storage::disk('public')->url($block['image']) }}', alt: '{{ $block['image_alt'] ?? '' }}' }"
                                 class="group relative block max-h-96 w-fit max-w-full cursor-zoom-in overflow-hidden rounded-xl shadow-lg shadow-black/40 ring-1 ring-white/10"
                             >
                                 <img
                                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($block['image']) }}"
-                                    alt="{{ $block['image_alt']['uk'] ?? '' }}"
+                                    alt="{{ $block['image_alt'] ?? '' }}"
                                     class="max-h-96 max-w-full object-contain transition duration-700 ease-out group-hover:scale-105"
                                 />
                                 <span class="pointer-events-none absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-black/40 opacity-0 backdrop-blur-sm transition group-hover:opacity-100">
                                     <x-filament::icon icon="heroicon-o-magnifying-glass-plus" class="h-4 w-4 text-white" />
                                 </span>
                             </button>
-                            @if (! empty($block['image_caption']['uk']))
-                                <p class="text-center text-sm text-gray-300">{{ $block['image_caption']['uk'] }}</p>
-                            @endif
-                            @if (! empty($block['image_caption']['en']))
-                                <p class="text-center text-sm text-gray-500">{{ $block['image_caption']['en'] }}</p>
+                            @if (! empty($block['image_caption']))
+                                <p class="text-center text-sm text-gray-300">{{ $block['image_caption'] }}</p>
                             @endif
                         @endif
                     @endforeach
@@ -627,10 +599,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/5 text-sm font-semibold text-gray-300">{{ $stage->order }}</span>
                                 <div>
-                                    <p class="text-base font-semibold text-white">{{ $stage->title['uk'] ?? '—' }}</p>
-                                    @if (! empty($stage->title['en']))
-                                        <p class="text-sm text-gray-400">{{ $stage->title['en'] }}</p>
-                                    @endif
+                                    <p class="text-base font-semibold text-white">{{ $stage->title ?: '—' }}</p>
                                 </div>
                             </div>
                             <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-semibold ring-1 ring-inset {{ $badgeClasses[$stageStatusColors[$stage->status->value] ?? 'gray'] }}">
@@ -639,11 +608,8 @@
                             </span>
                         </div>
 
-                        @if (! empty($stage->description['uk']))
-                            <p class="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-300">{{ $stage->description['uk'] }}</p>
-                        @endif
-                        @if (! empty($stage->description['en']))
-                            <p class="mt-1 whitespace-pre-line text-base leading-relaxed text-gray-500">{{ $stage->description['en'] }}</p>
+                        @if (! empty($stage->description))
+                            <p class="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-300">{{ $stage->description }}</p>
                         @endif
 
                         <div class="mt-3 grid grid-cols-2 gap-3 border-t border-white/5 pt-3 sm:grid-cols-4">
@@ -673,11 +639,11 @@
                                         @if (($document['type'] ?? null) === 'photo')
                                             <button
                                                 type="button"
-                                                x-on:click="lightbox = { src: '{{ $documentUrl }}', alt: '{{ $document['description']['uk'] ?? '' }}' }"
+                                                x-on:click="lightbox = { src: '{{ $documentUrl }}', alt: '{{ $document['description'] ?? '' }}' }"
                                                 class="group relative flex h-16 w-16 shrink-0 cursor-zoom-in items-center justify-center overflow-hidden rounded-lg border border-white/5 ring-1 ring-white/10"
-                                                title="{{ $document['description']['uk'] ?? 'Фото' }}"
+                                                title="{{ $document['description'] ?? 'Фото' }}"
                                             >
-                                                <img src="{{ $documentUrl }}" alt="{{ $document['description']['uk'] ?? '' }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-110" />
+                                                <img src="{{ $documentUrl }}" alt="{{ $document['description'] ?? '' }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-110" />
                                                 <span class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100">
                                                     <x-filament::icon icon="heroicon-o-magnifying-glass-plus" class="h-4 w-4 text-white" />
                                                 </span>
@@ -689,7 +655,7 @@
                                                 class="inline-flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/[0.03] px-2.5 py-1 text-sm font-medium text-[#FECC39] transition hover:border-[#FECC39]/30 hover:bg-[#FECC39]/10"
                                             >
                                                 <x-filament::icon icon="heroicon-o-document" class="h-3.5 w-3.5" />
-                                                {{ $document['description']['uk'] ?? 'Документ' }}
+                                                {{ $document['description'] ?? 'Документ' }}
                                             </a>
                                         @endif
                                     @endif
@@ -717,15 +683,9 @@
                 @forelse ($project->bonuses as $bonus)
                     <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.03] p-4">
                         <div class="min-w-0 flex-1">
-                            <p class="text-base font-semibold text-white">{{ $bonus->title['uk'] ?? '—' }}</p>
-                            @if (! empty($bonus->title['en']))
-                                <p class="text-sm text-gray-400">{{ $bonus->title['en'] }}</p>
-                            @endif
-                            @if (! empty($bonus->description['uk']))
-                                <p class="mt-0.5 text-base text-gray-400">{{ $bonus->description['uk'] }}</p>
-                            @endif
-                            @if (! empty($bonus->description['en']))
-                                <p class="mt-0.5 text-base text-gray-500">{{ $bonus->description['en'] }}</p>
+                            <p class="text-base font-semibold text-white">{{ $bonus->title ?: '—' }}</p>
+                            @if (! empty($bonus->description))
+                                <p class="mt-0.5 text-base text-gray-400">{{ $bonus->description }}</p>
                             @endif
                         </div>
                         <div class="text-right">
@@ -763,7 +723,7 @@
                                 <p class="truncate text-sm text-gray-300">
                                     {{ $donation->paid_at?->format('d.m.Y H:i') ?? $donation->created_at->format('d.m.Y H:i') }}
                                     @if ($donation->bonus)
-                                        · {{ $donation->bonus->title['uk'] ?? 'Бонус' }}
+                                        · {{ $donation->bonus->title ?: 'Бонус' }}
                                     @endif
                                 </p>
                             </div>

@@ -3,12 +3,17 @@
 namespace App\Models;
 
 use App\Enums\ProfileType;
+use App\Notifications\ResetPasswordNotification;
+use App\Traits\LocalizesAttributes;
 use App\UserRole;
+use Carbon\Carbon;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -35,16 +40,16 @@ use Illuminate\Support\Str;
  * @property ProfileType|null $profile_type Тип профілю (artist/patron)
  * @property string|null $description Опис/біографія
  * @property bool $is_blocked Чи заблокований
- * @property \Carbon\Carbon|null $blocked_until Дата закінчення блокування
- * @property \Carbon\Carbon|null $deletion_requested_at Дата запиту на видалення
- * @property \Carbon\Carbon|null $email_verified_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon|null $blocked_until Дата закінчення блокування
+ * @property Carbon|null $deletion_requested_at Дата запиту на видалення
+ * @property Carbon|null $email_verified_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, \Laravel\Sanctum\HasApiTokens, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, \Laravel\Sanctum\HasApiTokens, LocalizesAttributes, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -229,7 +234,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     /**
      * Команди, учасником яких є користувач
      */
-    public function teams(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'team_members')->withPivot('sort_order')->withTimestamps();
     }
@@ -360,6 +365,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
      */
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

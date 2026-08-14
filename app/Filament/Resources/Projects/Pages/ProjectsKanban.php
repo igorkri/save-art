@@ -111,8 +111,7 @@ class ProjectsKanban extends Page
             $search = '%'.mb_strtolower($this->search).'%';
 
             $query->where(function ($query) use ($search) {
-                $query->whereRaw("lower(json_extract(title, '$.\"uk\"')) like ?", [$search])
-                    ->orWhereRaw("lower(json_extract(title, '$.\"en\"')) like ?", [$search])
+                $query->whereRaw('lower(title) like ?', [$search])
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->whereRaw('lower(full_name) like ?', [$search]);
                     });

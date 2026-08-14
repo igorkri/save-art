@@ -54,7 +54,7 @@
 
                                 <div class="min-w-0 flex-1">
                                     <p class="text-base font-semibold leading-snug text-gray-900 dark:text-white">
-                                        {{ $project->title['uk'] ?? $project->title['en'] ?? '—' }}
+                                        {{ $project->title ?: '—' }}
                                     </p>
                                     <p class="mt-1 truncate text-sm text-gray-500 dark:text-gray-400">
                                         {{ $project->user?->display_name }}
