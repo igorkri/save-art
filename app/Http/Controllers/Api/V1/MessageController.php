@@ -7,7 +7,6 @@ use App\Http\Requests\Api\V1\SendMessageRequest;
 use App\Http\Resources\Api\V1\MessageResource;
 use App\Models\Message;
 use App\Models\Project;
-use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -15,10 +14,6 @@ use OpenApi\Annotations as OA;
 
 class MessageController extends Controller
 {
-    public function __construct(
-        private NotificationService $notificationService
-    ) {}
-
     /**
      * Отримати всі мої повідомлення (чат з адміністрацією)
      *

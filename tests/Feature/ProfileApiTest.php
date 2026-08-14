@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Enums\NotificationType;
+use App\Models\Donation;
+use App\Models\Notification;
 use App\Models\ProfileLegal;
 use App\Models\ProfileSocial;
 use App\Models\User;
@@ -156,5 +159,26 @@ class ProfileApiTest extends TestCase
     {
         $this->postJson('/api/v1/profile/new-project-hint-seen')
             ->assertUnauthorized();
+    }
+
+    public function test_deletion_request_with_pending_donation_notifies_user_instead_of_deleting(): void
+    {
+        $user = User::factory()->create();
+        Donation::factory()->create(['user_id' => $user->id]); // pending за замовчуванням
+        Sanctum::actingAs($user);
+
+        $this->deleteJson('/api/v1/profile')
+            ->assertOk()
+            ->assertJson(['has_pending_operations' => true]);
+
+        $this->assertNotNull($user->fresh()->deletion_requested_at);
+
+        $notification = Notification::where('user_id', $user->id)
+            ->where('type', NotificationType::System)
+            ->first();
+
+        $this->assertNotNull($notification);
+        $this->assertIsString($notification->title['uk']);
+        $this->assertIsString($notification->message['uk']);
     }
 }

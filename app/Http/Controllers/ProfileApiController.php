@@ -14,12 +14,15 @@ use App\Models\ProfileDocument;
 use App\Models\ProfileLegal;
 use App\Models\ProfileSocial;
 use App\Models\User;
+use App\Services\NotificationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Profile API Controller.
@@ -32,6 +35,10 @@ use OpenApi\Annotations as OA;
  */
 class ProfileApiController extends Controller
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     /**
      * Отримати профіль поточного користувача
      *
@@ -69,7 +76,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=401, description="Неавторизований доступ")
      * )
      */
-    public function getProfile(Request $request): \Illuminate\Http\JsonResponse
+    public function getProfile(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -115,7 +122,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=401, description="Неавторизований доступ")
      * )
      */
-    public function markNewProjectHintSeen(Request $request): \Illuminate\Http\JsonResponse
+    public function markNewProjectHintSeen(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -168,7 +175,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
-    public function updatePersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
+    public function updatePersonal(UpdateProfilePersonalRequest $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -225,7 +232,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
-    public function createPersonal(UpdateProfilePersonalRequest $request): \Illuminate\Http\JsonResponse
+    public function createPersonal(UpdateProfilePersonalRequest $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -276,7 +283,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
-    public function updateLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
+    public function updateLegal(UpdateProfileLegalRequest $request): JsonResponse
     {
         $user = $request->user();
         $profile = $user->profileLegal()->first();
@@ -333,7 +340,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
-    public function createLegal(UpdateProfileLegalRequest $request): \Illuminate\Http\JsonResponse
+    public function createLegal(UpdateProfileLegalRequest $request): JsonResponse
     {
         $user = $request->user();
         $profile = $user->profileLegal()->first();
@@ -384,7 +391,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
-    public function updateSocial(UpdateProfileSocialRequest $request): \Illuminate\Http\JsonResponse
+    public function updateSocial(UpdateProfileSocialRequest $request): JsonResponse
     {
         $user = $request->user();
         $profile = $user->profileSocial;
@@ -420,7 +427,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Помилка валідації")
      * )
      */
-    public function createSocial(UpdateProfileSocialRequest $request): \Illuminate\Http\JsonResponse
+    public function createSocial(UpdateProfileSocialRequest $request): JsonResponse
     {
         $user = $request->user();
         if (ProfileSocial::where('user_id', $user->id)->exists()) {
@@ -460,7 +467,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=401, description="Неавторизований доступ")
      * )
      */
-    public function getDocuments(Request $request): \Illuminate\Http\JsonResponse
+    public function getDocuments(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -533,7 +540,7 @@ class ProfileApiController extends Controller
      *     )
      * )
      */
-    public function uploadDocument(UploadProfileDocumentRequest $request): \Illuminate\Http\JsonResponse
+    public function uploadDocument(UploadProfileDocumentRequest $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -642,7 +649,7 @@ class ProfileApiController extends Controller
      *     )
      * )
      */
-    public function deleteDocument(Request $request, int $documentId): \Illuminate\Http\JsonResponse
+    public function deleteDocument(Request $request, int $documentId): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -729,7 +736,7 @@ class ProfileApiController extends Controller
      *     )
      * )
      */
-    public function downloadDocument(Request $request, int $documentId): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+    public function downloadDocument(Request $request, int $documentId): BinaryFileResponse|JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -797,7 +804,7 @@ class ProfileApiController extends Controller
      *     )
      * )
      */
-    public function getDocument(Request $request, int $documentId): \Illuminate\Http\JsonResponse
+    public function getDocument(Request $request, int $documentId): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -846,7 +853,7 @@ class ProfileApiController extends Controller
      *     @OA\Response(response=422, description="Невірний email, поточний пароль або помилка валідації")
      * )
      */
-    public function updatePassword(Request $request): \Illuminate\Http\JsonResponse
+    public function updatePassword(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'email' => ['required', 'string', 'email'],
@@ -890,7 +897,7 @@ class ProfileApiController extends Controller
     /**
      * Завантажити аватар користувача
      */
-    public function uploadAvatar(Request $request): \Illuminate\Http\JsonResponse
+    public function uploadAvatar(Request $request): JsonResponse
     {
         $request->validate([
             'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // 5MB max
@@ -926,7 +933,7 @@ class ProfileApiController extends Controller
      * Якщо в профілі є незакриті фінансові операції,
      * він пройде перевірку модераторами перед видаленням.
      */
-    public function requestDeletion(Request $request): \Illuminate\Http\JsonResponse
+    public function requestDeletion(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -946,13 +953,18 @@ class ProfileApiController extends Controller
                 'deletion_requested_at' => now(),
             ]);
 
-            // Повідомляємо адміністраторів
-            \App\Models\Notification::create([
-                'user_id' => $user->id,
-                'type' => 'system',
-                'title' => 'Запит на видалення профілю',
-                'message' => 'Ваш запит на видалення профілю отримано. Оскільки у вас є незакриті операції, він буде розглянутий модераторами.',
-            ]);
+            // Повідомляємо користувача
+            $this->notificationService->notifySystem(
+                user: $user,
+                title: [
+                    'uk' => 'Запит на видалення профілю',
+                    'en' => 'Profile deletion request',
+                ],
+                message: [
+                    'uk' => 'Ваш запит на видалення профілю отримано. Оскільки у вас є незакриті операції, він буде розглянутий модераторами.',
+                    'en' => 'Your profile deletion request has been received. Since you have pending operations, it will be reviewed by moderators.',
+                ]
+            );
 
             return response()->json([
                 'message' => 'Запит на видалення профілю відправлено на модерацію.',

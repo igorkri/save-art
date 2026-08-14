@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Currency;
 use App\Enums\NotificationType;
 use App\Models\ContactInfoRequest;
 use App\Models\Donation;
@@ -11,6 +12,7 @@ use App\Models\Project;
 use App\Models\ProjectBonus;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -58,14 +60,14 @@ class NotificationService
                     $donorName,
                     $projectTitle,
                     number_format($donation->amount, 0, '.', ' '),
-                    $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
+                    $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency
                 ),
                 'en' => sprintf(
                     '%s supported your project "%s" with %s %s',
                     $donorName,
                     $projectTitle,
                     number_format($donation->amount, 0, '.', ' '),
-                    $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
+                    $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency
                 ),
             ],
             data: [
@@ -73,7 +75,7 @@ class NotificationService
                 'project_id' => $project->id,
                 'project_slug' => $project->slug,
                 'amount' => $donation->amount,
-                'currency' => $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency,
+                'currency' => $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency,
                 'donor_name' => $donorName,
                 'donor_avatar' => $donorUser?->avatar ? Storage::url($donorUser->avatar) : null,
                 'donor_slug' => $donorUser?->slug,
@@ -109,13 +111,13 @@ class NotificationService
                         'Ви підтримали проєкт "%s" на суму %s %s. Дякуємо!',
                         $projectTitle,
                         number_format($donation->amount, 0, '.', ' '),
-                        $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
+                        $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency
                     ),
                     'en' => sprintf(
                         'You supported the project "%s" with %s %s. Thank you!',
                         $projectTitle,
                         number_format($donation->amount, 0, '.', ' '),
-                        $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
+                        $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency
                     ),
                 ],
                 data: [
@@ -139,12 +141,12 @@ class NotificationService
                 'uk' => sprintf(
                     'Ви підтримали платформу Save-Art на суму %s %s. Щиро дякуємо!',
                     number_format($donation->amount, 0, '.', ' '),
-                    $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
+                    $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency
                 ),
                 'en' => sprintf(
                     'You supported Save-Art platform with %s %s. Thank you!',
                     number_format($donation->amount, 0, '.', ' '),
-                    $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency
+                    $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency
                 ),
             ],
             data: [
@@ -323,7 +325,7 @@ class NotificationService
     {
         $bonusTitle = $bonus->title ?: 'Бонус';
         $bonusTitleEn = $bonusTitle;
-        $currency = $donation->currency instanceof \App\Enums\Currency ? $donation->currency->value : $donation->currency;
+        $currency = $donation->currency instanceof Currency ? $donation->currency->value : $donation->currency;
 
         return $this->createNotification(
             user: $user,
@@ -588,16 +590,19 @@ class NotificationService
             user: $message->user,
             type: NotificationType::Message,
             title: [
-                'uk' => 'Нове повідомлення від адміністрації',
-                'en' => 'New message from administration',
+                'uk' => $message->subject ?: 'Нове повідомлення від адміністрації',
+                'en' => $message->subject ?: 'New message from administration',
             ],
             message: [
-                'uk' => $message->subject ? sprintf('Тема: %s', $message->subject) : 'Ви отримали нове повідомлення від адміністрації.',
-                'en' => $message->subject ? sprintf('Subject: %s', $message->subject) : 'You received a new message from administration.',
+                'uk' => $message->content,
+                'en' => $message->content,
             ],
             data: [
                 'message_id' => $message->id,
                 'project_id' => $message->project_id,
+                'project_slug' => $message->project?->slug,
+                'subject' => $message->subject,
+                'is_system' => $message->isFromSystem(),
             ]
         );
     }
@@ -679,7 +684,7 @@ class NotificationService
     /**
      * Отримати непрочитані нотифікації користувача
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Notification>
+     * @return Collection<int, Notification>
      */
     public function getUnreadNotifications(User $user, int $limit = 10)
     {

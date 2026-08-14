@@ -6,5 +6,6 @@ return [
         'projects' => 'Проєкти',
         'works' => 'Роботи',
         'services' => 'Послуги',
+        'notifications' => 'Сповіщення',
     ],
 ];
