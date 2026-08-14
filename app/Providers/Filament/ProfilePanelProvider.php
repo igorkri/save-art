@@ -33,7 +33,7 @@ class ProfilePanelProvider extends PanelProvider
             ->path('profile')
             ->login(Login::class)
             ->profile(EditProfile::class, isSimple: false)
-            ->brandName(__('profile_panel.brand'))
+            ->brandName(fn (): string => trim(__('profile_panel.brand').' '.(auth()->user()?->full_name ?? '')))
             ->globalSearch()
             ->globalSearchDebounce('300ms')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
@@ -44,13 +44,13 @@ class ProfilePanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label(__('profile_panel.nav_groups.projects'))
+                    ->label(fn (): string => __('profile_panel.nav_groups.projects'))
                     ->collapsible(),
                 NavigationGroup::make()
-                    ->label(__('profile_panel.nav_groups.works'))
+                    ->label(fn (): string => __('profile_panel.nav_groups.works'))
                     ->collapsible(),
                 NavigationGroup::make()
-                    ->label(__('profile_panel.nav_groups.services'))
+                    ->label(fn (): string => __('profile_panel.nav_groups.services'))
                     ->collapsible(),
             ])
             ->discoverResources(in: app_path('Filament/Profile/Resources'), for: 'App\Filament\Profile\Resources')
