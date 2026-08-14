@@ -1,5 +1,8 @@
 <div wire:poll.30s="refreshUnreadCount" class="flex items-center">
-    <x-filament::dropdown placement="bottom-end" width="sm">
+    {{-- wire:key на дропдауні вмикає wire:ignore.self у компоненті Filament,
+    тож панель не втрачає стан "відкрито" й не закривається щоразу, коли
+    клік всередині (наприклад, позначення прочитаним) робить Livewire-запит. --}}
+    <x-filament::dropdown placement="bottom-end" width="sm" wire:key="notifications-bell-panel">
         <x-slot name="trigger">
             <x-filament::icon-button
                 icon="heroicon-o-bell"
@@ -36,7 +39,9 @@
 
                 <button
                     type="button"
-                    wire:click="markAsRead({{ $notification->id }})"
+                    wire:key="notification-{{ $notification->id }}"
+                    x-data="{ expanded: false }"
+                    x-on:click="expanded = ! expanded; $wire.markAsRead({{ $notification->id }})"
                     @class([
                         'flex w-full items-start gap-3 border-b border-gray-100 px-4 py-3 text-left transition hover:bg-gray-50 last:border-b-0 dark:border-white/5 dark:hover:bg-white/5',
                         'bg-primary-50/50 dark:bg-primary-500/5' => ! $notification->is_read,
@@ -53,7 +58,10 @@
                             {{ $title }}
                         </span>
                         @if ($message)
-                            <span class="mt-0.5 block truncate text-xs text-gray-500 dark:text-gray-400">
+                            <span
+                                class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400"
+                                x-bind:class="expanded ? 'whitespace-pre-line' : 'line-clamp-2'"
+                            >
                                 {{ $message }}
                             </span>
                         @endif
