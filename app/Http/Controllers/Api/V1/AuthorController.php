@@ -68,7 +68,7 @@ abstract class AuthorController extends Controller
 
         $query = $author->projects()
             ->forSaveArt()
-            ->with(['user.profileLegal'])
+            ->with(['user.profileLegal', 'projectParameters.parameter', 'projectParameters.parameterValue'])
             ->whereIn('status', ProjectStatus::publicStatuses())
             ->orderBy('announced_at', 'desc');
 
