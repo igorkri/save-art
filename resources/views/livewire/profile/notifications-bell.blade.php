@@ -1,19 +1,14 @@
-<div wire:poll.30s="refreshUnreadCount">
+<div wire:poll.30s="refreshUnreadCount" class="flex items-center">
     <x-filament::dropdown placement="bottom-end" width="sm">
         <x-slot name="trigger">
-            <button
-                type="button"
-                class="fi-icon-btn relative flex h-9 w-9 items-center justify-center rounded-full text-gray-500 outline-none transition duration-75 hover:bg-gray-100 hover:text-gray-700 focus-visible:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200 dark:focus-visible:bg-white/5"
-                aria-label="{{ __('profile_notifications.bell.label') }}"
-            >
-                <x-filament::icon icon="heroicon-o-bell" class="h-6 w-6" />
-
-                @if ($unreadCount > 0)
-                    <span class="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-danger-500 px-1 text-[10px] font-bold leading-none text-white">
-                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                    </span>
-                @endif
-            </button>
+            <x-filament::icon-button
+                icon="heroicon-o-bell"
+                icon-size="lg"
+                color="gray"
+                :badge="$unreadCount > 0 ? ($unreadCount > 9 ? '9+' : $unreadCount) : null"
+                badge-color="danger"
+                :label="__('profile_notifications.bell.label')"
+            />
         </x-slot>
 
         <div class="flex items-center justify-between gap-2 border-b border-gray-200 px-4 py-3 dark:border-white/10">

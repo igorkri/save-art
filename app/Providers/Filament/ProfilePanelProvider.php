@@ -116,7 +116,7 @@ class ProfilePanelProvider extends PanelProvider
 </style>
 '))
             ->renderHook(
-                PanelsRenderHook::TOPBAR_END,
+                PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => Blade::render('@auth <livewire:profile.notifications-bell /> @endauth'),
             )
             ->middleware([
