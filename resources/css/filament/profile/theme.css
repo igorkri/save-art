@@ -2,3 +2,20 @@
 
 @source '../../../../app/Filament/Profile';
 @source '../../../views/filament';
+
+
+/* Контейнер вкладок (Tabs::make()) виглядає як звичайна секція — без
+   заокруглень і без внутрішнього відступу навколо активної панелі. */
+/*.fi-sc-tabs.fi-contained {*/
+/*    margin-top: calc(var(--spacing)*0);*/
+/*    padding: 0;*/
+/*}*/
+
+section
+{
+    padding: 0;
+    margin-top: 0;
+    margin-left: -20px;
+    margin-right: -20px;
+    /*border-radius: 0;*/
+}

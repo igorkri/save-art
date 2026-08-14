@@ -136,6 +136,7 @@ class EditProfile extends BaseEditProfile
                                             ->label(__('profile_edit.fields.description'))
                                             ->placeholder(__('profile_edit.placeholders.description'))
                                             ->rows(6)
+                                            ->autosize()
                                             ->maxLength(10000)
                                             ->columnSpanFull(),
                                     ]),
