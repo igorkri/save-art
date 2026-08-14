@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\RouteTranslationsListCommand;
 use App\Models\Donation;
 use App\Models\Project;
 use App\Models\User;
@@ -10,6 +11,7 @@ use App\Observers\ProjectObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,7 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // mcamara/laravel-localization 2.4 inherits Laravel 13's AsCommand
+        // attribute and otherwise replaces route:list instead of registering
+        // route:trans:list under Symfony Console 8.
+        $this->app->singleton(
+            'laravellocalizationroutecache.list',
+            RouteTranslationsListCommand::class,
+        );
     }
 
     /**
@@ -34,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
 
         // Редирект з /uk/... на /... якщо основна мова
-        \Illuminate\Support\Facades\Route::matched(function ($event) {
+        Route::matched(function ($event) {
             $request = request();
             if ($request->segment(1) === 'uk') {
                 $url = $request->fullUrl();

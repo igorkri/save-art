@@ -183,7 +183,7 @@ class PublicProjectController extends Controller
         if ($request->filled('tags')) {
             $tags = array_map('trim', explode(',', $request->input('tags')));
             foreach ($tags as $tag) {
-                $query->where('tags', 'like', "%{$tag}%");
+                $query->whereJsonContains('tags', $tag);
             }
         }
 

@@ -54,11 +54,12 @@ class UpdatePublishedProjectTest extends ApiTestCase
 
         $response = $this->withHeaders($this->authHeaders())
             ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'tags' => ['uk' => 'живопис, арт', 'en' => 'painting, art'],
+                'tags' => ['живопис', 'арт'],
             ]);
 
         $response->assertOk();
-        $response->assertJsonPath('data.tags.uk', 'живопис, арт');
+        $response->assertJsonPath('data.tags.0', 'живопис');
+        $response->assertJsonPath('data.tags.1', 'арт');
     }
 
     public function test_cannot_update_budget_of_published_project(): void

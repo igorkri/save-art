@@ -34,7 +34,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="art_category_label", type="string", example="Візуальне мистецтво"),
  *     @OA\Property(property="art_subcategory", type="string", nullable=true, example="painting"),
  *     @OA\Property(property="art_subcategory_label", type="string", nullable=true, example="Живопис"),
- *     @OA\Property(property="tags", type="string", nullable=true),
+ *     @OA\Property(property="tags", type="array", nullable=true, @OA\Items(type="string")),
  *     @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, example="UAH"),
  *     @OA\Property(property="budget_goal", type="number", format="float", example=50000.00),
  *     @OA\Property(property="budget_collected", type="number", format="float", example=12500.00),

@@ -2192,9 +2192,9 @@
                                     "name": {
                                         "description": "Повне ім'я користувача",
                                         "type": "string",
+                                        "example": "Іван Петренко",
                                         "maxLength": 255,
-                                        "minLength": 2,
-                                        "example": "Іван Петренко"
+                                        "minLength": 2
                                     },
                                     "email": {
                                         "description": "Email (унікальний)",
@@ -2206,8 +2206,8 @@
                                         "description": "Пароль (мін. 8 символів)",
                                         "type": "string",
                                         "format": "password",
-                                        "minLength": 8,
-                                        "example": "SecurePass123"
+                                        "example": "SecurePass123",
+                                        "minLength": 8
                                     },
                                     "password_confirmation": {
                                         "description": "Підтвердження пароля",
@@ -2791,11 +2791,11 @@
                                                     },
                                                     "type": {
                                                         "type": "string",
+                                                        "example": "list",
                                                         "enum": [
                                                             "list",
                                                             "custom"
-                                                        ],
-                                                        "example": "list"
+                                                        ]
                                                     },
                                                     "values": {
                                                         "type": "array",
@@ -3367,13 +3367,13 @@
                                     "sign_service": {
                                         "description": "Сервіс електронного підпису",
                                         "type": "string",
+                                        "example": "diia",
                                         "enum": [
                                             "diia",
                                             "vchasno",
                                             "iit",
                                             "manual"
-                                        ],
-                                        "example": "diia"
+                                        ]
                                     },
                                     "signature_base64": {
                                         "description": "Підпис у форматі Base64",
@@ -3625,26 +3625,26 @@
                                         "description": "Сума донату",
                                         "type": "number",
                                         "format": "float",
-                                        "minimum": 10,
-                                        "example": 500
+                                        "example": 500,
+                                        "minimum": 10
                                     },
                                     "currency": {
                                         "type": "string",
+                                        "example": "UAH",
                                         "enum": [
                                             "UAH",
                                             "USD",
                                             "EUR"
-                                        ],
-                                        "example": "UAH"
+                                        ]
                                     },
                                     "donor_type": {
                                         "description": "Тип донатера",
                                         "type": "string",
+                                        "example": "personal",
                                         "enum": [
                                             "personal",
                                             "legal"
-                                        ],
-                                        "example": "personal"
+                                        ]
                                     },
                                     "donor_name": {
                                         "description": "Ім'я донатера",
@@ -3766,26 +3766,26 @@
                                         "description": "Сума донату",
                                         "type": "number",
                                         "format": "float",
-                                        "minimum": 10,
-                                        "example": 500
+                                        "example": 500,
+                                        "minimum": 10
                                     },
                                     "currency": {
                                         "type": "string",
+                                        "example": "UAH",
                                         "enum": [
                                             "UAH",
                                             "USD",
                                             "EUR"
-                                        ],
-                                        "example": "UAH"
+                                        ]
                                     },
                                     "donor_type": {
                                         "description": "Тип донатера",
                                         "type": "string",
+                                        "example": "personal",
                                         "enum": [
                                             "personal",
                                             "legal"
-                                        ],
-                                        "example": "personal"
+                                        ]
                                     },
                                     "donor_name": {
                                         "description": "Ім'я донатера",
@@ -4797,18 +4797,12 @@
                                         "maxLength": 100
                                     },
                                     "tags": {
-                                        "properties": {
-                                            "uk": {
-                                                "description": "Теги через кому",
-                                                "type": "string",
-                                                "maxLength": 500
-                                            },
-                                            "en": {
-                                                "type": "string",
-                                                "maxLength": 500
-                                            }
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "maxLength": 100
                                         },
-                                        "type": "object"
+                                        "maxItems": 50
                                     },
                                     "currency": {
                                         "description": "Обов'язково для moderation",
@@ -5005,14 +4999,14 @@
                                                 },
                                                 "max_donation": {
                                                     "type": "number",
-                                                    "minimum": 1,
-                                                    "nullable": true
+                                                    "nullable": true,
+                                                    "minimum": 1
                                                 },
                                                 "quantity": {
                                                     "description": "null = необмежено",
                                                     "type": "integer",
-                                                    "minimum": 1,
-                                                    "nullable": true
+                                                    "nullable": true,
+                                                    "minimum": 1
                                                 },
                                                 "order": {
                                                     "type": "integer",
@@ -5040,10 +5034,13 @@
                                 "cover": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
                                 "art_category": "fine_art",
                                 "art_subcategory": "painting",
-                                "tags": {
-                                    "uk": "живопис, пейзаж, Україна, олія, природа",
-                                    "en": "painting, landscape, Ukraine, oil, nature"
-                                },
+                                "tags": [
+                                    "живопис",
+                                    "пейзаж",
+                                    "Україна",
+                                    "олія",
+                                    "природа"
+                                ],
                                 "currency": "UAH",
                                 "budget_goal": 75000,
                                 "estimated_days": 90,
@@ -5740,15 +5737,15 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "tags[uk]": {
-                                        "description": "Теги українською",
-                                        "type": "string",
-                                        "example": "живопис, арт"
-                                    },
-                                    "tags[en]": {
-                                        "description": "Теги англійською",
-                                        "type": "string",
-                                        "example": "painting, art"
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "живопис",
+                                            "арт"
+                                        ]
                                     },
                                     "additional_info[uk]": {
                                         "description": "Додаткова інформація українською",
@@ -5780,7 +5777,10 @@
                                     },
                                     "tags": {
                                         "description": "Нові теги",
-                                        "type": "string",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
                                         "nullable": true
                                     },
                                     "additional_info": {
@@ -6002,14 +6002,14 @@
                                     "type": {
                                         "description": "Тип результату: image (одне зображення), gallery (кілька зображень), video (відео-файл), document (PDF або інший документ), link (посилання на YouTube/Vimeo/Issuu тощо — вимагає поле url замість files)",
                                         "type": "string",
+                                        "example": "gallery",
                                         "enum": [
                                             "image",
                                             "gallery",
                                             "video",
                                             "document",
                                             "link"
-                                        ],
-                                        "example": "gallery"
+                                        ]
                                     },
                                     "files": {
                                         "description": "Файли (до 10 файлів, до 50MB кожен). Обов'язкове для всіх типів окрім link",
@@ -9809,12 +9809,12 @@
                                     "currency": {
                                         "description": "Валюта",
                                         "type": "string",
+                                        "example": "UAH",
                                         "enum": [
                                             "UAH",
                                             "USD",
                                             "EUR"
-                                        ],
-                                        "example": "UAH"
+                                        ]
                                     },
                                     "is_legal": {
                                         "description": "Чи є юридичною особою",
@@ -9910,12 +9910,12 @@
                                     "currency": {
                                         "description": "Валюта",
                                         "type": "string",
+                                        "example": "UAH",
                                         "enum": [
                                             "UAH",
                                             "USD",
                                             "EUR"
-                                        ],
-                                        "example": "UAH"
+                                        ]
                                     },
                                     "is_legal": {
                                         "description": "Чи є юридичною особою",
@@ -10164,13 +10164,13 @@
                                     "service": {
                                         "description": "Сервіс для підпису",
                                         "type": "string",
+                                        "example": "diia",
                                         "enum": [
                                             "diia",
                                             "vchasno",
                                             "iit",
                                             "manual"
-                                        ],
-                                        "example": "diia"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -11081,11 +11081,11 @@
                     "donation_type": {
                         "description": "Тип донату: project - на проект, platform - на платформу",
                         "type": "string",
+                        "example": "project",
                         "enum": [
                             "project",
                             "platform"
-                        ],
-                        "example": "project"
+                        ]
                     },
                     "project": {
                         "description": "Проект (null для донатів на платформу)",
@@ -11127,22 +11127,22 @@
                     },
                     "currency": {
                         "type": "string",
+                        "example": "UAH",
                         "enum": [
                             "UAH",
                             "USD",
                             "EUR"
-                        ],
-                        "example": "UAH"
+                        ]
                     },
                     "status": {
                         "type": "string",
+                        "example": "paid",
                         "enum": [
                             "pending",
                             "paid",
                             "failed",
                             "refunded"
-                        ],
-                        "example": "paid"
+                        ]
                     },
                     "status_label": {
                         "type": "string",
@@ -11211,11 +11211,11 @@
                     },
                     "direction": {
                         "type": "string",
+                        "example": "outgoing",
                         "enum": [
                             "incoming",
                             "outgoing"
-                        ],
-                        "example": "outgoing"
+                        ]
                     },
                     "is_from_admin": {
                         "type": "boolean",
@@ -11282,11 +11282,11 @@
                     },
                     "category": {
                         "type": "string",
+                        "example": "news",
                         "enum": [
                             "news",
                             "event"
-                        ],
-                        "example": "news"
+                        ]
                     },
                     "category_label": {
                         "type": "string",
@@ -11332,11 +11332,11 @@
                     },
                     "category": {
                         "type": "string",
+                        "example": "news",
                         "enum": [
                             "news",
                             "event"
-                        ],
-                        "example": "news"
+                        ]
                     },
                     "category_label": {
                         "type": "string",
@@ -11403,6 +11403,7 @@
                     "type": {
                         "description": "Тип сповіщення",
                         "type": "string",
+                        "example": "donation",
                         "enum": [
                             "donation",
                             "moderation",
@@ -11412,8 +11413,7 @@
                             "project_rejected",
                             "project_completed",
                             "bonus_claimed"
-                        ],
-                        "example": "donation"
+                        ]
                     },
                     "type_label": {
                         "description": "Назва типу українською",
@@ -11557,14 +11557,14 @@
                     },
                     "status_moderation": {
                         "type": "string",
+                        "example": "pending",
+                        "nullable": true,
                         "enum": [
                             "pending",
                             "processing",
                             "approved",
                             "rejected"
-                        ],
-                        "example": "pending",
-                        "nullable": true
+                        ]
                     },
                     "sold_externally": {
                         "description": "Проєкт позначено проданим поза платформою (art-ua-info)",
@@ -11689,14 +11689,15 @@
                     },
                     "source": {
                         "type": "string",
+                        "example": "save_art",
                         "enum": [
                             "save_art",
                             "art_ua_info"
-                        ],
-                        "example": "save_art"
+                        ]
                     },
                     "status": {
                         "type": "string",
+                        "example": "announced",
                         "enum": [
                             "draft",
                             "moderation",
@@ -11706,8 +11707,7 @@
                             "completed",
                             "sold",
                             "rejected"
-                        ],
-                        "example": "announced"
+                        ]
                     },
                     "status_label": {
                         "type": "string",
@@ -11715,12 +11715,12 @@
                     },
                     "status_moderation": {
                         "type": "string",
+                        "example": "approved",
                         "enum": [
                             "pending",
                             "approved",
                             "rejected"
-                        ],
-                        "example": "approved"
+                        ]
                     },
                     "title": {
                         "type": "string"
@@ -11736,6 +11736,7 @@
                     },
                     "art_category": {
                         "type": "string",
+                        "example": "visual",
                         "enum": [
                             "scenic",
                             "visual",
@@ -11743,8 +11744,7 @@
                             "literature",
                             "music",
                             "other"
-                        ],
-                        "example": "visual"
+                        ]
                     },
                     "art_category_label": {
                         "type": "string",
@@ -11761,17 +11761,20 @@
                         "nullable": true
                     },
                     "tags": {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "nullable": true
                     },
                     "currency": {
                         "type": "string",
+                        "example": "UAH",
                         "enum": [
                             "UAH",
                             "USD",
                             "EUR"
-                        ],
-                        "example": "UAH"
+                        ]
                     },
                     "budget_goal": {
                         "type": "number",
@@ -11849,24 +11852,24 @@
                             "properties": {
                                 "type": {
                                     "type": "string",
+                                    "example": "heading",
                                     "enum": [
                                         "heading",
                                         "paragraph",
                                         "image"
-                                    ],
-                                    "example": "heading"
+                                    ]
                                 },
                                 "heading_level": {
                                     "description": "Тільки для type=heading",
                                     "type": "string",
+                                    "example": "h2",
                                     "enum": [
                                         "h2",
                                         "h3",
                                         "h4",
                                         "h5",
                                         "h6"
-                                    ],
-                                    "example": "h2"
+                                    ]
                                 },
                                 "heading_text": {
                                     "description": "Тільки для type=heading (локалізовано)",
@@ -11964,11 +11967,11 @@
                     },
                     "type": {
                         "type": "string",
+                        "example": "list",
                         "enum": [
                             "list",
                             "custom"
-                        ],
-                        "example": "list"
+                        ]
                     },
                     "value_id": {
                         "type": "integer",
@@ -11994,13 +11997,13 @@
                     "type": {
                         "description": "Тип результату",
                         "type": "string",
+                        "example": "gallery",
                         "enum": [
                             "image",
                             "gallery",
                             "video",
                             "document"
-                        ],
-                        "example": "gallery"
+                        ]
                     },
                     "description": {
                         "oneOf": [
@@ -12092,12 +12095,12 @@
                     },
                     "status": {
                         "type": "string",
+                        "example": "planned",
                         "enum": [
                             "planned",
                             "in_progress",
                             "completed"
-                        ],
-                        "example": "planned"
+                        ]
                     },
                     "status_label": {
                         "type": "string",
@@ -12163,11 +12166,11 @@
                     "type": {
                         "description": "Тип: photo або document",
                         "type": "string",
+                        "example": "photo",
                         "enum": [
                             "photo",
                             "document"
-                        ],
-                        "example": "photo"
+                        ]
                     },
                     "file": {
                         "description": "Шлях до файлу",
@@ -12497,6 +12500,7 @@
                     },
                     "role": {
                         "type": "string",
+                        "example": "user",
                         "enum": [
                             "user",
                             "mecenat",
@@ -12504,8 +12508,7 @@
                             "moderator",
                             "admin",
                             "developer"
-                        ],
-                        "example": "user"
+                        ]
                     },
                     "avatar_url": {
                         "type": "string",
@@ -12598,13 +12601,13 @@
                     "status": {
                         "description": "Статус контракту",
                         "type": "string",
+                        "example": "pending",
                         "enum": [
                             "pending",
                             "signed",
                             "rejected",
                             "expired"
-                        ],
-                        "example": "pending"
+                        ]
                     },
                     "status_label": {
                         "description": "Людиночитабельний статус",
@@ -12614,14 +12617,14 @@
                     "sign_service": {
                         "description": "Сервіс підпису (якщо підписано)",
                         "type": "string",
+                        "example": "diia",
+                        "nullable": true,
                         "enum": [
                             "diia",
                             "vchasno",
                             "iit",
                             "manual"
-                        ],
-                        "example": "diia",
-                        "nullable": true
+                        ]
                     },
                     "sign_service_label": {
                         "description": "Назва сервісу підпису",
@@ -12717,12 +12720,12 @@
                     },
                     "sign_status": {
                         "type": "string",
+                        "example": "pending",
                         "enum": [
                             "pending",
                             "signed",
                             "rejected"
-                        ],
-                        "example": "pending"
+                        ]
                     },
                     "signed_at": {
                         "type": "string",
@@ -12731,13 +12734,13 @@
                     },
                     "service": {
                         "type": "string",
+                        "example": "diia",
                         "enum": [
                             "diia",
                             "vchasno",
                             "iit",
                             "manual"
-                        ],
-                        "example": "diia"
+                        ]
                     },
                     "created_at": {
                         "type": "string",

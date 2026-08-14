@@ -20,6 +20,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -110,8 +111,8 @@ class ProjectForm
                                     ->label('Короткий опис')
                                     ->rows(3),
 
-                                TextInput::make('tags')
-                                    ->label('Теги (через кому)'),
+                                TagsInput::make('tags')
+                                    ->label('Теги'),
 
                                 FileUpload::make('cover')
                                     ->label('Обкладинка')

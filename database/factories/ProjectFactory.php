@@ -38,7 +38,7 @@ class ProjectFactory extends Factory
             'title' => $this->faker->sentence(4),
             'short_description' => $this->faker->paragraph(),
             'cover' => null,
-            'tags' => implode(', ', $this->faker->words(3)),
+            'tags' => $this->faker->words(3),
             'art_category_id' => $artCategoryId,
             'currency' => $this->faker->randomElement(Currency::cases()),
             'budget_goal' => $this->faker->randomFloat(2, 1000, 100000),

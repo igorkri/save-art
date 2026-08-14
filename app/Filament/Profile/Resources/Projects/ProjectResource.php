@@ -20,6 +20,8 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
@@ -32,6 +34,14 @@ class ProjectResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return 'Проєкти';
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'short_description', 'code'];
     }
 
     public static function form(Schema $schema): Schema

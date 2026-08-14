@@ -140,6 +140,7 @@ class ProjectApiTest extends ApiTestCase
             'user_type' => UserType::Personal->value,
             'title' => 'Тестовий проєкт',
             'art_category' => ArtCategory::FineArt->value,
+            'tags' => ['живопис', 'арт'],
             'currency' => Currency::UAH->value,
             'budget_goal' => 10000,
         ];
@@ -148,6 +149,7 @@ class ProjectApiTest extends ApiTestCase
 
         $response->assertCreated()
             ->assertJsonPath('data.title', 'Тестовий проєкт')
+            ->assertJsonPath('data.tags', ['живопис', 'арт'])
             ->assertJsonPath('data.status', 'new');
 
         $this->assertDatabaseHas('projects', [

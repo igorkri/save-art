@@ -42,9 +42,9 @@ php artisan serve
 ## Технології
 
 - **PHP:** 8.4
-- **Laravel:** 12.x
-- **Filament:** 4.x (Admin Panel)
-- **Livewire:** 3.x
+- **Laravel:** 13.x
+- **Filament:** 5.x (Admin Panel)
+- **Livewire:** 4.x
 - **Tailwind CSS**
 - **Alpine.js**
 

@@ -206,10 +206,7 @@ class MyProjectController extends Controller
      *                 "cover": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
      *                 "art_category": "fine_art",
      *                 "art_subcategory": "painting",
-     *                 "tags": {
-     *                     "uk": "живопис, пейзаж, Україна, олія, природа",
-     *                     "en": "painting, landscape, Ukraine, oil, nature"
-     *                 },
+     *                 "tags": {"живопис", "пейзаж", "Україна", "олія", "природа"},
      *                 "currency": "UAH",
      *                 "budget_goal": 75000,
      *                 "estimated_days": 90,
@@ -261,10 +258,7 @@ class MyProjectController extends Controller
      *             @OA\Property(property="cover", type="string", description="Base64 зображення або URL"),
      *             @OA\Property(property="art_category", type="string", enum={"scenic", "visual", "fine_art", "literature", "music", "other"}, description="Обов'язково для moderation"),
      *             @OA\Property(property="art_subcategory", type="string", maxLength=100),
-     *             @OA\Property(property="tags", type="object",
-     *                 @OA\Property(property="uk", type="string", maxLength=500, description="Теги через кому"),
-     *                 @OA\Property(property="en", type="string", maxLength=500)
-     *             ),
+     *             @OA\Property(property="tags", type="array", maxItems=50, @OA\Items(type="string", maxLength=100)),
      *             @OA\Property(property="currency", type="string", enum={"UAH", "USD", "EUR"}, description="Обов'язково для moderation"),
      *             @OA\Property(property="budget_goal", type="number", minimum=100, maximum=999999999, description="Обов'язково для moderation"),
      *             @OA\Property(property="estimated_days", type="integer", minimum=1, maximum=365),
@@ -773,8 +767,7 @@ class MyProjectController extends Controller
      *                 @OA\Property(property="short_description[uk]", type="string", description="Короткий опис українською"),
      *                 @OA\Property(property="short_description[en]", type="string", description="Короткий опис англійською"),
      *                 @OA\Property(property="cover", type="string", format="binary", description="Нова обкладинка (JPG, PNG, до 15MB)"),
-     *                 @OA\Property(property="tags[uk]", type="string", example="живопис, арт", description="Теги українською"),
-     *                 @OA\Property(property="tags[en]", type="string", example="painting, art", description="Теги англійською"),
+     *                 @OA\Property(property="tags", type="array", @OA\Items(type="string"), example={"живопис", "арт"}),
      *                 @OA\Property(property="additional_info[uk]", type="string", description="Додаткова інформація українською"),
      *                 @OA\Property(property="additional_info[en]", type="string", description="Додаткова інформація англійською"),
      *                 @OA\Property(property="content_blocks", type="string", description="JSON масив контент-блоків (до 50). Кожен блок має поле type: heading, paragraph або image.")
@@ -788,7 +781,7 @@ class MyProjectController extends Controller
      *
      *                 @OA\Property(property="title", type="string", description="Нова назва проєкту"),
      *                 @OA\Property(property="short_description", type="string", nullable=true, description="Новий короткий опис"),
-     *                 @OA\Property(property="tags", type="string", nullable=true, description="Нові теги"),
+     *                 @OA\Property(property="tags", type="array", nullable=true, @OA\Items(type="string"), description="Нові теги"),
      *                 @OA\Property(property="additional_info", ref="#/components/schemas/LocalizedString", description="Нова додаткова інформація"),
      *                 @OA\Property(property="content_blocks", type="array", description="Контент-блоки (до 50)", maxItems=50,
      *

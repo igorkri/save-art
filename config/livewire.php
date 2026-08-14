@@ -2,6 +2,16 @@
 
 return [
 
+    'component_locations' => [
+        resource_path('views/components'),
+        resource_path('views/livewire'),
+    ],
+
+    'component_namespaces' => [
+        'layouts' => resource_path('views/layouts'),
+        'pages' => resource_path('views/pages'),
+    ],
+
     /*
     |---------------------------------------------------------------------------
     | Class Namespace
@@ -38,7 +48,7 @@ return [
     |
     */
 
-    'layout' => 'components.layouts.app',
+    'component_layout' => 'components.layouts.app',
 
     /*
     |---------------------------------------------------------------------------
@@ -50,7 +60,19 @@ return [
     |
     */
 
-    'lazy_placeholder' => null,
+    'component_placeholder' => null,
+
+    'make_command' => [
+        'type' => 'class',
+        'emoji' => false,
+        'with' => [
+            'js' => false,
+            'css' => false,
+            'test' => false,
+        ],
+    ],
+
+    'class_path' => app_path('Livewire'),
 
     /*
     |---------------------------------------------------------------------------
@@ -148,6 +170,8 @@ return [
 
     'inject_morph_markers' => true,
 
+    'smart_wire_keys' => true,
+
     /*
     |---------------------------------------------------------------------------
     | Pagination Theme
@@ -160,4 +184,15 @@ return [
     */
 
     'pagination_theme' => 'tailwind',
+
+    'release_token' => 'a',
+
+    'csp_safe' => false,
+
+    'payload' => [
+        'max_size' => 1024 * 1024,
+        'max_nesting_depth' => 10,
+        'max_calls' => 50,
+        'max_components' => 200,
+    ],
 ];

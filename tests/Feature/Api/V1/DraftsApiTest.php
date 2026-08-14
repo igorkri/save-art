@@ -185,7 +185,7 @@ class DraftsApiTest extends ApiTestCase
                 'user_type' => 'personal',
                 'title' => ['uk' => 'Назва українською', 'en' => 'Title in English'],
                 'short_description' => ['uk' => 'Короткий опис...', 'en' => 'Short description...'],
-                'tags' => ['uk' => 'тег1, тег2', 'en' => 'tag1, tag2'],
+                'tags' => ['тег1', 'тег2'],
                 'art_category' => 'fine_art',
                 'art_subcategory' => 'painting',
                 'currency' => 'UAH',
@@ -221,7 +221,8 @@ class DraftsApiTest extends ApiTestCase
             ->assertJsonPath('data.draft.local_id', '1771078053865')
             ->assertJsonPath('data.draft.user_type', 'personal')
             ->assertJsonPath('data.draft.title.uk', 'Назва українською')
-            ->assertJsonPath('data.draft.tags.uk', 'тег1, тег2')
+            ->assertJsonPath('data.draft.tags.0', 'тег1')
+            ->assertJsonPath('data.draft.tags.1', 'тег2')
             ->assertJsonPath('data.draft.budget_goal', 75000)
             ->assertJsonPath('data.draft.estimated_days', 90)
             ->assertJsonPath('data.draft.currency', 'UAH')

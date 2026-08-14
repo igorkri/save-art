@@ -16,13 +16,13 @@
 | Технологія | Версія | Призначення |
 |------------|--------|-------------|
 | PHP | 8.4 | Мова програмування |
-| Laravel | 12.x | Backend фреймворк |
-| Filament | 4.x | Адмін-панель |
-| Livewire | 3.x | Reactive компоненти |
+| Laravel | 13.x | Backend фреймворк |
+| Filament | 5.x | Адмін-панель |
+| Livewire | 4.x | Reactive компоненти |
 | MySQL | 8.x | База даних |
-| Tailwind CSS | 3.x | Стилі (адмін-панель) |
+| Tailwind CSS | 4.x | Стилі (адмін-панель) |
 | Alpine.js | 3.x | JavaScript (адмін-панель) |
-| L5-Swagger | 9.x | API документація (OpenAPI) |
+| L5-Swagger | 11.x | API документація (OpenAPI) |
 
 ### Архітектура
 
@@ -545,7 +545,7 @@ php artisan test                     # Тести
 
 ## 🔗 Корисні посилання
 
-- [Laravel 12 Docs](https://laravel.com/docs/12.x)
-- [Filament 4 Docs](https://filamentphp.com/docs/4.x)
-- [Livewire 3 Docs](https://livewire.laravel.com/docs)
+- [Laravel 13 Docs](https://laravel.com/docs/13.x)
+- [Filament 5 Docs](https://filamentphp.com/docs/5.x)
+- [Livewire 4 Docs](https://livewire.laravel.com/docs)
 - [Проектна документація](docs/)

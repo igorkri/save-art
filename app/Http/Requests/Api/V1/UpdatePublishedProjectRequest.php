@@ -73,7 +73,8 @@ class UpdatePublishedProjectRequest extends FormRequest
             'cover' => ['nullable', new ImageOrBase64Rule(15360)], // 15MB, підтримує файл, Base64, URL
 
             // Теги
-            'tags' => ['sometimes', 'nullable', 'string', 'max:500'],
+            'tags' => ['sometimes', 'nullable', 'array', 'max:50'],
+            'tags.*' => ['string', 'max:100'],
 
             // Категорія (slug з БД)
             'art_category' => ['sometimes', 'nullable', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],

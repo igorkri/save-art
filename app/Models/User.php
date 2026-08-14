@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ProfileType;
 use App\UserRole;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Модель користувача
@@ -38,7 +41,7 @@ use Illuminate\Notifications\Notifiable;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
-class User extends Authenticatable implements FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, \Laravel\Sanctum\HasApiTokens, Notifiable;
@@ -324,6 +327,22 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function getDisplayNameAttribute(): string
     {
         return $this->full_name ?: 'Не вказано';
+    }
+
+    /**
+     * Аватар користувача у Filament замість згенерованих ініціалів.
+     */
+    public function getFilamentAvatarUrl(): ?string
+    {
+        if (blank($this->avatar)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->avatar, ['http://', 'https://', 'data:image/'])) {
+            return $this->avatar;
+        }
+
+        return Storage::disk('public')->url($this->avatar);
     }
 
     /**

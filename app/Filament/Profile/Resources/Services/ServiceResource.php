@@ -21,6 +21,8 @@ class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
     protected static UnitEnum|string|null $navigationGroup = 'Послуги';
@@ -33,6 +35,14 @@ class ServiceResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return 'Послуги';
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'description', 'location'];
     }
 
     public static function getEloquentQuery(): Builder

@@ -11,19 +11,19 @@
     <p>{{ $message }}</p>
 </div>
 <script>
-    document.addEventListener('livewire:load', function () {
+    document.addEventListener('livewire:init', function () {
         function autoCloseToast() {
             var toast = document.getElementById('toast');
             if (toast && toast.style.display !== 'none' && {{ $autoClose ? 'true' : 'false' }}) {
                 setTimeout(function () {
-                    window.livewire.emit('closeNotification');
+                    Livewire.dispatch('closeNotification');
                 }, 400);
             }
         }
         // Автозакрытие при первом показе
         autoCloseToast();
         // Автозакрытие при динамическом показе
-        window.livewire.on('showNotification', function () {
+        Livewire.on('showNotification', function () {
             autoCloseToast();
         });
     });

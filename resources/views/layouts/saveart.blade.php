@@ -88,17 +88,19 @@
 @include('layouts.partials.header')
 @yield('content')
 
-<livewire:advertising>
+<livewire:advertising />
 @include('layouts.partials.footer')
 @livewireScripts
 @stack('scripts')
 <script src="{{ asset('js/script.js') }}" defer></script>
-<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 @if(session('notification'))
 <script>
-    window.addEventListener('livewire:load', function () {
+    document.addEventListener('livewire:init', function () {
         console.log('Livewire loaded, emitting notification:', @json(session('notification.title')), @json(session('notification.message')));
-        window.livewire.emit('showNotification', @json(session('notification.title')), @json(session('notification.message')));
+        Livewire.dispatch('showNotification', {
+            title: @json(session('notification.title')),
+            message: @json(session('notification.message')),
+        });
     });
 </script>
 @endif

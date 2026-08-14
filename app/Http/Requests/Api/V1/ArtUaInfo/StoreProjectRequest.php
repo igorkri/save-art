@@ -75,7 +75,8 @@ class StoreProjectRequest extends FormRequest
             'art_category' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
-            'tags' => ['nullable', 'string', 'max:500'],
+            'tags' => ['nullable', 'array', 'max:50'],
+            'tags.*' => ['string', 'max:100'],
 
             'currency' => ['nullable', Rule::enum(Currency::class)],
 

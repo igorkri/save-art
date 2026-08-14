@@ -8,10 +8,14 @@ trait NormalizesProjectUkrainianFields
     {
         $data = $this->all();
 
-        foreach (['title', 'short_description', 'tags'] as $field) {
+        foreach (['title', 'short_description'] as $field) {
             if (array_key_exists($field, $data)) {
                 $data[$field] = $this->ukValue($data[$field]);
             }
+        }
+
+        if (array_key_exists('tags', $data)) {
+            $data['tags'] = $this->normalizeTags($data['tags']);
         }
 
         $this->normalizeRows($data, 'budget_items', ['name']);
@@ -67,5 +71,29 @@ trait NormalizesProjectUkrainianFields
         $value = $value['uk'] ?? null;
 
         return is_array($value) ? implode(', ', $value) : $value;
+    }
+
+    private function normalizeTags(mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_array($value) && (array_key_exists('uk', $value) || array_key_exists('en', $value))) {
+            $value = $value['uk'] ?? [];
+        }
+
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        return array_values(array_filter(
+            array_map(static fn (mixed $tag): mixed => is_string($tag) ? trim($tag) : $tag, $value),
+            static fn (mixed $tag): bool => $tag !== '',
+        ));
     }
 }

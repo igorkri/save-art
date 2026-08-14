@@ -55,7 +55,8 @@ class StoreFullProjectRequest extends FormRequest
             'art_category' => ['required', 'string', Rule::in(ArtCategory::whereNull('parent_id')->pluck('slug')->all())],
             'art_subcategory' => ['nullable', 'string', 'max:100'],
 
-            'tags' => ['nullable', 'string', 'max:500'],
+            'tags' => ['nullable', 'array', 'max:50'],
+            'tags.*' => ['string', 'max:100'],
 
             // Бюджет
             'currency' => ['required', Rule::enum(Currency::class)],

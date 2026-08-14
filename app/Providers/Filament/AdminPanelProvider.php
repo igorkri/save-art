@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\MessagesOverview;
-use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -16,7 +15,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
@@ -112,22 +111,15 @@ class AdminPanelProvider extends PanelProvider
                 StartSession::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
+                PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->plugins([
-                //                FilamentLanguageSwitcherPlugin::make()
-                //                    ->locales([
-                //                        ['code' => 'en', 'name' => 'English', 'flag' => 'gb'],
-                //                        ['code' => 'uk', 'name' => 'Українська', 'flag' => 'ua'],
-                //                    ]),
-            ])
             ->sidebarCollapsibleOnDesktop() // Добавляем сворачиваемое меню на десктопе
             // ->sidebarFullyCollapsibleOnDesktop() // Альтернатива: полное сворачивание
             // Доступные варианты ширины:
-            // В Filament v4 вы можете использовать следующие варианты ширины (от самой узкой до самой широкой):
+            // В Filament v5 вы можете использовать следующие варианты ширины (от самой узкой до самой широкой):
             // Width::ExtraSmall - очень узкая
             // Width::Small - узкая
             // Width::Medium - средняя

@@ -96,6 +96,7 @@ class Project extends Model
     protected function casts(): array
     {
         return [
+            'tags' => 'array',
             'budget_items' => 'array',
             'additional_info' => 'array',
             'content_blocks' => 'array',
@@ -157,7 +158,25 @@ class Project extends Model
     public function setTagsAttribute(mixed $value): void
     {
         $value = $this->ukValue($value);
-        $this->attributes['tags'] = is_array($value) ? implode(', ', $value) : $value;
+
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+
+        if ($value !== null && ! is_array($value)) {
+            $value = [$value];
+        }
+
+        if (is_array($value)) {
+            $value = array_values(array_filter(
+                array_map(static fn (mixed $tag): string => trim((string) $tag), $value),
+                static fn (string $tag): bool => $tag !== '',
+            ));
+        }
+
+        $this->attributes['tags'] = $value === null
+            ? null
+            : json_encode(array_values($value), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function setBudgetItemsAttribute(mixed $value): void
