@@ -63,7 +63,7 @@ class Documents extends Page
                             ->disk('public')
                             ->directory('profile_documents')
                             ->panelLayout('grid')
-                            ->imagePreviewHeight('60')
+//                            ->imagePreviewHeight('160')
                             ->columnSpanFull(),
                     ]),
             ])
