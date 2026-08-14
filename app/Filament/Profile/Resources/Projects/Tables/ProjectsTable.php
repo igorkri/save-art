@@ -19,19 +19,19 @@ class ProjectsTable
         return $table
             ->columns([
                 ImageColumn::make('cover')
-                    ->label('Обкладинка')
+                    ->label(__('profile_projects.table.cover'))
                     ->disk('public')
                     ->circular()
                     ->size(50),
 
                 TextColumn::make('title')
-                    ->label('Назва')
+                    ->label(__('profile_projects.table.title'))
                     ->limit(50)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->label('Статус')
+                    ->label(__('profile_projects.table.status'))
                     ->badge()
                     ->formatStateUsing(fn (ProjectStatus $state): string => $state->getLabel())
                     ->color(fn (ProjectStatus $state): string => match ($state) {
@@ -48,7 +48,7 @@ class ProjectsTable
                     ->sortable(),
 
                 TextColumn::make('status_moderation')
-                    ->label('Модерація')
+                    ->label(__('profile_projects.table.moderation'))
                     ->badge()
                     ->formatStateUsing(fn (ModerationStatus $state): string => $state->getLabel())
                     ->color(fn (ModerationStatus $state): string => match ($state) {
@@ -60,17 +60,17 @@ class ProjectsTable
                     ->sortable(),
 
                 TextColumn::make('budget_goal')
-                    ->label('Ціль')
+                    ->label(__('profile_projects.table.goal'))
                     ->money(fn ($record) => $record->currency?->value ?? 'UAH')
                     ->sortable(),
 
                 TextColumn::make('budget_collected')
-                    ->label('Зібрано')
+                    ->label(__('profile_projects.table.collected'))
                     ->money(fn ($record) => $record->currency?->value ?? 'UAH')
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->label('Створено')
+                    ->label(__('profile_projects.table.created_at'))
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -78,7 +78,7 @@ class ProjectsTable
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Статус')
+                    ->label(__('profile_projects.table.status'))
                     ->options(ProjectStatus::getOptions()),
             ])
             ->recordActions([

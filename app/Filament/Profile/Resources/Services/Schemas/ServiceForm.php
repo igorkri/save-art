@@ -18,23 +18,23 @@ class ServiceForm
     {
         return $schema
             ->components([
-                Section::make('Основна інформація')
+                Section::make(__('profile_services.sections.main'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('title')
-                            ->label('Назва послуги')
+                            ->label(__('profile_services.fields.title'))
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
                         TextInput::make('description')
-                            ->label('Опис')
+                            ->label(__('profile_services.fields.description'))
                             ->columnSpanFull(),
                         TextInput::make('location')
-                            ->label('Локація')
+                            ->label(__('profile_services.fields.location'))
                             ->columnSpanFull(),
 
                         Select::make('art_category_id')
-                            ->label('Галузь мистецтва')
+                            ->label(__('profile_services.fields.art_category'))
                             ->options(function () {
                                 $options = [];
                                 foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
@@ -51,7 +51,7 @@ class ServiceForm
                             ->searchable(),
 
                         FileUpload::make('image')
-                            ->label('Зображення')
+                            ->label(__('profile_services.fields.image'))
                             ->image()
                             ->imageEditor()
                             ->disk('public')
@@ -59,11 +59,11 @@ class ServiceForm
                             ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file)),
                     ]),
 
-                Section::make('Ціна')
+                Section::make(__('profile_services.sections.price'))
                     ->columns(3)
                     ->schema([
                         Select::make('currency')
-                            ->label('Валюта')
+                            ->label(__('profile_services.fields.currency'))
                             ->options([
                                 Currency::UAH->value => '₴ UAH',
                                 Currency::USD->value => '$ USD',
@@ -73,11 +73,11 @@ class ServiceForm
                             ->required(),
 
                         TextInput::make('price')
-                            ->label('Ціна')
+                            ->label(__('profile_services.fields.price'))
                             ->numeric(),
 
                         Toggle::make('price_from')
-                            ->label('«Від» (орієнтовна ціна)'),
+                            ->label(__('profile_services.fields.price_from')),
                     ]),
             ]);
     }

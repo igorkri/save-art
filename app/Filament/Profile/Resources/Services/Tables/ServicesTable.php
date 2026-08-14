@@ -17,31 +17,31 @@ class ServicesTable
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Зображення')
+                    ->label(__('profile_services.table.image'))
                     ->disk('public')
                     ->size(50),
 
                 TextColumn::make('title')
-                    ->label('Назва')
+                    ->label(__('profile_services.table.title'))
                     ->limit(50)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('artCategory.id')
-                    ->label('Категорія')
+                    ->label(__('profile_services.table.category'))
                     ->formatStateUsing(fn ($record): string => $record->artCategory?->getLabel('uk') ?? '-'),
 
                 TextColumn::make('price')
-                    ->label('Ціна')
+                    ->label(__('profile_services.table.price'))
                     ->money(fn ($record) => $record->currency?->value ?? 'UAH')
                     ->sortable(),
 
                 IconColumn::make('price_from')
-                    ->label('«Від»')
+                    ->label(__('profile_services.table.price_from'))
                     ->boolean(),
 
                 TextColumn::make('created_at')
-                    ->label('Створено')
+                    ->label(__('profile_services.table.created_at'))
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

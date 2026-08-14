@@ -27,14 +27,13 @@ class ProfilePanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $user = auth()->user();
 
         return $panel
             ->id('profile')
             ->path('profile')
             ->login(Login::class)
             ->profile(EditProfile::class, isSimple: false)
-            ->brandName('Кабінет ')
+            ->brandName(__('profile_panel.brand'))
             ->globalSearch()
             ->globalSearchDebounce('300ms')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
@@ -45,13 +44,13 @@ class ProfilePanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Проєкти')
+                    ->label(__('profile_panel.nav_groups.projects'))
                     ->collapsible(),
                 NavigationGroup::make()
-                    ->label('Роботи')
+                    ->label(__('profile_panel.nav_groups.works'))
                     ->collapsible(),
                 NavigationGroup::make()
-                    ->label('Послуги')
+                    ->label(__('profile_panel.nav_groups.services'))
                     ->collapsible(),
             ])
             ->discoverResources(in: app_path('Filament/Profile/Resources'), for: 'App\Filament\Profile\Resources')

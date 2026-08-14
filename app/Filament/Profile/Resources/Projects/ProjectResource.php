@@ -24,16 +24,19 @@ class ProjectResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('profile_panel.nav_groups.projects');
+    }
 
     public static function getModelLabel(): string
     {
-        return 'Проєкт';
+        return __('profile_projects.model.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Проєкти';
+        return __('profile_projects.model.plural');
     }
 
     /**

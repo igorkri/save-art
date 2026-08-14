@@ -17,17 +17,17 @@ class UserPhotosTable
             ->defaultSort('sort_order')
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Зображення')
+                    ->label(__('profile_user_photos.table.image'))
                     ->disk('public')
                     ->size(80),
 
                 TextColumn::make('likes_count')
-                    ->label('Лайків')
+                    ->label(__('profile_user_photos.table.likes_count'))
                     ->numeric()
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->label('Додано')
+                    ->label(__('profile_user_photos.table.created_at'))
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

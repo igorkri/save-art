@@ -22,16 +22,19 @@ class UserPhotoResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Роботи';
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('profile_panel.nav_groups.works');
+    }
 
     public static function getModelLabel(): string
     {
-        return 'Робота';
+        return __('profile_user_photos.model.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Портфоліо';
+        return __('profile_user_photos.model.plural');
     }
 
     public static function getEloquentQuery(): Builder

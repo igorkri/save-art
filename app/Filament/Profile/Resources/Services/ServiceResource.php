@@ -25,16 +25,19 @@ class ServiceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Послуги';
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('profile_panel.nav_groups.services');
+    }
 
     public static function getModelLabel(): string
     {
-        return 'Послуга';
+        return __('profile_services.model.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Послуги';
+        return __('profile_services.model.plural');
     }
 
     /**

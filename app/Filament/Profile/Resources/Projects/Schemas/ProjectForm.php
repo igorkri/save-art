@@ -33,15 +33,15 @@ class ProjectForm
         return $schema
             ->columns(3)
             ->components([
-                Tabs::make('Основна інформація')
+                Tabs::make(__('profile_projects.tabs.main'))
                     ->columnSpan(2)
                     ->persistTabInQueryString()
                     ->tabs([
-                        Tabs\Tab::make('Загальне')
+                        Tabs\Tab::make(__('profile_projects.tabs.general'))
                             ->icon('heroicon-o-information-circle')
                             ->schema([
                                 Select::make('art_category_id')
-                                    ->label('Галузь мистецтва')
+                                    ->label(__('profile_projects.fields.art_category'))
                                     ->options(function () {
                                         $options = [];
                                         foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
@@ -73,19 +73,19 @@ class ProjectForm
                                     ->required(),
 
                                 TextInput::make('title')
-                                    ->label('Назва проєкту')
+                                    ->label(__('profile_projects.fields.title'))
                                     ->required()
                                     ->maxLength(255),
 
                                 Textarea::make('short_description')
-                                    ->label('Короткий опис')
+                                    ->label(__('profile_projects.fields.short_description'))
                                     ->rows(3),
 
                                 TagsInput::make('tags')
-                                    ->label('Теги'),
+                                    ->label(__('profile_projects.fields.tags')),
 
                                 FileUpload::make('cover')
-                                    ->label('Обкладинка')
+                                    ->label(__('profile_projects.fields.cover'))
                                     ->image()
                                     ->imageEditor()
                                     ->disk('public')
@@ -93,12 +93,12 @@ class ProjectForm
                                     ->columnSpanFull(),
                             ]),
 
-                        Tabs\Tab::make('Бюджет')
+                        Tabs\Tab::make(__('profile_projects.tabs.budget'))
                             ->icon('heroicon-o-currency-dollar')
                             ->columns(2)
                             ->schema([
                                 Select::make('currency')
-                                    ->label('Валюта')
+                                    ->label(__('profile_projects.fields.currency'))
                                     ->options([
                                         Currency::UAH->value => '₴ UAH',
                                         Currency::USD->value => '$ USD',
@@ -108,7 +108,7 @@ class ProjectForm
                                     ->required(),
 
                                 TextInput::make('budget_goal')
-                                    ->label('Ціль збору')
+                                    ->label(__('profile_projects.fields.budget_goal'))
                                     ->numeric()
                                     ->prefix(fn (callable $get) => match ($get('currency')) {
                                         'USD' => '$',
@@ -118,19 +118,19 @@ class ProjectForm
                                     ->required(),
 
                                 TextInput::make('estimated_days')
-                                    ->label('Орієнтовна кількість днів')
+                                    ->label(__('profile_projects.fields.estimated_days'))
                                     ->numeric()
                                     ->minValue(1),
 
                                 Repeater::make('budget_items')
-                                    ->label('Деталі бюджету')
+                                    ->label(__('profile_projects.fields.budget_items'))
                                     ->schema([
                                         TextInput::make('name')
-                                            ->label('Назва')
+                                            ->label(__('profile_projects.fields.budget_item_name'))
                                             ->required()
                                             ->columnSpan(2),
                                         TextInput::make('amount')
-                                            ->label('Сума')
+                                            ->label(__('profile_projects.fields.budget_item_amount'))
                                             ->numeric()
                                             ->required()
                                             ->prefix(fn (callable $get) => match ($get('currency')) {
@@ -145,20 +145,20 @@ class ProjectForm
                                     ->reorderable()
                                     ->collapsible()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => ($state['name'] ?? 'Без назви').
+                                    ->itemLabel(fn (array $state): ?string => ($state['name'] ?? __('profile_projects.defaults.budget_item_name')).
                                         (isset($state['amount']) ? ' — '.number_format($state['amount'], 2).' ₴' : '')
                                     ),
                             ]),
 
-                        Tabs\Tab::make('Характеристики')
+                        Tabs\Tab::make(__('profile_projects.tabs.parameters'))
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
-                                Section::make('Характеристики')
-                                    ->description('Автоматично показуються всі характеристики обраної галузі мистецтва.')
+                                Section::make(__('profile_projects.sections.parameters.title'))
+                                    ->description(__('profile_projects.sections.parameters.description'))
                                     ->schema([
                                         Placeholder::make('category_required_for_parameters')
                                             ->label('')
-                                            ->content('Спочатку оберіть галузь мистецтва на вкладці «Загальне», щоб з’явився список характеристик.')
+                                            ->content(__('profile_projects.fields.parameter_placeholder'))
                                             ->visible(fn (callable $get): bool => ! filled($get('art_category_id'))),
 
                                         Repeater::make('project_parameter_values')
@@ -175,13 +175,13 @@ class ProjectForm
                                                 Hidden::make('parameter_type'),
 
                                                 TextInput::make('parameter_label')
-                                                    ->label('Характеристика')
+                                                    ->label(__('profile_projects.fields.parameter_label'))
                                                     ->disabled()
                                                     ->dehydrated(false)
                                                     ->columnSpan(1),
 
                                                 Select::make('parameter_value_id')
-                                                    ->label('Значення')
+                                                    ->label(__('profile_projects.fields.parameter_value'))
                                                     ->options(
                                                         fn (callable $get) => Parameter::find($get('parameter_id'))
                                                             ?->values
@@ -192,7 +192,7 @@ class ProjectForm
                                                     ->columnSpan(2),
 
                                                 TextInput::make('custom_value')
-                                                    ->label('Значення')
+                                                    ->label(__('profile_projects.fields.parameter_value'))
                                                     ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value)
                                                     ->columnSpan(2),
                                             ])
@@ -201,46 +201,46 @@ class ProjectForm
                                     ]),
                             ]),
 
-                        Tabs\Tab::make('Етапи')
+                        Tabs\Tab::make(__('profile_projects.tabs.stages'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
                                 Repeater::make('stages')
-                                    ->label('Етапи реалізації')
+                                    ->label(__('profile_projects.fields.stages'))
                                     ->relationship()
                                     ->schema([
                                         TextInput::make('order')
-                                            ->label('№')
+                                            ->label(__('profile_projects.fields.stage_order'))
                                             ->numeric()
                                             ->default(0)
                                             ->columnSpan(1),
 
                                         Select::make('status')
-                                            ->label('Статус')
+                                            ->label(__('profile_projects.fields.stage_status'))
                                             ->options(StageStatus::getOptions())
                                             ->default(StageStatus::Planned->value)
                                             ->required()
                                             ->columnSpan(2),
 
                                         TextInput::make('title')
-                                            ->label('Назва етапу')
+                                            ->label(__('profile_projects.fields.stage_title'))
                                             ->required()
                                             ->columnSpanFull(),
                                         Textarea::make('description')
-                                            ->label('Опис')
+                                            ->label(__('profile_projects.fields.stage_description'))
                                             ->rows(2)
                                             ->columnSpanFull(),
 
                                         TextInput::make('days_planned')
-                                            ->label('Днів')
+                                            ->label(__('profile_projects.fields.stage_days_planned'))
                                             ->numeric()
                                             ->columnSpan(1),
 
                                         DatePicker::make('started_at')
-                                            ->label('Початок')
+                                            ->label(__('profile_projects.fields.stage_started_at'))
                                             ->columnSpan(1),
 
                                         DatePicker::make('completed_at')
-                                            ->label('Завершено')
+                                            ->label(__('profile_projects.fields.stage_completed_at'))
                                             ->columnSpan(1),
                                     ])
                                     ->columns(3)
@@ -248,47 +248,47 @@ class ProjectForm
                                     ->defaultItems(0)
                                     ->reorderable()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Новий етап'),
+                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.stage_title')),
                             ]),
 
-                        Tabs\Tab::make('Бонуси')
+                        Tabs\Tab::make(__('profile_projects.tabs.bonuses'))
                             ->icon('heroicon-o-gift')
                             ->schema([
                                 Repeater::make('bonuses')
-                                    ->label('Бонуси для меценатів')
+                                    ->label(__('profile_projects.fields.bonuses'))
                                     ->relationship()
                                     ->schema([
                                         TextInput::make('order')
-                                            ->label('№')
+                                            ->label(__('profile_projects.fields.bonus_order'))
                                             ->numeric()
                                             ->default(0)
                                             ->columnSpan(1),
 
                                         TextInput::make('min_donation')
-                                            ->label('Мін. донат')
+                                            ->label(__('profile_projects.fields.bonus_min_donation'))
                                             ->numeric()
                                             ->required()
                                             ->columnSpan(1),
 
                                         TextInput::make('max_donation')
-                                            ->label('Макс. донат')
+                                            ->label(__('profile_projects.fields.bonus_max_donation'))
                                             ->numeric()
                                             ->gt('min_donation')
                                             ->columnSpan(1),
 
                                         TextInput::make('quantity')
-                                            ->label('Кількість')
+                                            ->label(__('profile_projects.fields.bonus_quantity'))
                                             ->numeric()
-                                            ->placeholder('∞')
-                                            ->helperText('Порожнє = необмежено')
+                                            ->placeholder(__('profile_projects.placeholders.bonus_quantity'))
+                                            ->helperText(__('profile_projects.helpers.bonus_quantity'))
                                             ->columnSpan(1),
 
                                         TextInput::make('title')
-                                            ->label('Назва бонусу')
+                                            ->label(__('profile_projects.fields.bonus_title'))
                                             ->required()
                                             ->columnSpanFull(),
                                         Textarea::make('description')
-                                            ->label('Опис бонусу')
+                                            ->label(__('profile_projects.fields.bonus_description'))
                                             ->rows(2)
                                             ->columnSpanFull(),
                                     ])
@@ -297,46 +297,46 @@ class ProjectForm
                                     ->defaultItems(0)
                                     ->reorderable()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Новий бонус'),
+                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
                             ]),
                     ]),
 
-                Section::make('Статус')
+                Section::make(__('profile_projects.sections.status'))
                     ->columnSpan(1)
                     ->schema([
                         Placeholder::make('status_display')
-                            ->label('Статус проєкту')
-                            ->content(fn (?Project $record) => $record?->status?->getLabel() ?? 'Чернетка (ще не збережено)'),
+                            ->label(__('profile_projects.fields.status_display'))
+                            ->content(fn (?Project $record) => $record?->status?->getLabel() ?? __('profile_projects.defaults.status_display')),
 
                         Placeholder::make('status_moderation_display')
-                            ->label('Статус модерації')
-                            ->content(fn (?Project $record) => $record?->status_moderation?->getLabel() ?? '—'),
+                            ->label(__('profile_projects.fields.moderation_display'))
+                            ->content(fn (?Project $record) => $record?->status_moderation?->getLabel() ?? __('profile_projects.defaults.empty')),
 
                         Placeholder::make('code_display')
-                            ->label('Код проєкту')
-                            ->content(fn (?Project $record) => $record?->code ?? 'Генерується автоматично'),
+                            ->label(__('profile_projects.fields.code_display'))
+                            ->content(fn (?Project $record) => $record?->code ?? __('profile_projects.defaults.code_display')),
 
-                        Fieldset::make('Дати')
+                        Fieldset::make(__('profile_projects.sections.dates'))
                             ->schema([
                                 DatePicker::make('announced_at')
-                                    ->label('Дата оголошення')->columnSpanFull(),
+                                    ->label(__('profile_projects.fields.announced_at'))->columnSpanFull(),
 
                                 DatePicker::make('planned_completion_at')
-                                    ->label('Планове завершення')->columnSpanFull(),
+                                    ->label(__('profile_projects.fields.planned_completion_at'))->columnSpanFull(),
                             ]),
 
-                        Fieldset::make('Статистика')
+                        Fieldset::make(__('profile_projects.sections.stats'))
                             ->schema([
                                 Placeholder::make('likes_count_display')
-                                    ->label('Лайків')
+                                    ->label(__('profile_projects.fields.likes_count'))
                                     ->content(fn (?Project $record) => (string) ($record?->likes_count ?? 0)),
 
                                 Placeholder::make('donors_count_display')
-                                    ->label('Меценатів')
+                                    ->label(__('profile_projects.fields.donors_count'))
                                     ->content(fn (?Project $record) => (string) ($record?->donors_count ?? 0)),
 
                                 Placeholder::make('budget_collected_display')
-                                    ->label('Зібрано')
+                                    ->label(__('profile_projects.fields.budget_collected'))
                                     ->content(fn (?Project $record) => number_format((float) ($record?->budget_collected ?? 0), 2).' '.($record?->currency?->value ?? '')),
                             ]),
                     ]),

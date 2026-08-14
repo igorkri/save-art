@@ -13,7 +13,7 @@ class UserPhotoForm
         return $schema
             ->components([
                 FileUpload::make('image')
-                    ->label('Зображення роботи')
+                    ->label(__('profile_user_photos.fields.image'))
                     ->image()
                     ->imageEditor()
                     ->disk('public')
