@@ -117,6 +117,39 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         ];
     }
 
+    public function getTagsAttribute(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? implode(', ', $decoded) : $value;
+    }
+
+    public function setTagsAttribute(mixed $value): void
+    {
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+
+        if ($value !== null && ! is_array($value)) {
+            $value = [$value];
+        }
+
+        if (is_array($value)) {
+            $value = array_values(array_filter(
+                array_map(static fn (mixed $tag): string => trim((string) $tag), $value),
+                static fn (string $tag): bool => $tag !== '',
+            ));
+        }
+
+        $this->attributes['tags'] = $value === null || $value === []
+            ? null
+            : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
     /**
      * Перевірити, чи має користувач вказану роль
      */

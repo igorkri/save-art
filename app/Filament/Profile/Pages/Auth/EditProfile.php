@@ -7,12 +7,15 @@ use App\Enums\ProfileType;
 use App\Enums\SignService;
 use App\Models\ProfileDocument;
 use App\Models\User;
+use App\Support\Countries;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -31,11 +34,13 @@ class EditProfile extends BaseEditProfile
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->inlineLabel(false)
             ->components([
                 Tabs::make('profile')
                     ->persistTabInQueryString()
                     ->tabs([
                         Tab::make('Персональний профіль')
+                            ->key('personal')
                             ->icon('heroicon-o-user')
                             ->schema([
                                 Section::make('Облікові дані')
@@ -51,54 +56,73 @@ class EditProfile extends BaseEditProfile
                                         $this->getPasswordFormComponent(),
                                         $this->getPasswordConfirmationFormComponent(),
                                         $this->getCurrentPasswordFormComponent(),
+                                        TextInput::make('phone')
+                                            ->label('Телефон')
+                                            ->required()
+                                            ->tel()
+                                            ->telRegex('/^\+[1-9]\d{6,14}$/')
+                                            ->placeholder('+380 XX XXX XX XX')
+                                            ->helperText('У міжнародному форматі, починаючи з +.')
+                                            ->maxLength(50),
                                     ]),
 
                                 Section::make('Аватар та ім\'я')
                                     ->description('Ці дані відображаються на вашій публічній сторінці.')
                                     ->columns(2)
                                     ->schema([
+                                        Grid::make(1)
+                                            ->schema([
+                                                TextInput::make('full_name')
+                                                    ->label('ПІБ')
+                                                    ->required()
+                                                    ->placeholder('Наприклад: Олена Коваленко')
+                                                    ->maxLength(255),
+                                                TextInput::make('profession')
+                                                    ->label('Професія')
+                                                    ->placeholder('Наприклад: Художниця, ілюстраторка')
+                                                    ->maxLength(255),
+                                                TagsInput::make('tags')
+                                                    ->label('Теги')
+                                                    ->placeholder('живопис, ілюстрація, акварель')
+                                                    ->helperText('Вони допоможуть меценатам знайти вас.')
+                                                    ->afterStateHydrated(fn (TagsInput $component, array|string|null $state) => $component->state(
+                                                        is_string($state) ? array_map('trim', explode(',', $state)) : ($state ?? []),
+                                                    )),
+                                            ])
+                                            ->columnSpan(1),
                                         FileUpload::make('avatar')
                                             ->label('Аватар')
+                                            ->required()
                                             ->image()
                                             ->imageCropAspectRatio('1:1')
                                             ->imageEditor()
                                             ->maxSize(5120)
                                             ->disk('public')
                                             ->directory('avatars')
-                                            ->columnSpanFull(),
-                                        TextInput::make('full_name')
-                                            ->label('ПІБ')
-                                            ->required()
-                                            ->maxLength(255),
-                                        TextInput::make('profession')
-                                            ->label('Професія')
-                                            ->maxLength(255),
-                                        TextInput::make('tags')
-                                            ->label('Теги')
-                                            ->helperText('Через кому, наприклад: живопис, ілюстрація')
-                                            ->maxLength(255)
-                                            ->columnSpanFull(),
+                                            ->helperText('Квадратне зображення, до 5 МБ.')
+                                            ->columnSpan(1),
                                     ]),
 
-                                Section::make('Контакти та адреса')
-                                    ->description('Використовуються для зв\'язку з вами та доставки нагород меценатам.')
+                                Section::make('Адреса доставки')
+                                    ->description('Використовується для доставки нагород меценатам.')
                                     ->columns(2)
                                     ->schema([
-                                        TextInput::make('phone')
-                                            ->label('Телефон')
-                                            ->tel()
-                                            ->maxLength(50),
-                                        TextInput::make('country')
+                                        Select::make('country')
                                             ->label('Країна')
-                                            ->maxLength(255),
+                                            ->options(Countries::options())
+                                            ->searchable()
+                                            ->default('Україна'),
                                         TextInput::make('region')
                                             ->label('Область / регіон')
+                                            ->placeholder('Київська область')
                                             ->maxLength(255),
                                         TextInput::make('city')
                                             ->label('Місто')
+                                            ->placeholder('Київ')
                                             ->maxLength(255),
                                         TextInput::make('postal_code')
                                             ->label('Поштовий індекс')
+                                            ->placeholder('01001')
                                             ->maxLength(20),
                                     ]),
 
@@ -107,6 +131,7 @@ class EditProfile extends BaseEditProfile
                                     ->schema([
                                         Textarea::make('description')
                                             ->label('Опис / біографія')
+                                            ->placeholder('Розкажіть про свій творчий шлях, стиль та джерела натхнення...')
                                             ->rows(6)
                                             ->maxLength(10000)
                                             ->columnSpanFull(),
@@ -114,6 +139,7 @@ class EditProfile extends BaseEditProfile
                             ]),
 
                         Tab::make('Юридичний профіль')
+                            ->key('legal')
                             ->icon('heroicon-o-building-office')
                             ->schema([
                                 Section::make('Реквізити')
@@ -177,6 +203,7 @@ class EditProfile extends BaseEditProfile
                             ]),
 
                         Tab::make('Соціальні мережі')
+                            ->key('social')
                             ->icon('heroicon-o-share')
                             ->schema([
                                 Section::make('Посилання')
@@ -186,6 +213,7 @@ class EditProfile extends BaseEditProfile
                             ]),
 
                         Tab::make('Документи')
+                            ->key('documents')
                             ->icon('heroicon-o-document-text')
                             ->schema([
                                 Section::make('Документи профілю')

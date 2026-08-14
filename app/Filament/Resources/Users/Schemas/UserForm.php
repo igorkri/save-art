@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\ProfileType;
+use App\Support\Countries;
 use App\UserRole;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -113,8 +115,15 @@ class UserForm
                                     ->schema([
                                         TextInput::make('full_name')->label('ПІБ'),
                                         TextInput::make('profession')->label('Професія'),
-                                        TextInput::make('tags')->label('Теги'),
-                                        TextInput::make('country')->label('Країна'),
+                                        TagsInput::make('tags')
+                                            ->label('Теги')
+                                            ->afterStateHydrated(fn (TagsInput $component, array|string|null $state) => $component->state(
+                                                is_string($state) ? array_map('trim', explode(',', $state)) : ($state ?? []),
+                                            )),
+                                        Select::make('country')
+                                            ->label('Країна')
+                                            ->options(Countries::options())
+                                            ->searchable(),
                                         TextInput::make('region')->label('Область / Регіон'),
                                         TextInput::make('city')->label('Місто'),
                                         Textarea::make('description')
