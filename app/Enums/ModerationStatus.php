@@ -23,6 +23,19 @@ enum ModerationStatus: string
     }
 
     /**
+     * Отримати колір статусу для відображення в UI (Filament)
+     */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Pending => 'gray',
+            self::Processing => 'warning',
+            self::Approved => 'success',
+            self::Rejected => 'danger',
+        };
+    }
+
+    /**
      * Отримати всі статуси з перекладами
      *
      * @return array<string, string>

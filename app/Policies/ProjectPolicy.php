@@ -53,9 +53,12 @@ class ProjectPolicy
     }
 
     /**
-     * Тільки власник може редагувати проєкт, і тільки якщо він редагований.
-     * Проєкт у черзі на модерацію (status_moderation = pending) все ще редагується,
-     * але щойно модератор бере його в розгляд (processing) — редагування блокується.
+     * Тільки власник може редагувати проєкт, і тільки якщо він (повністю чи
+     * частково) редагований. Проєкт у черзі на модерацію (status_moderation = pending)
+     * все ще редагується, але щойно модератор бере його в розгляд (processing) —
+     * редагування блокується. Опубліковані проєкти (Announced/InProgress/Paused)
+     * доступні для часткового редагування (docs/project-lifecycle-flow.md) — саме
+     * так дозволяється дійти до дії "Завершити проєкт" для InProgress.
      */
     public function update(User $user, Project $project): bool
     {
@@ -64,6 +67,7 @@ class ProjectPolicy
         }
 
         return $project->isEditable()
+            || $project->isPartiallyEditable()
             || ($project->status === ProjectStatus::Moderation && $project->status_moderation !== ModerationStatus::Processing);
     }
 

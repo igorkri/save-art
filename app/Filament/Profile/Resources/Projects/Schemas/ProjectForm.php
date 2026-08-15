@@ -3,7 +3,9 @@
 namespace App\Filament\Profile\Resources\Projects\Schemas;
 
 use App\Enums\Currency;
+use App\Enums\ModerationStatus;
 use App\Enums\ParameterType;
+use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Models\ArtCategory;
 use App\Models\Parameter;
@@ -80,6 +82,8 @@ class ProjectForm
 
                                 Textarea::make('short_description')
                                     ->label(__('profile_projects.fields.short_description'))
+                                    ->autosize()
+                                    ->maxLength(500)
                                     ->rows(3),
 
                                 TagsInput::make('tags')
@@ -237,6 +241,7 @@ class ProjectForm
                                         Textarea::make('description')
                                             ->label(__('profile_projects.fields.stage_description'))
                                             ->rows(2)
+                                            ->autosize()
                                             ->columnSpanFull(),
 
                                         TextInput::make('days_planned')
@@ -300,6 +305,7 @@ class ProjectForm
                                         Textarea::make('description')
                                             ->label(__('profile_projects.fields.bonus_description'))
                                             ->rows(2)
+                                            ->autosize()
                                             ->columnSpanFull(),
                                     ])
                                     ->columns(4)
@@ -312,19 +318,29 @@ class ProjectForm
                     ]),
 
                 Section::make(__('profile_projects.sections.status'))
+                    ->icon('heroicon-o-flag')
                     ->columnSpan(1)
                     ->schema([
                         Placeholder::make('status_display')
                             ->label(__('profile_projects.fields.status_display'))
-                            ->content(fn (?Project $record) => $record?->status?->getLabel() ?? __('profile_projects.defaults.status_display')),
+                            ->content(fn (?Project $record) => $record?->status)
+                            ->formatStateUsing(fn (?ProjectStatus $state) => $state?->getLabel() ?? __('profile_projects.defaults.status_display'))
+                            ->badge()
+                            ->color(fn (?ProjectStatus $state): string => $state?->getColor() ?? 'gray'),
 
                         Placeholder::make('status_moderation_display')
                             ->label(__('profile_projects.fields.moderation_display'))
-                            ->content(fn (?Project $record) => $record?->status_moderation?->getLabel() ?? __('profile_projects.defaults.empty')),
+                            ->content(fn (?Project $record) => $record?->status_moderation)
+                            ->formatStateUsing(fn (?ModerationStatus $state) => $state?->getLabel() ?? __('profile_projects.defaults.empty'))
+                            ->badge()
+                            ->color(fn (?ModerationStatus $state): string => $state?->getColor() ?? 'gray')
+                            ->visible(fn (?Project $record): bool => filled($record?->status_moderation)),
 
                         Placeholder::make('code_display')
                             ->label(__('profile_projects.fields.code_display'))
-                            ->content(fn (?Project $record) => $record?->code ?? __('profile_projects.defaults.code_display')),
+                            ->content(fn (?Project $record) => $record?->code ?? __('profile_projects.defaults.code_display'))
+                            ->copyable(fn (?Project $record): bool => filled($record?->code))
+                            ->fontFamily('mono'),
 
                         Fieldset::make(__('profile_projects.sections.dates'))
                             ->schema([

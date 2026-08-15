@@ -69,6 +69,20 @@ return [
         'bonus_quantity' => '∞',
     ],
 
+    'actions' => [
+        'submit_for_moderation' => 'Submit for moderation',
+        'submit_for_moderation_heading' => 'Submit the project for moderation?',
+        'submit_for_moderation_description' => 'A moderator will review the project. While moderation is in progress, editing will be restricted.',
+        'submit_for_moderation_success' => 'The project has been submitted for moderation.',
+        'submit_for_moderation_failed' => 'Could not submit the project for moderation. Check that all required fields are filled in.',
+        'complete' => 'Complete project',
+        'complete_heading' => 'Complete the project?',
+        'complete_description' => 'Only mark the project as completed once you have actually delivered the final result.',
+        'complete_missing_final_result' => 'Upload the project\'s final result on the site first.',
+        'complete_success' => 'The project has been completed.',
+        'complete_failed' => 'Could not complete the project.',
+    ],
+
     'helpers' => [
         'bonus_quantity' => 'Empty = unlimited',
     ],

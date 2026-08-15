@@ -69,6 +69,20 @@ return [
         'bonus_quantity' => '∞',
     ],
 
+    'actions' => [
+        'submit_for_moderation' => 'Подати на модерацію',
+        'submit_for_moderation_heading' => 'Подати проєкт на модерацію?',
+        'submit_for_moderation_description' => 'Модератор перевірить проєкт. Поки триває модерація, редагування буде обмежено.',
+        'submit_for_moderation_success' => 'Проєкт відправлено на модерацію.',
+        'submit_for_moderation_failed' => 'Не вдалося відправити проєкт на модерацію. Перевірте, чи заповнені всі обов’язкові поля.',
+        'complete' => 'Завершити проєкт',
+        'complete_heading' => 'Завершити проєкт?',
+        'complete_description' => 'Позначте проєкт завершеним лише після того, як фактично здали фінальний результат.',
+        'complete_missing_final_result' => 'Спочатку завантажте фінальний результат проєкту через сайт.',
+        'complete_success' => 'Проєкт завершено.',
+        'complete_failed' => 'Не вдалося завершити проєкт.',
+    ],
+
     'helpers' => [
         'bonus_quantity' => 'Порожнє = необмежено',
     ],
