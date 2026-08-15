@@ -4,6 +4,7 @@ namespace App\Filament\Profile\Resources\Projects\Pages;
 
 use App\Enums\ProjectStatus;
 use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
+use App\Filament\Profile\Resources\Projects\Concerns\OptimizesStageDocumentImages;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Concerns\HandlesProjectParameterValuesInForm;
 use App\Models\Project;
@@ -17,8 +18,18 @@ class EditProject extends EditRecord
 {
     use HandlesContentBlocksBuilder;
     use HandlesProjectParameterValuesInForm;
+    use OptimizesStageDocumentImages;
 
     protected static string $resource = ProjectResource::class;
+
+    /**
+     * Знімок project_stages.documents ДО збереження (ключ — id етапу), щоб
+     * у afterSave() відрізнити щойно завантажені фото від уже оброблених
+     * і не ганяти в чергу оптимізацію одних і тих самих файлів щоразу.
+     *
+     * @var array<int, array<int, array<string, mixed>>>
+     */
+    private array $stageDocumentsBeforeSave = [];
 
     /**
      * @param  array<string, mixed>  $data
@@ -38,6 +49,19 @@ class EditProject extends EditRecord
     }
 
     /**
+     * Filament зберігає ->relationship()-репітери (stages) всередині
+     * form->getState(), яке виконується ДО mutateFormDataBeforeSave — тобто
+     * знімок "до" там уже запізнюється. Хук beforeSave() — єдина точка, що
+     * гарантовано спрацьовує раніше за це збереження зв'язків.
+     */
+    protected function beforeSave(): void
+    {
+        $this->stageDocumentsBeforeSave = $this->getRecord()->stages()->get(['id', 'documents'])
+            ->pluck('documents', 'id')
+            ->all();
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
@@ -54,6 +78,7 @@ class EditProject extends EditRecord
 
         if ($record instanceof Project) {
             $this->syncPendingProjectParameterValues($record);
+            $this->dispatchOptimizationForNewStageDocuments($record->fresh(['stages']), $this->stageDocumentsBeforeSave);
         }
     }
 

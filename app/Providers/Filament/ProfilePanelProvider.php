@@ -116,11 +116,42 @@ class ProfilePanelProvider extends PanelProvider
     padding: 0.375rem;
     gap: 0.125rem;
 }
+
+/* Іконки "скачати"/"відкрити" у FileUpload за замовчуванням білі (розраховані
+   на показ поверх темного фото-превью, як в інших кнопок FilePond, що мають
+   власну темну кругову підкладку). Просто перефарбувати іконку недостатньо —
+   на світлому фоні (як у PDF без власного превью) вона все одно губиться.
+   Тому додаємо таку саму темну кругову підкладку через ::before. */
+.filepond--download-icon,
+.filepond--open-icon {
+    position: relative !important;
+    background-color: #fff !important;
+    width: 1.375rem !important;
+    height: 1.375rem !important;
+    z-index: 1;
+}
+.filepond--download-icon::before,
+.filepond--open-icon::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: 9999px;
+    z-index: -1;
+}
+.filepond--download-icon:hover::before,
+.filepond--open-icon:hover::before {
+    background: rgba(0, 0, 0, 0.85);
+}
 </style>
 '))
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => Blade::render('@auth <livewire:profile.notifications-bell /> @endauth'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => $this->pdfThumbnailPreviewScript(),
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
@@ -170,5 +201,58 @@ class ProfilePanelProvider extends PanelProvider
                 </a>
             </div>'
         );
+    }
+
+    /**
+     * FilePond (виджет FileUpload) не вміє показувати кастомне превью для
+     * не-image файлів — для PDF завжди рендерить загальну іконку документа
+     * (немає server-side хука підмінити це). Тому підставляємо мініатюру
+     * ({file}-thumb.png, згенеровану GenerateStageDocumentPdfThumbnail)
+     * як background-image прямо в картку файлу через DOM-патч після рендеру.
+     * Крихко щодо розмітки FilePond/Filament — може зламатись при апдейті пакету.
+     */
+    private function pdfThumbnailPreviewScript(): string
+    {
+        return <<<'HTML'
+            <script>
+                (function () {
+                    function patchPdfPreviews(root) {
+                        root.querySelectorAll('fieldset.filepond--file-wrapper').forEach(function (fieldset) {
+                            if (fieldset.dataset.pdfPreviewApplied) return;
+
+                            var legend = fieldset.querySelector('legend');
+                            var name = legend ? legend.textContent.trim() : '';
+                            if (!/\.pdf$/i.test(name)) return;
+
+                            var link = fieldset.querySelector('a.filepond--download-icon, a.filepond--open-icon');
+                            if (!link || !link.href) return;
+
+                            fieldset.dataset.pdfPreviewApplied = '1';
+
+                            var thumbUrl = link.href.replace(/\.pdf$/i, '-thumb.png');
+                            var img = new Image();
+                            img.onload = function () {
+                                var fileDiv = fieldset.querySelector('.filepond--file');
+                                if (!fileDiv) return;
+                                fileDiv.style.backgroundImage = 'url(' + thumbUrl + ')';
+                                fileDiv.style.backgroundSize = 'cover';
+                                fileDiv.style.backgroundPosition = 'center';
+                                fileDiv.style.minHeight = '8rem';
+                                fileDiv.style.borderRadius = '0.5rem';
+                            };
+                            img.src = thumbUrl;
+                        });
+                    }
+
+                    document.addEventListener('livewire:init', function () {
+                        patchPdfPreviews(document);
+
+                        new MutationObserver(function () {
+                            patchPdfPreviews(document);
+                        }).observe(document.body, {childList: true, subtree: true});
+                    });
+                })();
+            </script>
+            HTML;
     }
 }

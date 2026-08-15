@@ -6,6 +6,7 @@ use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
+use App\Filament\Profile\Resources\Projects\Concerns\OptimizesStageDocumentImages;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Concerns\HandlesProjectParameterValuesInForm;
 use App\Models\Project;
@@ -15,18 +16,22 @@ class CreateProject extends CreateRecord
 {
     use HandlesContentBlocksBuilder;
     use HandlesProjectParameterValuesInForm;
+    use OptimizesStageDocumentImages;
 
     protected static string $resource = ProjectResource::class;
 
     /**
-     * Жива валідація полів, позначених ->live(onBlur: true) у ProjectForm
-     * (наприклад, title, budget_goal) — помилка показується одразу після
-     * втрати фокусу полем, а не тільки при переході між кроками візарда
-     * чи фінальному збереженні.
+     * Live-поля з ->live(onBlur: true) у ProjectForm, для яких потрібна
+     * миттєва валідація без очікування кроку/сабміту. Навмисно білий
+     * список (а не всі "data.*"), бо валідація довільних шляхів усередині
+     * Repeater/FileUpload (наприклад, файл документа етапу) веде до
+     * помилки — Filament очікує там інший формат значення для validateOnly.
      */
+    private const LIVE_VALIDATED_FIELDS = ['data.title', 'data.budget_goal'];
+
     public function updated(string $name): void
     {
-        if (! str($name)->startsWith('data.')) {
+        if (! in_array($name, self::LIVE_VALIDATED_FIELDS, true)) {
             return;
         }
 
@@ -54,6 +59,7 @@ class CreateProject extends CreateRecord
 
         if ($record instanceof Project) {
             $this->syncPendingProjectParameterValues($record);
+            $this->dispatchOptimizationForAllStageDocuments($record->fresh(['stages']));
         }
     }
 }

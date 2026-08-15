@@ -7,6 +7,7 @@ use App\Enums\ModerationStatus;
 use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
+use App\Jobs\GenerateStageDocumentPdfThumbnail;
 use App\Models\ArtCategory;
 use App\Models\Parameter;
 use App\Models\ParameterValue;
@@ -24,6 +25,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Fieldset;
@@ -32,6 +34,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProjectForm
@@ -282,47 +285,124 @@ class ProjectForm
                             Repeater::make('stages')
                                 ->label(__('profile_projects.fields.stages'))
                                 ->relationship()
+                                ->orderColumn('order')
                                 ->schema([
-                                    TextInput::make('order')
-                                        ->label(__('profile_projects.fields.stage_order'))
-                                        ->numeric()
-                                        ->default(0)
-                                        ->columnSpan(1),
-
-                                    Select::make('status')
+                                    ToggleButtons::make('status')
                                         ->label(__('profile_projects.fields.stage_status'))
                                         ->options(StageStatus::getOptions())
+                                        ->colors(collect(StageStatus::cases())->mapWithKeys(fn (StageStatus $status) => [$status->value => $status->getColor()])->all())
                                         ->default(StageStatus::Planned->value)
                                         ->required()
-                                        ->columnSpan(2),
+                                        ->inline()
+                                        ->grouped()
+                                        ->live()
+                                        ->afterStateUpdated(function (?string $state, callable $get, callable $set): void {
+                                            if ($state === StageStatus::InProgress->value && blank($get('started_at'))) {
+                                                $set('started_at', now()->toDateString());
+                                            }
+
+                                            if ($state === StageStatus::Completed->value) {
+                                                if (blank($get('started_at'))) {
+                                                    $set('started_at', now()->toDateString());
+                                                }
+
+                                                if (blank($get('completed_at'))) {
+                                                    $set('completed_at', now()->toDateString());
+                                                }
+                                            }
+                                        }),
 
                                     TextInput::make('title')
                                         ->label(__('profile_projects.fields.stage_title'))
-                                        ->required()
-                                        ->columnSpanFull(),
+                                        ->required(),
+
                                     Textarea::make('description')
                                         ->label(__('profile_projects.fields.stage_description'))
                                         ->rows(2)
-                                        ->autosize()
-                                        ->columnSpanFull(),
+                                        ->autosize(),
 
-                                    TextInput::make('days_planned')
-                                        ->label(__('profile_projects.fields.stage_days_planned'))
+                                    TextInput::make('budget_planned')
+                                        ->label(__('profile_projects.fields.stage_budget_planned'))
                                         ->numeric()
-                                        ->columnSpan(1),
+                                        ->default(0)
+                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Planned->value),
 
-                                    DatePicker::make('started_at')
-                                        ->label(__('profile_projects.fields.stage_started_at'))
-                                        ->columnSpan(1),
+                                    TextInput::make('budget_actual')
+                                        ->label(__('profile_projects.fields.stage_budget_actual'))
+                                        ->numeric()
+                                        ->visible(fn (callable $get): bool => $get('status') === StageStatus::Completed->value)
+                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Completed->value),
 
-                                    DatePicker::make('completed_at')
-                                        ->label(__('profile_projects.fields.stage_completed_at'))
-                                        ->columnSpan(1),
+                                    FileUpload::make('documents')
+                                        ->label(__('profile_projects.fields.stage_documents'))
+                                        ->visible(fn (callable $get): bool => $get('status') === StageStatus::Completed->value)
+                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Completed->value)
+                                        ->multiple()
+                                        ->panelLayout('grid')
+//                                        ->imagePreviewHeight('200')
+                                        ->downloadable()
+                                        ->openable()
+                                        ->disk('public')
+                                        ->directory('projects/stage-documents')
+                                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
+                                        ->maxSize(5120)
+                                        // За замовчуванням FileUpload лише прибирає файл зі стану форми,
+                                        // фізично на диску він лишається — видаляємо його самі (і мініатюру
+                                        // для PDF, якщо вона встигла згенеруватись).
+                                        ->deleteUploadedFileUsing(function (mixed $file): void {
+                                            // $file буває TemporaryUploadedFile, якщо видаляють щойно
+                                            // завантажений (ще не збережений) файл — його прибере сам
+                                            // Livewire, чіпати диск не треба.
+                                            if (! is_string($file)) {
+                                                return;
+                                            }
+
+                                            Storage::disk('public')->delete($file);
+
+                                            $thumbnailPath = GenerateStageDocumentPdfThumbnail::thumbnailPathFor($file);
+
+                                            if (Storage::disk('public')->exists($thumbnailPath)) {
+                                                Storage::disk('public')->delete($thumbnailPath);
+                                            }
+                                        })
+                                        // У БД зберігаємо збагачений формат [{type,file,file_url,uploaded_at}]
+                                        // (сумісний з API), а FileUpload::multiple() працює лише з плоским
+                                        // масивом шляхів — конвертуємо в обидва боки на межі поля.
+                                        ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                                            if (! is_array($state)) {
+                                                return;
+                                            }
+
+                                            $component->state(
+                                                collect($state)
+                                                    ->map(fn (mixed $item): mixed => is_array($item) ? ($item['file'] ?? null) : $item)
+                                                    ->filter()
+                                                    ->values()
+                                                    ->all()
+                                            );
+                                        })
+                                        ->dehydrateStateUsing(fn (?array $state): array => collect($state ?? [])
+                                            ->map(function (string $path): array {
+                                                $isPdf = str_ends_with(strtolower($path), '.pdf');
+
+                                                return [
+                                                    'type' => $isPdf ? 'document' : 'photo',
+                                                    'file' => $path,
+                                                    'file_url' => Storage::disk('public')->url($path),
+                                                    'uploaded_at' => now()->toISOString(),
+                                                ];
+                                            })
+                                            ->values()
+                                            ->all()),
+
+                                    Hidden::make('started_at'),
+                                    Hidden::make('completed_at'),
                                 ])
-                                ->columns(3)
+                                ->columns(1)
                                 ->columnSpanFull()
                                 ->defaultItems(0)
                                 ->reorderable()
+                                ->collapsible()
                                 ->collapsed()
                                 ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.stage_title')),
                         ]),
