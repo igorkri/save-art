@@ -33,9 +33,13 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Webkul\ProgressStepper\Forms\Components\ProgressStepper;
+
+use function Filament\Support\generate_icon_html;
 
 class ProjectForm
 {
@@ -291,11 +295,7 @@ class ProjectForm
                                         ->label(__('profile_projects.fields.stage_status'))
                                         ->helperText(__('profile_projects.helpers.stage_status'))
                                         ->options(StageStatus::getOptions())
-                                        ->icons([
-                                            StageStatus::Planned->value => 'heroicon-o-clock',
-                                            StageStatus::InProgress->value => 'heroicon-o-arrow-path',
-                                            StageStatus::Completed->value => 'heroicon-o-check-circle',
-                                        ])
+                                        ->icons(collect(StageStatus::cases())->mapWithKeys(fn (StageStatus $status) => [$status->value => $status->getIcon()])->all())
                                         // Пройдені кроки підсвічуються як "завершені" (зелені), навіть якщо
                                         // це не останній статус — так стрілка прогресу читається наочно.
                                         ->markCompletedUpToCurrent()
@@ -418,7 +418,27 @@ class ProjectForm
                                 ->reorderable()
                                 ->collapsible()
                                 ->collapsed()
-                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.stage_title')),
+                                ->itemLabel(function (array $state): string|Htmlable {
+                                    $title = e($state['title'] ?? __('profile_projects.defaults.stage_title'));
+                                    $status = StageStatus::tryFrom($state['status'] ?? '');
+
+                                    if (! $status) {
+                                        return $title;
+                                    }
+
+                                    // Tailwind-скидання ставить svg { display: block }, тож без
+                                    // inline-flex-обгортки іконка "падає" під текст на новий рядок.
+                                    // Колір — через CSS-змінну кольору Filament (svg stroke="currentColor").
+                                    $icon = generate_icon_html($status->getIcon())?->toHtml();
+                                    $color = e($status->getColor());
+
+                                    return new HtmlString(
+                                        '<span style="display:inline-flex;align-items:center;gap:0.375rem">'
+                                        ."<span style=\"color:var(--{$color}-500)\">{$icon}</span>"
+                                        ."<span>{$title} — ".e($status->getLabel()).'</span>'
+                                        .'</span>'
+                                    );
+                                }),
                         ]),
 
                     Step::make(__('profile_projects.tabs.bonuses'))

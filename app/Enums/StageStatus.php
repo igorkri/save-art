@@ -33,6 +33,18 @@ enum StageStatus: string
     }
 
     /**
+     * Іконка статусу для степера та підпису картки етапу
+     */
+    public function getIcon(): string
+    {
+        return match ($this) {
+            self::Planned => 'heroicon-o-clock',
+            self::InProgress => 'heroicon-o-arrow-path',
+            self::Completed => 'heroicon-o-check-circle',
+        };
+    }
+
+    /**
      * Порядковий номер статусу для перевірки послідовності переходів
      * (статус можна змінювати лише вперед, назад — заборонено)
      */
