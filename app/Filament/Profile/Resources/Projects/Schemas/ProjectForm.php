@@ -25,7 +25,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Fieldset;
@@ -36,6 +35,7 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Webkul\ProgressStepper\Forms\Components\ProgressStepper;
 
 class ProjectForm
 {
@@ -287,20 +287,23 @@ class ProjectForm
                                 ->relationship()
                                 ->orderColumn('order')
                                 ->schema([
-                                    ToggleButtons::make('status')
+                                    ProgressStepper::make('status')
                                         ->label(__('profile_projects.fields.stage_status'))
                                         ->helperText(__('profile_projects.helpers.stage_status'))
                                         ->options(StageStatus::getOptions())
-                                        ->colors(collect(StageStatus::cases())->mapWithKeys(fn (StageStatus $status) => [$status->value => $status->getColor()])->all())
                                         ->icons([
                                             StageStatus::Planned->value => 'heroicon-o-clock',
                                             StageStatus::InProgress->value => 'heroicon-o-arrow-path',
                                             StageStatus::Completed->value => 'heroicon-o-check-circle',
                                         ])
+                                        // Пройдені кроки підсвічуються як "завершені" (зелені), навіть якщо
+                                        // це не останній статус — так стрілка прогресу читається наочно.
+                                        ->markCompletedUpToCurrent()
+                                        ->completedColor('success')
+                                        ->currentColor('warning')
+                                        ->upcomingColor('gray')
                                         ->default(StageStatus::Planned->value)
                                         ->required()
-                                        ->inline()
-                                        ->grouped()
                                         ->live()
                                         // Статус можна лише просувати вперед (Заплановано → В процесі → Завершено),
                                         // повернення назад заблоковано, щоб не втрачати started_at/completed_at

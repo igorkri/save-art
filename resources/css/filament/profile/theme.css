@@ -19,3 +19,14 @@ section
     margin-right: -20px;
     /*border-radius: 0;*/
 }
+
+/* aureuserp/progress-stepper не проставляє курсор на кнопках степера —
+   без цього не зрозуміло, що клікабельні (не заблоковані) кроки можна
+   обирати. */
+.fi-progress-stepper .ps-step:has(.ps-input:not(:disabled)) .ps-button {
+    cursor: pointer;
+}
+
+.fi-progress-stepper .ps-step:has(.ps-input:disabled) .ps-button {
+    cursor: not-allowed;
+}
