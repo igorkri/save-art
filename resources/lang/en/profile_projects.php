@@ -93,6 +93,7 @@ return [
 
     'helpers' => [
         'bonus_quantity' => 'Empty = unlimited',
+        'stage_status' => 'Status can only move forward — going back is not allowed',
     ],
 
     'defaults' => [

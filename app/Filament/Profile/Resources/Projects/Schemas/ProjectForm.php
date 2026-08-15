@@ -289,13 +289,24 @@ class ProjectForm
                                 ->schema([
                                     ToggleButtons::make('status')
                                         ->label(__('profile_projects.fields.stage_status'))
+                                        ->helperText(__('profile_projects.helpers.stage_status'))
                                         ->options(StageStatus::getOptions())
                                         ->colors(collect(StageStatus::cases())->mapWithKeys(fn (StageStatus $status) => [$status->value => $status->getColor()])->all())
+                                        ->icons([
+                                            StageStatus::Planned->value => 'heroicon-o-clock',
+                                            StageStatus::InProgress->value => 'heroicon-o-arrow-path',
+                                            StageStatus::Completed->value => 'heroicon-o-check-circle',
+                                        ])
                                         ->default(StageStatus::Planned->value)
                                         ->required()
                                         ->inline()
                                         ->grouped()
                                         ->live()
+                                        // Статус можна лише просувати вперед (Заплановано → В процесі → Завершено),
+                                        // повернення назад заблоковано, щоб не втрачати started_at/completed_at
+                                        // та не "відкочувати" вже завершені етапи.
+                                        ->disableOptionWhen(fn (string $value, ?string $state): bool => filled($state)
+                                            && StageStatus::from($value)->order() < StageStatus::from($state)->order())
                                         ->afterStateUpdated(function (?string $state, callable $get, callable $set): void {
                                             if ($state === StageStatus::InProgress->value && blank($get('started_at'))) {
                                                 $set('started_at', now()->toDateString());

@@ -33,6 +33,19 @@ enum StageStatus: string
     }
 
     /**
+     * Порядковий номер статусу для перевірки послідовності переходів
+     * (статус можна змінювати лише вперед, назад — заборонено)
+     */
+    public function order(): int
+    {
+        return match ($this) {
+            self::Planned => 0,
+            self::InProgress => 1,
+            self::Completed => 2,
+        };
+    }
+
+    /**
      * Отримати всі статуси з перекладами
      *
      * @return array<string, string>
