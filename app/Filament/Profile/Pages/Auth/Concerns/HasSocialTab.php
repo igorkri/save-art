@@ -45,14 +45,14 @@ trait HasSocialTab
             'instagram' => __('profile_edit.social.instagram'),
             'linkedin' => __('profile_edit.social.linkedin'),
             'twitter' => __('profile_edit.social.twitter'),
-            'telegram' => __('profile_edit.social.telegram'),
-            'youtube' => __('profile_edit.social.youtube'),
-            'youtube_channel' => __('profile_edit.social.youtube_channel'),
-            'tiktok' => __('profile_edit.social.tiktok'),
-            'github' => __('profile_edit.social.github'),
+//            'telegram' => __('profile_edit.social.telegram'),
+//            'youtube' => __('profile_edit.social.youtube'),
+//            'youtube_channel' => __('profile_edit.social.youtube_channel'),
+//            'tiktok' => __('profile_edit.social.tiktok'),
+//            'github' => __('profile_edit.social.github'),
             'pinterest' => __('profile_edit.social.pinterest'),
-            'whatsapp' => __('profile_edit.social.whatsapp'),
-            'deviantart' => __('profile_edit.social.deviantart'),
+//            'whatsapp' => __('profile_edit.social.whatsapp'),
+//            'deviantart' => __('profile_edit.social.deviantart'),
         ];
     }
 }
