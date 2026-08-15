@@ -21,7 +21,6 @@ class ProjectsTable
                 ImageColumn::make('cover')
                     ->label(__('profile_projects.table.cover'))
                     ->disk('public')
-                    ->circular()
                     ->size(50),
 
                 TextColumn::make('title')
