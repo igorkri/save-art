@@ -19,6 +19,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -26,6 +27,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
@@ -239,6 +241,10 @@ class ProjectForm
                                         ->deletable(false)
                                         ->reorderable(false)
                                         ->defaultItems(0)
+                                        ->table([
+                                            TableColumn::make(__('profile_projects.fields.parameter_label')),
+                                            TableColumn::make(__('profile_projects.fields.parameter_value')),
+                                        ])
                                         ->schema([
                                             Hidden::make('parameter_id')
                                                 ->required(),
@@ -246,28 +252,26 @@ class ProjectForm
                                             Hidden::make('parameter_type'),
 
                                             TextInput::make('parameter_label')
-                                                ->label(__('profile_projects.fields.parameter_label'))
+                                                ->hiddenLabel()
                                                 ->disabled()
-                                                ->dehydrated(false)
-                                                ->columnSpan(1),
+                                                ->dehydrated(false),
 
-                                            Select::make('parameter_value_id')
-                                                ->label(__('profile_projects.fields.parameter_value'))
-                                                ->options(
-                                                    fn (callable $get) => Parameter::find($get('parameter_id'))
-                                                        ?->values
-                                                        ->mapWithKeys(fn (ParameterValue $value) => [$value->id => $value->getLabel('uk')])
-                                                        ?? []
-                                                )
-                                                ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value)
-                                                ->columnSpan(2),
+                                            Group::make([
+                                                Select::make('parameter_value_id')
+                                                    ->hiddenLabel()
+                                                    ->options(
+                                                        fn (callable $get) => Parameter::find($get('parameter_id'))
+                                                            ?->values
+                                                            ->mapWithKeys(fn (ParameterValue $value) => [$value->id => $value->getLabel('uk')])
+                                                            ?? []
+                                                    )
+                                                    ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value),
 
-                                            TextInput::make('custom_value')
-                                                ->label(__('profile_projects.fields.parameter_value'))
-                                                ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value)
-                                                ->columnSpan(2),
+                                                TextInput::make('custom_value')
+                                                    ->hiddenLabel()
+                                                    ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value),
+                                            ]),
                                         ])
-                                        ->columns(3)
                                         ->columnSpanFull(),
                                 ]),
                         ]),
