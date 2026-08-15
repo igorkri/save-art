@@ -47,28 +47,12 @@ class DonationService
                 'paid_at' => now(),
             ]);
 
-            // Донат на платформу (без project_id) не впливає на статистику проєкту
+            // Донат на платформу (без project_id) не впливає на статистику проєкту.
+            // budget_collected/donors_count синхронізує DonationObserver
+            // (реагує на перехід статусу в 'paid' незалежно від того, як
+            // донат був створений/оновлений).
             $project = $donation->project;
             if ($project) {
-                $project->increment('budget_collected', $donation->amount);
-
-                // Збільшуємо кількість донатерів (унікальних)
-                $existingDonor = Donation::where('project_id', $project->id)
-                    ->where('id', '!=', $donation->id)
-                    ->where('status', 'paid')
-                    ->where(function ($q) use ($donation) {
-                        if ($donation->user_id) {
-                            $q->where('user_id', $donation->user_id);
-                        } else {
-                            $q->where('donor_email', $donation->donor_email);
-                        }
-                    })
-                    ->exists();
-
-                if (! $existingDonor) {
-                    $project->increment('donors_count');
-                }
-
                 // Якщо є бонус — резервуємо
                 if ($donation->project_bonus_id && $donation->bonus) {
                     $donation->bonus->increment('quantity_claimed');
@@ -111,28 +95,9 @@ class DonationService
                 'status' => 'refunded',
             ]);
 
-            // Якщо донат був оплачений — відкатуємо статистику
+            // budget_collected/donors_count відкочує DonationObserver
+            // (реагує на перехід статусу з 'paid' в інший).
             if ($oldStatus === 'paid') {
-                $project = $donation->project;
-                $project->decrement('budget_collected', $donation->amount);
-
-                // Перевіряємо, чи є інші оплачені донати від цього донатера
-                $hasOtherDonations = Donation::where('project_id', $project->id)
-                    ->where('id', '!=', $donation->id)
-                    ->where('status', 'paid')
-                    ->where(function ($q) use ($donation) {
-                        if ($donation->user_id) {
-                            $q->where('user_id', $donation->user_id);
-                        } else {
-                            $q->where('donor_email', $donation->donor_email);
-                        }
-                    })
-                    ->exists();
-
-                if (! $hasOtherDonations) {
-                    $project->decrement('donors_count');
-                }
-
                 // Звільняємо бонус
                 if ($donation->bonus_id && $donation->bonus) {
                     $donation->bonus->decrement('quantity_claimed');
