@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Profile\Pages\Auth\EditProfile;
 use App\Filament\Profile\Pages\Auth\Login;
+use App\Filament\Profile\Pages\Auth\Register;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -34,6 +35,8 @@ class ProfilePanelProvider extends PanelProvider
             ->id('profile')
             ->path('profile')
             ->login(Login::class)
+            ->registration(Register::class)
+            ->passwordReset()
             ->profile(EditProfile::class, isSimple: false)
             ->brandName(fn (): string => trim(__('profile_panel.brand').' '.(auth()->user()?->full_name ?? '')))
             ->globalSearch()
@@ -119,6 +122,14 @@ class ProfilePanelProvider extends PanelProvider
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => Blade::render('@auth <livewire:profile.notifications-bell /> @endauth'),
             )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn (): string => $this->googleAuthButton(),
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_REGISTER_FORM_AFTER,
+                fn (): string => $this->googleAuthButton(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -140,5 +151,24 @@ class ProfilePanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * Кнопка "Увійти через Google" для сторінок логіна та реєстрації панелі.
+     * Прихована, якщо в .env не налаштовані GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.
+     */
+    private function googleAuthButton(): string
+    {
+        if (blank(config('services.google.client_id'))) {
+            return '';
+        }
+
+        return Blade::render(
+            '<div class="fi-google-auth" style="margin-top:1rem;text-align:center;">
+                <a href="{{ route(\'profile.auth.google.redirect\') }}" class="fi-btn fi-btn-color-gray fi-btn-outlined" style="display:inline-block;width:100%;padding:0.5rem;border:1px solid rgba(0,0,0,0.1);border-radius:0.5rem;text-decoration:none;text-align:center;">
+                    {{ __(\'profile_panel.google_auth.button\') }}
+                </a>
+            </div>'
+        );
     }
 }

@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -66,39 +67,46 @@ class EditProfile extends BaseEditProfile
 
                                 Section::make(__('profile_edit.sections.avatar.title'))
                                     ->description(__('profile_edit.sections.avatar.description'))
-                                    ->columns(2)
                                     ->schema([
-                                        Grid::make(1)
+                                        Grid::make(6)
                                             ->schema([
-                                                TextInput::make('full_name')
-                                                    ->label(__('profile_edit.fields.full_name'))
+                                                Grid::make(1)
+                                                    ->schema([
+                                                        TextInput::make('full_name')
+                                                            ->label(__('profile_edit.fields.full_name'))
+                                                            ->required()
+                                                            ->placeholder(__('profile_edit.placeholders.full_name'))
+                                                            ->maxLength(255),
+                                                        TextInput::make('profession')
+                                                            ->label(__('profile_edit.fields.profession'))
+                                                            ->placeholder(__('profile_edit.placeholders.profession'))
+                                                            ->maxLength(255),
+                                                        TagsInput::make('tags')
+                                                            ->label(__('profile_edit.fields.tags'))
+                                                            ->placeholder(__('profile_edit.placeholders.tags'))
+                                                            ->helperText(__('profile_edit.helpers.tags'))
+                                                            ->afterStateHydrated(fn (TagsInput $component, array|string|null $state) => $component->state(
+                                                                is_string($state) ? array_map('trim', explode(',', $state)) : ($state ?? []),
+                                                            )),
+                                                    ])
+                                                    ->columnSpan(4),
+                                                FileUpload::make('avatar')
+                                                    ->label(__('profile_edit.fields.avatar'))
+                                                    ->avatar()
                                                     ->required()
-                                                    ->placeholder(__('profile_edit.placeholders.full_name'))
-                                                    ->maxLength(255),
-                                                TextInput::make('profession')
-                                                    ->label(__('profile_edit.fields.profession'))
-                                                    ->placeholder(__('profile_edit.placeholders.profession'))
-                                                    ->maxLength(255),
-                                                TagsInput::make('tags')
-                                                    ->label(__('profile_edit.fields.tags'))
-                                                    ->placeholder(__('profile_edit.placeholders.tags'))
-                                                    ->helperText(__('profile_edit.helpers.tags'))
-                                                    ->afterStateHydrated(fn (TagsInput $component, array|string|null $state) => $component->state(
-                                                        is_string($state) ? array_map('trim', explode(',', $state)) : ($state ?? []),
-                                                    )),
-                                            ])
-                                            ->columnSpan(1),
-                                        FileUpload::make('avatar')
-                                            ->label(__('profile_edit.fields.avatar'))
-                                            ->required()
-                                            ->image()
-                                            ->imageCropAspectRatio('1:1')
-                                            ->imageEditor()
-                                            ->maxSize(5120)
-                                            ->disk('public')
-                                            ->directory('avatars')
-                                            ->helperText(__('profile_edit.helpers.avatar'))
-                                            ->columnSpan(1),
+                                                    ->image()
+                                                    ->imageCropAspectRatio('1:1')
+                                                    ->imageEditor()
+                                                    ->maxSize(5120)
+                                                    ->disk('public')
+                                                    ->directory('avatars')
+                                                    ->belowContent(
+                                                        Text::make(__('profile_edit.helpers.avatar'))
+                                                            ->extraAttributes(['class' => '!flex !w-full justify-center text-center'])
+                                                    )
+                                                    ->alignCenter()
+                                                    ->columnSpan(2),
+                                            ]),
                                     ]),
 
                                 Section::make(__('profile_edit.sections.address.title'))
@@ -153,49 +161,56 @@ class EditProfile extends BaseEditProfile
 
                                 Section::make(__('profile_edit.sections.legal_company.title'))
                                     ->description(__('profile_edit.sections.legal_company.description'))
-                                    ->columns(2)
                                     ->schema([
-                                        Grid::make(1)
+                                        Grid::make(6)
                                             ->schema([
-                                                TextInput::make('profileLegal.name')
-                                                    ->label(__('profile_edit.fields.company_name'))
-                                                    ->placeholder(__('profile_edit.placeholders.company_name'))
-                                                    ->maxLength(255)
-                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
-                                                TextInput::make('profileLegal.edrpou')
-                                                    ->label(__('profile_edit.fields.edrpou'))
-                                                    ->placeholder(__('profile_edit.placeholders.edrpou'))
-                                                    ->helperText(__('profile_edit.helpers.edrpou'))
-                                                    ->maxLength(20)
-                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
-                                                TextInput::make('profileLegal.authorized_person')
-                                                    ->label(__('profile_edit.fields.authorized_person'))
-                                                    ->placeholder(__('profile_edit.placeholders.authorized_person'))
-                                                    ->maxLength(255)
-                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
-                                                Select::make('profileLegal.currency')
-                                                    ->label(__('profile_edit.fields.currency'))
-                                                    ->options([
-                                                        Currency::UAH->value => __('profile_edit.currency.uah'),
-                                                        Currency::USD->value => __('profile_edit.currency.usd'),
-                                                        Currency::EUR->value => __('profile_edit.currency.eur'),
+                                                Grid::make(1)
+                                                    ->schema([
+                                                        TextInput::make('profileLegal.name')
+                                                            ->label(__('profile_edit.fields.company_name'))
+                                                            ->placeholder(__('profile_edit.placeholders.company_name'))
+                                                            ->maxLength(255)
+                                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                                        TextInput::make('profileLegal.edrpou')
+                                                            ->label(__('profile_edit.fields.edrpou'))
+                                                            ->placeholder(__('profile_edit.placeholders.edrpou'))
+                                                            ->helperText(__('profile_edit.helpers.edrpou'))
+                                                            ->maxLength(20)
+                                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                                        TextInput::make('profileLegal.authorized_person')
+                                                            ->label(__('profile_edit.fields.authorized_person'))
+                                                            ->placeholder(__('profile_edit.placeholders.authorized_person'))
+                                                            ->maxLength(255)
+                                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
+                                                        Select::make('profileLegal.currency')
+                                                            ->label(__('profile_edit.fields.currency'))
+                                                            ->options([
+                                                                Currency::UAH->value => __('profile_edit.currency.uah'),
+                                                                Currency::USD->value => __('profile_edit.currency.usd'),
+                                                                Currency::EUR->value => __('profile_edit.currency.eur'),
+                                                            ])
+                                                            ->default(Currency::UAH->value)
+                                                            ->required()
+                                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
                                                     ])
-                                                    ->default(Currency::UAH->value)
-                                                    ->required()
-                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active')),
-                                            ])
-                                            ->columnSpan(1),
-                                        FileUpload::make('profileLegal.logo')
-                                            ->label(__('profile_edit.fields.logo'))
-                                            ->image()
-                                            ->imageCropAspectRatio('1:1')
-                                            ->imageEditor()
-                                            ->maxSize(5120)
-                                            ->disk('public')
-                                            ->directory('logos')
-                                            ->helperText(__('profile_edit.helpers.legal_logo'))
-                                            ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
-                                            ->columnSpan(1),
+                                                    ->columnSpan(4),
+                                                FileUpload::make('profileLegal.logo')
+                                                    ->label(__('profile_edit.fields.logo'))
+                                                    ->image()
+                                                    ->avatar()
+                                                    ->imageCropAspectRatio('1:1')
+                                                    ->imageEditor()
+                                                    ->maxSize(5120)
+                                                    ->disk('public')
+                                                    ->directory('logos')
+                                                    ->belowContent(
+                                                        Text::make(__('profile_edit.helpers.legal_logo'))
+                                                            ->extraAttributes(['class' => '!flex !w-full justify-center text-center'])
+                                                    )
+                                                    ->disabled(fn (Get $get): bool => ! $get('profileLegal.is_active'))
+                                                    ->alignCenter()
+                                                    ->columnSpan(2),
+                                            ]),
                                     ]),
 
                                 Section::make(__('profile_edit.sections.legal_contacts.title'))
