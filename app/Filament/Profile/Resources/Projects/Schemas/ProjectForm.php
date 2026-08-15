@@ -457,6 +457,57 @@ class ProjectForm
                                 }),
                         ]),
 
+                    Step::make(__('profile_projects.tabs.bonuses'))
+                        ->icon('heroicon-o-gift')
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->schema([
+                            Repeater::make('bonuses')
+                                ->label(__('profile_projects.fields.bonuses'))
+                                ->relationship()
+                                ->schema([
+                                    TextInput::make('order')
+                                        ->label(__('profile_projects.fields.bonus_order'))
+                                        ->numeric()
+                                        ->default(0)
+                                        ->columnSpan(1),
+
+                                    TextInput::make('min_donation')
+                                        ->label(__('profile_projects.fields.bonus_min_donation'))
+                                        ->numeric()
+                                        ->required()
+                                        ->columnSpan(1),
+
+                                    TextInput::make('max_donation')
+                                        ->label(__('profile_projects.fields.bonus_max_donation'))
+                                        ->numeric()
+                                        ->gt('min_donation')
+                                        ->columnSpan(1),
+
+                                    TextInput::make('quantity')
+                                        ->label(__('profile_projects.fields.bonus_quantity'))
+                                        ->numeric()
+                                        ->placeholder(__('profile_projects.placeholders.bonus_quantity'))
+                                        ->helperText(__('profile_projects.helpers.bonus_quantity'))
+                                        ->columnSpan(1),
+
+                                    TextInput::make('title')
+                                        ->label(__('profile_projects.fields.bonus_title'))
+                                        ->required()
+                                        ->columnSpanFull(),
+                                    Textarea::make('description')
+                                        ->label(__('profile_projects.fields.bonus_description'))
+                                        ->rows(2)
+                                        ->autosize()
+                                        ->columnSpanFull(),
+                                ])
+                                ->columns(4)
+                                ->columnSpanFull()
+                                ->defaultItems(0)
+                                ->reorderable()
+                                ->collapsed()
+                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
+                        ]),
+
                     Step::make(__('profile_projects.tabs.final_result'))
                         ->icon('heroicon-o-trophy')
                         // Фінальний результат має сенс лише тоді, коли проєкт реально
@@ -540,57 +591,6 @@ class ProjectForm
                                 ->blockNumbers(false)
                                 ->reorderable()
                                 ->collapsed(),
-                        ]),
-
-                    Step::make(__('profile_projects.tabs.bonuses'))
-                        ->icon('heroicon-o-gift')
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
-                        ->schema([
-                            Repeater::make('bonuses')
-                                ->label(__('profile_projects.fields.bonuses'))
-                                ->relationship()
-                                ->schema([
-                                    TextInput::make('order')
-                                        ->label(__('profile_projects.fields.bonus_order'))
-                                        ->numeric()
-                                        ->default(0)
-                                        ->columnSpan(1),
-
-                                    TextInput::make('min_donation')
-                                        ->label(__('profile_projects.fields.bonus_min_donation'))
-                                        ->numeric()
-                                        ->required()
-                                        ->columnSpan(1),
-
-                                    TextInput::make('max_donation')
-                                        ->label(__('profile_projects.fields.bonus_max_donation'))
-                                        ->numeric()
-                                        ->gt('min_donation')
-                                        ->columnSpan(1),
-
-                                    TextInput::make('quantity')
-                                        ->label(__('profile_projects.fields.bonus_quantity'))
-                                        ->numeric()
-                                        ->placeholder(__('profile_projects.placeholders.bonus_quantity'))
-                                        ->helperText(__('profile_projects.helpers.bonus_quantity'))
-                                        ->columnSpan(1),
-
-                                    TextInput::make('title')
-                                        ->label(__('profile_projects.fields.bonus_title'))
-                                        ->required()
-                                        ->columnSpanFull(),
-                                    Textarea::make('description')
-                                        ->label(__('profile_projects.fields.bonus_description'))
-                                        ->rows(2)
-                                        ->autosize()
-                                        ->columnSpanFull(),
-                                ])
-                                ->columns(4)
-                                ->columnSpanFull()
-                                ->defaultItems(0)
-                                ->reorderable()
-                                ->collapsed()
-                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
                         ]),
                 ])
                     ->columnSpan(2)
