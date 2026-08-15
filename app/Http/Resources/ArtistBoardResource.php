@@ -36,13 +36,10 @@ class ArtistBoardResource extends JsonResource
             return null;
         }
 
-        return array_map(function ($museum) {
-            if (isset($museum['logo_museum'])) {
-                $museum['logo_museum'] = $museum['logo_museum'] ? asset('storage/'.$museum['logo_museum']) : null;
-            }
-
-            return $museum;
-        }, $this->logo_museums);
+        return array_map(
+            fn ($path) => $path ? asset('storage/'.$path) : null,
+            $this->logo_museums
+        );
     }
 
     /**

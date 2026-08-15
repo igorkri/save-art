@@ -2,3 +2,29 @@
 
 @source '../../../../app/Filament';
 @source '../../../views/filament';
+
+.fi-fo-file-upload.fi-logo-museums-grid .filepond--root[data-style-panel-layout='grid'] .filepond--item {
+    width: calc(16.66% - 0.8rem);
+}
+
+.fi-fo-file-upload.fi-logo-museums-grid .filepond--item-panel {
+    background-color: #fff;
+}
+
+.fi-fo-file-upload.fi-logo-museums-grid .filepond--image-preview-overlay {
+    min-height: 1.5rem;
+    max-height: 1.5rem;
+}
+
+.fi-fo-file-upload.fi-logo-museums-grid .filepond--image-preview-overlay-idle {
+    opacity: 0.35 !important;
+}
+
+.filepond--image-preview {
+    background: #fff;
+    border: 1px solid bisque;
+}
+
+.filepond--file {
+    color: #1f2937;
+}

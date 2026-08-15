@@ -25,31 +25,28 @@ class ArtistBoardForm
                         TextInput::make('titles.title2')->label('Заголовок 2')->placeholder('10 художників в 10 національних музеях світу')->required(),
                         Textarea::make('titles.description')->label('Короткий опис')->rows(2),
                     ])
-                    ->collapsible()
-                    ->collapsed(),
+                    ->collapsible(),
 
                 //                TextInput::make('logo_museums'),
                 Section::make('Логотипи музеїв')
                     ->columns(1)
                     ->schema([
-                        Repeater::make('logo_museums')
+                        FileUpload::make('logo_museums')
                             ->label('Логотипи музеїв')
-                            ->schema([
-                                FileUpload::make('logo_museum')
-                                    ->label('Логотип музею')
-                                    ->image()
-                                    ->disk('public')
-                                    ->directory('artist-boards/logos')
-                                    ->preserveFilenames()
-                                    ->required(),
-                            ])
-                            ->minItems(1)
-                            ->maxItems(10)
-                            ->columns(1)
-                            ->createItemButtonLabel('Додати логотип музею'),
+                            ->image()
+                            ->disk('public')
+                            ->directory('artist-boards/logos')
+                            ->preserveFilenames()
+                            ->multiple()
+                            ->panelLayout('grid')
+                            ->imagePreviewHeight('100')
+                            ->extraAttributes(['class' => 'fi-logo-museums-grid'])
+                            ->reorderable()
+                            ->minFiles(1)
+                            ->maxFiles(10)
+                            ->required(),
                     ])
-                    ->collapsible()
-                    ->collapsed(),
+                    ->collapsible(),
                 //                TextInput::make('descriptions'),
                 Section::make('Опис')
                     ->columns(1)
