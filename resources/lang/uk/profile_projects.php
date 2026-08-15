@@ -13,6 +13,7 @@ return [
         'parameters' => 'Характеристики',
         'stages' => 'Етапи',
         'bonuses' => 'Бонуси',
+        'content' => 'Контент',
     ],
 
     'sections' => [
@@ -63,6 +64,14 @@ return [
         'likes_count' => 'Лайків',
         'donors_count' => 'Меценатів',
         'budget_collected' => 'Зібрано',
+        'content_blocks' => 'Контент-блоки',
+        'content_block_type_heading' => 'Заголовок',
+        'content_block_type_paragraph' => 'Параграф',
+        'content_block_type_image' => 'Зображення',
+        'content_block_heading_text' => 'Текст заголовка',
+        'content_block_paragraph_text' => 'Текст параграфа',
+        'content_block_image' => 'Зображення',
+        'content_block_add' => 'Додати блок',
     ],
 
     'placeholders' => [

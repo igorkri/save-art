@@ -7,7 +7,9 @@ use App\Enums\ModerationStatus;
 use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,19 +41,19 @@ use Illuminate\Support\Str;
  * @property array|null $final_result
  * @property int $likes_count
  * @property int $donors_count
- * @property \Carbon\Carbon|null $announced_at
- * @property \Carbon\Carbon|null $planned_completion_at
- * @property \Carbon\Carbon|null $completed_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- * @property-read \App\Models\User $user
- * @property-read \App\Models\ArtCategory|null $artCategory
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectStage[] $stages
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectBonus[] $bonuses
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Donation[] $donations
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectLike[] $likes
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProjectParameter[] $projectParameters
+ * @property Carbon|null $announced_at
+ * @property Carbon|null $planned_completion_at
+ * @property Carbon|null $completed_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read User $user
+ * @property-read ArtCategory|null $artCategory
+ * @property-read Collection|ProjectStage[] $stages
+ * @property-read Collection|ProjectBonus[] $bonuses
+ * @property-read Collection|Donation[] $donations
+ * @property-read Collection|ProjectLike[] $likes
+ * @property-read Collection|ProjectParameter[] $projectParameters
  */
 class Project extends Model
 {
@@ -235,7 +237,7 @@ class Project extends Model
 
         $count = 1;
         $originalSlug = $slug;
-        while (self::where('slug', $slug)->exists()) {
+        while (self::withTrashed()->where('slug', $slug)->exists()) {
             $slug = $originalSlug.'-'.$count++;
         }
 
@@ -257,7 +259,7 @@ class Project extends Model
         $slug = Str::slug($this->title);
         $originalSlug = $slug;
         $count = 1;
-        while (self::where('slug', $slug)->where($this->getKeyName(), '!=', $this->getKey())->exists()) {
+        while (self::withTrashed()->where('slug', $slug)->where($this->getKeyName(), '!=', $this->getKey())->exists()) {
             $slug = $originalSlug.'-'.$count++;
         }
 

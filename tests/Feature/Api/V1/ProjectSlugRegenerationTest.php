@@ -115,4 +115,42 @@ class ProjectSlugRegenerationTest extends ApiTestCase
         $response->assertOk();
         $this->assertSame('chernetka-21072026-1836-FwS5', $response->json('data.slug'));
     }
+
+    public function test_new_project_gets_suffixed_slug_when_it_collides_with_a_soft_deleted_project(): void
+    {
+        // Unique-індекс slug у БД не знає про soft delete: якщо перевірка унікальності
+        // враховує лише неvидалені записи, вставка падає з UniqueConstraintViolationException,
+        // хоча "живих" проєктів з таким slug немає.
+        $deleted = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'slug' => 'tini-starogo-mista',
+        ]);
+        $deleted->delete();
+
+        $slug = Project::generateSlugFromTitle('Тіні старого міста');
+
+        $this->assertSame('tini-starogo-mista-1', $slug);
+    }
+
+    public function test_regenerated_slug_skips_collision_with_a_soft_deleted_project(): void
+    {
+        $deleted = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'slug' => 'artbuk-sni-ukrayini',
+        ]);
+        $deleted->delete();
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'new',
+            'slug' => 'chernetka-21072026-1836-FwS5',
+            'title' => ['uk' => 'Артбук "Сни України"'],
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders())
+            ->postJson("/api/v1/my/projects/{$project->slug}/submit");
+
+        $response->assertOk();
+        $this->assertSame('artbuk-sni-ukrayini-1', $response->json('data.slug'));
+    }
 }

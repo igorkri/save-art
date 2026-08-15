@@ -12,6 +12,8 @@ use App\Models\Parameter;
 use App\Models\ParameterValue;
 use App\Models\Project;
 use App\Support\ProjectCategoryParameterValues;
+use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -25,8 +27,10 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class ProjectForm
 {
@@ -35,287 +39,347 @@ class ProjectForm
         return $schema
             ->columns(3)
             ->components([
-                Tabs::make(__('profile_projects.tabs.main'))
-                    ->columnSpan(2)
-                    ->persistTabInQueryString()
-                    ->tabs([
-                        Tabs\Tab::make(__('profile_projects.tabs.general'))
-                            ->key('general')
-                            ->icon('heroicon-o-information-circle')
-                            ->schema([
-                                Select::make('art_category_id')
-                                    ->label(__('profile_projects.fields.art_category'))
-                                    ->options(function () {
-                                        $options = [];
-                                        foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
-                                            $options[$root->getLabel('uk')] = [
-                                                (string) $root->id => $root->getLabel('uk'),
-                                            ];
-                                            foreach ($root->children as $child) {
-                                                $options[$root->getLabel('uk')][(string) $child->id] = '  '.$child->getLabel('uk');
-                                            }
+                Wizard::make([
+                    Step::make(__('profile_projects.tabs.general'))
+                        ->icon('heroicon-o-information-circle')
+                        ->schema([
+                            Select::make('art_category_id')
+                                ->label(__('profile_projects.fields.art_category'))
+                                ->options(function () {
+                                    $options = [];
+                                    foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
+                                        $options[$root->getLabel('uk')] = [
+                                            (string) $root->id => $root->getLabel('uk'),
+                                        ];
+                                        foreach ($root->children as $child) {
+                                            $options[$root->getLabel('uk')][(string) $child->id] = '  '.$child->getLabel('uk');
                                         }
+                                    }
 
-                                        return $options;
-                                    })
-                                    ->searchable()
-                                    ->live()
-                                    ->afterStateUpdated(function (mixed $state, callable $set, CreateRecord|EditRecord $livewire): void {
-                                        $project = $livewire instanceof EditRecord && $livewire->getRecord() instanceof Project
-                                            ? $livewire->getRecord()
-                                            : null;
+                                    return $options;
+                                })
+                                ->searchable()
+                                ->live()
+                                ->afterStateUpdated(function (mixed $state, callable $set, CreateRecord|EditRecord $livewire): void {
+                                    $project = $livewire instanceof EditRecord && $livewire->getRecord() instanceof Project
+                                        ? $livewire->getRecord()
+                                        : null;
 
-                                        $set(
-                                            'project_parameter_values',
-                                            ProjectCategoryParameterValues::rowsForCategoryId(
-                                                filled($state) ? (int) $state : null,
-                                                $project,
-                                            ),
-                                        );
-                                    })
-                                    ->required(),
+                                    $set(
+                                        'project_parameter_values',
+                                        ProjectCategoryParameterValues::rowsForCategoryId(
+                                            filled($state) ? (int) $state : null,
+                                            $project,
+                                        ),
+                                    );
+                                })
+                                ->required(),
 
-                                TextInput::make('title')
-                                    ->label(__('profile_projects.fields.title'))
-                                    ->required()
-                                    ->maxLength(255),
+                            TextInput::make('title')
+                                ->label(__('profile_projects.fields.title'))
+                                ->required()
+                                ->maxLength(255)
+                                ->live(onBlur: true),
 
-                                Textarea::make('short_description')
-                                    ->label(__('profile_projects.fields.short_description'))
-                                    ->autosize()
-                                    ->maxLength(500)
-                                    ->rows(3),
+                            Textarea::make('short_description')
+                                ->label(__('profile_projects.fields.short_description'))
+                                ->autosize()
+                                ->maxLength(500)
+                                ->rows(3),
 
-                                TagsInput::make('tags')
-                                    ->label(__('profile_projects.fields.tags')),
+                            TagsInput::make('tags')
+                                ->label(__('profile_projects.fields.tags')),
 
-                                FileUpload::make('cover')
-                                    ->label(__('profile_projects.fields.cover'))
-                                    ->image()
-                                    ->imageEditor()
-                                    ->imageEditorAspectRatioOptions([
-                                        null,
-                                        '4:3',
-                                        //                                        '1:1',
-                                    ])
-                                    ->disk('public')
-                                    ->directory('projects/covers')
-                                    ->columnSpanFull(),
-                            ]),
+                            FileUpload::make('cover')
+                                ->label(__('profile_projects.fields.cover'))
+                                ->image()
+                                ->imageEditor()
+                                ->imageEditorAspectRatioOptions([
+                                    null,
+                                    '4:3',
+                                    //                                        '1:1',
+                                ])
+                                ->disk('public')
+                                ->directory('projects/covers')
+                                ->columnSpanFull(),
+                        ]),
 
-                        Tabs\Tab::make(__('profile_projects.tabs.budget'))
-                            ->key('budget')
-                            ->icon('heroicon-o-currency-dollar')
-                            ->columns(2)
-                            ->schema([
-                                Select::make('currency')
-                                    ->label(__('profile_projects.fields.currency'))
-                                    ->options([
-                                        Currency::UAH->value => '₴ UAH',
-                                        Currency::USD->value => '$ USD',
-                                        Currency::EUR->value => '€ EUR',
-                                    ])
-                                    ->default(Currency::UAH->value)
-                                    ->required(),
+                    Step::make(__('profile_projects.tabs.budget'))
+                        ->icon('heroicon-o-currency-dollar')
+                        ->columns(2)
+                        ->schema([
+                            Select::make('currency')
+                                ->label(__('profile_projects.fields.currency'))
+                                ->options([
+                                    Currency::UAH->value => '₴ UAH',
+                                    Currency::USD->value => '$ USD',
+                                    Currency::EUR->value => '€ EUR',
+                                ])
+                                ->default(Currency::UAH->value)
+                                ->required(),
 
-                                TextInput::make('budget_goal')
-                                    ->label(__('profile_projects.fields.budget_goal'))
-                                    ->numeric()
-                                    ->prefix(fn (callable $get) => match ($get('currency')) {
-                                        'USD' => '$',
-                                        'EUR' => '€',
-                                        default => '₴',
-                                    })
-                                    ->required(),
+                            TextInput::make('budget_goal')
+                                ->label(__('profile_projects.fields.budget_goal'))
+                                ->numeric()
+                                ->prefix(fn (callable $get) => match ($get('currency')) {
+                                    'USD' => '$',
+                                    'EUR' => '€',
+                                    default => '₴',
+                                })
+                                ->required()
+                                ->live(onBlur: true),
 
-                                TextInput::make('estimated_days')
-                                    ->label(__('profile_projects.fields.estimated_days'))
-                                    ->numeric()
-                                    ->minValue(1),
+                            TextInput::make('estimated_days')
+                                ->label(__('profile_projects.fields.estimated_days'))
+                                ->numeric()
+                                ->minValue(1),
 
-                                Repeater::make('budget_items')
-                                    ->label(__('profile_projects.fields.budget_items'))
-                                    ->schema([
-                                        TextInput::make('name')
-                                            ->label(__('profile_projects.fields.budget_item_name'))
-                                            ->required()
-                                            ->columnSpan(2),
-                                        TextInput::make('amount')
-                                            ->label(__('profile_projects.fields.budget_item_amount'))
-                                            ->numeric()
-                                            ->required()
-                                            ->prefix(fn (callable $get) => match ($get('currency')) {
-                                                'USD' => '$',
-                                                'EUR' => '€',
-                                                default => '₴',
-                                            }),
-                                    ])
-                                    ->columns(3)
-                                    ->columnSpanFull()
-                                    ->defaultItems(0)
-                                    ->reorderable()
-                                    ->collapsible()
-                                    ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => ($state['name'] ?? __('profile_projects.defaults.budget_item_name')).
-                                        (isset($state['amount']) ? ' — '.number_format($state['amount'], 2).' ₴' : '')
-                                    ),
-                            ]),
+                            Repeater::make('budget_items')
+                                ->label(__('profile_projects.fields.budget_items'))
+                                ->schema([
+                                    TextInput::make('name')
+                                        ->label(__('profile_projects.fields.budget_item_name'))
+                                        ->required()
+                                        ->columnSpan(2),
+                                    TextInput::make('amount')
+                                        ->label(__('profile_projects.fields.budget_item_amount'))
+                                        ->numeric()
+                                        ->required()
+                                        ->prefix(fn (callable $get) => match ($get('currency')) {
+                                            'USD' => '$',
+                                            'EUR' => '€',
+                                            default => '₴',
+                                        }),
+                                ])
+                                ->columns(3)
+                                ->columnSpanFull()
+                                ->defaultItems(0)
+                                ->reorderable()
+                                ->collapsible()
+                                ->collapsed()
+                                ->itemLabel(fn (array $state): ?string => ($state['name'] ?? __('profile_projects.defaults.budget_item_name')).
+                                    (isset($state['amount']) ? ' — '.number_format($state['amount'], 2).' ₴' : '')
+                                ),
+                        ]),
 
-                        Tabs\Tab::make(__('profile_projects.tabs.parameters'))
-                            ->key('parameters')
-                            ->icon('heroicon-o-clipboard-document-list')
-                            ->schema([
-                                Section::make(__('profile_projects.sections.parameters.title'))
-                                    ->description(__('profile_projects.sections.parameters.description'))
-                                    ->schema([
-                                        Placeholder::make('category_required_for_parameters')
-                                            ->label('')
-                                            ->content(__('profile_projects.fields.parameter_placeholder'))
-                                            ->visible(fn (callable $get): bool => ! filled($get('art_category_id'))),
+                    Step::make(__('profile_projects.tabs.content'))
+                        ->icon('heroicon-o-document-text')
+                        ->schema([
+                            Builder::make('content_blocks')
+                                ->label(__('profile_projects.fields.content_blocks'))
+                                ->addActionLabel(__('profile_projects.fields.content_block_add'))
+                                ->blocks([
+                                    Block::make('heading')
+                                        ->label(fn (?array $state): string => filled($state['heading_text'] ?? null)
+                                            ? $state['heading_text']
+                                            : __('profile_projects.fields.content_block_type_heading'))
+                                        ->icon('heroicon-o-bookmark')
+                                        ->schema([
+                                            TextInput::make('heading_text')
+                                                ->label(__('profile_projects.fields.content_block_heading_text'))
+                                                ->required()
+                                                ->maxLength(255)
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
 
-                                        Repeater::make('project_parameter_values')
-                                            ->label('')
-                                            ->visible(fn (callable $get): bool => filled($get('art_category_id')))
-                                            ->addable(false)
-                                            ->deletable(false)
-                                            ->reorderable(false)
-                                            ->defaultItems(0)
-                                            ->schema([
-                                                Hidden::make('parameter_id')
-                                                    ->required(),
+                                    Block::make('paragraph')
+                                        ->label(fn (?array $state): string => filled($state['paragraph_text'] ?? null)
+                                            ? Str::limit($state['paragraph_text'], 50)
+                                            : __('profile_projects.fields.content_block_type_paragraph'))
+                                        ->icon('heroicon-o-bars-3-bottom-left')
+                                        ->schema([
+                                            Textarea::make('paragraph_text')
+                                                ->label(__('profile_projects.fields.content_block_paragraph_text'))
+                                                ->required()
+                                                ->rows(5)
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
 
-                                                Hidden::make('parameter_type'),
+                                    Block::make('image')
+                                        ->label(__('profile_projects.fields.content_block_type_image'))
+                                        ->icon('heroicon-o-photo')
+                                        ->schema([
+                                            FileUpload::make('image')
+                                                ->label(__('profile_projects.fields.content_block_image'))
+                                                ->image()
+                                                ->imageEditor()
+                                                ->disk('public')
+                                                ->directory('projects/content-blocks')
+                                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                                ->maxSize(5120)
+                                                ->imageCropAspectRatio('4:3')
+                                                ->required()
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
+                                ])
+                                ->columnSpanFull()
+                                ->blockNumbers(false)
+                                ->reorderable()
+                                ->collapsed(),
+                        ]),
 
-                                                TextInput::make('parameter_label')
-                                                    ->label(__('profile_projects.fields.parameter_label'))
-                                                    ->disabled()
-                                                    ->dehydrated(false)
-                                                    ->columnSpan(1),
+                    Step::make(__('profile_projects.tabs.parameters'))
+                        ->icon('heroicon-o-clipboard-document-list')
+                        ->schema([
+                            Section::make(__('profile_projects.sections.parameters.title'))
+                                ->description(__('profile_projects.sections.parameters.description'))
+                                ->schema([
+                                    Placeholder::make('category_required_for_parameters')
+                                        ->label('')
+                                        ->content(__('profile_projects.fields.parameter_placeholder'))
+                                        ->visible(fn (callable $get): bool => ! filled($get('art_category_id'))),
 
-                                                Select::make('parameter_value_id')
-                                                    ->label(__('profile_projects.fields.parameter_value'))
-                                                    ->options(
-                                                        fn (callable $get) => Parameter::find($get('parameter_id'))
-                                                            ?->values
-                                                            ->mapWithKeys(fn (ParameterValue $value) => [$value->id => $value->getLabel('uk')])
-                                                            ?? []
-                                                    )
-                                                    ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value)
-                                                    ->columnSpan(2),
+                                    Repeater::make('project_parameter_values')
+                                        ->label('')
+                                        ->visible(fn (callable $get): bool => filled($get('art_category_id')))
+                                        ->addable(false)
+                                        ->deletable(false)
+                                        ->reorderable(false)
+                                        ->defaultItems(0)
+                                        ->schema([
+                                            Hidden::make('parameter_id')
+                                                ->required(),
 
-                                                TextInput::make('custom_value')
-                                                    ->label(__('profile_projects.fields.parameter_value'))
-                                                    ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value)
-                                                    ->columnSpan(2),
-                                            ])
-                                            ->columns(3)
-                                            ->columnSpanFull(),
-                                    ]),
-                            ]),
+                                            Hidden::make('parameter_type'),
 
-                        Tabs\Tab::make(__('profile_projects.tabs.stages'))
-                            ->key('stages')
-                            ->icon('heroicon-o-list-bullet')
-                            ->schema([
-                                Repeater::make('stages')
-                                    ->label(__('profile_projects.fields.stages'))
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('order')
-                                            ->label(__('profile_projects.fields.stage_order'))
-                                            ->numeric()
-                                            ->default(0)
-                                            ->columnSpan(1),
+                                            TextInput::make('parameter_label')
+                                                ->label(__('profile_projects.fields.parameter_label'))
+                                                ->disabled()
+                                                ->dehydrated(false)
+                                                ->columnSpan(1),
 
-                                        Select::make('status')
-                                            ->label(__('profile_projects.fields.stage_status'))
-                                            ->options(StageStatus::getOptions())
-                                            ->default(StageStatus::Planned->value)
-                                            ->required()
-                                            ->columnSpan(2),
+                                            Select::make('parameter_value_id')
+                                                ->label(__('profile_projects.fields.parameter_value'))
+                                                ->options(
+                                                    fn (callable $get) => Parameter::find($get('parameter_id'))
+                                                        ?->values
+                                                        ->mapWithKeys(fn (ParameterValue $value) => [$value->id => $value->getLabel('uk')])
+                                                        ?? []
+                                                )
+                                                ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value)
+                                                ->columnSpan(2),
 
-                                        TextInput::make('title')
-                                            ->label(__('profile_projects.fields.stage_title'))
-                                            ->required()
-                                            ->columnSpanFull(),
-                                        Textarea::make('description')
-                                            ->label(__('profile_projects.fields.stage_description'))
-                                            ->rows(2)
-                                            ->autosize()
-                                            ->columnSpanFull(),
+                                            TextInput::make('custom_value')
+                                                ->label(__('profile_projects.fields.parameter_value'))
+                                                ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::Custom->value)
+                                                ->columnSpan(2),
+                                        ])
+                                        ->columns(3)
+                                        ->columnSpanFull(),
+                                ]),
+                        ]),
 
-                                        TextInput::make('days_planned')
-                                            ->label(__('profile_projects.fields.stage_days_planned'))
-                                            ->numeric()
-                                            ->columnSpan(1),
+                    Step::make(__('profile_projects.tabs.stages'))
+                        ->icon('heroicon-o-list-bullet')
+                        ->schema([
+                            Repeater::make('stages')
+                                ->label(__('profile_projects.fields.stages'))
+                                ->relationship()
+                                ->schema([
+                                    TextInput::make('order')
+                                        ->label(__('profile_projects.fields.stage_order'))
+                                        ->numeric()
+                                        ->default(0)
+                                        ->columnSpan(1),
 
-                                        DatePicker::make('started_at')
-                                            ->label(__('profile_projects.fields.stage_started_at'))
-                                            ->columnSpan(1),
+                                    Select::make('status')
+                                        ->label(__('profile_projects.fields.stage_status'))
+                                        ->options(StageStatus::getOptions())
+                                        ->default(StageStatus::Planned->value)
+                                        ->required()
+                                        ->columnSpan(2),
 
-                                        DatePicker::make('completed_at')
-                                            ->label(__('profile_projects.fields.stage_completed_at'))
-                                            ->columnSpan(1),
-                                    ])
-                                    ->columns(3)
-                                    ->columnSpanFull()
-                                    ->defaultItems(0)
-                                    ->reorderable()
-                                    ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.stage_title')),
-                            ]),
+                                    TextInput::make('title')
+                                        ->label(__('profile_projects.fields.stage_title'))
+                                        ->required()
+                                        ->columnSpanFull(),
+                                    Textarea::make('description')
+                                        ->label(__('profile_projects.fields.stage_description'))
+                                        ->rows(2)
+                                        ->autosize()
+                                        ->columnSpanFull(),
 
-                        Tabs\Tab::make(__('profile_projects.tabs.bonuses'))
-                            ->key('bonuses')
-                            ->icon('heroicon-o-gift')
-                            ->schema([
-                                Repeater::make('bonuses')
-                                    ->label(__('profile_projects.fields.bonuses'))
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('order')
-                                            ->label(__('profile_projects.fields.bonus_order'))
-                                            ->numeric()
-                                            ->default(0)
-                                            ->columnSpan(1),
+                                    TextInput::make('days_planned')
+                                        ->label(__('profile_projects.fields.stage_days_planned'))
+                                        ->numeric()
+                                        ->columnSpan(1),
 
-                                        TextInput::make('min_donation')
-                                            ->label(__('profile_projects.fields.bonus_min_donation'))
-                                            ->numeric()
-                                            ->required()
-                                            ->columnSpan(1),
+                                    DatePicker::make('started_at')
+                                        ->label(__('profile_projects.fields.stage_started_at'))
+                                        ->columnSpan(1),
 
-                                        TextInput::make('max_donation')
-                                            ->label(__('profile_projects.fields.bonus_max_donation'))
-                                            ->numeric()
-                                            ->gt('min_donation')
-                                            ->columnSpan(1),
+                                    DatePicker::make('completed_at')
+                                        ->label(__('profile_projects.fields.stage_completed_at'))
+                                        ->columnSpan(1),
+                                ])
+                                ->columns(3)
+                                ->columnSpanFull()
+                                ->defaultItems(0)
+                                ->reorderable()
+                                ->collapsed()
+                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.stage_title')),
+                        ]),
 
-                                        TextInput::make('quantity')
-                                            ->label(__('profile_projects.fields.bonus_quantity'))
-                                            ->numeric()
-                                            ->placeholder(__('profile_projects.placeholders.bonus_quantity'))
-                                            ->helperText(__('profile_projects.helpers.bonus_quantity'))
-                                            ->columnSpan(1),
+                    Step::make(__('profile_projects.tabs.bonuses'))
+                        ->icon('heroicon-o-gift')
+                        ->schema([
+                            Repeater::make('bonuses')
+                                ->label(__('profile_projects.fields.bonuses'))
+                                ->relationship()
+                                ->schema([
+                                    TextInput::make('order')
+                                        ->label(__('profile_projects.fields.bonus_order'))
+                                        ->numeric()
+                                        ->default(0)
+                                        ->columnSpan(1),
 
-                                        TextInput::make('title')
-                                            ->label(__('profile_projects.fields.bonus_title'))
-                                            ->required()
-                                            ->columnSpanFull(),
-                                        Textarea::make('description')
-                                            ->label(__('profile_projects.fields.bonus_description'))
-                                            ->rows(2)
-                                            ->autosize()
-                                            ->columnSpanFull(),
-                                    ])
-                                    ->columns(4)
-                                    ->columnSpanFull()
-                                    ->defaultItems(0)
-                                    ->reorderable()
-                                    ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
-                            ]),
-                    ]),
+                                    TextInput::make('min_donation')
+                                        ->label(__('profile_projects.fields.bonus_min_donation'))
+                                        ->numeric()
+                                        ->required()
+                                        ->columnSpan(1),
+
+                                    TextInput::make('max_donation')
+                                        ->label(__('profile_projects.fields.bonus_max_donation'))
+                                        ->numeric()
+                                        ->gt('min_donation')
+                                        ->columnSpan(1),
+
+                                    TextInput::make('quantity')
+                                        ->label(__('profile_projects.fields.bonus_quantity'))
+                                        ->numeric()
+                                        ->placeholder(__('profile_projects.placeholders.bonus_quantity'))
+                                        ->helperText(__('profile_projects.helpers.bonus_quantity'))
+                                        ->columnSpan(1),
+
+                                    TextInput::make('title')
+                                        ->label(__('profile_projects.fields.bonus_title'))
+                                        ->required()
+                                        ->columnSpanFull(),
+                                    Textarea::make('description')
+                                        ->label(__('profile_projects.fields.bonus_description'))
+                                        ->rows(2)
+                                        ->autosize()
+                                        ->columnSpanFull(),
+                                ])
+                                ->columns(4)
+                                ->columnSpanFull()
+                                ->defaultItems(0)
+                                ->reorderable()
+                                ->collapsed()
+                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
+                        ]),
+                ])
+                    ->columnSpan(2)
+                    ->persistStepInQueryString()
+                    // При редагуванні існуючого проєкту дозволяємо вільно перемикатись
+                    // між кроками клацанням, як у табах — усі дані вже заповнені, тому
+                    // послідовна валідація "Далі/Назад" тут тільки заважає. При створенні
+                    // нового проєкту крокова навігація лишається (record ще не існує).
+                    ->skippable(fn (?Project $record): bool => $record !== null),
 
                 Section::make(__('profile_projects.sections.status'))
                     ->icon('heroicon-o-flag')

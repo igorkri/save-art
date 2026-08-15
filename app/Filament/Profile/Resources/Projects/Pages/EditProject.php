@@ -3,6 +3,7 @@
 namespace App\Filament\Profile\Resources\Projects\Pages;
 
 use App\Enums\ProjectStatus;
+use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Concerns\HandlesProjectParameterValuesInForm;
 use App\Models\Project;
@@ -14,6 +15,7 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditProject extends EditRecord
 {
+    use HandlesContentBlocksBuilder;
     use HandlesProjectParameterValuesInForm;
 
     protected static string $resource = ProjectResource::class;
@@ -30,6 +32,8 @@ class EditProject extends EditRecord
             return $data;
         }
 
+        $data['content_blocks'] = $this->contentBlocksToBuilderFormat($record->content_blocks);
+
         return $this->fillProjectParameterValues($data, $record);
     }
 
@@ -39,6 +43,8 @@ class EditProject extends EditRecord
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $data['content_blocks'] = $this->contentBlocksFromBuilderFormat($data['content_blocks'] ?? null);
+
         return $this->extractProjectParameterValuesFromData($data);
     }
 

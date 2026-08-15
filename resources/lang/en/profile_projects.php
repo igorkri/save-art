@@ -13,6 +13,7 @@ return [
         'parameters' => 'Attributes',
         'stages' => 'Stages',
         'bonuses' => 'Bonuses',
+        'content' => 'Content',
     ],
 
     'sections' => [
@@ -63,6 +64,14 @@ return [
         'likes_count' => 'Likes',
         'donors_count' => 'Patrons',
         'budget_collected' => 'Collected',
+        'content_blocks' => 'Content blocks',
+        'content_block_type_heading' => 'Heading',
+        'content_block_type_paragraph' => 'Paragraph',
+        'content_block_type_image' => 'Image',
+        'content_block_heading_text' => 'Heading text',
+        'content_block_paragraph_text' => 'Paragraph text',
+        'content_block_image' => 'Image',
+        'content_block_add' => 'Add block',
     ],
 
     'placeholders' => [
