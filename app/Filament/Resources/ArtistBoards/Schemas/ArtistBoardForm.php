@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
 class ArtistBoardForm
 {
@@ -106,7 +107,10 @@ class ArtistBoardForm
                                                                     ->schema([
                                                                         TextInput::make('name')->label('Назва музею'),
                                                                         TextInput::make('exhibition_name')->label('Назва виставки'),
-                                                                        TextInput::make('dates')->label('Дати')->placeholder('01.01.2024 - 01.03.2024'),
+                                                                        DateRangePicker::make('dates')
+                                                                            ->label('Дати')
+                                                                            ->format('d.m.Y')
+                                                                            ->placeholder('01.01.2024 - 01.03.2024'),
                                                                     ]),
                                                             ])
                                                             ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)

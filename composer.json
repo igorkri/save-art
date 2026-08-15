@@ -19,6 +19,7 @@
         "laravel/tinker": "^3.0",
         "league/iso3166": "^4.4",
         "livewire/livewire": "^4.0",
+        "malzariey/filament-daterangepicker-filter": "^5.0",
         "mcamara/laravel-localization": "^2.4",
         "mobiledetect/mobiledetectlib": "^4.8",
         "openplain/filament-tree-view": "^0.5.0"
