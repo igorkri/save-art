@@ -43,6 +43,17 @@ use function Filament\Support\generate_icon_html;
 
 class ProjectForm
 {
+    /**
+     * Завершений (і проданий) проєкт лишається доступним для відкриття, але
+     * редагувати в ньому можна лише "Фінальний результат" — усе інше вже
+     * зафіксовано (ProjectPolicy::update() навмисно теж відкриває доступ
+     * лише заради цього кроку).
+     */
+    private static function isLockedExceptFinalResult(?Project $record): bool
+    {
+        return in_array($record?->status, [ProjectStatus::Completed, ProjectStatus::Sold], true);
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -51,6 +62,7 @@ class ProjectForm
                 Wizard::make([
                     Step::make(__('profile_projects.tabs.general'))
                         ->icon('heroicon-o-information-circle')
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Select::make('art_category_id')
                                 ->label(__('profile_projects.fields.art_category'))
@@ -116,6 +128,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.budget'))
                         ->icon('heroicon-o-currency-dollar')
                         ->columns(2)
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Select::make('currency')
                                 ->label(__('profile_projects.fields.currency'))
@@ -173,6 +186,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.content'))
                         ->icon('heroicon-o-document-text')
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Builder::make('content_blocks')
                                 ->label(__('profile_projects.fields.content_blocks'))
@@ -232,6 +246,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.parameters'))
                         ->icon('heroicon-o-clipboard-document-list')
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Section::make(__('profile_projects.sections.parameters.title'))
                                 ->description(__('profile_projects.sections.parameters.description'))
@@ -285,6 +300,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.stages'))
                         ->icon('heroicon-o-list-bullet')
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Repeater::make('stages')
                                 ->label(__('profile_projects.fields.stages'))
@@ -441,8 +457,94 @@ class ProjectForm
                                 }),
                         ]),
 
+                    Step::make(__('profile_projects.tabs.final_result'))
+                        ->icon('heroicon-o-trophy')
+                        // Фінальний результат має сенс лише тоді, коли проєкт реально
+                        // виконується або вже завершений — на чернетці/модерації показувати
+                        // немає чого.
+                        ->visible(fn (?Project $record): bool => in_array($record?->status, [
+                            ProjectStatus::InProgress,
+                            ProjectStatus::Paused,
+                            ProjectStatus::Completed,
+                            ProjectStatus::Sold,
+                        ], true))
+                        ->schema([
+                            Builder::make('final_result')
+                                ->label(__('profile_projects.fields.final_result'))
+                                ->addActionLabel(__('profile_projects.fields.final_result_add'))
+                                ->blocks([
+                                    Block::make('gallery')
+                                        ->label(__('profile_projects.fields.final_result_type_gallery'))
+                                        ->icon('heroicon-o-photo')
+                                        ->schema([
+                                            FileUpload::make('images')
+                                                ->label(__('profile_projects.fields.final_result_gallery_images'))
+                                                ->image()
+                                                ->multiple()
+                                                ->reorderable()
+                                                ->disk('public')
+                                                ->directory('projects/final-result')
+                                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                                ->maxSize(5120)
+                                                ->required()
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
+
+                                    Block::make('youtube')
+                                        ->label(__('profile_projects.fields.final_result_type_youtube'))
+                                        ->icon('heroicon-o-play-circle')
+                                        ->schema([
+                                            TextInput::make('url')
+                                                ->label(__('profile_projects.fields.final_result_youtube_url'))
+                                                ->url()
+                                                ->regex('/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i')
+                                                ->placeholder('https://www.youtube.com/watch?v=...')
+                                                ->required()
+                                                ->maxLength(500)
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
+
+                                    Block::make('vimeo')
+                                        ->label(__('profile_projects.fields.final_result_type_vimeo'))
+                                        ->icon('heroicon-o-film')
+                                        ->schema([
+                                            TextInput::make('url')
+                                                ->label(__('profile_projects.fields.final_result_vimeo_url'))
+                                                ->url()
+                                                ->regex('/^https?:\/\/(www\.)?vimeo\.com\//i')
+                                                ->placeholder('https://vimeo.com/...')
+                                                ->required()
+                                                ->maxLength(500)
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
+
+                                    Block::make('issuu')
+                                        ->label(__('profile_projects.fields.final_result_type_issuu'))
+                                        ->icon('heroicon-o-book-open')
+                                        ->schema([
+                                            TextInput::make('url')
+                                                ->label(__('profile_projects.fields.final_result_issuu_url'))
+                                                ->url()
+                                                ->regex('/^https?:\/\/(www\.)?issuu\.com\//i')
+                                                ->placeholder('https://issuu.com/...')
+                                                ->required()
+                                                ->maxLength(500)
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(1),
+                                ])
+                                ->columnSpanFull()
+                                ->blockNumbers(false)
+                                ->reorderable()
+                                ->collapsed(),
+                        ]),
+
                     Step::make(__('profile_projects.tabs.bonuses'))
                         ->icon('heroicon-o-gift')
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Repeater::make('bonuses')
                                 ->label(__('profile_projects.fields.bonuses'))

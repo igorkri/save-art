@@ -62,22 +62,41 @@ class ImageProcessingService
         $usedPaths = [];
 
         foreach ($contentBlocks as $index => $block) {
-            if (! isset($block['type']) || $block['type'] !== 'image') {
+            if (! isset($block['type'])) {
                 continue;
             }
 
-            $image = $block['image'] ?? null;
+            if ($block['type'] === 'image') {
+                $image = $block['image'] ?? null;
 
-            if (empty($image)) {
+                if (empty($image)) {
+                    continue;
+                }
+
+                // Якщо це Base64 - конвертуємо в файл
+                if ($this->isBase64Image($image)) {
+                    $contentBlocks[$index]['image'] = $this->saveBase64Image($image, $directory);
+                } else {
+                    // Якщо це вже шлях - запам'ятовуємо що він використовується
+                    $usedPaths[] = $image;
+                }
+
                 continue;
             }
 
-            // Якщо це Base64 - конвертуємо в файл
-            if ($this->isBase64Image($image)) {
-                $contentBlocks[$index]['image'] = $this->saveBase64Image($image, $directory);
-            } else {
-                // Якщо це вже шлях - запам'ятовуємо що він використовується
-                $usedPaths[] = $image;
+            // final_result: блок "gallery" — те саме, але масив зображень.
+            if ($block['type'] === 'gallery' && is_array($block['images'] ?? null)) {
+                foreach ($block['images'] as $imageIndex => $image) {
+                    if (empty($image) || ! is_string($image)) {
+                        continue;
+                    }
+
+                    if ($this->isBase64Image($image)) {
+                        $contentBlocks[$index]['images'][$imageIndex] = $this->saveBase64Image($image, $directory);
+                    } else {
+                        $usedPaths[] = $image;
+                    }
+                }
             }
         }
 
@@ -150,6 +169,14 @@ class ImageProcessingService
                 // Перевіряємо що це не Base64
                 if (! $this->isBase64Image($block['image'])) {
                     $paths[] = $block['image'];
+                }
+            }
+
+            if (($block['type'] ?? null) === 'gallery' && is_array($block['images'] ?? null)) {
+                foreach ($block['images'] as $image) {
+                    if (is_string($image) && ! $this->isBase64Image($image)) {
+                        $paths[] = $image;
+                    }
                 }
             }
         }

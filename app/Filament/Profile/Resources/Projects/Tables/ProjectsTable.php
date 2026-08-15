@@ -74,7 +74,11 @@ class ProjectsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn ($record): bool => $record->status->isEditable() || $record->status->isPartiallyEditable()),
+                    // Completed/Sold теж відкриваються — там лишається доступним
+                    // лише крок "Фінальний результат" (ProjectPolicy::update()).
+                    ->visible(fn ($record): bool => $record->status->isEditable()
+                        || $record->status->isPartiallyEditable()
+                        || in_array($record->status, [ProjectStatus::Completed, ProjectStatus::Sold], true)),
                 DeleteAction::make()
                     ->visible(fn ($record): bool => $record->status->isEditable()),
             ]);

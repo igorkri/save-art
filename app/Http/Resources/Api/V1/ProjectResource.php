@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\V1;
 
 use App\Http\Resources\Api\V1\Concerns\BuildsProjectParameters;
 use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
- * @mixin \App\Models\Project
+ * @mixin Project
  *
  * @OA\Schema(
  *     schema="Project",
@@ -204,14 +205,25 @@ class ProjectResource extends JsonResource
             return $finalResult;
         }
 
-        // art-ua-info: final_result — список блоків роботи (type: image|link), а не
-        // одиничний об'єкт { type, url, urls, description } як у save-art — конвертуємо
-        // шляхи зображень в URL так само, як у content_blocks.
+        // art-ua-info: final_result — список блоків роботи (gallery/youtube/vimeo/issuu,
+        // image/link — застарілі), а не одиничний об'єкт { type, url, urls, description }
+        // як у save-art — конвертуємо шляхи зображень в URL так само, як у content_blocks.
         if (array_is_list($finalResult)) {
             return array_map(function ($block) {
-                if (is_array($block) && isset($block['image'])) {
+                if (! is_array($block)) {
+                    return $block;
+                }
+
+                if (isset($block['image'])) {
                     $block['image'] = Storage::url($block['image']);
                     $block['image_url'] = $block['image'];
+                }
+
+                if (isset($block['images']) && is_array($block['images'])) {
+                    $block['images'] = array_values(array_map(
+                        fn ($image) => is_string($image) ? Storage::url($image) : $image,
+                        $block['images']
+                    ));
                 }
 
                 return $block;

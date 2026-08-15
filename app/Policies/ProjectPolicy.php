@@ -59,6 +59,9 @@ class ProjectPolicy
      * редагування блокується. Опубліковані проєкти (Announced/InProgress/Paused)
      * доступні для часткового редагування (docs/project-lifecycle-flow.md) — саме
      * так дозволяється дійти до дії "Завершити проєкт" для InProgress.
+     * Completed/Sold теж лишаються доступними для відкриття — виключно заради
+     * "Фінального результату", решта полів там заблокована в ProjectForm
+     * (ProjectForm::isLockedExceptFinalResult()).
      */
     public function update(User $user, Project $project): bool
     {
@@ -68,6 +71,7 @@ class ProjectPolicy
 
         return $project->isEditable()
             || $project->isPartiallyEditable()
+            || in_array($project->status, [ProjectStatus::Completed, ProjectStatus::Sold], true)
             || ($project->status === ProjectStatus::Moderation && $project->status_moderation !== ModerationStatus::Processing);
     }
 

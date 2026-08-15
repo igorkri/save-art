@@ -7,6 +7,7 @@ use App\Enums\ProjectSource;
 use App\Enums\UserType;
 use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
 use App\Models\Project;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -78,7 +79,7 @@ class UpdateProjectRequest extends FormRequest
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -114,10 +115,14 @@ class UpdateProjectRequest extends FormRequest
 
             'currency' => ['nullable', Rule::enum(Currency::class)],
 
-            // Робота (галерея зображень + посилання на відео), яку показуємо в прев'ю проєкту.
+            // Робота (галерея зображень + посилання на відео/публікацію), яку показуємо
+            // в прев'ю проєкту. image/link — застарілі типи, лишені заради сумісності
+            // зі старими записами; нові блоки пишуться як gallery/youtube/vimeo/issuu.
             'final_result' => ['required', 'array', 'max:50'],
-            'final_result.*.type' => ['sometimes', 'string', 'in:image,link'],
+            'final_result.*.type' => ['sometimes', 'string', 'in:image,link,gallery,youtube,vimeo,issuu'],
             'final_result.*.image' => ['sometimes', 'string'],
+            'final_result.*.images' => ['sometimes', 'array', 'max:20'],
+            'final_result.*.images.*' => ['string'],
             'final_result.*.url' => ['nullable', 'string', 'max:500', 'url'],
 
             // Додаткова інформація про проєкт (блоки: заголовок/текст/зображення/посилання).

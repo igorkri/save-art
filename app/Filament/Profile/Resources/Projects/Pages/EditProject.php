@@ -44,8 +44,24 @@ class EditProject extends EditRecord
         }
 
         $data['content_blocks'] = $this->contentBlocksToBuilderFormat($record->content_blocks);
+        $data['final_result'] = $this->contentBlocksToBuilderFormat($this->finalResultBlocks($record));
 
         return $this->fillProjectParameterValues($data, $record);
+    }
+
+    /**
+     * final_result історично зберігався і як список блоків (сучасний формат,
+     * сумісний з art-ua-info), і як єдиний об'єкт {type, url, description}
+     * (застарілий формат save-art). Білдер у формі розуміє лише список блоків —
+     * старий формат просто не показуємо, щоб не зламати рендер.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function finalResultBlocks(Project $record): array
+    {
+        $finalResult = $record->final_result;
+
+        return is_array($finalResult) && array_is_list($finalResult) ? $finalResult : [];
     }
 
     /**
@@ -68,6 +84,13 @@ class EditProject extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $data['content_blocks'] = $this->contentBlocksFromBuilderFormat($data['content_blocks'] ?? null);
+
+        // Крок "Фінальний результат" видимий лише для проєктів у роботі/завершених
+        // (->visible() у ProjectForm) — на чернетці/модерації ключа 'final_result'
+        // у стані форми взагалі немає, і перезаписувати БД порожнім масивом не треба.
+        if (array_key_exists('final_result', $data)) {
+            $data['final_result'] = $this->contentBlocksFromBuilderFormat($data['final_result']);
+        }
 
         return $this->extractProjectParameterValuesFromData($data);
     }

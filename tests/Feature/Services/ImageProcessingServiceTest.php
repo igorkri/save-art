@@ -121,6 +121,55 @@ class ImageProcessingServiceTest extends TestCase
         Storage::disk('public')->assertExists($result[2]['image']);
     }
 
+    /**
+     * final_result: блок "gallery" зберігає масив зображень (а не одне 'image' —
+     * та ж логіка конвертації Base64/очищення старих файлів має спрацьовувати
+     * для кожного елемента масиву окремо.
+     */
+    public function test_process_content_blocks_converts_base64_images_in_gallery_block(): void
+    {
+        $base64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        $existingPath = 'projects/final-result/existing.jpg';
+
+        $contentBlocks = [
+            [
+                'type' => 'gallery',
+                'images' => [$base64, $existingPath],
+            ],
+        ];
+
+        $result = $this->service->processContentBlocks($contentBlocks, null, 'projects/final-result');
+
+        $this->assertStringStartsWith('projects/final-result/', $result[0]['images'][0]);
+        $this->assertStringEndsWith('.png', $result[0]['images'][0]);
+        Storage::disk('public')->assertExists($result[0]['images'][0]);
+        $this->assertSame($existingPath, $result[0]['images'][1]);
+    }
+
+    /**
+     * Зображення, видалене з галереї при редагуванні, має прибиратись з диска —
+     * так само, як для одиничного 'image'-блока content_blocks.
+     */
+    public function test_process_content_blocks_deletes_removed_gallery_images(): void
+    {
+        $keptPath = 'projects/final-result/kept.jpg';
+        $removedPath = 'projects/final-result/removed.jpg';
+        Storage::disk('public')->put($keptPath, 'kept');
+        Storage::disk('public')->put($removedPath, 'removed');
+
+        $oldBlocks = [
+            ['type' => 'gallery', 'images' => [$keptPath, $removedPath]],
+        ];
+        $newBlocks = [
+            ['type' => 'gallery', 'images' => [$keptPath]],
+        ];
+
+        $this->service->processContentBlocks($newBlocks, $oldBlocks, 'projects/final-result');
+
+        Storage::disk('public')->assertExists($keptPath);
+        Storage::disk('public')->assertMissing($removedPath);
+    }
+
     public function test_process_content_blocks_keeps_existing_paths(): void
     {
         $existingPath = 'projects/content-blocks/existing-image.jpg';

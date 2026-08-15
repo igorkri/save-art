@@ -14,6 +14,7 @@ return [
         'stages' => 'Етапи',
         'bonuses' => 'Бонуси',
         'content' => 'Контент',
+        'final_result' => 'Фінальний результат',
     ],
 
     'sections' => [
@@ -71,6 +72,16 @@ return [
         'content_block_paragraph_text' => 'Текст параграфа',
         'content_block_image' => 'Зображення',
         'content_block_add' => 'Додати блок',
+        'final_result' => 'Фінальний результат',
+        'final_result_type_gallery' => 'Галерея зображень',
+        'final_result_type_youtube' => 'YouTube',
+        'final_result_type_vimeo' => 'Vimeo',
+        'final_result_type_issuu' => 'Issuu',
+        'final_result_gallery_images' => 'Зображення',
+        'final_result_youtube_url' => 'Посилання на YouTube',
+        'final_result_vimeo_url' => 'Посилання на Vimeo',
+        'final_result_issuu_url' => 'Посилання на Issuu',
+        'final_result_add' => 'Додати блок',
     ],
 
     'placeholders' => [
@@ -86,7 +97,7 @@ return [
         'complete' => 'Завершити проєкт',
         'complete_heading' => 'Завершити проєкт?',
         'complete_description' => 'Позначте проєкт завершеним лише після того, як фактично здали фінальний результат.',
-        'complete_missing_final_result' => 'Спочатку завантажте фінальний результат проєкту через сайт.',
+        'complete_missing_final_result' => 'Додайте фінальний результат проєкту на вкладці «Фінальний результат», перш ніж завершувати проєкт.',
         'complete_success' => 'Проєкт завершено.',
         'complete_failed' => 'Не вдалося завершити проєкт.',
     ],

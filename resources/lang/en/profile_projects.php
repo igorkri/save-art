@@ -14,6 +14,7 @@ return [
         'stages' => 'Stages',
         'bonuses' => 'Bonuses',
         'content' => 'Content',
+        'final_result' => 'Final result',
     ],
 
     'sections' => [
@@ -71,6 +72,16 @@ return [
         'content_block_paragraph_text' => 'Paragraph text',
         'content_block_image' => 'Image',
         'content_block_add' => 'Add block',
+        'final_result' => 'Final result',
+        'final_result_type_gallery' => 'Image gallery',
+        'final_result_type_youtube' => 'YouTube',
+        'final_result_type_vimeo' => 'Vimeo',
+        'final_result_type_issuu' => 'Issuu',
+        'final_result_gallery_images' => 'Images',
+        'final_result_youtube_url' => 'YouTube link',
+        'final_result_vimeo_url' => 'Vimeo link',
+        'final_result_issuu_url' => 'Issuu link',
+        'final_result_add' => 'Add block',
     ],
 
     'placeholders' => [
@@ -86,7 +97,7 @@ return [
         'complete' => 'Complete project',
         'complete_heading' => 'Complete the project?',
         'complete_description' => 'Only mark the project as completed once you have actually delivered the final result.',
-        'complete_missing_final_result' => 'Upload the project\'s final result on the site first.',
+        'complete_missing_final_result' => 'Add the project\'s final result on the "Final result" tab before completing the project.',
         'complete_success' => 'The project has been completed.',
         'complete_failed' => 'Could not complete the project.',
     ],

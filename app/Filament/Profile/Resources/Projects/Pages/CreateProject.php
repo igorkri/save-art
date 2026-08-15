@@ -50,6 +50,12 @@ class CreateProject extends CreateRecord
         $data['status_moderation'] = ModerationStatus::Pending->value;
         $data['content_blocks'] = $this->contentBlocksFromBuilderFormat($data['content_blocks'] ?? null);
 
+        // Крок "Фінальний результат" на створенні завжди прихований (новий проєкт
+        // завжди Draft) — ключа 'final_result' у стані форми немає.
+        if (array_key_exists('final_result', $data)) {
+            $data['final_result'] = $this->contentBlocksFromBuilderFormat($data['final_result']);
+        }
+
         return $this->extractProjectParameterValuesFromData($data);
     }
 
