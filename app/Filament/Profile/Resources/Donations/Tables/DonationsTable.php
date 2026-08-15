@@ -4,7 +4,6 @@ namespace App\Filament\Profile\Resources\Donations\Tables;
 
 use App\Enums\DonationStatus;
 use App\Models\Donation;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -63,11 +62,14 @@ class DonationsTable
                     })
                     ->formatStateUsing(fn (string $state) => DonationStatus::tryFrom($state)?->getLabel() ?? $state),
 
-                IconColumn::make('is_anonymous')
+                TextColumn::make('is_anonymous')
                     ->label(__('profile_donations.table.anonymous'))
-                    ->boolean()
-                    ->trueIcon('heroicon-o-eye-slash')
-                    ->falseIcon('heroicon-o-eye')
+                    ->formatStateUsing(fn (bool $state) => $state
+                        ? __('profile_donations.anonymous.yes')
+                        : __('profile_donations.anonymous.no'))
+                    ->icon(fn (bool $state) => $state ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
+                    ->iconPosition('before')
+                    ->color(fn (bool $state) => $state ? 'gray' : 'success')
                     ->toggleable(),
 
                 TextColumn::make('paid_at')

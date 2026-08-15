@@ -20,4 +20,8 @@ return [
         'received' => 'Received',
         'made' => 'You donated',
     ],
+    'anonymous' => [
+        'yes' => 'Anonymous',
+        'no' => 'Public',
+    ],
 ];
