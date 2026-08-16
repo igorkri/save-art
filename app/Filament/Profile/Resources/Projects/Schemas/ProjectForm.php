@@ -504,7 +504,7 @@ class ProjectForm
                                 ->columnSpanFull()
                                 ->defaultItems(0)
                                 ->reorderable()
-                                ->collapsed()
+                                ->collapsed(false)
                                 ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
                         ]),
 
@@ -533,6 +533,8 @@ class ProjectForm
                                                 ->image()
                                                 ->multiple()
                                                 ->reorderable()
+                                                ->panelLayout('grid')
+                                                ->extraAttributes(['class' => 'fi-fo-file-upload-grid-compact'])
                                                 ->disk('public')
                                                 ->directory('projects/final-result')
                                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
@@ -590,7 +592,7 @@ class ProjectForm
                                 ->columnSpanFull()
                                 ->blockNumbers(false)
                                 ->reorderable()
-                                ->collapsed(),
+                                ->collapsed(false),
                         ]),
                 ])
                     ->columnSpan(5)

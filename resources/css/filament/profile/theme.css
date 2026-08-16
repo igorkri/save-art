@@ -30,3 +30,16 @@ section
 .fi-progress-stepper .ps-step:has(.ps-input:disabled) .ps-button {
     cursor: not-allowed;
 }
+
+/* Галерея фінального результату: карток по рядку більше, ніж дефолтні
+   2 (мобайл) / 3 (lg) від filepond, — самі мініатюри при цьому не
+   ростягуються, лише зменшується ширина картки. */
+.fi-fo-file-upload-grid-compact .filepond--root[data-style-panel-layout='grid'] .filepond--item {
+    width: calc(33.33% - 0.5rem);
+}
+
+@variant lg {
+    .fi-fo-file-upload-grid-compact .filepond--root[data-style-panel-layout='grid'] .filepond--item {
+        width: calc(20% - 0.5rem);
+    }
+}
