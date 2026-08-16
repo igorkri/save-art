@@ -3,13 +3,16 @@
 namespace Database\Factories;
 
 use App\Enums\ProfileType;
+use App\Models\ProfileLegal;
+use App\Models\ProfileSocial;
+use App\Models\User;
 use App\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -59,8 +62,8 @@ class UserFactory extends Factory
                 'description' => fake()->paragraph(),
             ];
         })->afterCreating(function ($user) {
-            \App\Models\ProfileLegal::factory()->create(['user_id' => $user->id]);
-            \App\Models\ProfileSocial::factory()->create(['user_id' => $user->id]);
+            ProfileLegal::factory()->create(['user_id' => $user->id]);
+            ProfileSocial::factory()->create(['user_id' => $user->id]);
         });
     }
 
@@ -101,6 +104,19 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'profile_type' => ProfileType::Patron->value,
+        ]);
+    }
+
+    /**
+     * Позначити, що користувач вже зберіг обов'язкові поля профілю в кабінеті
+     * (див. User::isProfileComplete()) — без цього EnsureFilamentProfileIsComplete
+     * редиректить будь-яку сторінку панелі "profile", крім самого редагування
+     * профілю, на форму редагування.
+     */
+    public function profileCompleted(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'profile_completed_at' => now(),
         ]);
     }
 }

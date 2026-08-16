@@ -13,6 +13,7 @@ use App\Http\Resources\ProfileSocialResource;
 use App\Models\ProfileDocument;
 use App\Models\ProfileLegal;
 use App\Models\ProfileSocial;
+use App\Models\ProfileSsoToken;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
@@ -992,6 +993,66 @@ class ProfileApiController extends Controller
 
         return response()->json([
             'message' => 'Ваш профіль успішно видалено.',
+        ]);
+    }
+
+    /**
+     * Дозволені цілі для SSO-переходу в Filament-панель "profile" — без цієї
+     * білизни redirect_path перетворився б на open redirect.
+     *
+     * @var array<int, string>
+     */
+    private const SSO_ALLOWED_PATHS = [
+        '/profile/profile',
+        '/profile/projects',
+        '/profile/donations',
+        '/profile/notifications',
+    ];
+
+    /**
+     * Видати одноразовий SSO-грант для переходу з SPA (Bearer-токен) у
+     * Filament-панель бекенду (сесійний web-guard) без повторного логіна.
+     *
+     * @OA\Post(
+     *     path="/v1/profile/sso-grant",
+     *     operationId="issueProfileSsoGrant",
+     *     tags={"Profile"},
+     *     summary="Видати одноразове посилання для входу в Filament-панель без пароля",
+     *     security={{"sanctum":{}, "apiKey":{}}},
+     *
+     *     @OA\RequestBody(
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="redirect_path", type="string", example="/profile/profile", nullable=true)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Одноразове посилання",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="url", type="string", example="https://save-art.ddev.site/profile-sso/abc123...")
+     *         )
+     *     )
+     * )
+     */
+    public function issueSsoGrant(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $redirectPath = $request->input('redirect_path');
+        if (! in_array($redirectPath, self::SSO_ALLOWED_PATHS, true)) {
+            $redirectPath = self::SSO_ALLOWED_PATHS[0];
+        }
+
+        $grant = ProfileSsoToken::issue($user, $redirectPath);
+
+        return response()->json([
+            'url' => url("/profile-sso/{$grant->token}"),
         ]);
     }
 

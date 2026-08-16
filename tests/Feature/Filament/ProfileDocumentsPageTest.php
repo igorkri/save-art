@@ -25,7 +25,7 @@ class ProfileDocumentsPageTest extends TestCase
 
         Storage::fake('public');
 
-        $this->user = User::factory()->artist()->create();
+        $this->user = User::factory()->artist()->profileCompleted()->create();
 
         $this->actingAs($this->user);
         Filament::setCurrentPanel(Filament::getPanel('profile'));

@@ -27,6 +27,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="postal_code", type="string", nullable=true, example="01001", description="Поштовий індекс"),
  *     @OA\Property(property="phone", type="string", nullable=true, example="+380501234567", description="Персональний телефон"),
  *     @OA\Property(property="profile_type", type="string", nullable=true, example="artist", description="Тип профілю: artist або patron"),
+ *     @OA\Property(property="profile_completed", type="boolean", example=false, description="Чи зберігав користувач обов'язкові поля профілю в кабінеті хоча б раз"),
  *     @OA\Property(property="description", type="string", nullable=true, description="Опис/біографія", example="Український художник"),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")
@@ -56,6 +57,7 @@ class ProfilePersonalResource extends JsonResource
             'postal_code' => $this->postal_code,
             'phone' => $this->phone,
             'profile_type' => $this->profile_type?->value,
+            'profile_completed' => $this->isProfileComplete(),
             'description' => $this->description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

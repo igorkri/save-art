@@ -38,6 +38,7 @@ use Illuminate\Support\Str;
  * @property string|null $postal_code Поштовий індекс
  * @property string|null $phone Персональний телефон
  * @property ProfileType|null $profile_type Тип профілю (artist/patron)
+ * @property Carbon|null $profile_completed_at Коли користувач вперше зберіг обов'язкові поля профілю в кабінеті
  * @property string|null $description Опис/біографія
  * @property bool $is_blocked Чи заблокований
  * @property Carbon|null $blocked_until Дата закінчення блокування
@@ -110,6 +111,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
             'password' => 'hashed',
             'role' => UserRole::class,
             'profile_type' => ProfileType::class,
+            'profile_completed_at' => 'datetime',
             'is_blocked' => 'boolean',
             'blocked_until' => 'datetime',
             'deletion_requested_at' => 'datetime',
@@ -254,6 +256,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     public function isOrganization(): bool
     {
         return $this->profile_type === ProfileType::Organization;
+    }
+
+    /**
+     * Чи заповнив користувач обов'язкові поля профілю в кабінеті хоча б раз
+     * (App\Filament\Profile\Pages\Auth\EditProfile::handleRecordUpdate).
+     * На відміну від profile_type (проставляється дефолтом при реєстрації),
+     * це прапорець реальної дії користувача — саме на нього орієнтуються
+     * фронтенди, показуючи повне меню кабінету.
+     */
+    public function isProfileComplete(): bool
+    {
+        return $this->profile_completed_at !== null;
     }
 
     /**

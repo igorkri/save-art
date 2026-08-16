@@ -22,7 +22,7 @@ class NotificationResourceTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->artist()->create();
+        $this->user = User::factory()->artist()->profileCompleted()->create();
 
         $this->actingAs($this->user);
         Filament::setCurrentPanel(Filament::getPanel('profile'));
@@ -30,7 +30,7 @@ class NotificationResourceTest extends TestCase
 
     public function test_artist_sees_only_own_notifications(): void
     {
-        $otherUser = User::factory()->artist()->create();
+        $otherUser = User::factory()->artist()->profileCompleted()->create();
 
         $ownNotification = Notification::factory()->create(['user_id' => $this->user->id]);
         Notification::factory()->create(['user_id' => $otherUser->id]);

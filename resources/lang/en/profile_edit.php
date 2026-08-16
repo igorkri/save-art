@@ -125,4 +125,9 @@ return [
         'document_unreadable' => 'Failed to read the document.',
         'document_duplicate' => 'This document has already been uploaded.',
     ],
+
+    'completion_required' => [
+        'title' => 'Complete your profile first',
+        'body' => 'Save the required profile fields (name, photo, and phone) to unlock the other sections of the dashboard.',
+    ],
 ];

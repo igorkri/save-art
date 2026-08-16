@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\ArtCatalogController;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ProjectController as ArtUaInfoProjectController;
+use App\Http\Controllers\Api\V1\Auth\ChangePasswordController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\ImpersonateController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
@@ -70,7 +71,7 @@ Route::prefix('v1/auth')->middleware(['api.key', 'signed', 'throttle:6,1'])->gro
 Route::prefix('v1/auth')->middleware(['api.key', 'auth:sanctum'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::get('/me', [LoginController::class, 'me']);
-    Route::put('/change-password', \App\Http\Controllers\Api\V1\Auth\ChangePasswordController::class);
+    Route::put('/change-password', ChangePasswordController::class);
     Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])
         ->middleware('throttle:6,1');
 });
@@ -210,6 +211,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         Route::put('/password', [ProfileApiController::class, 'updatePassword']);
         Route::post('/avatar', [ProfileApiController::class, 'uploadAvatar']);
         Route::post('/new-project-hint-seen', [ProfileApiController::class, 'markNewProjectHintSeen']);
+        Route::post('/sso-grant', [ProfileApiController::class, 'issueSsoGrant']);
         Route::delete('/', [ProfileApiController::class, 'requestDeletion']);
 
         // Документи профілю

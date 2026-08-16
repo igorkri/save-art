@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Profile\Pages\Auth\EditProfile;
 use App\Filament\Profile\Pages\Auth\Login;
 use App\Filament\Profile\Pages\Auth\Register;
+use App\Http\Middleware\EnsureFilamentProfileIsComplete;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -181,6 +182,7 @@ class ProfilePanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->authMiddleware([
                 Authenticate::class,
+                EnsureFilamentProfileIsComplete::class,
             ]);
     }
 

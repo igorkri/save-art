@@ -23,7 +23,7 @@ class DonationResourceTest extends TestCase
     {
         parent::setUp();
 
-        $this->artist = User::factory()->artist()->create();
+        $this->artist = User::factory()->artist()->profileCompleted()->create();
 
         $this->actingAs($this->artist);
         Filament::setCurrentPanel(Filament::getPanel('profile'));

@@ -85,6 +85,15 @@ class EditProfile extends BaseEditProfile
 
         $record->profileSocial()->updateOrCreate([], $socialData);
 
+        // Перше збереження обов'язкових полів (full_name/avatar/phone — усі
+        // required() у HasPersonalTab) фіксується як "профіль заповнено":
+        // саме на profile_completed_at орієнтуються фронтенди, показуючи
+        // повне меню кабінету, а не на сам факт наявності profile_type
+        // (який тепер проставляється дефолтом одразу при реєстрації).
+        if ($record->profile_completed_at === null) {
+            $record->forceFill(['profile_completed_at' => now()])->save();
+        }
+
         return $record;
     }
 

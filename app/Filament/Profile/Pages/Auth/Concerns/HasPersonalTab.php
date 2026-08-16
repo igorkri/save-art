@@ -86,6 +86,7 @@ trait HasPersonalTab
                                         TextInput::make('profession')
                                             ->label(__('profile_edit.fields.profession'))
                                             ->placeholder(__('profile_edit.placeholders.profession'))
+                                            ->required()
                                             ->maxLength(255),
                                         TagsInput::make('tags')
                                             ->label(__('profile_edit.fields.tags'))
@@ -131,14 +132,17 @@ trait HasPersonalTab
                             ->label(__('profile_edit.fields.country'))
                             ->options(Countries::options())
                             ->searchable()
+                            ->required()
                             ->default('Україна'),
                         TextInput::make('region')
                             ->label(__('profile_edit.fields.region'))
                             ->placeholder(__('profile_edit.placeholders.region'))
+                            ->required()
                             ->maxLength(255),
                         TextInput::make('city')
                             ->label(__('profile_edit.fields.city'))
                             ->placeholder(__('profile_edit.placeholders.city'))
+                            ->required()
                             ->maxLength(255),
                         TextInput::make('postal_code')
                             ->label(__('profile_edit.fields.postal_code'))
@@ -163,6 +167,7 @@ trait HasPersonalTab
                             ->rows(6)
                             ->autosize()
                             ->maxLength(10000)
+                            ->required()
                             ->columnSpanFull(),
                     ]),
             ]);

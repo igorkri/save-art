@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Enums\ProfileType;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\UserRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use OpenApi\Annotations as OA;
@@ -142,12 +145,19 @@ class SocialAuthController extends Controller
         } else {
             // New user - create account
             $userName = $socialUser->getName() ?? $email;
+            // profile_type = Artist за замовчуванням — так само як і при звичайній
+            // реєстрації (Api\V1\Auth\RegisterController): без дефолту доступ до
+            // Filament-панелі "profile" (User::canAccessPanel, лише isArtist())
+            // одразу впирався в 403. Хто хоче бути меценатом — міняє тип профілю
+            // на /choose-role (updateUserType).
             $user = User::create([
                 'full_name' => $userName,
                 'email' => $email,
+                'avatar' => $this->downloadGoogleAvatar($socialUser->getAvatar()),
                 'email_verified_at' => now(),
                 'password' => Hash::make(Str::random(32)),
                 'role' => UserRole::User,
+                'profile_type' => ProfileType::Artist,
                 'slug' => Str::slug($userName).'-'.Str::random(6),
             ]);
         }
@@ -177,5 +187,37 @@ class SocialAuthController extends Controller
             ->getAccessTokenResponse($code);
 
         return $response['access_token'] ?? '';
+    }
+
+    /**
+     * Завантажити аватар з Google і зберегти його на диску 'public', щоб поле
+     * User::$avatar лишалось відносним шляхом (як і при ручному завантаженні
+     * через ProfileApiController::uploadAvatar), а не зовнішнім URL, що
+     * протухне/стане недоступним.
+     */
+    protected function downloadGoogleAvatar(?string $avatarUrl): ?string
+    {
+        if (! $avatarUrl) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(5)->get($avatarUrl);
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $extension = str_contains($response->header('Content-Type'), 'png') ? 'png' : 'jpg';
+            $path = 'avatars/'.Str::random(20).'.'.$extension;
+
+            Storage::disk('public')->put($path, $response->body());
+
+            return $path;
+        } catch (\Throwable $e) {
+            Log::warning('Failed to download Google avatar', ['message' => $e->getMessage()]);
+
+            return null;
+        }
     }
 }

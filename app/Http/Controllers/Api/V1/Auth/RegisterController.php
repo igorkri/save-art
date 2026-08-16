@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Enums\ProfileType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
 use App\Models\User;
@@ -68,12 +69,19 @@ class RegisterController extends Controller
     {
         $data = $request->validated();
 
+        // profile_type = Artist за замовчуванням: доступ до Filament-панелі
+        // "profile" дозволений лише isArtist() (User::canAccessPanel), і без
+        // дефолту тут щойно зареєстрований користувач впирався в 403 на
+        // /profile/profile ще до того, як встигав обрати роль на /choose-role.
+        // Той, хто справді хоче бути меценатом, все одно може змінити тип
+        // профілю через /choose-role (updateUserType).
         $user = User::create([
             'full_name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'slug' => Str::slug($data['name']).'-'.Str::random(6),
             'role' => UserRole::User,
+            'profile_type' => ProfileType::Artist,
         ]);
 
         // Надсилаємо лист із посиланням для підтвердження email. Дзвонимо напряму,

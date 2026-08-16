@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Profile\GoogleAuthController;
+use App\Http\Controllers\Profile\SsoLoginController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaveArt\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,12 @@ Route::middleware('web')->prefix('profile/auth/google')->group(function () {
     Route::get('/redirect', [GoogleAuthController::class, 'redirect'])->name('profile.auth.google.redirect');
     Route::get('/callback', [GoogleAuthController::class, 'callback'])->name('profile.auth.google.callback');
 });
+
+// SSO-міст: обмін одноразового гранту (виданого SPA по Bearer-токену через
+// POST /v1/profile/sso-grant) на сесію Filament-панелі "profile", щоб перехід
+// з кабінету SPA не вимагав повторного вводу логіна/пароля.
+Route::middleware('web')->get('/profile-sso/{token}', [SsoLoginController::class, 'consume'])
+    ->name('profile.sso.consume');
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
