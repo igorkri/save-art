@@ -536,7 +536,7 @@ class ProjectForm
                                                 ->panelLayout('grid')
                                                 ->extraAttributes(['class' => 'fi-fo-file-upload-grid-compact'])
                                                 ->disk('public')
-                                                ->directory('projects/final-result')
+                                                 ->directory('projects/final-result')
                                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                                 ->maxSize(5120)
                                                 ->required()
