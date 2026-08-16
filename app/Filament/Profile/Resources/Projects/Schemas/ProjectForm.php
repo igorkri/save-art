@@ -57,7 +57,7 @@ class ProjectForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(3)
+            ->columns(6)
             ->components([
                 Wizard::make([
                     Step::make(__('profile_projects.tabs.general'))
@@ -593,7 +593,7 @@ class ProjectForm
                                 ->collapsed(),
                         ]),
                 ])
-                    ->columnSpan(2)
+                    ->columnSpan(5)
                     ->persistStepInQueryString()
                     // При редагуванні існуючого проєкту дозволяємо вільно перемикатись
                     // між кроками клацанням, як у табах — усі дані вже заповнені, тому
