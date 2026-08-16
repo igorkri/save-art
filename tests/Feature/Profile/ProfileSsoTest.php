@@ -61,7 +61,13 @@ class ProfileSsoTest extends TestCase
 
         $response = $this->get("/profile-sso/{$grant->token}");
 
-        $response->assertRedirect('/profile/donations');
+        // Навмисно НЕ http-redirect (302) у цій самій відповіді — щойно
+        // встановлена сесійна кука може не долетіти на наступний хоп того
+        // самого cross-site ланцюжка редіректів у деяких браузерах. Тому
+        // віддаємо HTML-сторінку з client-side редіректом (див.
+        // SsoLoginController::consume).
+        $response->assertOk();
+        $response->assertSee('/profile/donations', false);
         $this->assertAuthenticatedAs($user, 'web');
         $this->assertNotNull($grant->fresh()->used_at);
     }
@@ -71,7 +77,7 @@ class ProfileSsoTest extends TestCase
         $user = User::factory()->artist()->create();
         $grant = ProfileSsoToken::issue($user, '/profile/profile');
 
-        $this->get("/profile-sso/{$grant->token}")->assertRedirect('/profile/profile');
+        $this->get("/profile-sso/{$grant->token}")->assertOk();
 
         $this->app['auth']->guard('web')->logout();
 

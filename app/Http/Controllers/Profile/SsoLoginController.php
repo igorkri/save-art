@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProfileSsoToken;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class SsoLoginController extends Controller
 {
-    public function consume(string $token): RedirectResponse
+    public function consume(string $token): RedirectResponse|View
     {
         $grant = ProfileSsoToken::where('token', $token)->first();
 
@@ -36,6 +37,17 @@ class SsoLoginController extends Controller
 
         request()->session()->regenerate();
 
-        return redirect()->to($grant->redirect_path ?: '/profile/profile');
+        // Навмисно НЕ звичайний redirect()->to() в тій самій відповіді, де щойно
+        // встановили сесійну куку: браузер потрапив сюди cross-site навігацією
+        // (window.location.href з save-art-web.ddev.site — інший (під)домен), і
+        // деякі браузери відмовляються надсилати щойно встановлену Lax-куку на
+        // наступний хоп ТОГО САМОГО ланцюжка редіректів (тому перший заход падав
+        // на /profile/login, а другий заход на ту саму URL уже спрацьовував —
+        // кука на той момент вже була в браузері). HTML-сторінка з client-side
+        // редіректом розриває ланцюжок: фінальна навігація ініціюється вже з
+        // save-art.ddev.site (same-site), і кука долітає гарантовано.
+        return view('profile.sso-redirect', [
+            'destination' => $grant->redirect_path ?: '/profile/profile',
+        ]);
     }
 }

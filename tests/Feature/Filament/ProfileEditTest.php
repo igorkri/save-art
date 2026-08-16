@@ -30,7 +30,7 @@ class ProfileEditTest extends TestCase
         Storage::fake('public');
         Storage::disk('public')->put('avatars/old.jpg', 'old avatar');
 
-        $this->user = User::factory()->artist()->create([
+        $this->user = User::factory()->artist()->withProfiles()->create([
             'email' => 'artist@example.com',
             'full_name' => 'Старе імʼя',
             'phone' => '+380501234567',
