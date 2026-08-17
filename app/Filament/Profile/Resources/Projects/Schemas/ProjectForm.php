@@ -186,7 +186,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.content'))
                         ->icon('heroicon-o-document-text')
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+//                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Builder::make('content_blocks')
                                 ->label(__('profile_projects.fields.content_blocks'))
@@ -638,6 +638,8 @@ class ProjectForm
                             ]),
 
                         Fieldset::make(__('profile_projects.sections.stats'))
+                            ->columnSpanFull()
+                            ->columns(1)
                             ->schema([
                                 Placeholder::make('likes_count_display')
                                     ->label(__('profile_projects.fields.likes_count'))
