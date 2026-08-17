@@ -109,6 +109,8 @@ class EditProject extends EditRecord
     {
         return [
             $this->submitForModerationAction(),
+            $this->pauseAction(),
+            $this->resumeAction(),
             $this->completeAction(),
             DeleteAction::make()
                 ->visible(fn (): bool => $this->getRecord()->status->isEditable()),
@@ -189,6 +191,77 @@ class EditProject extends EditRecord
 
                 Notification::make()
                     ->title(__('profile_projects.actions.complete_failed'))
+                    ->danger()
+                    ->send();
+            });
+    }
+
+    /**
+     * Митець сам ставить збір на паузу (Announced/InProgress → Paused). Технічно
+     * API вже дозволяв це власнику проєкту (MyProjectController::pause()) — тут
+     * лише додаємо той самий перехід у кабінет через ProjectWorkflowService.
+     */
+    private function pauseAction(): Action
+    {
+        return Action::make('pause')
+            ->label(__('profile_projects.actions.pause'))
+            ->icon('heroicon-o-pause-circle')
+            ->color('gray')
+            ->requiresConfirmation()
+            ->modalHeading(__('profile_projects.actions.pause_heading'))
+            ->modalDescription(__('profile_projects.actions.pause_description'))
+            ->visible(fn (): bool => in_array($this->getRecord()->status, [ProjectStatus::Announced, ProjectStatus::InProgress], true))
+            ->action(function (): void {
+                $project = $this->getRecord();
+
+                if (app(ProjectWorkflowService::class)->pause($project)) {
+                    Notification::make()
+                        ->title(__('profile_projects.actions.pause_success'))
+                        ->success()
+                        ->send();
+
+                    $this->fillForm();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->title(__('profile_projects.actions.pause_failed'))
+                    ->danger()
+                    ->send();
+            });
+    }
+
+    /**
+     * Митець відновлює призупинений збір (Paused → InProgress/Announced,
+     * залежно від зібраного бюджету — вирішує сам ProjectWorkflowService::resume()).
+     */
+    private function resumeAction(): Action
+    {
+        return Action::make('resume')
+            ->label(__('profile_projects.actions.resume'))
+            ->icon('heroicon-o-play-circle')
+            ->color('primary')
+            ->requiresConfirmation()
+            ->modalHeading(__('profile_projects.actions.resume_heading'))
+            ->modalDescription(__('profile_projects.actions.resume_description'))
+            ->visible(fn (): bool => $this->getRecord()->status === ProjectStatus::Paused)
+            ->action(function (): void {
+                $project = $this->getRecord();
+
+                if (app(ProjectWorkflowService::class)->resume($project)) {
+                    Notification::make()
+                        ->title(__('profile_projects.actions.resume_success'))
+                        ->success()
+                        ->send();
+
+                    $this->fillForm();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->title(__('profile_projects.actions.resume_failed'))
                     ->danger()
                     ->send();
             });

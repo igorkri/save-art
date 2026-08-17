@@ -92,4 +92,50 @@ class ProfileProjectEditActionsTest extends TestCase
         Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
             ->assertActionHidden('complete');
     }
+
+    public function test_artist_can_pause_in_progress_project(): void
+    {
+        $project = Project::factory()->inProgress()->create(['user_id' => $this->artist->id]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->callAction('pause')
+            ->assertNotified();
+
+        $this->assertSame(ProjectStatus::Paused, $project->fresh()->status);
+    }
+
+    public function test_pause_action_is_hidden_for_draft_project(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->artist->id,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->assertActionHidden('pause');
+    }
+
+    public function test_artist_can_resume_paused_project(): void
+    {
+        $project = Project::factory()->inProgress()->create([
+            'user_id' => $this->artist->id,
+            'status' => ProjectStatus::Paused,
+            'budget_goal' => 1000,
+            'budget_collected' => 1000,
+        ]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->callAction('resume')
+            ->assertNotified();
+
+        $this->assertSame(ProjectStatus::InProgress, $project->fresh()->status);
+    }
+
+    public function test_resume_action_is_hidden_for_in_progress_project(): void
+    {
+        $project = Project::factory()->inProgress()->create(['user_id' => $this->artist->id]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->assertActionHidden('resume');
+    }
 }

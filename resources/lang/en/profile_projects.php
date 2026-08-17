@@ -100,6 +100,16 @@ return [
         'complete_missing_final_result' => 'Add the project\'s final result on the "Final result" tab before completing the project.',
         'complete_success' => 'The project has been completed.',
         'complete_failed' => 'Could not complete the project.',
+        'pause' => 'Pause fundraising',
+        'pause_heading' => 'Pause fundraising?',
+        'pause_description' => 'The project will temporarily stop accepting donations. You can resume it later.',
+        'pause_success' => 'The project has been paused.',
+        'pause_failed' => 'Could not pause the project.',
+        'resume' => 'Resume fundraising',
+        'resume_heading' => 'Resume fundraising?',
+        'resume_description' => 'The project will start accepting donations again.',
+        'resume_success' => 'Fundraising has been resumed.',
+        'resume_failed' => 'Could not resume fundraising.',
     ],
 
     'helpers' => [

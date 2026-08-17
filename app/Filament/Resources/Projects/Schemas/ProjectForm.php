@@ -243,21 +243,6 @@ class ProjectForm
                                             ->reactive()
                                             ->columnSpanFull(),
 
-                                        // ПОЛЯ ДЛЯ ЗАГОЛОВКА
-                                        Select::make('heading_level')
-                                            ->label('Рівень заголовка')
-                                            ->options([
-                                                'h2' => 'H2 - Великий заголовок',
-                                                'h3' => 'H3 - Середній заголовок',
-                                                'h4' => 'H4 - Малий заголовок',
-                                                'h5' => 'H5 - Дрібний заголовок',
-                                                'h6' => 'H6 - Мінімальний заголовок',
-                                            ])
-                                            ->default('h2')
-                                            ->required()
-                                            ->visible(fn (callable $get) => $get('type') === 'heading')
-                                            ->columnSpanFull(),
-
                                         TextInput::make('heading_text')
                                             ->label('Текст заголовка')
                                             ->required()

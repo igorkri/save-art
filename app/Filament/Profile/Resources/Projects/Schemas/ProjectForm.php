@@ -59,6 +59,21 @@ class ProjectForm
         return $schema
             ->columns(6)
             ->components([
+                ProgressStepper::make('status')
+                    ->hiddenLabel()
+                    ->options(ProjectStatus::getOptions())
+                    ->icons(collect(ProjectStatus::cases())->mapWithKeys(fn (ProjectStatus $status) => [$status->value => $status->getIcon()])->all())
+                    ->markCompletedUpToCurrent()
+                    ->completedColor('success')
+                    ->currentColor('primary')
+                    ->upcomingColor('gray')
+                    ->errorColor('danger')
+                    ->errorStates([ProjectStatus::Rejected->value])
+                    ->default(ProjectStatus::New->value)
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->columnSpanFull(),
+
                 Wizard::make([
                     Step::make(__('profile_projects.tabs.general'))
                         ->icon('heroicon-o-information-circle')
@@ -536,7 +551,7 @@ class ProjectForm
                                                 ->panelLayout('grid')
                                                 ->extraAttributes(['class' => 'fi-fo-file-upload-grid-compact'])
                                                 ->disk('public')
-                                                 ->directory('projects/final-result')
+                                                ->directory('projects/final-result')
                                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                                 ->maxSize(5120)
                                                 ->required()

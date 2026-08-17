@@ -63,6 +63,24 @@ enum ProjectStatus: string
     }
 
     /**
+     * Іконка статусу для степера
+     */
+    public function getIcon(): string
+    {
+        return match ($this) {
+            self::New => 'heroicon-o-sparkles',
+            self::Draft => 'heroicon-o-pencil-square',
+            self::Moderation => 'heroicon-o-clock',
+            self::Announced => 'heroicon-o-megaphone',
+            self::InProgress => 'heroicon-o-arrow-path',
+            self::Paused => 'heroicon-o-pause-circle',
+            self::Completed => 'heroicon-o-check-circle',
+            self::Sold => 'heroicon-o-currency-dollar',
+            self::Rejected => 'heroicon-o-x-circle',
+        };
+    }
+
+    /**
      * Отримати всі статуси з перекладами
      *
      * @return array<string, string>
