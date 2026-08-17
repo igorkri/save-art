@@ -15,7 +15,6 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -46,8 +45,26 @@ class ProfilePanelProvider extends PanelProvider
             ->globalSearchFieldKeyBindingSuffix()
             ->viteTheme('resources/css/filament/profile/theme.css')
             ->colors([
-                'primary' => Color::Yellow,
+                // Color::hex('#fecc39') генерує відтінки через фіксовану OKLCH-таблицю,
+                // яка для 500-700 суттєво темнішає й втрачає насиченість (виглядає
+                // брудно-гірчичним замість чистого бренд-жовтого) — тому палітра
+                // задана вручну (тон/насиченість #fecc39, світлота підібрана так,
+                // щоб 500 лишався точним брендовим кольором сайту save-art).
+                'primary' => [
+                    50 => '#fffbf0',
+                    100 => '#fff6db',
+                    200 => '#ffeebd',
+                    300 => '#fee494',
+                    400 => '#fed55d',
+                    500 => '#fecc39',
+                    600 => '#f9ba01',
+                    700 => '#c69401',
+                    800 => '#936e01',
+                    900 => '#6a5001',
+                    950 => '#4c3900',
+                ],
             ])
+            ->font('Wix Madefor Display')
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label(fn (): string => __('profile_panel.nav_groups.projects'))
@@ -155,6 +172,10 @@ class ProfilePanelProvider extends PanelProvider
                 fn (): string => $this->pdfThumbnailPreviewScript(),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => $this->progressStepperScrollToCurrentScript(),
+            )
+            ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn (): string => $this->googleAuthButton(),
             )
@@ -251,6 +272,43 @@ class ProfilePanelProvider extends PanelProvider
 
                         new MutationObserver(function () {
                             patchPdfPreviews(document);
+                        }).observe(document.body, {childList: true, subtree: true});
+                    });
+                })();
+            </script>
+            HTML;
+    }
+
+    /**
+     * ProgressStepper (aureuserp) на мобільних скролиться в один рядок
+     * (див. .ps-container[data-ps-direction="horizontal"] у theme.css) —
+     * без автоскролу поточний статус може опинитись поза екраном, і його
+     * доводиться шукати вручну. Тому після кожного (пере)рендеру степера
+     * прокручуємо його контейнер так, щоб крок зі статусом "current"
+     * опинився в центрі видимої області.
+     */
+    private function progressStepperScrollToCurrentScript(): string
+    {
+        return <<<'HTML'
+            <script>
+                (function () {
+                    function scrollToCurrentStep(root) {
+                        root.querySelectorAll('.ps-container').forEach(function (container) {
+                            if (container.dataset.psScrolledToCurrent) return;
+
+                            var current = container.querySelector('.ps-step[data-ps-status="current"]');
+                            if (!current) return;
+
+                            container.dataset.psScrolledToCurrent = '1';
+                            current.scrollIntoView({block: 'nearest', inline: 'center'});
+                        });
+                    }
+
+                    document.addEventListener('livewire:init', function () {
+                        scrollToCurrentStep(document);
+
+                        new MutationObserver(function () {
+                            scrollToCurrentStep(document);
                         }).observe(document.body, {childList: true, subtree: true});
                     });
                 })();

@@ -8,11 +8,11 @@ use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Enums\UserType;
-use App\Models\ArtCategory;
 use App\Models\Parameter;
 use App\Models\ParameterValue;
 use App\Models\Project;
 use App\Support\ProjectCategoryParameterValues;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -71,21 +71,9 @@ class ProjectForm
 
                                 Section::make('Категорія')
                                     ->schema([
-                                        Select::make('art_category_id')
+                                        SelectTree::make('art_category_id')
                                             ->label('Галузь мистецтва')
-                                            ->options(function () {
-                                                $options = [];
-                                                foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
-                                                    $options[$root->getLabel('uk')] = [
-                                                        (string) $root->id => $root->getLabel('uk'),
-                                                    ];
-                                                    foreach ($root->children as $child) {
-                                                        $options[$root->getLabel('uk')][(string) $child->id] = '  '.$child->getLabel('uk');
-                                                    }
-                                                }
-
-                                                return $options;
-                                            })
+                                            ->relationship('artCategory', 'name', 'parent_id')
                                             ->searchable()
                                             ->live()
                                             ->afterStateUpdated(function (mixed $state, callable $set, CreateRecord|EditRecord $livewire): void {

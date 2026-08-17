@@ -1,7 +1,64 @@
+@import url('https://fonts.bunny.net/css?family=unbounded:600,700');
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @source '../../../../app/Filament/Profile';
 @source '../../../views/filament';
+
+/* Візуальна мова save-art (маркетинговий сайт цього ж продукту): бренд-жовтий
+   заданий вручну у ProfilePanelProvider (щоб не темнішав/не брудлився на
+   середніх відтінках), тут — заголовковий шрифт Unbounded (текстовий Wix
+   Madefor Display підключений через ->font() у панелі). */
+
+.fi-header-heading,
+.fi-modal-heading,
+.fi-btn,
+.fi-sidebar-item-label,
+.fi-sidebar-group-label,
+.fi-user-name,
+.fi-section-header-heading,
+.fi-wizard-header-step-label,
+.ps-label-text,
+.fi-ta-header-cell {
+    font-family: 'Unbounded', sans-serif;
+}
+
+/* Акцент save-art: жовта рамка активного/hover пункту навігації замість
+   суцільної primary-заливки за замовчуванням у Filament. */
+.fi-sidebar-item .fi-sidebar-item-btn {
+    border: 1px solid transparent;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn,
+.fi-sidebar-item .fi-sidebar-item-btn:hover {
+    border-color: #fecc39;
+}
+
+/* Той самий патерн ("прозора рамка → жовта на hover/active"), що й на
+   картках проєктів save-art (.project_item), застосований до інших
+   інтерактивних поверхонь панелі — секцій, вкладок, рядків таблиць. */
+.fi-section {
+    box-shadow: none;
+    border: 1px solid var(--gray-200);
+}
+
+.fi-tabs-item.fi-active {
+    box-shadow: inset 0 -2px 0 0 #fecc39;
+}
+
+.fi-ta-row.fi-clickable {
+    border-inline-start: 2px solid transparent;
+}
+
+.fi-ta-row.fi-clickable:hover {
+    border-inline-start-color: #fecc39;
+}
+
+/* Основна (primary) кнопка: замість дефолтного затемнення Filament при
+   hover — інверсія кольору, як у save-art `.btn` (жовтий фон → білий). */
+.fi-btn.fi-color-primary:not(.fi-outlined):not(.fi-disabled):not([disabled]):hover {
+    background-color: #fff;
+    color: #343434;
+}
 
 
 /* Контейнер вкладок (Tabs::make()) виглядає як звичайна секція — без
@@ -31,6 +88,39 @@ section
     cursor: not-allowed;
 }
 
+/* Іконка статусу в степері дрібна (w-4 h-4 з блейд-шаблону пакета) і
+   притиснута впритул до тексту лейбла — збільшуємо та додаємо відступ. */
+.fi-progress-stepper .ps-button {
+    gap: 0.5rem;
+}
+
+.fi-progress-stepper .ps-button .fi-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* ps-container переносить кроки (flex-wrap: wrap) щойно вони перестають
+   вміщатись в один рядок — незалежно від ширини екрана (на десктопі теж,
+   якщо вікно вузьке чи кроків багато). Стрілки-роздільники (::after,
+   діагональний виріз) розраховані лише на один суцільний рядок — при
+   переносі вони наїжджають на сусідній рядок і "ламають" вигляд, а
+   останній крок може опинитись сам на новому рядку. Тому завжди робимо
+   горизонтальний скрол в один рядок замість переносу. */
+.ps-container[data-ps-direction='horizontal'] {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.ps-container[data-ps-direction='horizontal']::-webkit-scrollbar {
+    display: none;
+}
+
+.ps-container[data-ps-direction='horizontal'] .ps-step {
+    flex: 0 0 auto;
+}
+
 /* Галерея фінального результату: карток по рядку більше, ніж дефолтні
    2 (мобайл) / 3 (lg) від filepond, — самі мініатюри при цьому не
    ростягуються, лише зменшується ширина картки. */
@@ -42,4 +132,33 @@ section
     .fi-fo-file-upload-grid-compact .filepond--root[data-style-panel-layout='grid'] .filepond--item {
         width: calc(20% - 0.5rem);
     }
+}
+
+/* Редактор зображень filepond (fi-fo-file-upload-editor) фіксує розміри
+   через w-screen/h-[100dvh] (100vw/100dvh) — ці одиниці не враховують
+   ширину вертикального скролбара сторінки, тому модалка виявляється
+   ширшою за видиму область і знизу з'являється горизонтальний скрол,
+   що обрізає кнопку "Зберегти". Прибираємо явні розміри: fixed inset-0
+   вже точно вписує елемент у viewport без цієї похибки. */
+.fi-fo-file-upload-editor {
+    width: auto;
+    height: auto;
+}
+
+/* Кнопки футера редактора (Скасувати/Скинути/Зберегти) в один ряд (flex)
+   не влізають у вузьку бічну панель (max-w-xs) — переносимо в grid, щоб
+   вони стекались/рівномірно ділили ширину замість переповнення вбік. */
+.fi-fo-file-upload .fi-fo-file-upload-editor .fi-fo-file-upload-editor-control-panel .fi-fo-file-upload-editor-control-panel-footer {
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 3);
+    display: grid;
+}
+
+/* Vendor-стиль штовхав "Скинути" вправо через margin-left:auto (мало сенс
+   у flex-ряду), у grid-розкладці це заважає кнопці розтягнутись на всю
+   ширину комірки — скидаємо. */
+.fi-fo-file-upload .fi-fo-file-upload-editor .fi-fo-file-upload-editor-control-panel .fi-fo-file-upload-editor-control-panel-reset-action {
+    margin-left: 0;
 }

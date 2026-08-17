@@ -28,3 +28,32 @@
 .filepond--file {
     color: #1f2937;
 }
+
+/* Редактор зображень filepond (fi-fo-file-upload-editor) фіксує розміри
+   через w-screen/h-[100dvh] (100vw/100dvh) — ці одиниці не враховують
+   ширину вертикального скролбара сторінки, тому модалка виявляється
+   ширшою за видиму область і знизу з'являється горизонтальний скрол,
+   що обрізає кнопку "Зберегти". Прибираємо явні розміри: fixed inset-0
+   вже точно вписує елемент у viewport без цієї похибки. */
+.fi-fo-file-upload-editor {
+    width: auto;
+    height: auto;
+}
+
+/* Кнопки футера редактора (Скасувати/Скинути/Зберегти) в один ряд (flex)
+   не влізають у вузьку бічну панель (max-w-xs) — переносимо в grid, щоб
+   вони стекались/рівномірно ділили ширину замість переповнення вбік. */
+.fi-fo-file-upload .fi-fo-file-upload-editor .fi-fo-file-upload-editor-control-panel .fi-fo-file-upload-editor-control-panel-footer {
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 3);
+    display: grid;
+}
+
+/* Vendor-стиль штовхав "Скинути" вправо через margin-left:auto (мало сенс
+   у flex-ряду), у grid-розкладці це заважає кнопці розтягнутись на всю
+   ширину комірки — скидаємо. */
+.fi-fo-file-upload .fi-fo-file-upload-editor .fi-fo-file-upload-editor-control-panel .fi-fo-file-upload-editor-control-panel-reset-action {
+    margin-left: 0;
+}

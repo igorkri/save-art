@@ -8,14 +8,13 @@ use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Jobs\GenerateStageDocumentPdfThumbnail;
-use App\Models\ArtCategory;
 use App\Models\Parameter;
 use App\Models\ParameterValue;
 use App\Models\Project;
 use App\Support\ProjectCategoryParameterValues;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
@@ -27,7 +26,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
@@ -61,39 +59,96 @@ class ProjectForm
             ->components([
                 ProgressStepper::make('status')
                     ->hiddenLabel()
-                    ->options(ProjectStatus::getOptions())
+                    // Крок "Відхилений" — не звичайний етап флоу (проєкт або йде New →
+                    // ... → Sold, або "звалюється" у Rejected). Показуємо його в стрічці
+                    // лише коли проєкт справді відхилений, інакше він лише плутав би
+                    // користувача, торчачи серед майбутніх кроків.
+                    ->options(fn (?Project $record): array => $record?->status === ProjectStatus::Rejected
+                        ? ProjectStatus::getOptions()
+                        : collect(ProjectStatus::getOptions())->except(ProjectStatus::Rejected->value)->all())
                     ->icons(collect(ProjectStatus::cases())->mapWithKeys(fn (ProjectStatus $status) => [$status->value => $status->getIcon()])->all())
                     ->markCompletedUpToCurrent()
                     ->completedColor('success')
                     ->currentColor('primary')
                     ->upcomingColor('gray')
                     ->errorColor('danger')
-                    ->errorStates([ProjectStatus::Rejected->value])
+                    ->errorStates(fn (?Project $record): array => $record?->status === ProjectStatus::Rejected
+                        ? [ProjectStatus::Rejected->value]
+                        : [])
                     ->default(ProjectStatus::New->value)
                     ->disabled()
                     ->dehydrated(false)
                     ->columnSpanFull(),
+
+                Group::make()
+                    ->columnSpanFull()
+                    ->columns([
+                        'default' => 2,
+                        'sm' => 3,
+                        'md' => 4,
+                        'xl' => 8,
+                    ])
+                    ->visible(fn (?Project $record): bool => $record !== null)
+                    ->schema([
+                        Placeholder::make('status_display')
+                            ->label(__('profile_projects.fields.status_display'))
+                            ->content(fn (?Project $record) => $record?->status)
+                            ->formatStateUsing(fn (?ProjectStatus $state) => $state?->getLabel() ?? __('profile_projects.defaults.status_display'))
+                            ->badge()
+                            ->color(fn (?ProjectStatus $state): string => $state?->getColor() ?? 'gray'),
+
+                        Placeholder::make('status_moderation_display')
+                            ->label(__('profile_projects.fields.moderation_display'))
+                            ->content(fn (?Project $record) => $record?->status_moderation)
+                            ->formatStateUsing(fn (?ModerationStatus $state) => $state?->getLabel() ?? __('profile_projects.defaults.empty'))
+                            ->badge()
+                            ->color(fn (?ModerationStatus $state): string => $state?->getColor() ?? 'gray')
+                            ->visible(fn (?Project $record): bool => filled($record?->status_moderation)),
+
+                        Placeholder::make('code_display')
+                            ->label(__('profile_projects.fields.code_display'))
+                            ->content(fn (?Project $record) => $record?->code ?? __('profile_projects.defaults.code_display'))
+                            ->copyable(fn (?Project $record): bool => filled($record?->code))
+                            ->fontFamily('mono'),
+
+                        Placeholder::make('announced_at_display')
+                            ->label(__('profile_projects.fields.announced_at'))
+                            ->content(fn (?Project $record) => $record?->announced_at?->translatedFormat('d.m.Y') ?? '—'),
+
+                        Placeholder::make('planned_completion_at_display')
+                            ->label(__('profile_projects.fields.planned_completion_at'))
+                            ->content(fn (?Project $record) => $record?->planned_completion_at?->translatedFormat('d.m.Y') ?? '—'),
+
+                        Placeholder::make('likes_count_display')
+                            ->label(__('profile_projects.fields.likes_count'))
+                            ->content(fn (?Project $record) => (string) ($record?->likes_count ?? 0)),
+
+                        Placeholder::make('donors_count_display')
+                            ->label(__('profile_projects.fields.donors_count'))
+                            ->content(fn (?Project $record) => (string) ($record?->donors_count ?? 0)),
+
+                        Placeholder::make('budget_collected_display')
+                            ->label(__('profile_projects.fields.budget_collected'))
+                            ->content(fn (?Project $record) => number_format((float) ($record?->budget_collected ?? 0), 2).' '.($record?->currency?->value ?? '')),
+                    ]),
 
                 Wizard::make([
                     Step::make(__('profile_projects.tabs.general'))
                         ->icon('heroicon-o-information-circle')
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
-                            Select::make('art_category_id')
-                                ->label(__('profile_projects.fields.art_category'))
-                                ->options(function () {
-                                    $options = [];
-                                    foreach (ArtCategory::with('children')->whereNull('parent_id')->orderBy('sort_order')->get() as $root) {
-                                        $options[$root->getLabel('uk')] = [
-                                            (string) $root->id => $root->getLabel('uk'),
-                                        ];
-                                        foreach ($root->children as $child) {
-                                            $options[$root->getLabel('uk')][(string) $child->id] = '  '.$child->getLabel('uk');
-                                        }
-                                    }
+                            FileUpload::make('cover')
+                                ->label(__('profile_projects.fields.cover'))
+                                ->image()
+                                ->imageEditor()
+                                ->imageEditorAspectRatioOptions(['4:3'])
+                                ->disk('public')
+                                ->directory('projects/covers')
+                                ->columnSpanFull(),
 
-                                    return $options;
-                                })
+                            SelectTree::make('art_category_id')
+                                ->label(__('profile_projects.fields.art_category'))
+                                ->relationship('artCategory', 'name', 'parent_id')
                                 ->searchable()
                                 ->live()
                                 ->afterStateUpdated(function (mixed $state, callable $set, CreateRecord|EditRecord $livewire): void {
@@ -125,19 +180,6 @@ class ProjectForm
 
                             TagsInput::make('tags')
                                 ->label(__('profile_projects.fields.tags')),
-
-                            FileUpload::make('cover')
-                                ->label(__('profile_projects.fields.cover'))
-                                ->image()
-                                ->imageEditor()
-                                ->imageEditorAspectRatioOptions([
-                                    null,
-                                    '4:3',
-                                    //                                        '1:1',
-                                ])
-                                ->disk('public')
-                                ->directory('projects/covers')
-                                ->columnSpanFull(),
                         ]),
 
                     Step::make(__('profile_projects.tabs.budget'))
@@ -610,65 +652,13 @@ class ProjectForm
                                 ->collapsed(false),
                         ]),
                 ])
-                    ->columnSpan(5)
+                    ->columnSpanFull()
                     ->persistStepInQueryString()
                     // При редагуванні існуючого проєкту дозволяємо вільно перемикатись
                     // між кроками клацанням, як у табах — усі дані вже заповнені, тому
                     // послідовна валідація "Далі/Назад" тут тільки заважає. При створенні
                     // нового проєкту крокова навігація лишається (record ще не існує).
                     ->skippable(fn (?Project $record): bool => $record !== null),
-
-                Section::make(__('profile_projects.sections.status'))
-                    ->icon('heroicon-o-flag')
-                    ->columnSpan(1)
-                    ->schema([
-                        Placeholder::make('status_display')
-                            ->label(__('profile_projects.fields.status_display'))
-                            ->content(fn (?Project $record) => $record?->status)
-                            ->formatStateUsing(fn (?ProjectStatus $state) => $state?->getLabel() ?? __('profile_projects.defaults.status_display'))
-                            ->badge()
-                            ->color(fn (?ProjectStatus $state): string => $state?->getColor() ?? 'gray'),
-
-                        Placeholder::make('status_moderation_display')
-                            ->label(__('profile_projects.fields.moderation_display'))
-                            ->content(fn (?Project $record) => $record?->status_moderation)
-                            ->formatStateUsing(fn (?ModerationStatus $state) => $state?->getLabel() ?? __('profile_projects.defaults.empty'))
-                            ->badge()
-                            ->color(fn (?ModerationStatus $state): string => $state?->getColor() ?? 'gray')
-                            ->visible(fn (?Project $record): bool => filled($record?->status_moderation)),
-
-                        Placeholder::make('code_display')
-                            ->label(__('profile_projects.fields.code_display'))
-                            ->content(fn (?Project $record) => $record?->code ?? __('profile_projects.defaults.code_display'))
-                            ->copyable(fn (?Project $record): bool => filled($record?->code))
-                            ->fontFamily('mono'),
-
-                        Fieldset::make(__('profile_projects.sections.dates'))
-                            ->schema([
-                                DatePicker::make('announced_at')
-                                    ->label(__('profile_projects.fields.announced_at'))->columnSpanFull(),
-
-                                DatePicker::make('planned_completion_at')
-                                    ->label(__('profile_projects.fields.planned_completion_at'))->columnSpanFull(),
-                            ]),
-
-                        Fieldset::make(__('profile_projects.sections.stats'))
-                            ->columnSpanFull()
-                            ->columns(1)
-                            ->schema([
-                                Placeholder::make('likes_count_display')
-                                    ->label(__('profile_projects.fields.likes_count'))
-                                    ->content(fn (?Project $record) => (string) ($record?->likes_count ?? 0)),
-
-                                Placeholder::make('donors_count_display')
-                                    ->label(__('profile_projects.fields.donors_count'))
-                                    ->content(fn (?Project $record) => (string) ($record?->donors_count ?? 0)),
-
-                                Placeholder::make('budget_collected_display')
-                                    ->label(__('profile_projects.fields.budget_collected'))
-                                    ->content(fn (?Project $record) => number_format((float) ($record?->budget_collected ?? 0), 2).' '.($record?->currency?->value ?? '')),
-                            ]),
-                    ]),
             ]);
     }
 }
