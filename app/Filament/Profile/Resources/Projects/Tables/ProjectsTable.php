@@ -93,6 +93,12 @@ class ProjectsTable
                                 ->grow(false),
                         ]),
 
+                        TextColumn::make('short_description')
+                            ->label(__('profile_projects.table.description'))
+                            ->limit(180)
+                            ->wrap()
+                            ->color('gray'),
+
                         TextColumn::make('created_at')
                             ->label(__('profile_projects.table.created_at'))
                             ->dateTime('d.m.Y H:i')

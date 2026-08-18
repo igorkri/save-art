@@ -75,7 +75,7 @@
 
                         @if ($projectSlug = $notification->data['project_slug'] ?? null)
                             <a
-                                href="{{ rtrim(config('app.frontend_url'), '/') }}/projects/{{ $projectSlug }}"
+                                href="{{ rtrim(config('app.frontend_url'), '/') }}/project/{{ $projectSlug }}"
                                 target="_blank"
                                 rel="noopener"
                                 x-on:click.stop

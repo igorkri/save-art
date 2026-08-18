@@ -138,6 +138,7 @@ return [
         'moderation' => 'Модерація',
         'goal' => 'Ціль',
         'collected' => 'Зібрано',
+        'description' => 'Опис',
         'created_at' => 'Створено',
     ],
 ];

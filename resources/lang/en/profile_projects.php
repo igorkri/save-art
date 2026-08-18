@@ -138,6 +138,7 @@ return [
         'moderation' => 'Moderation',
         'goal' => 'Goal',
         'collected' => 'Collected',
+        'description' => 'Description',
         'created_at' => 'Created',
     ],
 ];
