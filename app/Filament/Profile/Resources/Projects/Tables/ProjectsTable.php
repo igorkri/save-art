@@ -26,6 +26,7 @@ class ProjectsTable
                 'md' => 2,
                 'xl' => 3,
             ])
+            ->recordClasses('profile-project-card-record')
             ->columns([
                 Stack::make([
                     ImageColumn::make('cover')

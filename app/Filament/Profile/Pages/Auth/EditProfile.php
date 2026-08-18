@@ -31,6 +31,7 @@ class EditProfile extends BaseEditProfile
             ->components([
                 Tabs::make('profile')
                     ->persistTabInQueryString()
+                    ->extraAttributes(['class' => 'profile-edit-tabs'])
                     ->tabs([
                         $this->personalTab(),
                         $this->legalTab(),

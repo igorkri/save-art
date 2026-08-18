@@ -8,6 +8,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -16,45 +18,64 @@ class MessagesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'default' => 1,
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->recordClasses('profile-message-card-record')
             ->defaultSort('created_at', 'desc')
             ->columns([
-                IconColumn::make('read_at')
-                    ->label('')
-                    ->boolean()
-                    ->trueIcon(Heroicon::OutlinedEnvelopeOpen)
-                    ->falseIcon(Heroicon::OutlinedEnvelope)
-                    ->trueColor('gray')
-                    ->falseColor('warning'),
+                Stack::make([
+                    Split::make([
+                        IconColumn::make('read_at')
+                            ->label('')
+                            ->boolean()
+                            ->trueIcon(Heroicon::OutlinedEnvelopeOpen)
+                            ->falseIcon(Heroicon::OutlinedEnvelope)
+                            ->trueColor('gray')
+                            ->falseColor('warning')
+                            ->grow(false),
 
-                TextColumn::make('direction')
-                    ->label(__('profile_messages.table.direction'))
-                    ->badge()
-                    ->formatStateUsing(fn (Message $record) => match (true) {
-                        $record->isFromSystem() => __('profile_messages.direction.system'),
-                        $record->isFromAdmin() => __('profile_messages.direction.admin'),
-                        default => __('profile_messages.direction.you'),
-                    })
-                    ->color(fn (Message $record) => $record->isFromAdmin() ? 'info' : 'gray'),
+                        TextColumn::make('direction')
+                            ->label(__('profile_messages.table.direction'))
+                            ->badge()
+                            ->formatStateUsing(fn (Message $record) => match (true) {
+                                $record->isFromSystem() => __('profile_messages.direction.system'),
+                                $record->isFromAdmin() => __('profile_messages.direction.admin'),
+                                default => __('profile_messages.direction.you'),
+                            })
+                            ->color(fn (Message $record) => $record->isFromAdmin() ? 'info' : 'gray'),
 
-                TextColumn::make('subject')
-                    ->label(__('profile_messages.table.subject'))
-                    ->placeholder('—')
-                    ->weight(fn (Message $record) => $record->isFromAdmin() && ! $record->isRead() ? 'bold' : null),
+                        TextColumn::make('created_at')
+                            ->label(__('profile_messages.table.created_at'))
+                            ->dateTime('d.m.Y H:i')
+                            ->sortable()
+                            ->color('gray')
+                            ->grow(false),
+                    ]),
 
-                TextColumn::make('content')
-                    ->label(__('profile_messages.table.content'))
-                    ->limit(120)
-                    ->wrap()
-                    ->color('gray'),
+                    TextColumn::make('subject')
+                        ->label(__('profile_messages.table.subject'))
+                        ->placeholder('—')
+                        ->wrap()
+                        ->weight(fn (Message $record) => $record->isFromAdmin() && ! $record->isRead() ? 'bold' : 'semibold')
+                        ->size('lg'),
 
-                TextColumn::make('project.title')
-                    ->label(__('profile_messages.table.project'))
-                    ->placeholder('—'),
+                    TextColumn::make('content')
+                        ->label(__('profile_messages.table.content'))
+                        ->limit(180)
+                        ->wrap()
+                        ->color('gray'),
 
-                TextColumn::make('created_at')
-                    ->label(__('profile_messages.table.created_at'))
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
+                    TextColumn::make('project.title')
+                        ->label(__('profile_messages.table.project'))
+                        ->icon(Heroicon::OutlinedFolder)
+                        ->color('gray')
+                        ->visible(fn (?Message $record): bool => filled($record?->project_id)),
+                ])
+                    ->space(2)
+                    ->extraAttributes(['class' => 'p-3']),
             ])
             ->recordActions([
                 Action::make('markAsRead')

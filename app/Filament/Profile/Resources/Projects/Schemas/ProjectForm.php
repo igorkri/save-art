@@ -141,7 +141,7 @@ class ProjectForm
                                 ->label(__('profile_projects.fields.cover'))
                                 ->image()
                                 ->imageEditor()
-                                ->imageEditorAspectRatioOptions(['4:3'])
+                                ->imageEditorAspectRatioOptions([null, '4:3'])
                                 ->disk('public')
                                 ->directory('projects/covers')
                                 ->columnSpanFull(),

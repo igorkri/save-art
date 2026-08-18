@@ -125,15 +125,60 @@ class ProfilePanelProvider extends PanelProvider
     gap: 1.5rem;
 }
 @media (max-width: 640px) {
+    /* Мобільна щільність змінює тільки вертикальний ритм. Горизонтальні
+       відступи лишаються такими, як були, а розміри полів і кнопок не чіпаємо. */
     .fi-page-header-main-ctn {
-        gap: 0.25rem;
-        padding-block: 0.25rem;
+        row-gap: 0.25rem !important;
+        padding-block: 0.25rem !important;
     }
     .fi-page-content {
-        gap: 0.25rem;
+        row-gap: 0.25rem !important;
     }
     .fi-main {
         padding-inline: 0.375rem;
+    }
+    .fi-page-main.fi-page-main-has-sub-navigation,
+    .fi-page.fi-page-has-sub-navigation .fi-page-main,
+    .fi-simple-page-content {
+        row-gap: 0.5rem !important;
+    }
+    .fi-sc.fi-sc-has-gap {
+        row-gap: 0.75rem !important;
+    }
+    .fi-sc.fi-sc-has-gap.fi-sc-dense {
+        row-gap: 0.5rem !important;
+    }
+    .fi-sc-wizard.fi-contained .fi-sc-wizard-step.fi-active {
+        margin-top: 0 !important;
+        padding: 10px 4px;
+    }
+    /* /profile/profile має два вкладені рівні Tabs; кожен активний Tab у
+       Filament додає p-6. Ущільнюємо обидва рівні лише на сторінці профілю. */
+    .profile-edit-tabs.fi-sc-tabs.fi-contained .fi-sc-tabs-tab.fi-active {
+        margin-top: 0 !important;
+        padding: 10px 4px !important;
+    }
+    .fi-section:not(.fi-section-not-contained) > .fi-section-header {
+        padding-block: 0.5rem !important;
+    }
+    .fi-section:not(.fi-section-not-contained):not(.fi-divided)
+        > .fi-section-content-ctn > .fi-section-content,
+    .fi-section.fi-compact:not(.fi-section-not-contained):not(.fi-divided)
+        > .fi-section-content-ctn > .fi-section-content {
+        padding-block: 0.75rem !important;
+    }
+    .fi-section:not(.fi-section-not-contained).fi-divided
+        > .fi-section-content-ctn > .fi-section-content > * {
+        padding-block: 0.75rem !important;
+    }
+    .fi-section:not(.fi-section-not-contained)
+        > .fi-section-content-ctn > .fi-section-footer {
+        padding-block: 0.5rem !important;
+    }
+    .fi-section.fi-section-not-contained:not(.fi-aside),
+    .fi-section.fi-section-not-contained:not(.fi-aside)
+        > .fi-section-content-ctn {
+        row-gap: 0.5rem !important;
     }
     .fi-ta-ctn .fi-ta-header-toolbar,
     .fi-ta-ctn .fi-ta-header {
@@ -148,9 +193,40 @@ class ProfilePanelProvider extends PanelProvider
     .fi-ta-ctn .fi-ta-filters-above-content-ctn {
         padding: 0.375rem;
     }
-    .fi-ta-ctn .fi-ta-content-grid {
-        padding: 0.375rem;
-        gap: 0.5rem;
+    .fi-ta-ctn .fi-ta-content.fi-ta-content-grid {
+        padding-block: 0.25rem !important;
+        padding-inline: 0.375rem;
+        row-gap: 0.25rem !important;
+        column-gap: 0.5rem;
+    }
+    /* Filament задає горизонтальні padding-inline-start/end безпосередньо на
+       fi-ta-record-content — їх не перекриваємо. Вертикальний py-4 знаходиться
+       на батьківському fi-ta-record-content-ctn, тому обнуляємо лише його. */
+    .fi-ta-ctn .fi-ta-content.fi-ta-content-grid
+        .fi-ta-record.profile-project-card-record .fi-ta-record-content-ctn {
+        row-gap: 0.25rem !important;
+        padding-block: 0 !important;
+    }
+    /* Усередині картки ProjectsTable вертикальний відступ приходить від
+       Stack::extraAttributes([class => p-2]), а проміжки — від ->space(1),
+       який Filament рендерить як fi-gap-sm. Залишаємо горизонтальні 0.5rem. */
+    .fi-ta-content-grid .fi-ta-record-content {
+        margin-block: 0 !important;
+        padding: 5px 0;
+    }
+    .fi-ta-content-grid .fi-ta-record-content .fi-ta-stack.p-2 {
+        padding-block: 0.25rem !important;
+        padding-inline: 0.5rem !important;
+    }
+    .fi-ta-content-grid .fi-ta-record-content .fi-ta-stack.fi-gap-sm {
+        row-gap: 0.125rem !important;
+    }
+    /* ProjectsTable вже має власну rounded/border-картку всередині запису.
+       Прибираємо дубльовані фон, ring і shadow зовнішнього fi-ta-record. */
+    .fi-ta-content-grid .fi-ta-record.profile-project-card-record {
+        background: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
     }
 }
 .fi-sidebar-group {

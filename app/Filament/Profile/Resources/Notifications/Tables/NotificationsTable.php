@@ -11,6 +11,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -19,40 +21,56 @@ class NotificationsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'default' => 1,
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->recordClasses('profile-notification-card-record')
             ->defaultSort('created_at', 'desc')
             ->columns([
-                IconColumn::make('is_read')
-                    ->label('')
-                    ->boolean()
-                    ->trueIcon(Heroicon::OutlinedEnvelopeOpen)
-                    ->falseIcon(Heroicon::OutlinedEnvelope)
-                    ->trueColor('gray')
-                    ->falseColor('warning'),
+                Stack::make([
+                    Split::make([
+                        IconColumn::make('is_read')
+                            ->label('')
+                            ->boolean()
+                            ->trueIcon(Heroicon::OutlinedEnvelopeOpen)
+                            ->falseIcon(Heroicon::OutlinedEnvelope)
+                            ->trueColor('gray')
+                            ->falseColor('warning')
+                            ->grow(false),
 
-                TextColumn::make('type')
-                    ->label(__('profile_notifications.table.type'))
-                    ->badge()
-                    ->icon(fn (Notification $record) => $record->type->getIcon())
-                    ->color(fn (Notification $record) => $record->type->getColor())
-                    ->formatStateUsing(fn (Notification $record) => $record->type->getLabel()),
+                        TextColumn::make('type')
+                            ->label(__('profile_notifications.table.type'))
+                            ->badge()
+                            ->icon(fn (Notification $record) => $record->type->getIcon())
+                            ->color(fn (Notification $record) => $record->type->getColor())
+                            ->formatStateUsing(fn (Notification $record) => $record->type->getLabel()),
 
-                TextColumn::make('title')
-                    ->label(__('profile_notifications.table.title'))
-                    ->getStateUsing(fn (Notification $record) => $record->title[app()->getLocale()] ?? $record->title['uk'] ?? '')
-                    ->weight(fn (Notification $record) => $record->is_read ? null : 'bold')
-                    ->wrap(),
+                        TextColumn::make('created_at')
+                            ->label(__('profile_notifications.table.created_at'))
+                            ->dateTime('d.m.Y H:i')
+                            ->sortable()
+                            ->color('gray')
+                            ->grow(false),
+                    ]),
 
-                TextColumn::make('message')
-                    ->label(__('profile_notifications.table.message'))
-                    ->getStateUsing(fn (Notification $record) => $record->message[app()->getLocale()] ?? $record->message['uk'] ?? '')
-                    ->limit(120)
-                    ->wrap()
-                    ->color('gray'),
+                    TextColumn::make('title')
+                        ->label(__('profile_notifications.table.title'))
+                        ->getStateUsing(fn (Notification $record) => $record->title[app()->getLocale()] ?? $record->title['uk'] ?? '')
+                        ->weight(fn (Notification $record) => $record->is_read ? 'semibold' : 'bold')
+                        ->size('lg')
+                        ->wrap(),
 
-                TextColumn::make('created_at')
-                    ->label(__('profile_notifications.table.created_at'))
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
+                    TextColumn::make('message')
+                        ->label(__('profile_notifications.table.message'))
+                        ->getStateUsing(fn (Notification $record) => $record->message[app()->getLocale()] ?? $record->message['uk'] ?? '')
+                        ->limit(180)
+                        ->wrap()
+                        ->color('gray'),
+                ])
+                    ->space(2)
+                    ->extraAttributes(['class' => 'p-3']),
             ])
             ->recordActions([
                 Action::make('viewProject')
@@ -60,7 +78,7 @@ class NotificationsTable
                     ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
                     ->color('gray')
                     ->visible(fn (Notification $record) => filled($record->data['project_slug'] ?? null))
-                    ->url(fn (Notification $record) => rtrim(config('app.frontend_url'), '/').'/projects/'.$record->data['project_slug'])
+                    ->url(fn (Notification $record) => rtrim(config('app.frontend_url'), '/').'/project/'.$record->data['project_slug'])
                     ->openUrlInNewTab(),
                 Action::make('markAsRead')
                     ->label(__('profile_notifications.actions.mark_as_read'))
