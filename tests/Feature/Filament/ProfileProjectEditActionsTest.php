@@ -93,6 +93,28 @@ class ProfileProjectEditActionsTest extends TestCase
             ->assertActionHidden('complete');
     }
 
+    public function test_artist_can_mark_completed_project_as_sold(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->artist->id,
+            'status' => ProjectStatus::Completed,
+        ]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->callAction('markAsSold')
+            ->assertNotified();
+
+        $this->assertSame(ProjectStatus::Sold, $project->fresh()->status);
+    }
+
+    public function test_mark_as_sold_action_is_hidden_for_in_progress_project(): void
+    {
+        $project = Project::factory()->inProgress()->create(['user_id' => $this->artist->id]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->assertActionHidden('markAsSold');
+    }
+
     public function test_artist_can_pause_in_progress_project(): void
     {
         $project = Project::factory()->inProgress()->create(['user_id' => $this->artist->id]);

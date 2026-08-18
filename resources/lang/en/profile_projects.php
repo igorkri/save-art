@@ -110,6 +110,11 @@ return [
         'resume_description' => 'The project will start accepting donations again.',
         'resume_success' => 'Fundraising has been resumed.',
         'resume_failed' => 'Could not resume fundraising.',
+        'mark_as_sold' => 'Sold',
+        'mark_as_sold_heading' => 'Mark the project as sold?',
+        'mark_as_sold_description' => 'The project status will change to "Sold".',
+        'mark_as_sold_success' => 'The project has been marked as sold.',
+        'mark_as_sold_failed' => 'Could not mark the project as sold.',
     ],
 
     'helpers' => [

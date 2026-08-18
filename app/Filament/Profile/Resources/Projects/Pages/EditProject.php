@@ -112,6 +112,7 @@ class EditProject extends EditRecord
             $this->pauseAction(),
             $this->resumeAction(),
             $this->completeAction(),
+            $this->markAsSoldAction(),
             DeleteAction::make()
                 ->visible(fn (): bool => $this->getRecord()->status->isEditable()),
         ];
@@ -191,6 +192,40 @@ class EditProject extends EditRecord
 
                 Notification::make()
                     ->title(__('profile_projects.actions.complete_failed'))
+                    ->danger()
+                    ->send();
+            });
+    }
+
+    /**
+     * Митець вручну позначає завершений проєкт як проданий (Completed → Sold).
+     */
+    private function markAsSoldAction(): Action
+    {
+        return Action::make('markAsSold')
+            ->label(__('profile_projects.actions.mark_as_sold'))
+            ->icon('heroicon-o-currency-dollar')
+            ->color('success')
+            ->requiresConfirmation()
+            ->modalHeading(__('profile_projects.actions.mark_as_sold_heading'))
+            ->modalDescription(__('profile_projects.actions.mark_as_sold_description'))
+            ->visible(fn (): bool => $this->getRecord()->status === ProjectStatus::Completed)
+            ->action(function (): void {
+                $project = $this->getRecord();
+
+                if (app(ProjectWorkflowService::class)->markAsSold($project)) {
+                    Notification::make()
+                        ->title(__('profile_projects.actions.mark_as_sold_success'))
+                        ->success()
+                        ->send();
+
+                    $this->fillForm();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->title(__('profile_projects.actions.mark_as_sold_failed'))
                     ->danger()
                     ->send();
             });

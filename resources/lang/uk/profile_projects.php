@@ -110,6 +110,11 @@ return [
         'resume_description' => 'Проєкт знову стане доступним для донатів.',
         'resume_success' => 'Збір відновлено.',
         'resume_failed' => 'Не вдалося відновити збір.',
+        'mark_as_sold' => 'Проданий',
+        'mark_as_sold_heading' => 'Позначити проєкт як проданий?',
+        'mark_as_sold_description' => 'Статус проєкту зміниться на «Проданий».',
+        'mark_as_sold_success' => 'Проєкт позначено як проданий.',
+        'mark_as_sold_failed' => 'Не вдалося позначити проєкт як проданий.',
     ],
 
     'helpers' => [
