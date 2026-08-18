@@ -1,4 +1,4 @@
-<div wire:poll.30s="refreshUnreadCount" class="flex items-center">
+<div wire:poll.30s="refreshUnreadCount" class="fi-notifications-bell flex items-center">
     {{-- wire:key на дропдауні вмикає wire:ignore.self у компоненті Filament,
     тож панель не втрачає стан "відкрито" й не закривається щоразу, коли
     клік всередині (наприклад, позначення прочитаним) робить Livewire-запит. --}}
@@ -15,7 +15,7 @@
         </x-slot>
 
         <div class="flex items-center justify-between gap-2 border-b border-gray-200 px-4 py-3 dark:border-white/10">
-            <span class="text-sm font-semibold text-gray-950 dark:text-white">
+            <span class="text-base font-semibold text-gray-950 dark:text-white">
                 {{ __('profile_notifications.model.plural') }}
             </span>
 
@@ -23,7 +23,7 @@
                 <button
                     type="button"
                     wire:click="markAllAsRead"
-                    class="text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                    class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-400"
                 >
                     {{ __('profile_notifications.actions.mark_all_as_read') }}
                 </button>
@@ -58,18 +58,18 @@
                     />
 
                     <span class="min-w-0 flex-1">
-                        <span @class(['block text-sm text-gray-950 dark:text-white', 'font-semibold' => ! $notification->is_read])>
+                        <span @class(['block text-base text-gray-950 dark:text-white', 'font-semibold' => ! $notification->is_read])>
                             {{ $title }}
                         </span>
                         @if ($message)
                             <span
-                                class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400"
+                                class="mt-0.5 block text-sm text-gray-500 dark:text-gray-400"
                                 x-bind:class="expanded ? 'whitespace-pre-line' : 'line-clamp-2'"
                             >
                                 {{ $message }}
                             </span>
                         @endif
-                        <span class="mt-1 block text-xs text-gray-400 dark:text-gray-500">
+                        <span class="mt-1 block text-sm text-gray-400 dark:text-gray-500">
                             {{ $notification->created_at->diffForHumans() }}
                         </span>
 
@@ -79,7 +79,7 @@
                                 target="_blank"
                                 rel="noopener"
                                 x-on:click.stop
-                                class="mt-1 inline-block text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                                class="mt-1 inline-block text-sm font-medium text-primary-600 hover:underline dark:text-primary-400"
                             >
                                 {{ __('profile_notifications.bell.view_project') }}
                             </a>
@@ -91,7 +91,7 @@
                     @endif
                 </div>
             @empty
-                <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                <p class="px-4 py-6 text-center text-base text-gray-500 dark:text-gray-400">
                     {{ __('profile_notifications.bell.empty') }}
                 </p>
             @endforelse
@@ -99,7 +99,7 @@
 
         <a
             href="{{ $this->indexUrl }}"
-            class="block border-t border-gray-200 px-4 py-2.5 text-center text-sm font-medium text-primary-600 hover:underline dark:border-white/10 dark:text-primary-400"
+            class="block border-t border-gray-200 px-4 py-2.5 text-center text-base font-medium text-primary-600 hover:underline dark:border-white/10 dark:text-primary-400"
         >
             {{ __('profile_notifications.bell.view_all') }}
         </a>

@@ -88,13 +88,70 @@ class ProfilePanelProvider extends PanelProvider
 .fi-sidebar-nav-groups {
     gap: 0.625rem;
 }
+/* Мовний прапорець (resources/views/vendor/filament-language-switcher) завжди
+   2rem — аватар підганяємо під той самий розмір, щоб коло-іконки в топбарі
+   виглядали однаковими, а не мали аватар помітно більшим за сусідів. */
 .fi-topbar .fi-user-menu-trigger .fi-user-avatar {
-    width: 3rem;
-    height: 3rem;
+    width: 2rem;
+    height: 2rem;
 }
 .fi-sidebar .fi-user-menu-trigger .fi-user-avatar {
     width: 2.75rem;
     height: 2.75rem;
+}
+/* Бейдж непрочитаних сповіщень наполовину звисає за межі кнопки-дзвіночка
+   (Filament: .fi-icon-btn-badge-ctn, translate -50%) — без відступу він
+   налазить на сусідню іконку мови що на десктопі, що на мобільному. */
+.fi-notifications-bell {
+    margin-inline-end: 0.5rem;
+}
+.fi-notifications-bell .fi-icon-btn {
+    width: 2rem;
+    height: 2rem;
+    margin: 0;
+}
+.fi-notifications-bell .fi-icon-btn .fi-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+/* Filament за замовчуванням лишає gap-y-8/py-8 (2rem) навколо заголовка
+   сторінки й між секціями контенту (.fi-page-header-main-ctn, .fi-page-content)
+   — на десктопі це просто повітря, на мобільному забирає половину екрана. */
+.fi-page-header-main-ctn {
+    gap: 1.5rem;
+    padding-block: 1.5rem;
+}
+.fi-page-content {
+    gap: 1.5rem;
+}
+@media (max-width: 640px) {
+    .fi-page-header-main-ctn {
+        gap: 0.25rem;
+        padding-block: 0.25rem;
+    }
+    .fi-page-content {
+        gap: 0.25rem;
+    }
+    .fi-main {
+        padding-inline: 0.375rem;
+    }
+    .fi-ta-ctn .fi-ta-header-toolbar,
+    .fi-ta-ctn .fi-ta-header {
+        padding: 0.375rem;
+    }
+    .fi-ta-ctn .fi-pagination {
+        padding: 0.25rem 0.375rem;
+    }
+    /* Рядок "Сортувати за" над контентом таблиці (fi-ta-filters-above-content-ctn)
+       та сама сітка карток проєктів (fi-ta-content-grid) — за замовчуванням
+       py-4/p-4 (1rem), звужуємо до мінімуму на телефоні. */
+    .fi-ta-ctn .fi-ta-filters-above-content-ctn {
+        padding: 0.375rem;
+    }
+    .fi-ta-ctn .fi-ta-content-grid {
+        padding: 0.375rem;
+        gap: 0.5rem;
+    }
 }
 .fi-sidebar-group {
     border-radius: 0.625rem;
@@ -161,8 +218,92 @@ class ProfilePanelProvider extends PanelProvider
 .filepond--open-icon:hover::before {
     background: rgba(0, 0, 0, 0.85);
 }
+
+/* Мобільний topbar: пошук ховаємо за іконкою (розкривається по тапу через
+   checkbox-хак, без Alpine/JS) — на десктопі лишається звичне поле пошуку.
+   Розміри аватара/дзвіночка вирівняні під прапорець вище, для всіх екранів. */
+@media (max-width: 640px) {
+    .fi-topbar-end {
+        gap: 0.75rem;
+    }
+    /* Позиціонуємо випадне поле пошуку відносно всього топбару (на всю
+       ширину екрана), а не відносно .fi-topbar-end — той займає лише
+       стільки місця, скільки потрібно для іконок праворуч, і був би вузьким. */
+    .fi-topbar {
+        position: relative;
+    }
+
+    .fi-mobile-search-toggle-checkbox {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .fi-mobile-search-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        color: rgb(107 114 128);
+        cursor: pointer;
+    }
+    .dark .fi-mobile-search-toggle-btn {
+        color: rgb(156 163 175);
+    }
+    .fi-mobile-search-toggle-btn svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    #fi-mobile-search-toggle:checked ~ .fi-mobile-search-toggle-btn {
+        color: rgb(17 24 39);
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    .dark #fi-mobile-search-toggle:checked ~ .fi-mobile-search-toggle-btn {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .fi-global-search-ctn {
+        display: none;
+    }
+    #fi-mobile-search-toggle:checked ~ .fi-global-search-ctn {
+        display: block;
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        inset-inline: 0.5rem;
+        z-index: 40;
+        padding: 0.5rem;
+        border-radius: 0.75rem;
+        background-color: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    .dark #fi-mobile-search-toggle:checked ~ .fi-global-search-ctn {
+        background-color: rgb(17, 24, 39);
+    }
+}
+
+@media (min-width: 641px) {
+    .fi-mobile-search-toggle-checkbox,
+    .fi-mobile-search-toggle-btn {
+        display: none;
+    }
+}
 </style>
 '))
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+                fn (): string => filament()->isGlobalSearchEnabled()
+                    ? Blade::render(<<<'BLADE'
+                        <input type="checkbox" id="fi-mobile-search-toggle" class="fi-mobile-search-toggle-checkbox" />
+                        <label for="fi-mobile-search-toggle" class="fi-mobile-search-toggle-btn" aria-label="{{ __('filament-panels::global-search.field.label') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        </label>
+                        BLADE)
+                    : '',
+            )
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => Blade::render('@auth <livewire:profile.notifications-bell /> @endauth'),
