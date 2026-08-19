@@ -15,6 +15,10 @@ return [
         'bonuses' => 'Bonuses',
         'content' => 'Content',
         'final_result' => 'Final result',
+        'list' => [
+            'all' => 'All projects',
+            'drafts' => 'Drafts',
+        ],
     ],
 
     'sections' => [
@@ -32,6 +36,7 @@ return [
         'title' => 'Project title',
         'short_description' => 'Short description',
         'tags' => 'Tags',
+        'team' => 'Team',
         'cover' => 'Cover',
         'currency' => 'Currency',
         'budget_goal' => 'Funding goal',

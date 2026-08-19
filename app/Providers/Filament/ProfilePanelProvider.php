@@ -75,6 +75,9 @@ class ProfilePanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(fn (): string => __('profile_panel.nav_groups.services'))
                     ->collapsible(),
+                NavigationGroup::make()
+                    ->label(fn (): string => __('profile_panel.nav_groups.team'))
+                    ->collapsible(),
             ])
             ->discoverResources(in: app_path('Filament/Profile/Resources'), for: 'App\Filament\Profile\Resources')
             ->discoverPages(in: app_path('Filament/Profile/Pages'), for: 'App\Filament\Profile\Pages')

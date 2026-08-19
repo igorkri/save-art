@@ -7,6 +7,7 @@ return [
     ],
 
     'sections' => [
+        'owner' => 'Service owner',
         'main' => 'Main information',
         'price' => 'Price',
     ],
@@ -20,11 +21,16 @@ return [
         'currency' => 'Currency',
         'price' => 'Price',
         'price_from' => '"From" (estimated price)',
+        'owner_type' => 'Who provides the service',
+        'owner_personal' => 'Personal',
+        'owner_team' => 'Team',
+        'team' => 'Team',
     ],
 
     'table' => [
         'image' => 'Image',
         'title' => 'Title',
+        'owner' => 'Owner',
         'category' => 'Category',
         'price' => 'Price',
         'price_from' => '"From"',

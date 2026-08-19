@@ -41,6 +41,23 @@ class ProfileSsoTest extends TestCase
         $this->assertStringContainsString("/profile-sso/{$grant->token}", $response->json('url'));
     }
 
+    public function test_issue_sso_grant_accepts_art_ua_info_cabinet_paths(): void
+    {
+        $user = User::factory()->artist()->create();
+        Sanctum::actingAs($user);
+
+        foreach (['/profile/catalogs', '/profile/services', '/profile/teams'] as $path) {
+            $response = $this->postJson('/api/v1/profile/sso-grant', [
+                'redirect_path' => $path,
+            ]);
+
+            $response->assertOk();
+
+            $grant = ProfileSsoToken::where('user_id', $user->id)->latest('id')->first();
+            $this->assertSame($path, $grant->redirect_path);
+        }
+    }
+
     public function test_issue_sso_grant_ignores_disallowed_redirect_path(): void
     {
         $user = User::factory()->artist()->create();

@@ -15,6 +15,10 @@ return [
         'bonuses' => 'Бонуси',
         'content' => 'Контент',
         'final_result' => 'Фінальний результат',
+        'list' => [
+            'all' => 'Усі проєкти',
+            'drafts' => 'Чернетки',
+        ],
     ],
 
     'sections' => [
@@ -32,6 +36,7 @@ return [
         'title' => 'Назва проєкту',
         'short_description' => 'Короткий опис',
         'tags' => 'Теги',
+        'team' => 'Команда',
         'cover' => 'Обкладинка',
         'currency' => 'Валюта',
         'budget_goal' => 'Ціль збору',

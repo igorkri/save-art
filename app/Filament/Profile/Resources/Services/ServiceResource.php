@@ -8,6 +8,7 @@ use App\Filament\Profile\Resources\Services\Pages\ListServices;
 use App\Filament\Profile\Resources\Services\Schemas\ServiceForm;
 use App\Filament\Profile\Resources\Services\Tables\ServicesTable;
 use App\Models\Service;
+use App\Models\Team;
 use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -50,9 +51,20 @@ class ServiceResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        $teamIds = Team::query()
+            ->whereHas('teamMembers', fn (Builder $query) => $query->where('user_id', auth()->id()))
+            ->pluck('id');
+
         return parent::getEloquentQuery()
-            ->where('serviceable_type', User::class)
-            ->where('serviceable_id', auth()->id());
+            ->where(function (Builder $query) use ($teamIds) {
+                $query->where(function (Builder $query) {
+                    $query->where('serviceable_type', User::class)
+                        ->where('serviceable_id', auth()->id());
+                })->orWhere(function (Builder $query) use ($teamIds) {
+                    $query->where('serviceable_type', Team::class)
+                        ->whereIn('serviceable_id', $teamIds);
+                });
+            });
     }
 
     public static function form(Schema $schema): Schema

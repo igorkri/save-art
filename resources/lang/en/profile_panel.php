@@ -6,6 +6,7 @@ return [
         'projects' => 'Projects',
         'works' => 'Works',
         'services' => 'Services',
+        'team' => 'Team',
         'notifications' => 'Notifications',
     ],
     'google_auth' => [

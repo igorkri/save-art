@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\GoogleProvider;
 use OpenApi\Annotations as OA;
 
 class SocialAuthController extends Controller
@@ -41,8 +42,7 @@ class SocialAuthController extends Controller
      */
     public function googleRedirect(): JsonResponse
     {
-        $url = Socialite::driver('google')
-            ->stateless()
+        $url = $this->googleDriver()
             ->redirect()
             ->getTargetUrl();
 
@@ -101,8 +101,7 @@ class SocialAuthController extends Controller
                 ], 400);
             }
 
-            $googleUser = Socialite::driver('google')
-                ->stateless()
+            $googleUser = $this->googleDriver()
                 ->userFromToken($request->input('access_token') ?? $this->getAccessToken($code));
 
             return $this->handleSocialUser($googleUser, 'google');
@@ -182,11 +181,40 @@ class SocialAuthController extends Controller
      */
     protected function getAccessToken(string $code): string
     {
-        $response = Socialite::driver('google')
-            ->stateless()
-            ->getAccessTokenResponse($code);
+        $response = $this->googleDriver()->getAccessTokenResponse($code);
 
         return $response['access_token'] ?? '';
+    }
+
+    /**
+     * Socialite Google-драйвер з redirect_uri цього сайту. OAuth-код, отриманий
+     * з певним redirect_uri, обмінюється на токен лише з тим самим redirect_uri
+     * (вимога протоколу) — тому і googleRedirect(), і getAccessToken() мають
+     * використовувати один і той самий драйвер із цього методу.
+     *
+     * @return GoogleProvider
+     */
+    protected function googleDriver()
+    {
+        $driver = Socialite::driver('google')->stateless();
+
+        if ($redirectUri = $this->googleRedirectUri()) {
+            $driver = $driver->redirectUrl($redirectUri);
+        }
+
+        return $driver;
+    }
+
+    /**
+     * redirect_uri для цього сайту. За замовчуванням — те, що вже сконфігуроване
+     * для Socialite (services.google.redirect, save-art). Перевизначається в
+     * App\Http\Controllers\Api\V1\ArtUaInfo\SocialAuthController для art-ua-info,
+     * бо Google OAuth вимагає точного збігу з redirect_uri, зареєстрованим у
+     * Google Cloud Console для конкретного домену.
+     */
+    protected function googleRedirectUri(): ?string
+    {
+        return config('services.google.redirect');
     }
 
     /**

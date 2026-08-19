@@ -35,6 +35,7 @@ class SocialAuthControllerTest extends TestCase
     {
         $driver = Mockery::mock();
         $driver->shouldReceive('stateless')->andReturnSelf();
+        $driver->shouldReceive('redirectUrl')->andReturnSelf();
         $driver->shouldReceive('userFromToken')->andReturn($this->fakeGoogleUser('new-spa-google@example.com'));
         Socialite::shouldReceive('driver')->with('google')->andReturn($driver);
 
@@ -65,6 +66,7 @@ class SocialAuthControllerTest extends TestCase
 
         $driver = Mockery::mock();
         $driver->shouldReceive('stateless')->andReturnSelf();
+        $driver->shouldReceive('redirectUrl')->andReturnSelf();
         $driver->shouldReceive('userFromToken')->andReturn($this->fakeGoogleUser(
             'avatar-spa-google@example.com',
             avatar: 'https://lh3.googleusercontent.com/a/fake-photo'

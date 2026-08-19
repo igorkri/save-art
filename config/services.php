@@ -45,6 +45,10 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
+        // Той самий Google-клієнт, окремий redirect_uri для art-ua-info (Google
+        // OAuth вимагає точного збігу з одним із зареєстрованих у Google Cloud
+        // Console redirect URI — у save-art і art-ua-info різні домени).
+        'redirect_art_ua_info' => env('GOOGLE_REDIRECT_URI_ART_UA_INFO'),
     ],
 
     /*

@@ -6,6 +6,7 @@ return [
         'projects' => 'Проєкти',
         'works' => 'Роботи',
         'services' => 'Послуги',
+        'team' => 'Команда',
         'notifications' => 'Сповіщення',
     ],
     'google_auth' => [

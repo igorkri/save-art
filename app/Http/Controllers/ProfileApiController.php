@@ -1007,6 +1007,9 @@ class ProfileApiController extends Controller
         '/profile/projects',
         '/profile/donations',
         '/profile/notifications',
+        '/profile/catalogs',
+        '/profile/services',
+        '/profile/teams',
     ];
 
     /**

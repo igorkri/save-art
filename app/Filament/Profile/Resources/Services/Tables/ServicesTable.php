@@ -2,6 +2,8 @@
 
 namespace App\Filament\Profile\Resources\Services\Tables;
 
+use App\Models\Service;
+use App\Models\Team;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -26,6 +28,13 @@ class ServicesTable
                     ->limit(50)
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('owner')
+                    ->label(__('profile_services.table.owner'))
+                    ->state(fn (Service $record): string => $record->serviceable_type === Team::class
+                        ? ($record->serviceable?->name['uk'] ?? __('profile_services.fields.owner_team'))
+                        : __('profile_services.fields.owner_personal'))
+                    ->badge(),
 
                 TextColumn::make('artCategory.id')
                     ->label(__('profile_services.table.category'))

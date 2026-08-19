@@ -4,11 +4,14 @@ namespace App\Filament\Profile\Resources\Services\Schemas;
 
 use App\Enums\Currency;
 use App\Models\ArtCategory;
+use App\Models\Team;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +21,32 @@ class ServiceForm
     {
         return $schema
             ->components([
+                Section::make(__('profile_services.sections.owner'))
+                    ->columns(2)
+                    ->schema([
+                        Radio::make('owner_type')
+                            ->label(__('profile_services.fields.owner_type'))
+                            ->options([
+                                'personal' => __('profile_services.fields.owner_personal'),
+                                'team' => __('profile_services.fields.owner_team'),
+                            ])
+                            ->default('personal')
+                            ->live()
+                            ->disabledOn('edit')
+                            ->required(),
+
+                        Select::make('team_id')
+                            ->label(__('profile_services.fields.team'))
+                            ->options(fn () => Team::query()
+                                ->whereHas('teamMembers', fn ($query) => $query->where('user_id', auth()->id()))
+                                ->get()
+                                ->mapWithKeys(fn (Team $team) => [$team->id => $team->getAttribute('name')['uk'] ?? $team->slug])
+                                ->toArray())
+                            ->visible(fn (Get $get): bool => $get('owner_type') === 'team')
+                            ->disabledOn('edit')
+                            ->required(fn (Get $get): bool => $get('owner_type') === 'team'),
+                    ]),
+
                 Section::make(__('profile_services.sections.main'))
                     ->columns(2)
                     ->schema([

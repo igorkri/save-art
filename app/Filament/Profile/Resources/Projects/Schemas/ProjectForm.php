@@ -11,6 +11,7 @@ use App\Jobs\GenerateStageDocumentPdfThumbnail;
 use App\Models\Parameter;
 use App\Models\ParameterValue;
 use App\Models\Project;
+use App\Models\Team;
 use App\Support\ProjectCategoryParameterValues;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms\Components\Builder;
@@ -180,6 +181,15 @@ class ProjectForm
 
                             TagsInput::make('tags')
                                 ->label(__('profile_projects.fields.tags')),
+
+                            Select::make('team_id')
+                                ->label(__('profile_projects.fields.team'))
+                                ->options(fn () => Team::query()
+                                    ->whereHas('teamMembers', fn ($query) => $query->where('user_id', auth()->id()))
+                                    ->get()
+                                    ->mapWithKeys(fn (Team $team) => [$team->id => $team->getAttribute('name')['uk'] ?? $team->slug])
+                                    ->toArray())
+                                ->native(false),
                         ]),
 
                     Step::make(__('profile_projects.tabs.budget'))

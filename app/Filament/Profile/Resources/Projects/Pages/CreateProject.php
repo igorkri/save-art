@@ -3,6 +3,7 @@
 namespace App\Filament\Profile\Resources\Projects\Pages;
 
 use App\Enums\ModerationStatus;
+use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
@@ -48,6 +49,9 @@ class CreateProject extends CreateRecord
         $data['user_type'] = UserType::Personal->value;
         $data['status'] = ProjectStatus::Draft->value;
         $data['status_moderation'] = ModerationStatus::Pending->value;
+        // Усі проєкти, створені у спільній Filament-панелі "profile", вважаються
+        // такими, що прийшли з art-ua-info (save-art власного кабінету не має).
+        $data['source'] = ProjectSource::ArtUaInfo->value;
         $data['content_blocks'] = $this->contentBlocksFromBuilderFormat($data['content_blocks'] ?? null);
 
         // Крок "Фінальний результат" на створенні завжди прихований (новий проєкт

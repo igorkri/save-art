@@ -12,13 +12,13 @@ use App\Http\Controllers\Api\V1\ArtUaInfo\ProfileApiController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ProjectController as ArtUaInfoWizardProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\PublicProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\RegisterController;
+use App\Http\Controllers\Api\V1\ArtUaInfo\SocialAuthController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\TeamController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\TermsController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\V1\LikeController as SharedLikeController;
-use App\Http\Controllers\Api\V1\MyArtCatalogController;
 use App\Http\Controllers\Api\V1\MyServiceController;
 use App\Http\Controllers\Api\V1\MyTeamController;
 use App\Http\Controllers\Api\V1\NewsController;
@@ -37,6 +37,8 @@ Route::prefix('v1/art-ua-info/auth')->middleware(['api.key', 'throttle:auth'])->
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
     Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
+    Route::get('/google/redirect', [SocialAuthController::class, 'googleRedirect']);
+    Route::post('/google/callback', [SocialAuthController::class, 'googleCallback']);
 });
 
 Route::prefix('v1/art-ua-info/auth')->middleware(['api.key', 'auth:sanctum'])->group(function () {
@@ -135,16 +137,8 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
     Route::post('/catalogs/{artCatalog}/like', [SharedLikeController::class, 'likeCatalog']);
     Route::delete('/catalogs/{artCatalog}/like', [SharedLikeController::class, 'unlikeCatalog']);
 
-    Route::prefix('my/catalogs')->group(function () {
-        Route::get('/', [MyArtCatalogController::class, 'index']);
-
-        Route::middleware('not.blocked')->group(function () {
-            Route::post('/', [MyArtCatalogController::class, 'store']);
-            Route::put('/{catalog}', [MyArtCatalogController::class, 'update']);
-            Route::delete('/{catalog}', [MyArtCatalogController::class, 'destroy']);
-            Route::post('/{catalog}/primary', [MyArtCatalogController::class, 'setPrimary']);
-        });
-    });
+    // my/catalogs (art-ua-info) видалено — керування каталогами переїхало у
+    // Filament-панель "profile" (App\Filament\Profile\Resources\Catalogs).
 
     Route::prefix('my/services')->group(function () {
         Route::get('/', [MyServiceController::class, 'index']);
