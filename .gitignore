@@ -25,6 +25,7 @@ Homestead.yaml
 Thumbs.db
 *.sh
 *.conf
+!.ddev/nginx/avatar-cache.conf
 public/vendor/
 *.backup
 *.gz
