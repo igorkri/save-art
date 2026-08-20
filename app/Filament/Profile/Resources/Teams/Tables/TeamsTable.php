@@ -25,14 +25,7 @@ class TeamsTable
                     ->size(48),
 
                 TextColumn::make('name')
-                    ->label(__('profile_teams.table.name'))
-                    ->formatStateUsing(function (mixed $state): string {
-                        if (is_string($state)) {
-                            $state = json_decode($state, true) ?? [];
-                        }
-
-                        return $state['uk'] ?? $state['en'] ?? '';
-                    }),
+                    ->label(__('profile_teams.table.name')),
 
                 TextColumn::make('teamMembers_count')
                     ->label(__('profile_teams.table.members_count'))

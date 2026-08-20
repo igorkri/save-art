@@ -3,7 +3,10 @@
 namespace App\Filament\Profile\Resources\Teams\Pages;
 
 use App\Filament\Profile\Resources\Teams\TeamResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\IconPosition;
 use Illuminate\Support\Str;
 
 class CreateTeam extends CreateRecord
@@ -16,7 +19,7 @@ class CreateTeam extends CreateRecord
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['slug'] = Str::slug($data['name']['uk']).'-'.Str::random(6);
+        $data['slug'] = Str::slug($data['name']).'-'.Str::random(6);
 
         return $data;
     }
@@ -28,5 +31,23 @@ class CreateTeam extends CreateRecord
             'role' => 'owner',
             'sort_order' => 0,
         ]);
+    }
+
+    /**
+     * @return array<Action>
+     */
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getCreateFormAction()
+                ->icon('heroicon-o-check')
+                ->iconPosition(IconPosition::After)
+                ->extraAttributes(['class' => 'team-form-primary-action']),
+        ];
+    }
+
+    public function getFormActionsAlignment(): string|Alignment
+    {
+        return Alignment::Center;
     }
 }

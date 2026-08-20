@@ -65,14 +65,14 @@ class TeamsApiTest extends ApiTestCase
     public function test_team_show_includes_profile_fields_and_members(): void
     {
         $team = Team::factory()->create([
-            'description' => ['uk' => 'Опис команди', 'en' => 'Team description'],
-            'specialization' => ['uk' => 'Музичний гурт', 'en' => 'Music band'],
+            'description' => 'Опис команди',
+            'specialization' => 'Музичний гурт',
         ]);
         $member = User::factory()->create();
         $team->teamMembers()->create(['user_id' => $member->id, 'role' => 'member', 'sort_order' => 0]);
 
         $response = $this->withHeaders($this->apiHeaders())
-            ->getJson("/api/v1/art-ua-info/teams/{$team->slug}?language=uk");
+            ->getJson("/api/v1/art-ua-info/teams/{$team->slug}");
 
         $response->assertOk()
             ->assertJsonPath('data.description', 'Опис команди')

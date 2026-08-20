@@ -24,14 +24,14 @@ class MyTeamsApiTest extends ApiTestCase
         $base64Image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
         return array_merge([
-            'name' => ['uk' => 'Моя команда', 'en' => 'My Team'],
+            'name' => 'Моя команда',
             'avatar' => $base64Image,
-            'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-            'city' => ['uk' => 'Київ', 'en' => 'Kyiv'],
-            'region' => ['uk' => 'Київська область', 'en' => 'Kyiv region'],
-            'zip' => ['uk' => '01001', 'en' => '01001'],
-            'description' => ['uk' => 'Опис команди', 'en' => 'Team description'],
-            'specialization' => ['uk' => 'Відеозйомка', 'en' => 'Video shooting'],
+            'country' => 'Україна',
+            'city' => 'Київ',
+            'region' => 'Київська область',
+            'zip' => '01001',
+            'description' => 'Опис команди',
+            'specialization' => 'Відеозйомка',
         ], $overrides);
     }
 
@@ -72,7 +72,7 @@ class MyTeamsApiTest extends ApiTestCase
         $team->teamMembers()->create(['user_id' => $this->user->id, 'role' => 'member', 'sort_order' => 0]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/teams/{$team->slug}", $this->validTeamPayload(['name' => ['uk' => 'Хак', 'en' => 'Hack']]));
+            ->putJson("/api/v1/my/teams/{$team->slug}", $this->validTeamPayload(['name' => 'Хак']));
 
         $response->assertForbidden();
     }
@@ -83,10 +83,10 @@ class MyTeamsApiTest extends ApiTestCase
         $team->teamMembers()->create(['user_id' => $this->user->id, 'role' => 'owner', 'sort_order' => 0]);
 
         $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/teams/{$team->slug}", $this->validTeamPayload(['name' => ['uk' => 'Нова назва', 'en' => 'New name']]));
+            ->putJson("/api/v1/my/teams/{$team->slug}", $this->validTeamPayload(['name' => 'Нова назва']));
 
         $response->assertOk();
-        $this->assertDatabaseHas('teams', ['id' => $team->id, 'name->uk' => 'Нова назва']);
+        $this->assertDatabaseHas('teams', ['id' => $team->id, 'name' => 'Нова назва']);
     }
 
     public function test_member_can_leave_team(): void

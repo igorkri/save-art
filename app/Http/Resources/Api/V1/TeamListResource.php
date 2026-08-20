@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use App\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
- * @mixin \App\Models\Team
+ * @mixin Team
  *
  * @OA\Schema(
  *     schema="TeamListItem",
@@ -34,8 +34,6 @@ use OpenApi\Annotations as OA;
  */
 class TeamListResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -43,18 +41,16 @@ class TeamListResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->getLanguage($request);
-
         return [
             'id' => $this->id,
             'slug' => $this->slug,
-            'name' => $this->localizeField($this->name, $language),
+            'name' => $this->name,
             'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
             'website' => $this->website,
-            'country' => $this->localizeField($this->country, $language),
-            'city' => $this->localizeField($this->city, $language),
-            'description' => $this->localizeField($this->description, $language),
-            'specialization' => $this->localizeField($this->specialization, $language),
+            'country' => $this->country,
+            'city' => $this->city,
+            'description' => $this->description,
+            'specialization' => $this->specialization,
             'social_links' => $this->social_links ?? [],
             'members_count' => $this->whenCounted('members'),
             'member_avatars' => $this->whenLoaded('members', function () {

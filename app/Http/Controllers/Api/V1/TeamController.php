@@ -50,11 +50,7 @@ class TeamController extends Controller
         $query = Team::query()->with('members');
 
         if ($request->filled('search')) {
-            $search = mb_strtolower($request->input('search'));
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.uk'))) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE ?", ["%{$search}%"]);
-            });
+            $query->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower($request->input('search')).'%']);
         }
 
         $perPage = min($request->input('per_page', 20), 50);

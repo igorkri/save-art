@@ -22,15 +22,15 @@ class TeamFactory extends Factory
 
         return [
             'slug' => Str::slug($name).'-'.Str::random(6),
-            'name' => ['uk' => $name, 'en' => $name],
+            'name' => $name,
             'avatar' => 'teams/'.fake()->uuid().'.jpg',
             'website' => fake()->url(),
-            'country' => ['uk' => 'Україна', 'en' => 'Ukraine'],
-            'city' => ['uk' => fake()->city(), 'en' => fake()->city()],
-            'region' => ['uk' => fake()->state(), 'en' => fake()->state()],
-            'zip' => ['uk' => fake()->postcode(), 'en' => fake()->postcode()],
-            'description' => ['uk' => fake()->paragraphs(2), 'en' => fake()->paragraphs(2)],
-            'specialization' => ['uk' => fake()->jobTitle(), 'en' => fake()->jobTitle()],
+            'country' => 'Україна',
+            'city' => fake()->city(),
+            'region' => fake()->state(),
+            'zip' => fake()->postcode(),
+            'description' => fake()->paragraphs(2, true),
+            'specialization' => fake()->jobTitle(),
             'social_links' => [],
         ];
     }

@@ -111,12 +111,12 @@ class MyTeamController extends Controller
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(property="name", ref="#/components/schemas/LocalizedString"),
+     *             @OA\Property(property="name", type="string"),
      *             @OA\Property(property="avatar", type="string", nullable=true, description="Файл або Base64 data URL"),
      *             @OA\Property(property="website", type="string", nullable=true),
-     *             @OA\Property(property="country", ref="#/components/schemas/LocalizedString", nullable=true),
-     *             @OA\Property(property="city", ref="#/components/schemas/LocalizedString", nullable=true),
-     *             @OA\Property(property="description", ref="#/components/schemas/LocalizedString", nullable=true),
+     *             @OA\Property(property="country", type="string", nullable=true),
+     *             @OA\Property(property="city", type="string", nullable=true),
+     *             @OA\Property(property="description", type="string", nullable=true),
      *             @OA\Property(property="members", type="array", @OA\Items(type="object", @OA\Property(property="user_id", type="integer")))
      *         )
      *     ),
@@ -138,7 +138,7 @@ class MyTeamController extends Controller
             $data['avatar'] = $this->imageProcessor->saveBase64Image($data['avatar'], 'teams');
         }
 
-        $data['slug'] = Str::slug($data['name']['uk']).'-'.Str::random(6);
+        $data['slug'] = Str::slug($data['name']).'-'.Str::random(6);
 
         $team = DB::transaction(function () use ($data, $members, $request) {
             $team = Team::create($data);

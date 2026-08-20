@@ -34,21 +34,14 @@ class TeamResourceTest extends TestCase
     private function validFormData(array $overrides = []): array
     {
         return array_merge([
-            'name.uk' => 'Моя команда',
-            'name.en' => 'My team',
+            'name' => 'Моя команда',
             'avatar' => UploadedFile::fake()->image('avatar.jpg'),
-            'country.uk' => 'Україна',
-            'country.en' => 'Ukraine',
-            'city.uk' => 'Київ',
-            'city.en' => 'Kyiv',
-            'region.uk' => 'Київська',
-            'region.en' => 'Kyiv region',
-            'zip.uk' => '01001',
-            'zip.en' => '01001',
-            'specialization.uk' => 'Живопис',
-            'specialization.en' => 'Painting',
-            'description.uk' => 'Опис команди',
-            'description.en' => 'Team description',
+            'country' => 'Україна',
+            'city' => 'Київ',
+            'region' => 'Київська',
+            'zip' => '01001',
+            'specialization' => 'Живопис',
+            'description' => 'Опис команди',
             'teamMembers' => [],
         ], $overrides);
     }
