@@ -5,6 +5,7 @@ namespace App\Filament\Profile\Resources\Teams\Pages;
 use App\Filament\Profile\Resources\Teams\TeamResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\IconPosition;
 use Illuminate\Support\Str;
@@ -44,6 +45,12 @@ class CreateTeam extends CreateRecord
                 ->iconPosition(IconPosition::After)
                 ->extraAttributes(['class' => 'team-form-primary-action']),
         ];
+    }
+
+    public function getFormContentComponent(): Component
+    {
+        return parent::getFormContentComponent()
+            ->extraAttributes(['novalidate' => true]);
     }
 
     public function getFormActionsAlignment(): string|Alignment

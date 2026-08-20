@@ -104,9 +104,13 @@ trait HasPersonalTab
                                     ->image()
                                     ->imageCropAspectRatio('1:1')
                                     ->imageEditor()
+                                    ->imagePreviewHeight('400')
+                                    ->panelAspectRatio('1:1')
+                                    ->panelLayout('compact')
                                     ->maxSize(5120)
                                     ->disk('public')
                                     ->directory('avatars')
+                                    ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
                                     ->belowContent(
                                         Text::make(__('profile_edit.helpers.avatar'))
                                             ->extraAttributes(['class' => '!flex !w-full justify-center text-center'])

@@ -83,9 +83,13 @@ class ServiceForm
                             ->label(__('profile_services.fields.image'))
                             ->image()
                             ->imageEditor()
+                            ->imagePreviewHeight('400')
+                            ->panelAspectRatio('1:1')
+                            ->panelLayout('compact')
                             ->disk('public')
                             ->directory('services')
-                            ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file)),
+                            ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
+                            ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field']),
                     ]),
 
                 Section::make(__('profile_services.sections.price'))

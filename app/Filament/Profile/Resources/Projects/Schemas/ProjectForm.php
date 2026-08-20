@@ -79,9 +79,11 @@ class ProjectForm
                     ->default(ProjectStatus::New->value)
                     ->disabled()
                     ->dehydrated(false)
+                    ->extraAttributes(['class' => 'profile-project-status-stepper'])
                     ->columnSpanFull(),
 
                 Group::make()
+                    ->extraAttributes(['class' => 'profile-project-summary'])
                     ->columnSpanFull()
                     ->columns([
                         'default' => 2,
@@ -143,8 +145,12 @@ class ProjectForm
                                 ->image()
                                 ->imageEditor()
                                 ->imageEditorAspectRatioOptions([null, '4:3'])
+                                ->imagePreviewHeight('400')
+                                ->panelAspectRatio('1:1')
+                                ->panelLayout('compact')
                                 ->disk('public')
                                 ->directory('projects/covers')
+                                ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
                                 ->columnSpanFull(),
 
                             SelectTree::make('art_category_id')
@@ -324,7 +330,7 @@ class ProjectForm
                                         ->visible(fn (callable $get): bool => ! filled($get('art_category_id'))),
 
                                     Repeater::make('project_parameter_values')
-                                        ->label('')
+                                        ->hiddenLabel()
                                         ->visible(fn (callable $get): bool => filled($get('art_category_id')))
                                         ->addable(false)
                                         ->deletable(false)
@@ -662,6 +668,7 @@ class ProjectForm
                                 ->collapsed(false),
                         ]),
                 ])
+                    ->extraAttributes(['class' => 'profile-project-form-wizard'])
                     ->columnSpanFull()
                     ->persistStepInQueryString()
                     // При редагуванні існуючого проєкту дозволяємо вільно перемикатись

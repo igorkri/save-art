@@ -57,9 +57,13 @@ class CatalogForm
                             ->label(__('profile_catalogs.fields.image'))
                             ->image()
                             ->imageEditor()
+                            ->imagePreviewHeight('400')
+                            ->panelAspectRatio('1:1')
+                            ->panelLayout('compact')
                             ->disk('public')
                             ->directory('catalogs')
                             ->deleteUploadedFileUsing(fn ($file) => Storage::disk('public')->delete($file))
+                            ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
                             ->required()
                             ->columnSpanFull(),
 

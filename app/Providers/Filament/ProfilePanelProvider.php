@@ -7,6 +7,7 @@ use App\Filament\Profile\Pages\Auth\Login;
 use App\Filament\Profile\Pages\Auth\Register;
 use App\Http\Middleware\EnsureFilamentProfileIsComplete;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -44,6 +45,9 @@ class ProfilePanelProvider extends PanelProvider
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchFieldKeyBindingSuffix()
             ->viteTheme('resources/css/filament/profile/theme.css')
+            ->darkMode(true, isForced: true)
+            ->themeSwitcher(false)
+            ->defaultThemeMode(ThemeMode::Dark)
             ->colors([
                 // Color::hex('#fecc39') генерує відтінки через фіксовану OKLCH-таблицю,
                 // яка для 500-700 суттєво темнішає й втрачає насиченість (виглядає

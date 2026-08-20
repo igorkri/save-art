@@ -178,41 +178,47 @@ section
     gap: 1rem 0.75rem;
 }
 
-.team-form-cover-field {
+.profile-primary-image-field {
     width: min(100%, 400px);
     margin: 0 auto 0.5rem;
 }
 
-.team-form-cover-field .fi-fo-field-wrp-label {
+.profile-primary-image-field .fi-fo-field-wrp-label {
     display: none;
 }
 
-.team-form-cover-field .filepond--root,
-.team-form-cover-field .filepond--drop-label {
+.profile-primary-image-field .filepond--root,
+.profile-primary-image-field .filepond--drop-label {
     min-height: 400px;
 }
 
-.team-form-cover-field .filepond--root {
+.profile-primary-image-field .filepond--root {
     margin-bottom: 0;
 }
 
-.team-form-cover-field .filepond--panel-root {
+.profile-primary-image-field .fi-fo-file-upload-input-ctn {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-primary-image-field .filepond--panel-root {
     border: 1px dashed color-mix(in srgb, currentColor 18%, transparent);
-    border-radius: 0;
+    border-radius: 0 !important;
     background: color-mix(in srgb, currentColor 5%, transparent);
 }
 
-.team-form-cover-field .filepond--drop-label {
+.profile-primary-image-field .filepond--drop-label {
+    border-radius: 0 !important;
     color: inherit;
 }
 
-.team-form-cover-field .filepond--drop-label label {
+.profile-primary-image-field .filepond--drop-label label {
     font-size: 1.125rem;
     line-height: 2;
     text-align: center;
 }
 
-.team-form-cover-field .filepond--drop-label label::before {
+.profile-primary-image-field .filepond--drop-label label::before {
     display: block;
     width: 1.5rem;
     height: 1.5rem;
@@ -222,7 +228,7 @@ section
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.team-form-cover-field .filepond--drop-label label span {
+.profile-primary-image-field .filepond--drop-label label span {
     font-size: 1rem;
 }
 
@@ -279,9 +285,9 @@ section
         gap: 1.5rem;
     }
 
-    .team-form-cover-field,
-    .team-form-cover-field .filepond--root,
-    .team-form-cover-field .filepond--drop-label {
+    .profile-primary-image-field,
+    .profile-primary-image-field .filepond--root,
+    .profile-primary-image-field .filepond--drop-label {
         min-height: min(400px, calc(100vw - 3rem));
     }
 }
@@ -295,45 +301,6 @@ section
     .team-form .fi-input-wrp {
         background: #323232;
     }
-}
-
-.team-form-members .fi-fo-repeater-add {
-    justify-content: stretch;
-}
-
-.team-form-members .fi-fo-repeater-add .fi-btn {
-    width: 100%;
-    min-height: 60px;
-    justify-content: space-between;
-    border-radius: 0;
-    background: #323232;
-    color: #929292;
-    font-family: inherit;
-    font-size: 1.125rem;
-    font-weight: 400;
-}
-
-.team-form-members .fi-fo-repeater-add .fi-btn::after {
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-inline-start: auto;
-    background: #fecc39;
-    content: '';
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m21 21-4.35-4.35m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-.team-form-members .fi-fo-repeater-item {
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-.team-form-members .fi-fo-repeater-item-header {
-    padding: 0.5rem 0;
-}
-
-.team-form-members .fi-fo-repeater-item-content {
-    padding: 0;
 }
 
 .fi-resource-teams form.fi-sc-form > .fi-sc-actions .fi-ac {
@@ -373,4 +340,699 @@ section
 .fi-resource-teams form.fi-sc-form > .fi-sc-actions .team-form-delete-action:hover {
     border-color: #fecc39;
     background: #323232;
+}
+
+
+/* Поля команди: контент точно по вертикальному центру. */
+.team-form .fi-fo-text-input .fi-input {
+    height: 60px;
+    padding-block: 0;
+    line-height: 60px;
+}
+
+.team-form .fi-select-input-btn {
+    height: 60px;
+    align-items: center;
+    padding-block: 0;
+}
+
+.team-form .fi-select-input-value-ctn {
+    min-height: 60px;
+    align-items: center;
+}
+
+.team-form .fi-fo-field-label-required-mark {
+    color: #ef4444;
+}
+
+.team-form .fi-fo-field-wrp-error-message {
+    margin-top: 0.35rem;
+    color: #ef4444;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+/* Searchable Select у стилі макета: прямокутна темна панель без тіней. */
+.team-form .fi-select-input .fi-dropdown-panel {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 300px;
+    margin-top: 0.25rem;
+    overflow: hidden auto;
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.team-form .fi-select-input-search-ctn {
+    padding: 0.5rem;
+    border-bottom: 1px solid #4b4b4b;
+    background: #323232;
+}
+
+.team-form .fi-select-input-search-ctn .fi-input {
+    height: 44px;
+    padding: 0 0.75rem;
+    border: 1px solid #555;
+    border-radius: 0;
+    background: #292929;
+    color: #f5f5f5;
+    font-size: 1rem;
+    line-height: 44px;
+}
+
+.team-form .fi-select-input-search-ctn .fi-input::placeholder {
+    color: #929292;
+}
+
+.team-form .fi-select-input-options-ctn,
+.team-form .fi-select-input-option-group {
+    border: 0;
+}
+
+.team-form .fi-select-input-option {
+    min-height: 44px;
+    align-items: center;
+    border-radius: 0;
+    padding: 0.65rem 0.75rem;
+    color: #f5f5f5;
+    font-size: 1rem;
+}
+
+.team-form .fi-select-input-option:not(.fi-disabled):hover,
+.team-form .fi-select-input-option:not(.fi-disabled):focus-visible,
+.team-form .fi-select-input-option.fi-selected {
+    background: #fecc39;
+    color: #343434;
+}
+
+.team-form .fi-select-input-message {
+    padding: 0.75rem;
+    color: #929292;
+}
+
+/* Обрані учасники відображаються як жовті теги всередині поля. */
+.team-form-members .fi-select-input-btn {
+    height: auto;
+    min-height: 60px;
+    align-items: center;
+    padding-block: 0.5rem;
+    background-image: none;
+}
+
+.team-form-members .fi-select-input-value-ctn {
+    min-height: 42px;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge {
+    min-height: 32px;
+    border-radius: 0;
+    background: #fecc39;
+    padding: 0.35rem 0.65rem;
+    color: #343434;
+    font-size: 0.875rem;
+    box-shadow: none;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge-delete-btn {
+    margin-inline: 0 -0.35rem;
+    color: #343434;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge-delete-btn .fi-icon {
+    color: #343434;
+}
+
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge {
+    align-items: center;
+    line-height: 1.25rem;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge-label-ctn {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    line-height: 1.25rem;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge-label {
+    display: flex;
+    align-items: center;
+    line-height: 1.25rem;
+}
+
+.team-form-members .fi-select-input-value-badges-ctn .fi-badge-delete-btn {
+    align-self: center;
+}
+
+/* Єдина тема Profile panel. Вона навмисно scoped через .fi-panel-profile,
+   тому не змінює зовнішній сайт та окрему адміністративну панель. */
+.fi-panel-profile {
+    color-scheme: dark;
+    background: #414141;
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .fi-layout,
+.fi-panel-profile .fi-main,
+.fi-panel-profile .fi-page,
+.fi-panel-profile .fi-page-main,
+.fi-panel-profile .fi-simple-layout,
+.fi-panel-profile .fi-simple-page,
+.fi-panel-profile .fi-simple-main,
+.fi-panel-profile .fi-simple-page-content {
+    background: #414141;
+}
+
+.fi-panel-profile .fi-topbar,
+.fi-panel-profile .fi-topbar nav,
+.fi-panel-profile .fi-sidebar,
+.fi-panel-profile .fi-sidebar-header,
+.fi-panel-profile .fi-sidebar-nav {
+    border-color: #4b4b4b;
+    background: #323232;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-logo,
+.fi-panel-profile .fi-header-heading,
+.fi-panel-profile .fi-breadcrumbs-item-label,
+.fi-panel-profile .fi-sidebar-item-label,
+.fi-panel-profile .fi-sidebar-group-label,
+.fi-panel-profile .fi-user-name,
+.fi-panel-profile .fi-user-menu-trigger,
+.fi-panel-profile .fi-section-header-heading,
+.fi-panel-profile .fi-sc-tabs-tab-label,
+.fi-panel-profile .fi-ta-header-cell-label,
+.fi-panel-profile .fi-ta-text,
+.fi-panel-profile .fi-modal-heading {
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .fi-breadcrumbs-item-separator,
+.fi-panel-profile .fi-breadcrumbs-item-label:not(:hover),
+.fi-panel-profile .fi-header-subheading,
+.fi-panel-profile .fi-section-header-description,
+.fi-panel-profile .fi-ta-description,
+.fi-panel-profile .fi-ta-empty-state-description {
+    color: #a9a9a9;
+}
+
+.fi-panel-profile .fi-sidebar-group {
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #383838;
+}
+
+.fi-panel-profile .fi-sidebar-group-btn {
+    border-color: #4b4b4b;
+    border-radius: 0;
+    background: #2f2f2f;
+}
+
+.fi-panel-profile .fi-sidebar-item .fi-sidebar-item-btn {
+    min-height: 44px;
+    border-radius: 0;
+}
+
+.fi-panel-profile .fi-sidebar-item.fi-active .fi-sidebar-item-btn,
+.fi-panel-profile .fi-sidebar-item .fi-sidebar-item-btn:hover {
+    border-color: #fecc39;
+    background: #414141;
+}
+
+.fi-panel-profile .fi-sidebar-item.fi-active .fi-sidebar-item-icon,
+.fi-panel-profile .fi-sidebar-item.fi-active .fi-sidebar-item-label,
+.fi-panel-profile .fi-sidebar-item .fi-sidebar-item-btn:hover .fi-sidebar-item-icon,
+.fi-panel-profile .fi-sidebar-item .fi-sidebar-item-btn:hover .fi-sidebar-item-label {
+    color: #fecc39;
+}
+
+.fi-panel-profile .fi-global-search-field .fi-input-wrp,
+.fi-panel-profile .fi-topbar-item .fi-btn,
+.fi-panel-profile .fi-icon-btn {
+    border-radius: 0;
+}
+
+/* Усі форми профілю використовують ту саму ширину й ритм, що й Teams. */
+.fi-panel-profile .fi-resource-create-record-page form.fi-sc-form,
+.fi-panel-profile .fi-resource-edit-record-page form.fi-sc-form,
+.fi-panel-profile .fi-page form.fi-sc-form,
+.fi-panel-profile .fi-auth-page form.fi-sc-form {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile form.fi-sc-form .fi-sc {
+    --form-gap: 2rem;
+}
+
+.fi-panel-profile .fi-fo-field-label,
+.fi-panel-profile .fi-fo-field-label-content,
+.fi-panel-profile .fi-fo-field-wrp-label label,
+.fi-panel-profile .fi-fo-field-wrp-label span {
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .fi-fo-field-label-required-mark,
+.fi-panel-profile .fi-fo-field-wrp-error-message {
+    color: #ef4444;
+}
+
+.fi-panel-profile .fi-input-wrp {
+    min-height: 60px;
+    border: 0;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-input-wrp:hover {
+    background: #353535;
+}
+
+.fi-panel-profile .fi-input-wrp:focus-within,
+.fi-panel-profile .fi-input-wrp.fi-invalid {
+    background: #323232;
+    box-shadow: inset 0 0 0 1px #fecc39;
+}
+
+.fi-panel-profile .fi-input-wrp.fi-invalid {
+    box-shadow: inset 0 0 0 1px #ef4444;
+}
+
+.fi-panel-profile input.fi-input,
+.fi-panel-profile select.fi-select-input {
+    height: 60px;
+    padding-block: 0;
+    line-height: normal;
+}
+
+.fi-panel-profile .fi-input,
+.fi-panel-profile .fi-select-input-btn,
+.fi-panel-profile textarea.fi-input {
+    border-radius: 0;
+    color: #f5f5f5;
+    font-size: 1rem;
+}
+
+.fi-panel-profile .fi-input::placeholder,
+.fi-panel-profile .fi-select-input-placeholder {
+    color: #929292;
+}
+
+.fi-panel-profile .fi-select-input-btn {
+    min-height: 60px;
+    align-items: center;
+    padding-block: 0;
+}
+
+.fi-panel-profile textarea.fi-input {
+    min-height: 160px;
+    padding-block: 1rem;
+}
+
+.fi-panel-profile .fi-fo-tags-input .fi-badge,
+.fi-panel-profile .fi-select-input-value-badges-ctn .fi-badge {
+    border-radius: 0;
+    background: #fecc39;
+    color: #343434;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-select-input-value-badges-ctn .fi-badge-delete-btn .fi-icon,
+.fi-panel-profile .fi-fo-tags-input .fi-badge-delete-btn .fi-icon {
+    color: #343434;
+}
+
+/* Dropdown, пошук і пункти списків. */
+.fi-panel-profile .fi-dropdown-panel,
+.fi-panel-profile .fi-select-input .fi-dropdown-panel {
+    max-width: none;
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-select-input-search-ctn {
+    border-bottom: 1px solid #4b4b4b;
+    background: #323232;
+}
+
+.fi-panel-profile .fi-select-input-search-ctn .fi-input {
+    height: 44px;
+    border: 1px solid #555;
+    border-radius: 0;
+    background: #292929;
+    line-height: 44px;
+}
+
+.fi-panel-profile .fi-dropdown-list-item,
+.fi-panel-profile .fi-select-input-option {
+    min-height: 42px;
+    border-radius: 0;
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .fi-dropdown-list-item-label {
+    color: inherit;
+}
+
+.fi-panel-profile .fi-dropdown-list-item:not(.fi-disabled):hover,
+.fi-panel-profile .fi-dropdown-list-item:not(.fi-disabled):focus-visible,
+.fi-panel-profile .fi-select-input-option:not(.fi-disabled):hover,
+.fi-panel-profile .fi-select-input-option:not(.fi-disabled):focus-visible,
+.fi-panel-profile .fi-select-input-option.fi-selected {
+    background: #fecc39;
+    color: #343434;
+}
+
+/* Section і Tabs більше не виглядають як світлі округлі картки. */
+.fi-panel-profile .fi-section {
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-section-header {
+    border-bottom: 1px solid #4b4b4b;
+    background: #383838;
+}
+
+.fi-panel-profile .fi-section-content,
+.fi-panel-profile .fi-section-content-ctn,
+.fi-panel-profile .fi-section-footer {
+    border-radius: 0;
+    background: transparent;
+}
+
+.fi-panel-profile .fi-sc-tabs.fi-contained,
+.fi-panel-profile .fi-tabs {
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-sc-tabs-tab,
+.fi-panel-profile .fi-tabs-item {
+    border-radius: 0;
+    color: #a9a9a9;
+}
+
+.fi-panel-profile .fi-sc-tabs-tab:hover,
+.fi-panel-profile .fi-tabs-item:hover,
+.fi-panel-profile .fi-sc-tabs-tab.fi-active,
+.fi-panel-profile .fi-tabs-item.fi-active {
+    background: #414141;
+    color: #fecc39;
+    box-shadow: inset 0 -2px 0 #fecc39;
+}
+
+/* Wizard і stepper використовують жовтий як єдиний active-акцент. */
+.fi-panel-profile .fi-sc-wizard,
+.fi-panel-profile .fi-sc-wizard-header,
+.fi-panel-profile .fi-progress-stepper,
+.fi-panel-profile .ps-container {
+    border-radius: 0;
+    border-color: #4b4b4b;
+    background: #323232;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-sc-wizard-header-step.fi-active,
+.fi-panel-profile .ps-step[data-ps-status='current'] {
+    color: #fecc39;
+}
+
+/* Форма Projects повторює пласку геометрію та кольори Teams. */
+.fi-panel-profile .fi-resource-projects .fi-page-header-main-ctn,
+.fi-panel-profile .fi-resource-projects form.fi-sc-form {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .profile-project-status-stepper,
+.fi-panel-profile .profile-project-form-wizard,
+.fi-panel-profile .profile-project-form-wizard.fi-contained {
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #414141;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-status-stepper {
+    border: 0;
+    background: transparent;
+}
+
+.fi-panel-profile .profile-project-summary .fi-badge,
+.fi-panel-profile .profile-project-status-stepper .ps-button,
+.fi-panel-profile .profile-project-status-stepper .ps-badge {
+    border-radius: 0;
+}
+
+.fi-panel-profile .profile-project-status-stepper[data-ps-direction='horizontal'] .ps-step:first-child .ps-button,
+.fi-panel-profile .profile-project-status-stepper[data-ps-direction='horizontal'] .ps-step:last-child .ps-button {
+    border-radius: 0 !important;
+}
+
+.fi-panel-profile .profile-project-form-wizard > .fi-sc-wizard-header {
+    border-bottom: 1px solid #4b4b4b;
+    background: #323232;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step {
+    border-inline-end: 1px solid #4b4b4b;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step:last-child {
+    border-inline-end: 0;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-separator {
+    display: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-btn,
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-icon-ctn {
+    border-radius: 0;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step.fi-active .fi-sc-wizard-header-step-btn {
+    background: #414141;
+    box-shadow: inset 0 -2px 0 #fecc39;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-step.fi-active {
+    background: #414141;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-fo-repeater-item,
+.fi-panel-profile .profile-project-form-wizard .fi-fo-builder-item,
+.fi-panel-profile .profile-project-form-wizard .fi-section {
+    border-color: #4b4b4b;
+    border-radius: 0;
+    background: #383838;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-fo-table-repeater > table,
+.fi-panel-profile .profile-project-form-wizard .fi-fo-table-repeater > table > thead > tr > th {
+    border-radius: 0;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-fo-table-repeater > table {
+    border: 1px solid #4b4b4b;
+    background: #292929;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .treeselect-input {
+    min-height: 60px;
+    border: 0;
+    border-radius: 0;
+    background: #323232;
+    color: #f5f5f5;
+    padding-block: 0;
+}
+
+.fi-panel-profile .profile-project-form-wizard .treeselect-input__edit {
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .profile-project-form-wizard .treeselect-list {
+    border-color: #4b4b4b;
+    border-radius: 0;
+    background: #323232;
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .profile-project-form-wizard .treeselect-list__item--focused,
+.fi-panel-profile .profile-project-form-wizard .treeselect-list__item--single-selected,
+.fi-panel-profile .profile-project-form-wizard .treeselect-list__item--checked {
+    background: #fecc39 !important;
+    color: #343434;
+}
+
+/* Таблиці, картки записів і pagination. */
+.fi-panel-profile .fi-ta-ctn,
+.fi-panel-profile .fi-ta-content,
+.fi-panel-profile .fi-ta-table,
+.fi-panel-profile .fi-ta-record {
+    border-color: #4b4b4b;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-ta-header,
+.fi-panel-profile .fi-ta-header-toolbar,
+.fi-panel-profile .fi-ta-filters,
+.fi-panel-profile .fi-ta-filters-above-content-ctn,
+.fi-panel-profile .fi-pagination,
+.fi-panel-profile .fi-ta-empty-state {
+    border-color: #4b4b4b;
+    background: #383838;
+}
+
+.fi-panel-profile .fi-ta-row,
+.fi-panel-profile .fi-ta-record {
+    border-color: #4b4b4b;
+}
+
+.fi-panel-profile .fi-ta-row:hover,
+.fi-panel-profile .fi-ta-record:hover {
+    background: #3a3a3a;
+}
+
+.fi-panel-profile .fi-ta-header-cell {
+    border-color: #4b4b4b;
+    background: #2f2f2f;
+}
+
+/* Картки проєктів, обкладинки та статуси мають прямі кути. */
+.fi-panel-profile .profile-project-card-record .fi-ta-record-content,
+.fi-panel-profile .profile-project-card-record .fi-ta-image,
+.fi-panel-profile .profile-project-card-record .fi-ta-image img,
+.fi-panel-profile .profile-project-card-record .fi-badge {
+    border-radius: 0 !important;
+}
+
+/* Вирівнюємо значення select у високому полі pagination по вертикалі. */
+.fi-panel-profile .fi-pagination-records-per-page-select .fi-input-wrp {
+    align-items: center;
+}
+
+/* Buttons та actions відповідають прямокутним кнопкам Teams. */
+.fi-panel-profile .fi-btn,
+.fi-panel-profile .fi-ac-btn-action,
+.fi-panel-profile .fi-pagination-item-btn {
+    min-height: 42px;
+    border-radius: 0;
+}
+
+/* Link-actions у таблиці залишаються компактними та центрують іконку з назвою. */
+.fi-panel-profile .fi-ta-actions .fi-ac-link-action {
+    min-height: auto;
+    align-items: center;
+    line-height: 1.25rem;
+}
+
+.fi-panel-profile .fi-ta-actions .fi-ac-link-action > .fi-link-label {
+    align-self: center;
+}
+
+.fi-panel-profile .fi-btn.fi-color-primary:not(.fi-outlined) {
+    background: #fecc39;
+    color: #343434;
+}
+
+.fi-panel-profile .fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background: #fff;
+    color: #343434;
+}
+
+.fi-panel-profile .fi-btn.fi-color-gray,
+.fi-panel-profile .fi-btn.fi-outlined {
+    border-color: #fecc39;
+    background: #323232;
+    color: #fecc39;
+}
+
+.fi-panel-profile .fi-google-auth .fi-btn {
+    border-color: #fecc39 !important;
+    border-radius: 0 !important;
+    background: #323232 !important;
+    color: #fecc39 !important;
+}
+
+/* Modal, notification, callout та порожні стани. */
+.fi-panel-profile .fi-modal-window,
+.fi-panel-profile .fi-modal-header,
+.fi-panel-profile .fi-modal-content,
+.fi-panel-profile .fi-modal-footer,
+.fi-panel-profile .fi-notification,
+.fi-panel-profile .fi-callout,
+.fi-panel-profile .fi-wi-stats-overview-stat {
+    border-color: #4b4b4b;
+    border-radius: 0;
+    background: #414141;
+    color: #f5f5f5;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-modal-header,
+.fi-panel-profile .fi-modal-footer {
+    background: #383838;
+}
+
+.fi-panel-profile .fi-modal-close-btn {
+    border-radius: 0;
+    color: #fecc39;
+}
+
+.fi-panel-profile .filepond--panel-root,
+.fi-panel-profile .filepond--item-panel,
+.fi-panel-profile .filepond--drop-label {
+    border-radius: 0;
+}
+
+.fi-panel-profile .fi-checkbox-input,
+.fi-panel-profile .fi-radio-input,
+.fi-panel-profile .fi-toggle-track {
+    border-radius: 0;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .fi-resource-create-record-page form.fi-sc-form,
+    .fi-panel-profile .fi-resource-edit-record-page form.fi-sc-form,
+    .fi-panel-profile .fi-page form.fi-sc-form {
+        width: 100%;
+    }
+
+    .fi-panel-profile .fi-input-wrp,
+    .fi-panel-profile input.fi-input,
+    .fi-panel-profile select.fi-select-input,
+    .fi-panel-profile .fi-select-input-btn {
+        min-height: 52px;
+        height: 52px;
+        line-height: normal;
+    }
+
+    .fi-panel-profile .team-form-members .fi-select-input-btn,
+    .fi-panel-profile .fi-select-input-btn:has(.fi-select-input-value-badges-ctn) {
+        height: auto;
+        min-height: 52px;
+        line-height: normal;
+    }
 }

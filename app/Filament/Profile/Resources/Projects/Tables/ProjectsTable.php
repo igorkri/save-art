@@ -35,7 +35,7 @@ class ProjectsTable
                         ->imageHeight('auto')
                         ->imageWidth('100%')
                         ->extraImgAttributes([
-                            'class' => 'w-full h-auto rounded-t-xl',
+                            'class' => 'w-full h-auto',
                         ]),
 
                     Stack::make([
@@ -106,7 +106,7 @@ class ProjectsTable
                             ->color('gray')
                             ->toggleable(isToggledHiddenByDefault: true),
                     ])->space(1)->extraAttributes(['class' => 'p-2']),
-                ])->extraAttributes(['class' => 'rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden']),
+                ])->extraAttributes(['class' => 'border border-gray-200 dark:border-gray-700 overflow-hidden']),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Filament;
 
 use App\Filament\Profile\Resources\Teams\Pages\CreateTeam;
+use App\Filament\Profile\Resources\Teams\Pages\EditTeam;
 use App\Filament\Profile\Resources\Teams\Pages\ListTeams;
 use App\Filament\Profile\Resources\Teams\TeamResource;
 use App\Models\Team;
@@ -42,8 +43,17 @@ class TeamResourceTest extends TestCase
             'zip' => '01001',
             'specialization' => 'Живопис',
             'description' => 'Опис команди',
-            'teamMembers' => [],
+            'member_ids' => [],
         ], $overrides);
+    }
+
+    public function test_required_fields_use_livewire_validation(): void
+    {
+        Livewire::test(CreateTeam::class)
+            ->assertSeeHtml('novalidate')
+            ->set('data.name', 'Тимчасова назва')
+            ->set('data.name', '')
+            ->assertHasErrors(['data.name' => 'required']);
     }
 
     public function test_creating_team_makes_creator_the_owner(): void
@@ -59,6 +69,38 @@ class TeamResourceTest extends TestCase
             'team_id' => $team->id,
             'user_id' => $this->user->id,
             'role' => 'owner',
+        ]);
+    }
+
+    public function test_member_tags_are_saved_without_detaching_the_owner(): void
+    {
+        $avatarPath = UploadedFile::fake()->image('team.jpg')->store('teams', 'public');
+        $team = Team::factory()->create(['avatar' => $avatarPath]);
+        $oldMember = User::factory()->create();
+        $newMember = User::factory()->create();
+
+        $team->teamMembers()->create(['user_id' => $this->user->id, 'role' => 'owner', 'sort_order' => 0]);
+        $team->teamMembers()->create(['user_id' => $oldMember->id, 'role' => 'member', 'sort_order' => 1]);
+
+        Livewire::test(EditTeam::class, ['record' => $team->getRouteKey()])
+            ->set('data.member_ids', [(string) $newMember->id])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('team_members', [
+            'team_id' => $team->id,
+            'user_id' => $this->user->id,
+            'role' => 'owner',
+        ]);
+        $this->assertDatabaseMissing('team_members', [
+            'team_id' => $team->id,
+            'user_id' => $oldMember->id,
+        ]);
+        $this->assertDatabaseHas('team_members', [
+            'team_id' => $team->id,
+            'user_id' => $newMember->id,
+            'role' => 'member',
+            'sort_order' => 1,
         ]);
     }
 

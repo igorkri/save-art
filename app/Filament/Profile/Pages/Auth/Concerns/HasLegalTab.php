@@ -97,9 +97,13 @@ trait HasLegalTab
                                     ->avatar()
                                     ->imageCropAspectRatio('1:1')
                                     ->imageEditor()
+                                    ->imagePreviewHeight('400')
+                                    ->panelAspectRatio('1:1')
+                                    ->panelLayout('compact')
                                     ->maxSize(5120)
                                     ->disk('public')
                                     ->directory('logos')
+                                    ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
                                     ->belowContent(
                                         Text::make(__('profile_edit.helpers.legal_logo'))
                                             ->extraAttributes(['class' => '!flex !w-full justify-center text-center'])
