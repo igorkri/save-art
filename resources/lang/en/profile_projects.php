@@ -46,6 +46,13 @@ return [
         'optional' => 'This section is optional.',
     ],
 
+    'budget' => [
+        'platform_fee' => '10% of the funding amount will support the platform operations.',
+        'details_title' => 'Describe the project budget in detail.',
+        'details_description' => 'Tell future patrons exactly how their money will be spent.',
+        'details_notice' => 'Budget items can be added while creating the project. After publication, the specified information and amounts cannot be edited or deleted.',
+    ],
+
     'bonuses' => [
         'intro' => 'Reward your project patrons with gifts.',
         'example_print' => 'Painting a picture? Give them a print.',
@@ -66,10 +73,12 @@ return [
         'cover' => 'Cover',
         'currency' => 'Currency',
         'budget_goal' => 'Funding goal',
+        'budget_goal_with_currency' => 'Required amount (:currency)',
         'estimated_days' => 'Estimated number of days',
+        'estimated_days_description' => 'Specify the approximate number of days you need to create the project',
         'budget_items' => 'Budget details',
         'budget_item_name' => 'Name',
-        'budget_item_amount' => 'Amount',
+        'budget_item_amount' => 'Cost',
         'parameter_placeholder' => 'First choose an art category on the "General" tab so the list of attributes appears.',
         'parameter_label' => 'Attribute',
         'parameter_value' => 'Value',
@@ -118,6 +127,7 @@ return [
     ],
 
     'placeholders' => [
+        'budget_item_name' => 'For example, paints',
         'bonus_quantity' => '0',
         'bonus_description' => 'What will you give?',
         'short_description' => 'Tell us about the project (up to 500 characters)',
@@ -128,6 +138,7 @@ return [
         'back' => 'Back',
         'preview_project' => 'Preview project',
         'add_bonus' => 'Add bonus',
+        'add_budget_item' => 'Add budget item',
         'submit_for_moderation' => 'Submit for moderation',
         'submit_for_moderation_heading' => 'Submit the project for moderation?',
         'submit_for_moderation_description' => 'A moderator will review the project. While moderation is in progress, editing will be restricted.',

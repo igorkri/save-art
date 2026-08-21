@@ -1421,6 +1421,322 @@ section
     text-align: end;
 }
 
+/* Бюджет проєкту — пласка форма за макетом Content_6. */
+.fi-panel-profile .profile-project-step-budget.fi-active > .fi-sc-component {
+    gap: 1.75rem;
+}
+
+.fi-panel-profile .profile-project-budget-currency {
+    display: none;
+}
+
+.fi-panel-profile .profile-project-budget-goal,
+.fi-panel-profile .profile-project-budget-days,
+.fi-panel-profile .profile-project-budget-fee,
+.fi-panel-profile .profile-project-budget-intro-field,
+.fi-panel-profile .profile-project-budget-repeater {
+    width: 100%;
+}
+
+.fi-panel-profile .profile-project-budget-goal .fi-input-wrp,
+.fi-panel-profile .profile-project-budget-days .fi-input-wrp {
+    min-height: 78px;
+}
+
+.fi-panel-profile .profile-project-budget-goal input.fi-input,
+.fi-panel-profile .profile-project-budget-days input.fi-input {
+    height: 78px;
+    padding-inline: 1rem;
+    font-size: 1.15rem;
+}
+
+.fi-panel-profile .profile-project-budget-fee {
+    margin-top: -1.25rem;
+    color: #f5f5f5;
+    text-align: right;
+}
+
+.fi-panel-profile .profile-project-budget-intro-field {
+    margin-top: 0.5rem;
+    border-top: 1px solid #555;
+    padding-top: 2.5rem;
+}
+
+.fi-panel-profile .profile-project-budget-intro {
+    display: grid;
+    gap: 0.6rem;
+    color: #f5f5f5;
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.fi-panel-profile .profile-project-budget-intro p:first-child {
+    font-size: 1.1rem;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater {
+    overflow: visible;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table {
+    overflow: visible;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > thead,
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > thead > tr {
+    border: 0;
+    background: #414141 !important;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > thead > tr > th {
+    border: 0;
+    background: #414141 !important;
+    padding: 0 0 0.55rem;
+    color: #f5f5f5;
+    font-size: 0.875rem;
+    font-weight: 400;
+    text-align: start;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > thead > tr > th:nth-child(2) {
+    padding-left: 0.25rem;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > thead > tr > th:last-child {
+    display: table-cell;
+    width: calc(44px + 0.4rem);
+    min-width: calc(44px + 0.4rem);
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody {
+    display: table-row-group;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr {
+    position: relative;
+    border: 0;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr > td {
+    border: 0;
+    padding: 0 0 0.25rem;
+    background: transparent;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr > td:nth-child(2) {
+    padding-left: 0.25rem;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr > td:last-child {
+    display: table-cell;
+    position: static;
+    width: calc(44px + 0.4rem);
+    min-width: calc(44px + 0.4rem);
+    padding: 0 0 0.25rem;
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr:hover > td:last-child {
+    opacity: 1;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-actions {
+    display: flex;
+    margin-left: 0.4rem;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-actions .fi-icon-btn {
+    display: grid;
+    width: 44px;
+    height: 78px;
+    place-items: center;
+    border: 0;
+    border-radius: 0;
+    background: #343434;
+    color: #fecc39;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-actions .fi-icon-btn:hover {
+    background: #fecc39;
+    color: #343434;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-add {
+    padding-top: 0.75rem;
+    text-align: center;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-add .fi-icon-btn,
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-add .fi-btn {
+    display: inline-grid;
+    width: 64px;
+    min-width: 64px;
+    height: 64px;
+    min-height: 64px;
+    place-items: center;
+    border: 0;
+    border-radius: 0;
+    background: #fecc39 !important;
+    padding: 0;
+    color: #343434 !important;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-add .fi-icon-btn:hover,
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-add .fi-btn:hover {
+    background: #ffd75c !important;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-add .fi-icon {
+    width: 2rem;
+    height: 2rem;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-name .fi-input-wrp,
+.fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount .fi-input-wrp {
+    min-height: 78px;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-name input.fi-input,
+.fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount input.fi-input {
+    height: 78px;
+    padding-inline: 1rem;
+    font-size: 1.1rem;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount input.fi-input {
+    text-align: center;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-repeater-add-action {
+    display: grid;
+    width: 64px;
+    min-width: 64px;
+    height: 64px;
+    min-height: 64px;
+    place-items: center;
+    margin: 0.75rem auto 0;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-budget-repeater .fi-fo-repeater-add-action .fi-icon {
+    width: 2rem;
+    height: 2rem;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .profile-project-step-budget.fi-active > .fi-sc-component {
+        gap: 1.35rem;
+    }
+
+    .fi-panel-profile .profile-project-budget-goal .fi-input-wrp,
+    .fi-panel-profile .profile-project-budget-days .fi-input-wrp,
+    .fi-panel-profile .profile-project-budget-goal input.fi-input,
+    .fi-panel-profile .profile-project-budget-days input.fi-input,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-name .fi-input-wrp,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount .fi-input-wrp,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-name input.fi-input,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount input.fi-input {
+        min-height: 60px;
+        height: 60px;
+        font-size: 0.9375rem;
+    }
+
+    .fi-panel-profile .profile-project-budget-fee {
+        margin-top: -0.75rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+    }
+
+    .fi-panel-profile .profile-project-budget-intro-field {
+        padding-top: 1.5rem;
+    }
+
+    .fi-panel-profile .profile-project-budget-intro {
+        font-size: 0.875rem;
+    }
+
+    .fi-panel-profile .profile-project-budget-intro p:first-child {
+        font-size: 1rem;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater {
+        overflow-x: visible;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > thead {
+        display: none !important;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody {
+        display: grid !important;
+        gap: 0.85rem;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr {
+        display: grid !important;
+        gap: 0.35rem !important;
+        padding: 0 !important;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr > td {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr > td:last-child {
+        display: flex !important;
+        width: 100% !important;
+        justify-content: center;
+        opacity: 1;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-actions {
+        justify-content: center;
+        margin-left: 0;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater-actions .fi-icon-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-table-repeater > table > tbody > tr > td:nth-child(2) {
+        width: 100% !important;
+        padding-left: 0 !important;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-name,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-name .fi-input-wrp,
+    .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount .fi-input-wrp {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .fi-panel-profile .profile-project-budget-repeater .fi-fo-repeater-add-action {
+        width: 56px;
+        min-width: 56px;
+        height: 56px;
+        min-height: 56px;
+    }
+}
+
 .fi-panel-profile .profile-project-form-wizard .profile-primary-image-field {
     width: 100%;
 }

@@ -260,11 +260,11 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.budget'))
                         ->icon('heroicon-o-currency-dollar')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-budget'])
-                        ->columns(2)
+                        ->columns(1)
                         ->disabled(fn (?Project $record): bool => self::cannotEditPublishedFields($record))
                         ->schema([
                             Select::make('currency')
-                                ->label(__('profile_projects.fields.currency'))
+                                ->hiddenLabel()
                                 ->options([
                                     Currency::UAH->value => '₴ UAH',
                                     Currency::USD->value => '$ USD',
@@ -272,51 +272,74 @@ class ProjectForm
                                 ])
                                 ->default(Currency::UAH->value)
                                 ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-budget-currency'])
                                 ->required(),
 
                             TextInput::make('budget_goal')
-                                ->label(__('profile_projects.fields.budget_goal'))
+                                ->label(fn (callable $get): string => __('profile_projects.fields.budget_goal_with_currency', [
+                                    'currency' => $get('currency') ?: Currency::UAH->value,
+                                ]))
                                 ->numeric()
-                                ->prefix(fn (callable $get) => match ($get('currency')) {
-                                    'USD' => '$',
-                                    'EUR' => '€',
-                                    default => '₴',
-                                })
+                                ->placeholder('0')
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-budget-goal'])
                                 ->required()
                                 ->live(onBlur: true),
 
+                            Placeholder::make('budget_platform_fee')
+                                ->hiddenLabel()
+                                ->content(__('profile_projects.budget.platform_fee'))
+                                ->extraAttributes(['class' => 'profile-project-budget-fee']),
+
                             TextInput::make('estimated_days')
-                                ->label(__('profile_projects.fields.estimated_days'))
+                                ->label(__('profile_projects.fields.estimated_days_description'))
                                 ->numeric()
+                                ->placeholder('0')
                                 ->minValue(1)
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-budget-days'])
                                 ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record)),
 
+                            Placeholder::make('budget_details_intro')
+                                ->hiddenLabel()
+                                ->content(new HtmlString(
+                                    '<div class="profile-project-budget-intro">'
+                                    .'<p>'.e(__('profile_projects.budget.details_title')).'</p>'
+                                    .'<p>'.e(__('profile_projects.budget.details_description')).'</p>'
+                                    .'<p>'.e(__('profile_projects.budget.details_notice')).'</p>'
+                                    .'</div>'
+                                ))
+                                ->extraAttributes(['class' => 'profile-project-budget-intro-field']),
+
                             Repeater::make('budget_items')
-                                ->label(__('profile_projects.fields.budget_items'))
+                                ->hiddenLabel()
+                                ->table([
+                                    TableColumn::make(__('profile_projects.fields.budget_item_name'))
+                                        ->markAsRequired(),
+                                    TableColumn::make(__('profile_projects.fields.budget_item_amount'))
+                                        ->width('136px')
+                                        ->markAsRequired(),
+                                ])
                                 ->schema([
                                     TextInput::make('name')
-                                        ->label(__('profile_projects.fields.budget_item_name'))
-                                        ->required()
-                                        ->columnSpan(2),
+                                        ->hiddenLabel()
+                                        ->placeholder(__('profile_projects.placeholders.budget_item_name'))
+                                        ->extraFieldWrapperAttributes(['class' => 'profile-project-budget-item-name'])
+                                        ->required(),
                                     TextInput::make('amount')
-                                        ->label(__('profile_projects.fields.budget_item_amount'))
+                                        ->hiddenLabel()
                                         ->numeric()
-                                        ->required()
-                                        ->prefix(fn (callable $get) => match ($get('currency')) {
-                                            'USD' => '$',
-                                            'EUR' => '€',
-                                            default => '₴',
-                                        }),
+                                        ->placeholder('0')
+                                        ->extraFieldWrapperAttributes(['class' => 'profile-project-budget-item-amount'])
+                                        ->required(),
                                 ])
-                                ->columns(3)
                                 ->columnSpanFull()
                                 ->defaultItems(0)
-                                ->reorderable()
-                                ->collapsible()
-                                ->collapsed()
-                                ->itemLabel(fn (array $state): ?string => ($state['name'] ?? __('profile_projects.defaults.budget_item_name')).
-                                    (isset($state['amount']) ? ' — '.number_format($state['amount'], 2).' ₴' : '')
-                                ),
+                                ->reorderable(false)
+                                ->collapsible(false)
+                                ->addAction(fn (Action $action): Action => $action
+                                    ->label(__('profile_projects.actions.add_budget_item'))
+                                    ->icon('heroicon-m-plus')
+                                    ->iconButton())
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-budget-repeater']),
                         ]),
 
                     Step::make(__('profile_projects.tabs.content'))
