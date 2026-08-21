@@ -9,11 +9,15 @@ return [
     'tabs' => [
         'main' => 'Main information',
         'general' => 'General',
+        'author' => 'Author',
+        'name' => 'Name',
+        'description' => 'Description',
         'budget' => 'Budget',
         'parameters' => 'Attributes',
         'stages' => 'Stages',
         'bonuses' => 'Bonuses',
-        'content' => 'Content',
+        'content' => 'Additional information',
+        'publication' => 'Publication',
         'final_result' => 'Final result',
         'list' => [
             'all' => 'All projects',
@@ -31,12 +35,18 @@ return [
         'stats' => 'Statistics',
     ],
 
+    'publication' => [
+        'title' => 'This is how your project will look',
+        'description' => 'Review the entered data before saving. After creation, the project can be saved as a draft or submitted for moderation.',
+    ],
+
     'fields' => [
         'art_category' => 'Art category',
         'title' => 'Project title',
         'short_description' => 'Short description',
         'tags' => 'Tags',
         'team' => 'Team',
+        'project_owner' => 'Project owner',
         'cover' => 'Cover',
         'currency' => 'Currency',
         'budget_goal' => 'Funding goal',
@@ -51,6 +61,7 @@ return [
         'stage_status' => 'Status',
         'stage_title' => 'Stage title',
         'stage_description' => 'Description',
+        'stage_days_planned' => 'Number of days',
         'stage_budget_planned' => 'Planned budget',
         'stage_budget_actual' => 'Actual budget',
         'stage_documents' => 'Report files',
@@ -91,9 +102,11 @@ return [
 
     'placeholders' => [
         'bonus_quantity' => '∞',
+        'short_description' => 'Tell us about the project (up to 500 characters)',
     ],
 
     'actions' => [
+        'next' => 'Next',
         'submit_for_moderation' => 'Submit for moderation',
         'submit_for_moderation_heading' => 'Submit the project for moderation?',
         'submit_for_moderation_description' => 'A moderator will review the project. While moderation is in progress, editing will be restricted.',
@@ -125,6 +138,11 @@ return [
     'helpers' => [
         'bonus_quantity' => 'Empty = unlimited',
         'stage_status' => 'Status can only move forward — going back is not allowed',
+        'project_owner' => 'Choose a team or leave this field empty to create the project in your own name.',
+        'title' => 'The project title cannot be changed after publication.',
+        'cover' => 'Project cover in 4:3 format.',
+        'tags' => 'This field is optional.',
+        'short_description' => 'Up to 500 characters.',
     ],
 
     'defaults' => [
@@ -134,6 +152,7 @@ return [
         'status_display' => 'Draft (not saved yet)',
         'code_display' => 'Generated automatically',
         'empty' => '—',
+        'personal_owner' => 'In your own name',
     ],
 
     'table' => [

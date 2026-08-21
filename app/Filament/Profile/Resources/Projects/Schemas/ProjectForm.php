@@ -14,11 +14,13 @@ use App\Models\Project;
 use App\Models\Team;
 use App\Support\ProjectCategoryParameterValues;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
@@ -135,23 +137,35 @@ class ProjectForm
                             ->content(fn (?Project $record) => number_format((float) ($record?->budget_collected ?? 0), 2).' '.($record?->currency?->value ?? '')),
                     ]),
 
-                Wizard::make([
-                    Step::make(__('profile_projects.tabs.general'))
-                        ->icon('heroicon-o-information-circle')
+                Wizard::make(self::orderedWizardSteps([
+                    Step::make(__('profile_projects.tabs.author'))
+                        ->icon('heroicon-o-user-circle')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-author'])
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
-                            FileUpload::make('cover')
-                                ->label(__('profile_projects.fields.cover'))
-                                ->image()
-                                ->imageEditor()
-                                ->imageEditorAspectRatioOptions([null, '4:3'])
-                                ->imagePreviewHeight('400')
-                                ->panelAspectRatio('1:1')
-                                ->panelLayout('compact')
-                                ->disk('public')
-                                ->directory('projects/covers')
-                                ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
-                                ->columnSpanFull(),
+                            Select::make('team_id')
+                                ->label(__('profile_projects.fields.project_owner'))
+                                ->placeholder(auth()->user()?->name ?? __('profile_projects.defaults.personal_owner'))
+                                ->helperText(__('profile_projects.helpers.project_owner'))
+                                ->options(fn () => Team::query()
+                                    ->whereHas('teamMembers', fn ($query) => $query->where('user_id', auth()->id()))
+                                    ->get()
+                                    ->mapWithKeys(fn (Team $team) => [$team->id => $team->getAttribute('name')['uk'] ?? $team->slug])
+                                    ->toArray())
+                                ->native(false),
+                        ]),
+
+                    Step::make(__('profile_projects.tabs.name'))
+                        ->icon('heroicon-o-pencil-square')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-name'])
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->schema([
+                            TextInput::make('title')
+                                ->label(__('profile_projects.fields.title'))
+                                ->helperText(__('profile_projects.helpers.title'))
+                                ->required()
+                                ->maxLength(255)
+                                ->live(onBlur: true),
 
                             SelectTree::make('art_category_id')
                                 ->label(__('profile_projects.fields.art_category'))
@@ -173,33 +187,41 @@ class ProjectForm
                                 })
                                 ->required(),
 
-                            TextInput::make('title')
-                                ->label(__('profile_projects.fields.title'))
-                                ->required()
-                                ->maxLength(255)
-                                ->live(onBlur: true),
-
-                            Textarea::make('short_description')
-                                ->label(__('profile_projects.fields.short_description'))
-                                ->autosize()
-                                ->maxLength(500)
-                                ->rows(3),
+                            FileUpload::make('cover')
+                                ->label(__('profile_projects.fields.cover'))
+                                ->helperText(__('profile_projects.helpers.cover'))
+                                ->image()
+                                ->imageEditor()
+                                ->imageEditorAspectRatioOptions([null, '4:3'])
+                                ->panelAspectRatio('4:3')
+                                ->panelLayout('integrated')
+                                ->disk('public')
+                                ->directory('projects/covers')
+                                ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
+                                ->columnSpanFull(),
 
                             TagsInput::make('tags')
-                                ->label(__('profile_projects.fields.tags')),
+                                ->label(__('profile_projects.fields.tags'))
+                                ->helperText(__('profile_projects.helpers.tags')),
+                        ]),
 
-                            Select::make('team_id')
-                                ->label(__('profile_projects.fields.team'))
-                                ->options(fn () => Team::query()
-                                    ->whereHas('teamMembers', fn ($query) => $query->where('user_id', auth()->id()))
-                                    ->get()
-                                    ->mapWithKeys(fn (Team $team) => [$team->id => $team->getAttribute('name')['uk'] ?? $team->slug])
-                                    ->toArray())
-                                ->native(false),
+                    Step::make(__('profile_projects.tabs.description'))
+                        ->icon('heroicon-o-document-text')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-description'])
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->schema([
+                            Textarea::make('short_description')
+                                ->label(__('profile_projects.fields.short_description'))
+                                ->placeholder(__('profile_projects.placeholders.short_description'))
+                                ->helperText(__('profile_projects.helpers.short_description'))
+                                ->maxLength(500)
+                                ->rows(9)
+                                ->columnSpanFull(),
                         ]),
 
                     Step::make(__('profile_projects.tabs.budget'))
                         ->icon('heroicon-o-currency-dollar')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-budget'])
                         ->columns(2)
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
@@ -259,6 +281,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.content'))
                         ->icon('heroicon-o-document-text')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-content'])
 //                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Builder::make('content_blocks')
@@ -319,6 +342,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.parameters'))
                         ->icon('heroicon-o-clipboard-document-list')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-parameters'])
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Section::make(__('profile_projects.sections.parameters.title'))
@@ -373,6 +397,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.stages'))
                         ->icon('heroicon-o-list-bullet')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-stages'])
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Repeater::make('stages')
@@ -380,17 +405,13 @@ class ProjectForm
                                 ->relationship()
                                 ->orderColumn('order')
                                 ->schema([
-                                    ProgressStepper::make('status')
+                                    Radio::make('status')
                                         ->label(__('profile_projects.fields.stage_status'))
                                         ->helperText(__('profile_projects.helpers.stage_status'))
                                         ->options(StageStatus::getOptions())
-                                        ->icons(collect(StageStatus::cases())->mapWithKeys(fn (StageStatus $status) => [$status->value => $status->getIcon()])->all())
-                                        // Пройдені кроки підсвічуються як "завершені" (зелені), навіть якщо
-                                        // це не останній статус — так стрілка прогресу читається наочно.
-                                        ->markCompletedUpToCurrent()
-                                        ->completedColor('success')
-                                        ->currentColor('warning')
-                                        ->upcomingColor('gray')
+                                        ->inline()
+                                        ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-status'])
+                                        ->columnSpanFull()
                                         ->default(StageStatus::Planned->value)
                                         ->required()
                                         ->live()
@@ -417,24 +438,34 @@ class ProjectForm
 
                                     TextInput::make('title')
                                         ->label(__('profile_projects.fields.stage_title'))
-                                        ->required(),
+                                        ->required()
+                                        ->columnSpanFull(),
 
                                     Textarea::make('description')
                                         ->label(__('profile_projects.fields.stage_description'))
                                         ->rows(2)
-                                        ->autosize(),
+                                        ->autosize()
+                                        ->columnSpanFull(),
+
+                                    TextInput::make('days_planned')
+                                        ->label(__('profile_projects.fields.stage_days_planned'))
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->columnSpan(fn (callable $get): int => $get('status') === StageStatus::Completed->value ? 2 : 3),
 
                                     TextInput::make('budget_planned')
                                         ->label(__('profile_projects.fields.stage_budget_planned'))
                                         ->numeric()
                                         ->default(0)
-                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Planned->value),
+                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Planned->value)
+                                        ->columnSpan(fn (callable $get): int => $get('status') === StageStatus::Completed->value ? 2 : 3),
 
                                     TextInput::make('budget_actual')
                                         ->label(__('profile_projects.fields.stage_budget_actual'))
                                         ->numeric()
                                         ->visible(fn (callable $get): bool => $get('status') === StageStatus::Completed->value)
-                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Completed->value),
+                                        ->required(fn (callable $get): bool => $get('status') === StageStatus::Completed->value)
+                                        ->columnSpan(2),
 
                                     FileUpload::make('documents')
                                         ->label(__('profile_projects.fields.stage_documents'))
@@ -449,6 +480,8 @@ class ProjectForm
                                         ->directory('projects/stage-documents')
                                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                                         ->maxSize(5120)
+                                        ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-documents'])
+                                        ->columnSpanFull()
                                         // За замовчуванням FileUpload лише прибирає файл зі стану форми,
                                         // фізично на диску він лишається — видаляємо його самі (і мініатюру
                                         // для PDF, якщо вона встигла згенеруватись).
@@ -501,7 +534,8 @@ class ProjectForm
                                     Hidden::make('started_at'),
                                     Hidden::make('completed_at'),
                                 ])
-                                ->columns(1)
+                                ->columns(6)
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-stages-repeater'])
                                 ->columnSpanFull()
                                 ->defaultItems(0)
                                 ->reorderable()
@@ -532,6 +566,7 @@ class ProjectForm
 
                     Step::make(__('profile_projects.tabs.bonuses'))
                         ->icon('heroicon-o-gift')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-bonuses'])
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Repeater::make('bonuses')
@@ -581,8 +616,24 @@ class ProjectForm
                                 ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
                         ]),
 
+                    Step::make(__('profile_projects.tabs.publication'))
+                        ->icon('heroicon-o-eye')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-publication'])
+                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->schema([
+                            Placeholder::make('publication_preview')
+                                ->hiddenLabel()
+                                ->content(new HtmlString(
+                                    '<div class="profile-project-publication-copy">'
+                                    .'<strong>'.e(__('profile_projects.publication.title')).'</strong>'
+                                    .'<p>'.e(__('profile_projects.publication.description')).'</p>'
+                                    .'</div>'
+                                )),
+                        ]),
+
                     Step::make(__('profile_projects.tabs.final_result'))
                         ->icon('heroicon-o-trophy')
+                        ->extraAttributes(['class' => 'profile-project-step profile-project-step-final-result'])
                         // Фінальний результат має сенс лише тоді, коли проєкт реально
                         // виконується або вже завершений — на чернетці/модерації показувати
                         // немає чого.
@@ -667,15 +718,40 @@ class ProjectForm
                                 ->reorderable()
                                 ->collapsed(false),
                         ]),
-                ])
+                ]))
                     ->extraAttributes(['class' => 'profile-project-form-wizard'])
                     ->columnSpanFull()
                     ->persistStepInQueryString()
+                    ->nextAction(fn (Action $action): Action => $action
+                        ->label(__('profile_projects.actions.next'))
+                        ->icon('heroicon-m-chevron-right')
+                        ->extraAttributes(['class' => 'profile-project-wizard-next']))
+                    ->previousAction(fn (Action $action): Action => $action->hidden())
                     // При редагуванні існуючого проєкту дозволяємо вільно перемикатись
                     // між кроками клацанням, як у табах — усі дані вже заповнені, тому
                     // послідовна валідація "Далі/Назад" тут тільки заважає. При створенні
                     // нового проєкту крокова навігація лишається (record ще не існує).
                     ->skippable(fn (?Project $record): bool => $record !== null),
             ]);
+    }
+
+    /**
+     * @param  array<int, Step>  $steps
+     * @return array<int, Step>
+     */
+    private static function orderedWizardSteps(array $steps): array
+    {
+        return [
+            $steps[0], // Автор
+            $steps[1], // Назва
+            $steps[2], // Опис
+            $steps[5], // Характеристики
+            $steps[3], // Бюджет
+            $steps[6], // Етапи реалізації
+            $steps[4], // Додаткова інформація
+            $steps[7], // Бонуси
+            $steps[8], // Публікація
+            $steps[9], // Фінальний результат (видимий лише для активних/завершених)
+        ];
     }
 }

@@ -1094,7 +1094,7 @@ section
 .fi-panel-profile .profile-project-status-stepper,
 .fi-panel-profile .profile-project-form-wizard,
 .fi-panel-profile .profile-project-form-wizard.fi-contained {
-    border: 1px solid #4b4b4b;
+    border: 0;
     border-radius: 0;
     background: #414141;
     box-shadow: none;
@@ -1103,6 +1103,11 @@ section
 .fi-panel-profile .profile-project-status-stepper {
     border: 0;
     background: transparent;
+}
+
+.fi-panel-profile .fi-resource-projects form.fi-sc-form .profile-project-status-stepper,
+.fi-panel-profile .fi-resource-projects form.fi-sc-form .profile-project-summary {
+    display: none;
 }
 
 .fi-panel-profile .profile-project-summary .fi-badge,
@@ -1117,12 +1122,18 @@ section
 }
 
 .fi-panel-profile .profile-project-form-wizard > .fi-sc-wizard-header {
-    border-bottom: 1px solid #4b4b4b;
-    background: #323232;
+    display: grid;
+    grid-auto-columns: minmax(max-content, 1fr);
+    grid-auto-flow: column;
+    overflow-x: auto;
+    border: 0;
+    background: #343434;
+    scrollbar-width: thin;
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step {
-    border-inline-end: 1px solid #4b4b4b;
+    min-width: max-content;
+    border: 0;
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step:last-child {
@@ -1138,13 +1149,112 @@ section
     border-radius: 0;
 }
 
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-btn {
+    justify-content: center;
+    gap: 0;
+    padding: 1.25rem 0.85rem;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-icon-ctn {
+    display: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-label {
+    color: #858585;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step.fi-completed .fi-sc-wizard-header-step-label {
+    color: #f5f5f5;
+}
+
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step.fi-active .fi-sc-wizard-header-step-btn {
-    background: #414141;
-    box-shadow: inset 0 -2px 0 #fecc39;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step.fi-active .fi-sc-wizard-header-step-label {
+    color: #fecc39;
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-step.fi-active {
+    width: min(100%, 820px);
+    min-height: 420px;
+    margin-inline: auto;
     background: #414141;
+    padding: 3rem 0 2rem;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-step.fi-active > .fi-sc-component {
+    gap: 2rem;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer {
+    justify-content: center;
+    padding: 0 0 3rem;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:first-child {
+    display: none !important;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:has(.profile-project-wizard-next) {
+    width: min(100%, 310px);
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next {
+    display: grid;
+    width: 100%;
+    min-height: 64px;
+    grid-template-columns: minmax(0, 1fr) 62px;
+    gap: 0;
+    border: 0;
+    border-radius: 0;
+    background: #f7f4ec !important;
+    padding: 0;
+    color: #343434;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next:hover {
+    background: #fecc39 !important;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next .fi-btn-label {
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next .fi-icon {
+    width: 100%;
+    height: 100%;
+    border-inline-start: 1px solid #343434;
+    padding: 1.35rem;
+}
+
+.fi-panel-profile .profile-project-publication-copy {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding-block: 3rem;
+    text-align: center;
+}
+
+.fi-panel-profile .profile-project-publication-copy strong {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.125rem;
+}
+
+.fi-panel-profile .profile-project-publication-copy p {
+    max-width: 620px;
+    color: #d1d1d1;
+    line-height: 1.7;
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-fo-repeater-item,
@@ -1154,6 +1264,301 @@ section
     border-radius: 0;
     background: #383838;
     box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-section {
+    border: 0;
+    background: transparent;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-section-content-ctn {
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-input-wrp,
+.fi-panel-profile .profile-project-form-wizard .fi-select-input,
+.fi-panel-profile .profile-project-form-wizard textarea,
+.fi-panel-profile .profile-project-form-wizard .fi-fo-tags-input {
+    border: 0;
+    border-radius: 0;
+    background: #343434;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-input-wrp {
+    min-height: 60px;
+}
+
+.fi-panel-profile .profile-project-form-wizard textarea {
+    min-height: 150px;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-fo-field-wrp-helper-text {
+    display: block;
+    width: 100%;
+    color: #d1d1d1;
+    text-align: end;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-primary-image-field {
+    width: 100%;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-primary-image-field .fi-fo-file-upload,
+.fi-panel-profile .profile-project-form-wizard .profile-primary-image-field .fi-fo-file-upload-input-ctn,
+.fi-panel-profile .profile-project-form-wizard .profile-primary-image-field .filepond--root {
+    width: 100%;
+    border-radius: 0;
+    background: #343434;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-primary-image-field .filepond--root,
+.fi-panel-profile .profile-project-form-wizard .profile-primary-image-field .filepond--drop-label {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-fo-repeater-add-action,
+.fi-panel-profile .profile-project-form-wizard .fi-fo-builder-add-action {
+    min-height: 58px;
+    border-radius: 0;
+    background: #fecc39;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-form-wizard .fi-fo-repeater-add-action:hover,
+.fi-panel-profile .profile-project-form-wizard .fi-fo-builder-add-action:hover {
+    background: #ffd75c;
+}
+
+/* Статуси етапу — три пласкі перемикачі, як у макеті Stages. */
+.fi-panel-profile .profile-project-stage-status .fi-fo-radio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.25rem;
+}
+
+.fi-panel-profile .profile-project-stage-status .fi-fo-radio-label {
+    min-height: 52px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.65rem;
+    border: 1px solid #414141;
+    border-radius: 0;
+    background: #343434;
+    padding: 0.75rem;
+    color: #f5f5f5;
+    cursor: pointer;
+}
+
+.fi-panel-profile .profile-project-stage-status .fi-radio-input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    appearance: none;
+    border: 1px solid #9b9b9b;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-stage-status .fi-radio-input:checked {
+    border-color: #fecc39;
+    background: #fecc39;
+    box-shadow: inset 0 0 0 4px #343434;
+}
+
+.fi-panel-profile .profile-project-stage-status .fi-fo-radio-label:has(input:checked),
+.fi-panel-profile .profile-project-stage-status .fi-fo-radio-label:has(input:checked) .fi-fo-radio-label-text {
+    color: #fecc39;
+}
+
+.fi-panel-profile .profile-project-stage-status .fi-fo-radio-label:has(input:disabled) {
+    color: #777;
+    cursor: not-allowed;
+}
+
+.fi-panel-profile .profile-project-stage-status .fi-fo-radio-label-text {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-stages-repeater .fi-fo-repeater-item {
+    border: 1px solid #4b4b4b;
+    background: #383838;
+}
+
+.fi-panel-profile .profile-project-stages-repeater .fi-fo-repeater-item-header {
+    min-height: 50px;
+    border-bottom: 1px solid #4b4b4b;
+    background: #343434;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--item {
+    width: calc(25% - 1rem) !important;
+    min-width: 130px;
+    margin: 0.5rem !important;
+    overflow: hidden;
+    border: 1px solid #4b4b4b;
+    background: #292929;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file,
+.fi-panel-profile .profile-project-stage-documents .filepond--image-preview-wrapper,
+.fi-panel-profile .profile-project-stage-documents .filepond--image-preview {
+    min-height: 140px;
+    border-radius: 0 !important;
+    background: #343434;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file-info {
+    position: absolute !important;
+    z-index: 5;
+    inset: auto 0 0 !important;
+    max-width: none;
+    min-height: 40px;
+    overflow: hidden;
+    background: #202020;
+    padding: 0.3rem 0.4rem;
+    color: #fff;
+    font-size: 0.625rem;
+    text-shadow: none;
+    transform: none !important;
+    opacity: 1 !important;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file-info-main,
+.fi-panel-profile .profile-project-stage-documents .filepond--file-info-sub {
+    display: block;
+    overflow: hidden;
+    color: #fff;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 1 !important;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file-info-sub {
+    margin-top: 0.1rem;
+    color: #e8e8e8;
+    font-size: 0.5625rem;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--download-icon,
+.fi-panel-profile .profile-project-stage-documents .filepond--open-icon {
+    position: relative;
+    display: inline-flex !important;
+    width: 26px;
+    height: 26px;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-inline-end: 0.3rem;
+    background-color: #fecc39 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    color: #343434;
+    font-size: 0;
+    vertical-align: middle;
+    opacity: 1 !important;
+    filter: none;
+    -webkit-mask: none !important;
+    mask: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    text-decoration: none;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--download-icon::before,
+.fi-panel-profile .profile-project-stage-documents .filepond--open-icon::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 15px;
+    height: 15px;
+    background: #343434;
+    content: '';
+    transform: translate(-50%, -50%);
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--open-icon::before {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M13.5 4.5H19.5V10.5M10.5 13.5L19.5 4.5M19.5 13.5V18A1.5 1.5 0 0 1 18 19.5H6A1.5 1.5 0 0 1 4.5 18V6A1.5 1.5 0 0 1 6 4.5H10.5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M13.5 4.5H19.5V10.5M10.5 13.5L19.5 4.5M19.5 13.5V18A1.5 1.5 0 0 1 18 19.5H6A1.5 1.5 0 0 1 4.5 18V6A1.5 1.5 0 0 1 6 4.5H10.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--download-icon::before {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 3V15M7.5 10.5L12 15L16.5 10.5M4.5 19.5H19.5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 3V15M7.5 10.5L12 15L16.5 10.5M4.5 19.5H19.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--download-icon:hover,
+.fi-panel-profile .profile-project-stage-documents .filepond--open-icon:hover {
+    background-color: #fff !important;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file-action-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    background: #fecc39;
+    color: #343434;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file-action-button:hover {
+    background: #ffd75c;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--file-action-button svg {
+    color: #343434;
+}
+
+.fi-panel-profile .profile-project-stage-documents .filepond--panel-root {
+    border-radius: 0 !important;
+    background: #343434;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .profile-project-stage-status .fi-fo-radio {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.375rem;
+    }
+
+    .fi-panel-profile .profile-project-stage-status .fi-fo-radio-label {
+        width: 100%;
+        min-height: 48px;
+    }
+
+    .fi-panel-profile .profile-project-stages-repeater .fi-fo-repeater-item .fi-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .fi-panel-profile .profile-project-stages-repeater .fi-fo-repeater-item .fi-grid-col {
+        grid-column: 1 / -1 !important;
+    }
+
+    .fi-panel-profile .profile-project-stage-documents .filepond--item {
+        width: calc(100% - 1rem) !important;
+        min-width: 0;
+    }
+
+    .fi-panel-profile .profile-project-stage-documents .filepond--file,
+    .fi-panel-profile .profile-project-stage-documents .filepond--image-preview-wrapper,
+    .fi-panel-profile .profile-project-stage-documents .filepond--image-preview {
+        min-height: 190px;
+    }
+
+    .fi-panel-profile .profile-project-stage-documents .filepond--file-info {
+        min-height: 42px;
+        padding: 0.3rem 0.4rem;
+    }
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-fo-table-repeater > table,
@@ -1171,7 +1576,7 @@ section
     min-height: 60px;
     border: 0;
     border-radius: 0;
-    background: #323232;
+    background: #343434;
     color: #f5f5f5;
     padding-block: 0;
 }
@@ -1183,7 +1588,7 @@ section
 .fi-panel-profile .profile-project-form-wizard .treeselect-list {
     border-color: #4b4b4b;
     border-radius: 0;
-    background: #323232;
+    background: #343434;
     color: #f5f5f5;
 }
 
@@ -1192,6 +1597,21 @@ section
 .fi-panel-profile .profile-project-form-wizard .treeselect-list__item--checked {
     background: #fecc39 !important;
     color: #343434;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step:not(.fi-active) {
+        display: flex;
+    }
+
+    .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-step.fi-active {
+        min-height: 360px;
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer {
+        padding: 0 1rem 2rem;
+    }
 }
 
 /* Таблиці, картки записів і pagination. */
