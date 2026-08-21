@@ -1293,11 +1293,18 @@ section
     font-weight: 700;
 }
 
-.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next .fi-icon {
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next .fi-icon:not(.fi-loading-indicator) {
     width: 100%;
     height: 100%;
     border-inline-start: 1px solid #343434;
     padding: 1.35rem;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next .fi-loading-indicator {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 0;
+    padding: 0;
 }
 
 .fi-panel-profile .profile-project-publication-copy {

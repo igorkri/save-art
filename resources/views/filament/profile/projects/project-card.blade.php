@@ -10,7 +10,8 @@
     $isModeration = $project->status === ProjectStatus::Moderation;
     $isRejected = $project->status === ProjectStatus::Rejected;
     $isDraft = in_array($project->status, [ProjectStatus::New, ProjectStatus::Draft], true);
-    $isWork = $project->source === ProjectSource::ArtUaInfo->value;
+    $isWork = $project->source === ProjectSource::ArtUaInfo
+        || $project->source === ProjectSource::ArtUaInfo->value;
     $isStateCard = $isDraft || (! $isWork && ($isModeration || $isRejected));
 
     $authorName = $project->team?->name ?: $project->user?->display_name ?: __('profile_projects.card.unknown_author');
