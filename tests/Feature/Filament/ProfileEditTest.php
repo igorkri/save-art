@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Enums\ContractStatus;
 use App\Enums\Currency;
 use App\Filament\Profile\Pages\Auth\EditProfile;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
@@ -28,6 +29,7 @@ class ProfileEditTest extends TestCase
         parent::setUp();
 
         Storage::fake('public');
+        Storage::fake('local');
         Storage::disk('public')->put('avatars/old.jpg', 'old avatar');
 
         $this->user = User::factory()->artist()->withProfiles()->create([
@@ -98,7 +100,48 @@ class ProfileEditTest extends TestCase
         $this->get('/profile/profile')
             ->assertOk()
             ->assertSee('Мій профіль')
+            ->assertSee('Юридичні дані')
+            ->assertSee('Персональні дані')
+            ->assertSee('Соціальні мережі')
+            ->assertSee('Безпека')
+            ->assertSee('Договір про співпрацю')
             ->assertSee('Пошук');
+    }
+
+    public function test_artist_can_prepare_an_agreement_for_signing(): void
+    {
+        Livewire::test(EditProfile::class)
+            ->call('prepareContract')
+            ->assertNotified(__('profile_edit.messages.contract_prepared'));
+
+        $this->assertDatabaseHas('contracts', [
+            'user_id' => $this->user->id,
+            'status' => ContractStatus::Pending->value,
+        ]);
+    }
+
+    public function test_artist_can_request_profile_deletion(): void
+    {
+        Livewire::test(EditProfile::class)
+            ->call('requestProfileDeletion')
+            ->assertNotified(__('profile_edit.messages.deletion_requested'));
+
+        $this->assertNotNull($this->user->refresh()->deletion_requested_at);
+    }
+
+    public function test_artist_can_save_identity_documents_from_agreement_tab(): void
+    {
+        Storage::disk('public')->put('profile_documents/passport.pdf', 'passport');
+
+        Livewire::test(EditProfile::class)
+            ->set('data.profileDocuments', ['profile_documents/passport.pdf'])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('profile_documents', [
+            'user_id' => $this->user->id,
+            'file_path' => 'profile_documents/passport.pdf',
+        ]);
     }
 
     public function test_global_search_only_returns_current_artists_records(): void

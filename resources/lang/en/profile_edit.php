@@ -3,15 +3,22 @@
 return [
     'title' => 'My Profile',
     'saved_notification' => 'Profile saved',
+    'completion_prompt' => 'Please complete your registration to get full access to all platform features.',
 
     'tabs' => [
-        'personal' => 'Personal profile',
-        'legal' => 'Legal profile',
+        'personal' => 'Personal details',
+        'legal' => 'Legal details',
         'social' => 'Social media',
+        'security' => 'Security',
+        'agreement' => 'Cooperation agreement',
         'documents' => 'Documents',
     ],
 
     'sections' => [
+        'personal' => [
+            'title' => 'Personal details',
+            'description' => 'Information displayed on your public author profile.',
+        ],
         'account' => [
             'title' => 'Account details',
             'description' => 'The email and password used to sign in to your account.',
@@ -41,8 +48,19 @@ return [
             'description' => 'Used for communication and on company documents.',
         ],
         'social_links' => [
-            'title' => 'Links',
-            'description' => 'Add links to your profiles and website. All fields are optional — fill in only the ones you have.',
+            'title' => 'Add your social media',
+            'description' => 'Share your public profiles if you would like to grow your network faster.',
+        ],
+        'security' => [
+            'title' => 'Security settings',
+            'description' => 'Change your password and email address here.',
+        ],
+        'agreement' => [
+            'title' => 'Cooperation agreement between the User and the Platform',
+            'description' => 'A cooperation agreement must be signed to conduct financial transactions between the Platform and the User.',
+            'signing_note' => 'We use the Vchasno electronic document management service.',
+            'documents_note' => 'Identity documents are also required. Upload photos or scans of your passport and tax number.',
+            'optional_note' => 'You can complete this section at any time. If you are an artist who wants to receive project payouts, complete it now.',
         ],
         'documents' => [
             'title' => 'Profile documents',
@@ -97,6 +115,14 @@ return [
         'legal_active' => 'When turned off, the details below aren\'t used for payouts.',
         'edrpou' => 'EDRPOU code (8 digits) or tax ID for sole proprietors.',
         'legal_logo' => 'Square image, up to 5 MB.',
+        'email_change' => 'If you change your email, we will send a confirmation message to the new address.',
+    ],
+
+    'actions' => [
+        'save' => 'Save',
+        'sign_agreement' => 'Sign agreement',
+        'upload_documents' => 'Upload documents',
+        'delete_profile' => 'Delete profile',
     ],
 
     'currency' => [
@@ -124,6 +150,10 @@ return [
     'messages' => [
         'document_unreadable' => 'Failed to read the document.',
         'document_duplicate' => 'This document has already been uploaded.',
+        'contract_prepared' => 'Agreement prepared',
+        'contract_prepared_body' => 'The agreement was created and is awaiting an electronic signature.',
+        'delete_confirmation' => 'A profile deletion request will be sent to the administration. This action should not be taken accidentally.',
+        'deletion_requested' => 'Profile deletion request sent.',
     ],
 
     'completion_required' => [

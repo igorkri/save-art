@@ -218,6 +218,77 @@ section
     text-align: center;
 }
 
+/* Профіль автора повторює композицію макетів: одна горизонтальна навігація,
+   вузька центральна колонка форми та компактне кругле фото. */
+.profile-edit-intro {
+    display: block;
+    margin-inline: auto;
+    max-width: 52rem;
+    text-align: center;
+    font-size: 1.125rem;
+}
+
+.profile-edit-tabs.fi-contained {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.profile-edit-tabs > .fi-tabs {
+    border-radius: 0;
+    background: #2f2f2f;
+    padding: 0.75rem 1rem;
+}
+
+.profile-edit-tabs > .fi-tabs .fi-tabs-item {
+    border-radius: 0;
+    font-family: 'Unbounded', sans-serif;
+}
+
+.profile-edit-tabs > .fi-sc-tabs-tab.fi-active {
+    padding-block: 2.5rem;
+}
+
+.profile-edit-content {
+    width: min(100%, 48rem);
+    margin-inline: auto;
+}
+
+.profile-edit-content.fi-section {
+    border: 0;
+    background: transparent;
+}
+
+.profile-edit-avatar-field {
+    width: min(100%, 180px);
+}
+
+.profile-edit-avatar-field .filepond--root,
+.profile-edit-avatar-field .filepond--drop-label {
+    min-height: 180px;
+}
+
+.profile-edit-tabs .fi-sc-actions.fi-align-center,
+.profile-edit-tabs .fi-sc-actions.fi-full-width {
+    justify-content: center;
+}
+
+.profile-edit-tabs .fi-sc-actions.fi-full-width .fi-btn {
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    .profile-edit-tabs > .fi-tabs {
+        padding: 0.375rem;
+    }
+
+    .profile-edit-tabs > .fi-sc-tabs-tab.fi-active {
+        padding-inline: 0 !important;
+        padding-block: 0.75rem !important;
+    }
+}
+
 .profile-primary-image-field .filepond--drop-label label::before {
     display: block;
     width: 1.5rem;
@@ -290,6 +361,30 @@ section
     .profile-primary-image-field .filepond--drop-label {
         min-height: min(400px, calc(100vw - 3rem));
     }
+}
+
+/* На сторінці редагування профілю макет не використовує карткові рамки:
+   прибираємо загальнопанельні border у Tabs і Section лише тут. */
+.fi-panel-profile .profile-edit-tabs.fi-sc-tabs.fi-contained,
+.fi-panel-profile .profile-edit-tabs > .fi-tabs,
+.fi-panel-profile .profile-edit-tabs .profile-edit-content.fi-section,
+.fi-panel-profile .profile-edit-tabs .profile-edit-content > .fi-section-header,
+.fi-panel-profile .profile-edit-tabs .profile-edit-content > .fi-section-content-ctn,
+.fi-panel-profile .profile-edit-tabs .profile-edit-content > .fi-section-content-ctn > .fi-section-content {
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.fi-panel-profile .profile-edit-tabs.fi-sc-tabs.fi-contained,
+.fi-panel-profile .profile-edit-tabs .profile-edit-content.fi-section,
+.fi-panel-profile .profile-edit-tabs .profile-edit-content > .fi-section-header {
+    background: transparent !important;
+}
+
+/* Загальний active-стиль панелі помилково малює жовту лінію на всій панелі
+   вмісту вкладки. Акцент має залишатися тільки під кнопкою вкладки. */
+.fi-panel-profile .profile-edit-tabs > .fi-sc-tabs-tab.fi-active {
+    box-shadow: none !important;
 }
 
 @variant dark {
@@ -2717,6 +2812,57 @@ section
 .fi-panel-profile .profile-project-stage-documents .filepond--panel-root {
     border-radius: 0 !important;
     background: #343434;
+}
+
+/* FilePond не створює прев'ю для PDF та офісних документів, через що їхні
+   картки виглядають порожніми. Виводимо піктограму з розширенням файла. */
+.fi-panel-profile .profile-agreement-documents .filepond--item[data-file-extension]::before {
+    position: absolute;
+    z-index: 4;
+    top: calc(50% - 18px);
+    left: 50%;
+    display: flex;
+    width: 64px;
+    height: 78px;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fecc39;
+    background: #292929;
+    color: #fecc39;
+    content: attr(data-file-extension);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.fi-panel-profile .profile-agreement-documents .filepond--item[data-file-extension]::after {
+    position: absolute;
+    z-index: 5;
+    top: calc(50% - 57px);
+    left: calc(50% + 13px);
+    width: 18px;
+    height: 18px;
+    border-bottom: 3px solid #fecc39;
+    border-left: 3px solid #fecc39;
+    background: #343434;
+    content: '';
+    pointer-events: none;
+}
+
+/* У договору контейнер вужчий, ніж у формі етапів проєкту: три ширші
+   картки заповнюють ряд без порожньої четвертої колонки праворуч. */
+.fi-panel-profile .profile-agreement-documents .filepond--item {
+    width: calc(33.333% - 1rem) !important;
+}
+
+@media (max-width: 900px) and (min-width: 768px) {
+    .fi-panel-profile .profile-agreement-documents .filepond--item {
+        width: calc(50% - 1rem) !important;
+    }
 }
 
 @media (max-width: 767px) {
