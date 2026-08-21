@@ -498,11 +498,50 @@ class ProjectForm
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-stages'])
                         ->disabled(fn (?Project $record): bool => $record?->exists === true && ! $record->canManageStagesByOwner())
                         ->schema([
+                            Placeholder::make('stages_intro')
+                                ->hiddenLabel()
+                                ->content(new HtmlString(
+                                    '<div class="profile-project-stages-intro">'
+                                    .'<p>'.e(__('profile_projects.stages.schedule')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.description')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.visibility')).'</p>'
+                                    .'<div class="profile-project-stages-intro-group">'
+                                    .'<p>'.e(__('profile_projects.stages.example')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.example_stage')).'</p>'
+                                    .'</div>'
+                                    .'<p>'.e(__('profile_projects.stages.order')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.payment')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.notifications')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.settlement')).'</p>'
+                                    .'<p>'.e(__('profile_projects.stages.completion')).'</p>'
+                                    .'</div>'
+                                ))
+                                ->extraAttributes(['class' => 'profile-project-stages-intro-field']),
+
                             Repeater::make('stages')
-                                ->label(__('profile_projects.fields.stages'))
+                                ->label(__('profile_projects.stages.new_stage'))
                                 ->relationship()
                                 ->orderColumn('order')
                                 ->schema([
+                                    TextInput::make('title')
+                                        ->label(__('profile_projects.fields.stage_title'))
+                                        ->placeholder(__('profile_projects.placeholders.stage_title'))
+                                        ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-title'])
+                                        ->required()
+                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
+                                            && $record->status !== StageStatus::Planned)
+                                        ->columnSpanFull(),
+
+                                    Textarea::make('description')
+                                        ->label(__('profile_projects.fields.stage_description'))
+                                        ->placeholder(__('profile_projects.placeholders.stage_description'))
+                                        ->rows(2)
+                                        ->autosize()
+                                        ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-description'])
+                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
+                                            && $record->status !== StageStatus::Planned)
+                                        ->columnSpanFull(),
+
                                     Radio::make('status')
                                         ->label(__('profile_projects.fields.stage_status'))
                                         ->helperText(__('profile_projects.helpers.stage_status'))
@@ -543,21 +582,6 @@ class ProjectForm
                                                 }
                                             }
                                         }),
-
-                                    TextInput::make('title')
-                                        ->label(__('profile_projects.fields.stage_title'))
-                                        ->required()
-                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
-                                            && $record->status !== StageStatus::Planned)
-                                        ->columnSpanFull(),
-
-                                    Textarea::make('description')
-                                        ->label(__('profile_projects.fields.stage_description'))
-                                        ->rows(2)
-                                        ->autosize()
-                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
-                                            && $record->status !== StageStatus::Planned)
-                                        ->columnSpanFull(),
 
                                     TextInput::make('days_planned')
                                         ->label(__('profile_projects.fields.stage_days_planned'))
@@ -649,6 +673,17 @@ class ProjectForm
 
                                     Hidden::make('started_at'),
                                     Hidden::make('completed_at'),
+
+                                    Placeholder::make('stage_edit_notice')
+                                        ->hiddenLabel()
+                                        ->content(new HtmlString(
+                                            '<div class="profile-project-stage-notice">'
+                                            .'<p>'.e(__('profile_projects.stages.add_notice')).'</p>'
+                                            .'<p>'.e(__('profile_projects.stages.edit_notice')).'</p>'
+                                            .'</div>'
+                                        ))
+                                        ->visible(fn (?ProjectStage $record): bool => $record?->exists !== true)
+                                        ->columnSpanFull(),
                                 ])
                                 ->columns(6)
                                 ->extraFieldWrapperAttributes(['class' => 'profile-project-stages-repeater'])
@@ -656,8 +691,12 @@ class ProjectForm
                                 ->defaultItems(0)
                                 ->deletable(fn (?Project $record): bool => $record?->exists !== true || $record->canBeFullyEditedByOwner())
                                 ->reorderable(fn (?Project $record): bool => $record?->exists !== true || $record->canBeFullyEditedByOwner())
+                                ->addAction(fn (Action $action): Action => $action
+                                    ->label(__('profile_projects.actions.add_stage'))
+                                    ->icon('heroicon-m-plus')
+                                    ->iconButton())
                                 ->collapsible()
-                                ->collapsed()
+//                                ->collapsed(fn (?Project $record): bool => $record?->exists === true)
                                 ->itemLabel(function (array $state): string|Htmlable {
                                     $title = e($state['title'] ?? __('profile_projects.defaults.stage_title'));
                                     $status = StageStatus::tryFrom($state['status'] ?? '');

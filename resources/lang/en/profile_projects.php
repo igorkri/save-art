@@ -53,6 +53,22 @@ return [
         'details_notice' => 'Budget items can be added while creating the project. After publication, the specified information and amounts cannot be edited or deleted.',
     ],
 
+    'stages' => [
+        'new_stage' => 'New work stage',
+        'schedule' => 'This is your work schedule.',
+        'description' => 'Describe the project implementation stages in detail: specify the number of days, the required amount, and the amount of work to be completed within that period.',
+        'visibility' => 'It is available for viewing only to you and the project patrons.',
+        'example' => 'For example, you are shooting a music video:',
+        'example_stage' => 'Preparing for the shoot.',
+        'order' => 'Stages do not have to be completed in order; follow the sequence required by your workflow.',
+        'payment' => 'To receive funds for a stage, specify the actual amount spent and provide documentary proof of completion, such as receipts or photographs.',
+        'notifications' => 'We will notify you when each stage deadline is reached.',
+        'settlement' => 'Financial settlement between the Platform and the Artist takes place only after project fundraising is complete.',
+        'completion' => 'After closing the final implementation stage, change the project status to Completed and add the finished result.',
+        'add_notice' => 'Stages can be added while creating the project.',
+        'edit_notice' => 'Once a stage has started, its planned details cannot be edited or deleted.',
+    ],
+
     'bonuses' => [
         'intro' => 'Reward your project patrons with gifts.',
         'example_print' => 'Painting a picture? Give them a print.',
@@ -128,6 +144,8 @@ return [
 
     'placeholders' => [
         'budget_item_name' => 'For example, paints',
+        'stage_title' => 'Stage title',
+        'stage_description' => 'Describe the stage',
         'bonus_quantity' => '0',
         'bonus_description' => 'What will you give?',
         'short_description' => 'Tell us about the project (up to 500 characters)',
@@ -139,6 +157,7 @@ return [
         'preview_project' => 'Preview project',
         'add_bonus' => 'Add bonus',
         'add_budget_item' => 'Add budget item',
+        'add_stage' => 'Add stage',
         'submit_for_moderation' => 'Submit for moderation',
         'submit_for_moderation_heading' => 'Submit the project for moderation?',
         'submit_for_moderation_description' => 'A moderator will review the project. While moderation is in progress, editing will be restricted.',
