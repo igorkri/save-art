@@ -12,7 +12,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -69,20 +68,6 @@ class ProfilePanelProvider extends PanelProvider
                 ],
             ])
             ->font('Wix Madefor Display')
-            ->navigationGroups([
-                NavigationGroup::make()
-                    ->label(fn (): string => __('profile_panel.nav_groups.projects'))
-                    ->collapsible(),
-                NavigationGroup::make()
-                    ->label(fn (): string => __('profile_panel.nav_groups.works'))
-                    ->collapsible(),
-                NavigationGroup::make()
-                    ->label(fn (): string => __('profile_panel.nav_groups.services'))
-                    ->collapsible(),
-                NavigationGroup::make()
-                    ->label(fn (): string => __('profile_panel.nav_groups.team'))
-                    ->collapsible(),
-            ])
             ->discoverResources(in: app_path('Filament/Profile/Resources'), for: 'App\Filament\Profile\Resources')
             ->discoverPages(in: app_path('Filament/Profile/Pages'), for: 'App\Filament\Profile\Pages')
             ->pages([
@@ -236,45 +221,6 @@ class ProfilePanelProvider extends PanelProvider
         box-shadow: none !important;
     }
 }
-.fi-sidebar-group {
-    border-radius: 0.625rem;
-    border: 1px solid rgba(0,0,0,0.08);
-    overflow: hidden;
-    background-color: rgba(0,0,0,0.015);
-    gap: 0;
-}
-.dark .fi-sidebar-group {
-    border-color: rgba(255,255,255,0.05);
-    background-color: rgba(255,255,255,0.025);
-}
-.fi-sidebar-group-btn {
-    background-color: rgba(0, 0, 0, 0.19);
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    padding: 0.5rem 0.75rem;
-    border-radius: 0;
-}
-.dark .fi-sidebar-group-btn {
-    background-color: rgba(255,255,255,0.05);
-    border-bottom-color: rgba(255,255,255,0.06);
-}
-
-.fi-sidebar-group-label {
-    font-size: 0.6875rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: black;
-}
-
-.dark .fi-sidebar-group-label {
-    color: white;
-}
-
-.fi-sidebar-group-items {
-    padding: 0.375rem;
-    gap: 0.125rem;
-}
-
 /* Іконки "скачати"/"відкрити" у FileUpload за замовчуванням білі (розраховані
    на показ поверх темного фото-превью, як в інших кнопок FilePond, що мають
    власну темну кругову підкладку). Просто перефарбувати іконку недостатньо —

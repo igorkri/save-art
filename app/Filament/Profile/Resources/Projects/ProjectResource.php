@@ -14,7 +14,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 
 class ProjectResource extends Resource
 {
@@ -23,11 +22,6 @@ class ProjectResource extends Resource
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('profile_panel.nav_groups.projects');
-    }
 
     public static function getModelLabel(): string
     {

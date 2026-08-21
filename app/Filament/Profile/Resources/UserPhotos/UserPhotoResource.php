@@ -14,18 +14,12 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 
 class UserPhotoResource extends Resource
 {
     protected static ?string $model = UserPhoto::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('profile_panel.nav_groups.works');
-    }
 
     public static function getModelLabel(): string
     {

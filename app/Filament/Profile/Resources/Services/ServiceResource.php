@@ -16,7 +16,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 
 class ServiceResource extends Resource
 {
@@ -25,11 +24,6 @@ class ServiceResource extends Resource
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('profile_panel.nav_groups.services');
-    }
 
     public static function getModelLabel(): string
     {

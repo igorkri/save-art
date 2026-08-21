@@ -10,18 +10,12 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 
 class DonationResource extends Resource
 {
     protected static ?string $model = Donation::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('profile_panel.nav_groups.projects');
-    }
 
     public static function getModelLabel(): string
     {

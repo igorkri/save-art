@@ -2,13 +2,6 @@
 
 return [
     'brand' => 'Кабінет',
-    'nav_groups' => [
-        'projects' => 'Проєкти',
-        'works' => 'Роботи',
-        'services' => 'Послуги',
-        'team' => 'Команда',
-        'notifications' => 'Сповіщення',
-    ],
     'google_auth' => [
         'button' => 'Увійти через Google',
         'no_email' => 'Не вдалося отримати email з облікового запису Google.',

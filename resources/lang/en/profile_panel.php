@@ -2,13 +2,6 @@
 
 return [
     'brand' => 'Dashboard',
-    'nav_groups' => [
-        'projects' => 'Projects',
-        'works' => 'Works',
-        'services' => 'Services',
-        'team' => 'Team',
-        'notifications' => 'Notifications',
-    ],
     'google_auth' => [
         'button' => 'Sign in with Google',
         'no_email' => 'Could not get an email from the Google account.',

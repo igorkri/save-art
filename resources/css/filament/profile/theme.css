@@ -13,7 +13,6 @@
 .fi-modal-heading,
 .fi-btn,
 .fi-sidebar-item-label,
-.fi-sidebar-group-label,
 .fi-user-name,
 .fi-section-header-heading,
 .fi-wizard-header-step-label,
@@ -930,7 +929,6 @@ section
 .fi-panel-profile .fi-header-heading,
 .fi-panel-profile .fi-breadcrumbs-item-label,
 .fi-panel-profile .fi-sidebar-item-label,
-.fi-panel-profile .fi-sidebar-group-label,
 .fi-panel-profile .fi-user-name,
 .fi-panel-profile .fi-user-menu-trigger,
 .fi-panel-profile .fi-section-header-heading,
@@ -948,18 +946,6 @@ section
 .fi-panel-profile .fi-ta-description,
 .fi-panel-profile .fi-ta-empty-state-description {
     color: #a9a9a9;
-}
-
-.fi-panel-profile .fi-sidebar-group {
-    border: 1px solid #4b4b4b;
-    border-radius: 0;
-    background: #383838;
-}
-
-.fi-panel-profile .fi-sidebar-group-btn {
-    border-color: #4b4b4b;
-    border-radius: 0;
-    background: #2f2f2f;
 }
 
 .fi-panel-profile .fi-sidebar-item .fi-sidebar-item-btn {

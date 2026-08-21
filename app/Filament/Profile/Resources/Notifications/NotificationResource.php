@@ -10,18 +10,12 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 
 class NotificationResource extends Resource
 {
     protected static ?string $model = Notification::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBell;
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('profile_panel.nav_groups.notifications');
-    }
 
     public static function getModelLabel(): string
     {
