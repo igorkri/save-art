@@ -21,8 +21,8 @@ use Illuminate\Support\Str;
  * @property string|null $project_slug
  * @property \Carbon\Carbon $expires_at
  * @property \Carbon\Carbon|null $used_at
- * @property-read \App\Models\User $user
- * @property-read \App\Models\User $admin
+ * @property-read User $user
+ * @property-read User $admin
  */
 class ImpersonationToken extends Model
 {
@@ -90,11 +90,17 @@ class ImpersonationToken extends Model
     /**
      * Куди на фронтенді потрапити після обміну токена: одразу на проєкт
      * автора (якщо грант видано з картки проєкту) або в загальний кабінет.
-     * Формат шляху залежить від фронтенду — save-art (SPA) та art-ua-info
-     * (Next.js) мають різну структуру роутів кабінету.
+     * Формат шляху залежить від призначення — кабінет save-art, реальна
+     * сторінка попереднього перегляду або кабінет art-ua-info.
      */
     public function redirectPath(): string
     {
+        if ($this->target_app === 'save_art_project_preview') {
+            return $this->project_slug
+                ? "/project/{$this->project_slug}"
+                : '/projects';
+        }
+
         if ($this->target_app === 'art_ua_info') {
             return $this->project_slug
                 ? "/profile/{$this->user->slug}/edit-project?edit={$this->project_slug}"

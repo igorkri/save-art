@@ -30,6 +30,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Components\Actions as SchemaActions;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
@@ -628,51 +629,79 @@ class ProjectForm
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-bonuses'])
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
+                            Placeholder::make('bonuses_intro')
+                                ->hiddenLabel()
+                                ->content(new HtmlString(
+                                    '<div class="profile-project-bonuses-intro">'
+                                    .'<div class="profile-project-bonuses-examples">'
+                                    .'<p>'.e(__('profile_projects.bonuses.intro')).'</p>'
+                                    .'<p>'.e(__('profile_projects.bonuses.example_print')).'</p>'
+                                    .'<p>'.e(__('profile_projects.bonuses.example_premiere')).'</p>'
+                                    .'<p>'.e(__('profile_projects.bonuses.example_album')).'</p>'
+                                    .'</div>'
+                                    .'<p>'.e(__('profile_projects.bonuses.support_hint')).'</p>'
+                                    .'<p>'.e(__('profile_projects.bonuses.optional')).'</p>'
+                                    .'</div>'
+                                ))
+                                ->extraAttributes(['class' => 'profile-project-bonuses-intro-field']),
+
                             Repeater::make('bonuses')
-                                ->label(__('profile_projects.fields.bonuses'))
+                                ->hiddenLabel()
                                 ->relationship()
                                 ->schema([
-                                    TextInput::make('order')
-                                        ->label(__('profile_projects.fields.bonus_order'))
-                                        ->numeric()
-                                        ->default(0)
-                                        ->columnSpan(1),
+                                    Hidden::make('order')
+                                        ->default(0),
+
+                                    Hidden::make('title')
+                                        ->default(__('profile_projects.defaults.bonus_title')),
+
+                                    Placeholder::make('support_amount_heading')
+                                        ->hiddenLabel()
+                                        ->content(__('profile_projects.bonuses.support_amount'))
+                                        ->extraAttributes(['class' => 'profile-project-bonus-range-heading'])
+                                        ->columnSpanFull(),
 
                                     TextInput::make('min_donation')
                                         ->label(__('profile_projects.fields.bonus_min_donation'))
+                                        ->placeholder('0')
                                         ->numeric()
                                         ->required()
                                         ->columnSpan(1),
 
                                     TextInput::make('max_donation')
                                         ->label(__('profile_projects.fields.bonus_max_donation'))
+                                        ->placeholder('0')
                                         ->numeric()
                                         ->gt('min_donation')
                                         ->columnSpan(1),
 
                                     TextInput::make('quantity')
                                         ->label(__('profile_projects.fields.bonus_quantity'))
+                                        ->prefixIcon('heroicon-s-gift')
                                         ->numeric()
                                         ->placeholder(__('profile_projects.placeholders.bonus_quantity'))
-                                        ->helperText(__('profile_projects.helpers.bonus_quantity'))
                                         ->columnSpan(1),
 
-                                    TextInput::make('title')
-                                        ->label(__('profile_projects.fields.bonus_title'))
-                                        ->required()
-                                        ->columnSpanFull(),
                                     Textarea::make('description')
                                         ->label(__('profile_projects.fields.bonus_description'))
-                                        ->rows(2)
+                                        ->placeholder(__('profile_projects.placeholders.bonus_description'))
+                                        ->rows(1)
                                         ->autosize()
                                         ->columnSpanFull(),
                                 ])
-                                ->columns(4)
+                                ->columns(3)
                                 ->columnSpanFull()
                                 ->defaultItems(0)
-                                ->reorderable()
-                                ->collapsed(false)
-                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? __('profile_projects.defaults.bonus_title')),
+                                ->addActionLabel(__('profile_projects.actions.add_bonus'))
+                                ->addAction(fn (Action $action): Action => $action
+                                    ->icon('heroicon-m-plus')
+                                    ->iconPosition('after'))
+                                ->deleteAction(fn (Action $action): Action => $action
+                                    ->icon('heroicon-o-x-mark')
+                                    ->color('primary'))
+                                ->reorderable(false)
+                                ->collapsible(false)
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-bonuses-repeater']),
                         ]),
 
                     Step::make(__('profile_projects.tabs.publication'))
@@ -688,6 +717,19 @@ class ProjectForm
                                     .'<p>'.e(__('profile_projects.publication.description')).'</p>'
                                     .'</div>'
                                 )),
+
+                            SchemaActions::make([
+                                Action::make('previewProject')
+                                    ->label(__('profile_projects.actions.preview_project'))
+                                    ->icon('heroicon-m-arrow-top-right-on-square')
+                                    ->iconPosition('after')
+                                    ->extraAttributes([
+                                        'class' => 'profile-project-preview-action',
+                                        'onclick' => "window.open('about:blank', 'project-preview')",
+                                    ])
+                                    ->action('previewProject'),
+                            ])
+                                ->extraAttributes(['class' => 'profile-project-preview-actions']),
                         ]),
 
                     Step::make(__('profile_projects.tabs.final_result'))

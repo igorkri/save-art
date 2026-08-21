@@ -44,6 +44,31 @@ class ImpersonateApiTest extends ApiTestCase
             ->assertJsonPath('redirect_path', "/profile/private/{$project->slug}");
     }
 
+    public function test_project_preview_grant_redirects_to_the_public_project_page(): void
+    {
+        $issuer = User::factory()->create();
+        $project = Project::factory()->create(['user_id' => $this->user->id]);
+        $grant = ImpersonationToken::issue(
+            $this->user,
+            $issuer,
+            $project->slug,
+            'save_art_project_preview',
+        );
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson("/api/v1/auth/impersonate/{$grant->token}/exchange");
+
+        $response->assertOk()
+            ->assertJsonPath('is_project_preview', true)
+            ->assertJsonPath('redirect_path', "/project/{$project->slug}");
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $this->user->id,
+            'name' => 'project-preview',
+            'abilities' => '["project:preview"]',
+        ]);
+    }
+
     public function test_exchange_redirects_to_art_ua_info_profile_for_that_target_app(): void
     {
         $admin = User::factory()->create();

@@ -5,6 +5,7 @@ namespace Tests\Feature\Filament;
 use App\Enums\ProjectStatus;
 use App\Filament\Profile\Resources\Projects\Pages\CreateProject;
 use App\Filament\Profile\Resources\Projects\Pages\ListProjects;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
@@ -64,5 +65,32 @@ class ProfileProjectsDraftsTabTest extends TestCase
         Livewire::test(CreateProject::class)
             ->set('data.team_id', $ownTeam->id)
             ->assertHasNoErrors(['data.team_id']);
+    }
+
+    public function test_preview_from_create_page_saves_a_draft_and_issues_a_preview_grant(): void
+    {
+        $category = ArtCategory::factory()->create();
+
+        Livewire::test(CreateProject::class)
+            ->set('data.project_owner', 'personal')
+            ->set('data.title', 'Проєкт для попереднього перегляду')
+            ->set('data.art_category_id', $category->id)
+            ->set('data.currency', 'UAH')
+            ->set('data.budget_goal', 1000)
+            ->call('previewProject')
+            ->assertHasNoErrors()
+            ->assertNotified();
+
+        $project = Project::query()
+            ->where('user_id', $this->user->id)
+            ->where('title', 'Проєкт для попереднього перегляду')
+            ->firstOrFail();
+
+        $this->assertSame(ProjectStatus::Draft, $project->status);
+        $this->assertDatabaseHas('impersonation_tokens', [
+            'user_id' => $this->user->id,
+            'project_slug' => $project->slug,
+            'target_app' => 'save_art_project_preview',
+        ]);
     }
 }

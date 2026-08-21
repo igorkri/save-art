@@ -37,12 +37,23 @@ return [
 
     'publication' => [
         'title' => 'This is how your project will look',
-        'description' => 'Review the entered data before saving. After creation, the project can be saved as a draft or submitted for moderation.',
+        'description' => 'Save your changes and open the real project page in a new tab.',
+        'preview_opened' => 'The preview was opened in a new tab.',
     ],
 
     'content' => [
         'intro' => 'Tell us more about your project. Add photos of the work process, sketches, and more.',
         'optional' => 'This section is optional.',
+    ],
+
+    'bonuses' => [
+        'intro' => 'Reward your project patrons with gifts.',
+        'example_print' => 'Painting a picture? Give them a print.',
+        'example_premiere' => 'Preparing a theatre performance? Invite them to the premiere.',
+        'example_album' => 'Recording a music album? Send them a signed disc.',
+        'support_hint' => 'Choose the bonus type according to the project support amount.',
+        'optional' => 'This option is not required.',
+        'support_amount' => 'Support amount (in the project currency)',
     ],
 
     'fields' => [
@@ -72,9 +83,9 @@ return [
         'stage_documents' => 'Report files',
         'bonuses' => 'Bonuses for patrons',
         'bonus_order' => '#',
-        'bonus_min_donation' => 'Min. donation',
-        'bonus_max_donation' => 'Max. donation',
-        'bonus_quantity' => 'Quantity',
+        'bonus_min_donation' => 'From',
+        'bonus_max_donation' => 'To',
+        'bonus_quantity' => 'Bonuses remaining',
         'bonus_title' => 'Bonus title',
         'bonus_description' => 'Bonus description',
         'status_display' => 'Project status',
@@ -107,13 +118,16 @@ return [
     ],
 
     'placeholders' => [
-        'bonus_quantity' => '∞',
+        'bonus_quantity' => '0',
+        'bonus_description' => 'What will you give?',
         'short_description' => 'Tell us about the project (up to 500 characters)',
     ],
 
     'actions' => [
         'next' => 'Next',
         'back' => 'Back',
+        'preview_project' => 'Preview project',
+        'add_bonus' => 'Add bonus',
         'submit_for_moderation' => 'Submit for moderation',
         'submit_for_moderation_heading' => 'Submit the project for moderation?',
         'submit_for_moderation_description' => 'A moderator will review the project. While moderation is in progress, editing will be restricted.',

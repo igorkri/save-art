@@ -4,6 +4,7 @@ namespace App\Filament\Profile\Resources\Projects\Pages;
 
 use App\Enums\ProjectStatus;
 use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
+use App\Filament\Profile\Resources\Projects\Concerns\OpensProjectPreview;
 use App\Filament\Profile\Resources\Projects\Concerns\OptimizesStageDocumentImages;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Concerns\HandlesProjectParameterValuesInForm;
@@ -18,6 +19,7 @@ class EditProject extends EditRecord
 {
     use HandlesContentBlocksBuilder;
     use HandlesProjectParameterValuesInForm;
+    use OpensProjectPreview;
     use OptimizesStageDocumentImages;
 
     protected static string $resource = ProjectResource::class;
@@ -103,6 +105,13 @@ class EditProject extends EditRecord
             $this->syncPendingProjectParameterValues($record);
             $this->dispatchOptimizationForNewStageDocuments($record->fresh(['stages']), $this->stageDocumentsBeforeSave);
         }
+    }
+
+    public function previewProject(): void
+    {
+        $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
+
+        $this->openProjectPreview($this->getRecord()->fresh());
     }
 
     protected function getHeaderActions(): array

@@ -58,8 +58,13 @@ class ImpersonateController extends Controller
         $grant->update(['used_at' => now()]);
 
         $user = $grant->user;
+        $isProjectPreview = $grant->target_app === 'save_art_project_preview';
 
-        $apiToken = $user->createToken('impersonation-by-'.$grant->created_by)->plainTextToken;
+        $apiToken = $user->createToken(
+            $isProjectPreview ? 'project-preview' : 'impersonation-by-'.$grant->created_by,
+            $isProjectPreview ? ['project:preview'] : ['*'],
+            $isProjectPreview ? now()->addMinutes(15) : null,
+        )->plainTextToken;
 
         return response()->json([
             'message' => 'Авторизація успішна',
@@ -71,6 +76,7 @@ class ImpersonateController extends Controller
                 'role' => $user->role->value,
             ],
             'token' => $apiToken,
+            'is_project_preview' => $isProjectPreview,
             'redirect_path' => $grant->redirectPath(),
         ]);
     }

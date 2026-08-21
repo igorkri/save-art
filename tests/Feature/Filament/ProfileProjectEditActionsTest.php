@@ -4,7 +4,9 @@ namespace Tests\Feature\Filament;
 
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
+use App\Enums\UserType;
 use App\Filament\Profile\Resources\Projects\Pages\EditProject;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -44,6 +46,34 @@ class ProfileProjectEditActionsTest extends TestCase
         $project->refresh();
         $this->assertSame(ProjectStatus::Moderation, $project->status);
         $this->assertSame(ModerationStatus::Pending, $project->status_moderation);
+    }
+
+    public function test_artist_can_save_a_draft_and_issue_a_project_preview_grant(): void
+    {
+        $category = ArtCategory::factory()->create();
+        $project = Project::factory()->create([
+            'user_id' => $this->artist->id,
+            'art_category_id' => $category->id,
+            'user_type' => UserType::Personal,
+            'is_legal' => false,
+            'status' => ProjectStatus::Draft,
+        ]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->set('data.title', 'Оновлена назва для перегляду')
+            ->call('previewProject')
+            ->assertHasNoErrors()
+            ->assertNotified();
+
+        $this->assertDatabaseHas('projects', [
+            'id' => $project->id,
+            'title' => 'Оновлена назва для перегляду',
+        ]);
+        $this->assertDatabaseHas('impersonation_tokens', [
+            'user_id' => $this->artist->id,
+            'project_slug' => $project->slug,
+            'target_app' => 'save_art_project_preview',
+        ]);
     }
 
     public function test_submit_for_moderation_action_is_hidden_for_announced_project(): void

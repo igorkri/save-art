@@ -7,6 +7,7 @@ use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
+use App\Filament\Profile\Resources\Projects\Concerns\OpensProjectPreview;
 use App\Filament\Profile\Resources\Projects\Concerns\OptimizesStageDocumentImages;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Concerns\HandlesProjectParameterValuesInForm;
@@ -18,6 +19,7 @@ class CreateProject extends CreateRecord
 {
     use HandlesContentBlocksBuilder;
     use HandlesProjectParameterValuesInForm;
+    use OpensProjectPreview;
     use OptimizesStageDocumentImages;
 
     protected static string $resource = ProjectResource::class;
@@ -30,6 +32,8 @@ class CreateProject extends CreateRecord
      * помилки — Filament очікує там інший формат значення для validateOnly.
      */
     private const LIVE_VALIDATED_FIELDS = ['data.title', 'data.budget_goal'];
+
+    private bool $shouldOpenPreviewAfterCreate = false;
 
     public function getFormActionsContentComponent(): Component
     {
@@ -80,6 +84,29 @@ class CreateProject extends CreateRecord
         if ($record instanceof Project) {
             $this->syncPendingProjectParameterValues($record);
             $this->dispatchOptimizationForAllStageDocuments($record->fresh(['stages']));
+
+            if ($this->shouldOpenPreviewAfterCreate) {
+                $this->openProjectPreview($record->fresh());
+            }
         }
+    }
+
+    public function previewProject(): void
+    {
+        $this->shouldOpenPreviewAfterCreate = true;
+
+        $this->create();
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        if (! $this->shouldOpenPreviewAfterCreate || ! $this->record instanceof Project) {
+            return parent::getRedirectUrl();
+        }
+
+        return ProjectResource::getUrl('edit', [
+            'record' => $this->record,
+            'step' => request()->query('step'),
+        ]);
     }
 }
