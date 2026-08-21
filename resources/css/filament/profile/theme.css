@@ -1141,6 +1141,173 @@ section
     border-radius: 0;
 }
 
+/* Форма каталогів використовує ту саму плоску геометрію, що й профільні проєкти. */
+.fi-panel-profile .fi-resource-catalogs .fi-page-header-main-ctn,
+.fi-panel-profile .fi-resource-catalogs .fi-page-content,
+.fi-panel-profile .fi-resource-catalogs .fi-page-main,
+.fi-panel-profile .fi-resource-catalogs form.fi-sc-form {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .fi-resource-catalogs .profile-catalog-form-section {
+    border: 0;
+    border-radius: 0;
+    background: #414141;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-resource-catalogs .profile-catalog-form-section .fi-section-header {
+    border-bottom: 1px solid #4b4b4b;
+    background: #343434;
+    padding: 1.25rem 1.5rem;
+}
+
+.fi-panel-profile .fi-resource-catalogs .profile-catalog-form-section .fi-section-header-heading {
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.fi-panel-profile .fi-resource-catalogs .profile-catalog-form-section .fi-section-content {
+    padding: 2rem;
+}
+
+.fi-panel-profile .fi-resource-catalogs .fi-input-wrp,
+.fi-panel-profile .fi-resource-catalogs .fi-select-input,
+.fi-panel-profile .fi-resource-catalogs textarea {
+    min-height: 60px;
+    border: 0;
+    border-radius: 0;
+    background: #343434;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-resource-catalogs .fi-fo-field-wrp-label {
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .fi-resource-catalogs .fi-fo-file-upload,
+.fi-panel-profile .fi-resource-catalogs .filepond--root,
+.fi-panel-profile .fi-resource-catalogs .filepond--drop-label,
+.fi-panel-profile .fi-resource-catalogs .filepond--panel-root {
+    border-radius: 0 !important;
+}
+
+.fi-panel-profile .fi-resource-catalogs .filepond--panel-root,
+.fi-panel-profile .fi-resource-catalogs .filepond--drop-label {
+    background: #343434;
+}
+
+.fi-panel-profile .fi-resource-catalogs .filepond--drop-label {
+    border: 1px dashed #4b4b4b;
+    color: #9a9a9a;
+}
+
+.fi-panel-profile .fi-resource-catalogs .fi-btn {
+    min-height: 56px;
+    border-radius: 0;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .fi-input-wrp {
+    border: 1px solid transparent;
+    transition: border-color 150ms ease;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .fi-input-wrp:focus-within {
+    border-color: #fecc39;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input {
+    display: flex;
+    min-height: 60px;
+    align-items: center;
+    padding: 0 3.75rem 0 1rem;
+    cursor: pointer;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__edit {
+    color: #f5f5f5;
+    font-size: 0.9375rem;
+    line-height: 1.25;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__edit::placeholder {
+    color: #929292;
+    opacity: 1;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__operators {
+    right: 0.75rem;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__clear,
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__arrow {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    place-items: center;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__clear,
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__arrow {
+    background-image: none;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__clear svg,
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-input__arrow svg {
+    width: 1rem;
+    height: 1rem;
+    stroke: #fecc39;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list {
+    max-height: 320px;
+    margin-top: 0.25rem;
+    padding: 0;
+    border: 1px solid #555;
+    border-radius: 0;
+    background: #343434;
+    color: #f5f5f5;
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 28%);
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list__item {
+    min-height: 44px;
+    height: auto;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid #454545;
+    border-radius: 0;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list__item-label {
+    color: inherit;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list__item-icon svg {
+    stroke: #fecc39;
+}
+
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list__item--single-selected,
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list__item--checked,
+.fi-panel-profile .profile-catalog-art-category-field .treeselect-list__item--focused {
+    background: #fecc39 !important;
+    color: #343434 !important;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .fi-resource-catalogs .profile-catalog-form-section .fi-section-content {
+        padding: 1rem;
+    }
+}
+
 .fi-panel-profile .profile-project-form-wizard > .fi-sc-wizard-header {
     display: grid;
     grid-auto-columns: max-content;
@@ -3339,6 +3506,110 @@ section
     pointer-events: auto;
 }
 
+.fi-panel-profile .fi-resource-catalogs .fi-ta-ctn,
+.fi-panel-profile .fi-ta-ctn:has(.profile-catalog-card-record) {
+    width: min(100%, 1450px);
+    margin-inline: auto;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-resource-catalogs .fi-ta-content-grid,
+.fi-panel-profile .fi-ta-content-grid:has(.profile-catalog-card-record) {
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #414141;
+}
+
+.fi-panel-profile .profile-catalog-card-record {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: #343434 !important;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-catalog-card-record .fi-ta-record-content-ctn,
+.fi-panel-profile .profile-catalog-card-record .fi-ta-record-content,
+.fi-panel-profile .profile-catalog-card-record .fi-ta-col,
+.fi-panel-profile .profile-catalog-card-record .fi-ta-col-wrp {
+    width: 100%;
+    height: 100%;
+    gap: 0;
+    padding: 0;
+}
+
+.profile-catalog-card {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    background: #343434;
+    color: #f5f5f5;
+}
+
+.profile-catalog-card-cover-ctn {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #2f2f2f;
+}
+
+.profile-catalog-card-cover,
+.profile-catalog-card-cover-fallback {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-catalog-card-cover-fallback {
+    display: grid;
+    place-items: center;
+    color: #96929a;
+    font-size: 0.75rem;
+}
+
+.profile-catalog-card-title {
+    margin: 0;
+    border-bottom: 1px solid #4b4b4b;
+    padding: 1rem 0.75rem;
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.profile-catalog-card-meta {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1rem;
+    padding: 1rem 0.75rem 0.75rem;
+    color: #aaa6ad;
+    font-size: 0.72rem;
+}
+
+.profile-catalog-card-meta > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.profile-catalog-card-meta strong {
+    color: #f7f4ec;
+    font-weight: 400;
+    text-align: right;
+}
+
+.profile-catalog-card-primary {
+    margin: 0 0.75rem 0.75rem;
+    color: #fecc39;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
 .profile-project-card {
     display: flex;
     min-height: 620px;
@@ -4097,7 +4368,48 @@ section
     font-weight: 700;
 }
 
+.fi-panel-profile .profile-catalog-primary-toggle {
+    width: fit-content;
+    min-height: 60px;
+    align-self: end;
+    margin-top: 0;
+    transform: translateY(28px);
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #343434;
+    padding: 10px 14px;
+}
+
+.fi-panel-profile .profile-catalog-primary-toggle .fi-checkbox-input {
+    width: 20px;
+    height: 20px;
+    accent-color: #fecc39;
+    border: 2px solid #fecc39 !important;
+    border-radius: 0;
+    background: #343434 !important;
+}
+
+.fi-panel-profile .profile-catalog-primary-toggle .fi-checkbox-input:checked {
+    border-color: #fecc39 !important;
+    background-color: #fecc39 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='none' stroke='%23343434' stroke-linecap='square' stroke-width='3' d='m4 10 4 4 8-8'/%3E%3C/svg%3E") !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+}
+
+.fi-panel-profile .profile-catalog-primary-toggle .fi-checkbox-label {
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
 @media (max-width: 767px) {
+    .fi-panel-profile .profile-catalog-primary-toggle {
+        transform: none;
+    }
+
     .fi-panel-profile .fi-resource-create-record-page form.fi-sc-form,
     .fi-panel-profile .fi-resource-edit-record-page form.fi-sc-form,
     .fi-panel-profile .fi-page form.fi-sc-form {

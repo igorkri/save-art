@@ -72,8 +72,7 @@ class MyArtCatalogController extends Controller
      *
      *             @OA\Schema(
      *
-     *                 @OA\Property(property="title[uk]", type="string", example="Мій каталог"),
-     *                 @OA\Property(property="title[en]", type="string", example="My catalog"),
+     *                 @OA\Property(property="title", type="string", example="Мій каталог"),
      *                 @OA\Property(property="image", type="string", format="binary", description="Обкладинка (файл) або Base64 data URL"),
      *                 @OA\Property(property="pdf_file", type="string", format="binary", description="PDF-файл каталогу (до 20MB)"),
      *                 @OA\Property(property="art_category", type="string", description="Slug кореневої галузі мистецтва", example="painting"),

@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
+use App\Models\ArtCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
- * @mixin \App\Models\ArtCatalog
+ * @mixin ArtCatalog
  *
  * @OA\Schema(
  *     schema="ArtCatalog",
@@ -18,7 +18,7 @@ use OpenApi\Annotations as OA;
  *     type="object",
  *
  *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="title", ref="#/components/schemas/LocalizedString"),
+ *     @OA\Property(property="title", type="string", example="Мій каталог"),
  *     @OA\Property(property="image_url", type="string"),
  *     @OA\Property(property="published_at", type="string", format="date", nullable=true),
  *     @OA\Property(property="art_category", type="object", nullable=true,
@@ -41,8 +41,6 @@ use OpenApi\Annotations as OA;
  */
 class ArtCatalogResource extends JsonResource
 {
-    use LocalizesFields;
-
     /**
      * Transform the resource into an array.
      *
@@ -50,19 +48,15 @@ class ArtCatalogResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->getLanguage($request);
-
         return [
             'id' => $this->id,
-            'title' => $this->localizeField($this->title, $language),
-            // Сирий об'єкт {uk, en} незалежно від ?language — потрібен для передзаповнення форми редагування.
-            'title_translations' => $this->title,
+            'title' => $this->title,
             'image_url' => Storage::url($this->image),
             'published_at' => $this->published_at?->toDateString(),
             'art_category' => $this->whenLoaded('artCategory', fn () => $this->artCategory ? [
                 'slug' => $this->artCategory->slug,
-                'name' => $this->artCategory->getLabel($language ?? 'uk'),
-                'root_name' => ($this->artCategory->parent ?? $this->artCategory)->getLabel($language ?? 'uk'),
+                'name' => $this->artCategory->getLabel('uk'),
+                'root_name' => ($this->artCategory->parent ?? $this->artCategory)->getLabel('uk'),
             ] : null),
             // Slug кореневої галузі та підкатегорії — для передзаповнення форми редагування каталогу.
             'art_category_slug' => $this->whenLoaded('artCategory', fn () => $this->artCategory?->getRootSlug()),

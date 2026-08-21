@@ -11,7 +11,7 @@ return [
     ],
 
     'fields' => [
-        'title_uk' => 'Title (uk)',
+        'title_uk' => 'Title',
         'title_en' => 'Title (en)',
         'art_category' => 'Art category',
         'published_at' => 'Published at',

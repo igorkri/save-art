@@ -107,12 +107,8 @@ class ArtCatalogController extends Controller
 
         if ($request->filled('search')) {
             $search = mb_strtolower($request->input('search'));
-            $jsonUnquote = (new ArtCatalog)->getConnection()->getDriverName() === 'sqlite' ? '%s' : 'JSON_UNQUOTE(%s)';
-            $titleUk = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.uk')");
-            $titleEn = sprintf($jsonUnquote, "JSON_EXTRACT(title, '$.en')");
-            $query->where(function ($q) use ($search, $titleUk, $titleEn) {
-                $q->whereRaw("LOWER({$titleUk}) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("LOWER({$titleEn}) LIKE ?", ["%{$search}%"])
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
                     ->orWhereHas('user', function ($uq) use ($search) {
                         $uq->whereRaw('LOWER(full_name) LIKE ?', ["%{$search}%"]);
                     });

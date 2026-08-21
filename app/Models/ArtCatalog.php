@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Database\Factories\ArtCatalogFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,21 +12,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int $user_id
- * @property array $title
+ * @property string $title
  * @property string $image
  * @property int|null $art_category_id
- * @property \Carbon\Carbon|null $published_at
+ * @property Carbon|null $published_at
  * @property bool $is_primary
  * @property int $likes_count
  * @property string|null $pdf_file
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property-read \App\Models\User $user
- * @property-read \App\Models\ArtCategory|null $artCategory
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read User $user
+ * @property-read ArtCategory|null $artCategory
  */
 class ArtCatalog extends Model
 {
-    /** @use HasFactory<\Database\Factories\ArtCatalogFactory> */
+    /** @use HasFactory<ArtCatalogFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -41,7 +43,6 @@ class ArtCatalog extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array',
             'published_at' => 'date',
             'is_primary' => 'boolean',
             'likes_count' => 'integer',

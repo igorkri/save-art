@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreArtCatalogRequest extends FormRequest
@@ -17,14 +18,12 @@ class StoreArtCatalogRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'title' => ['required', 'array'],
-            'title.uk' => ['required', 'string', 'max:255'],
-            'title.en' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
             'image' => ['required'], // файл або Base64
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
             'art_category' => ['required', 'string', 'max:100'],
@@ -40,8 +39,7 @@ class StoreArtCatalogRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.uk.required' => 'Введіть назву каталогу українською.',
-            'title.en.required' => 'Введіть назву каталогу англійською.',
+            'title.required' => 'Введіть назву каталогу українською.',
             'art_category.required' => 'Оберіть галузь мистецтва.',
         ];
     }

@@ -11,7 +11,7 @@ return [
     ],
 
     'fields' => [
-        'title_uk' => 'Назва (укр.)',
+        'title_uk' => 'Назва',
         'title_en' => 'Назва (англ.)',
         'art_category' => 'Галузь мистецтва',
         'published_at' => 'Дата публікації',
