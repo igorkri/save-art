@@ -492,6 +492,316 @@ section
     align-self: center;
 }
 
+/* Форма послуги відтворює плаский темний макет із великим квадратним
+   прев'ю, прямокутними полями та жовтими інтерактивними елементами. */
+.fi-resource-services .fi-page-header-main-ctn,
+.fi-resource-services form.fi-sc-form {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+}
+
+.service-form {
+    gap: 2.25rem;
+}
+
+/* Глобальный стиль `section` выше расширяет секции на 20 px с каждой
+   стороны. В форме послуги секции должны идти по одной линии с полями. */
+.fi-resource-services form.fi-sc-form section {
+    width: 100%;
+    margin-inline: 0;
+}
+
+.service-form .fi-fo-field-wrp-label,
+.service-form .fi-fo-field-wrp-label label {
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+.service-form .fi-fo-text-input .fi-input-wrp,
+.service-form .fi-fo-textarea .fi-input-wrp,
+.service-form-price-input .fi-input-wrp,
+.service-form-options .fi-input-wrp {
+    min-height: 60px;
+    border: 0;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.service-form .fi-input-wrp:focus-within {
+    box-shadow: inset 0 0 0 1px #fecc39;
+}
+
+.service-form .fi-input,
+.service-form textarea.fi-input {
+    padding-inline: 0.75rem;
+    font-size: 1.125rem;
+}
+
+.service-form .fi-fo-text-input .fi-input {
+    height: 60px;
+    padding-block: 0;
+    line-height: 60px;
+}
+
+.service-form textarea.fi-input {
+    min-height: 180px;
+    padding-block: 1rem;
+    resize: vertical;
+}
+
+.service-form-price {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    background: transparent;
+}
+
+.service-form-price .fi-section-content {
+    padding: 0;
+}
+
+.service-form-price .fi-section-header {
+    min-height: 52px;
+    align-items: center;
+    padding: 0.75rem 1rem;
+}
+
+.service-form-price .fi-section-header-heading {
+    font-size: 1rem;
+}
+
+.service-form-price-row {
+    gap: 0.75rem;
+}
+
+.service-form-price-from,
+.service-form-negotiable {
+    min-height: 60px;
+    background: #323232;
+    padding: 0.75rem;
+}
+
+.service-form-price-from {
+    display: flex;
+    align-items: center;
+}
+
+.service-form-negotiable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.service-form-price-from .fi-fo-field-wrp,
+.service-form-negotiable .fi-fo-field-wrp {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.service-form-price-from .fi-fo-field-wrp-label,
+.service-form-price-from .fi-fo-field-wrp-label label,
+.service-form-negotiable .fi-fo-field-wrp-label,
+.service-form-negotiable .fi-fo-field-wrp-label label {
+    align-items: center;
+    margin: 0;
+    line-height: 1.25rem;
+}
+
+.service-form-negotiable {
+    width: fit-content;
+    margin-inline: auto;
+    text-align: center;
+}
+
+.service-form-negotiable::before {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #f5f5f5;
+    content: 'або';
+}
+
+.service-form-negotiable .fi-fo-field-wrp {
+    width: auto;
+    height: auto;
+}
+
+.service-form-currency .fi-fo-radio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.service-form-currency .fi-fo-radio-label {
+    position: relative;
+    min-height: 60px;
+    justify-content: center;
+    align-items: center;
+    background: #323232;
+    color: #fecc39;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.service-form-currency .fi-fo-radio-label:has(input:checked),
+.service-form-currency .fi-fo-radio-label:hover {
+    box-shadow: inset 0 0 0 1px #fecc39;
+}
+
+.service-form-currency .fi-fo-radio-label > .fi-fo-radio-label-text {
+    color: #fecc39;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.service-form-currency .fi-radio-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.service-form-options .fi-fo-field-wrp-label,
+.service-form-options .fi-fo-field-wrp-label label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.service-form-options .fi-fo-repeater-items {
+    gap: 1px;
+    background: #414141;
+}
+
+.service-form-options .fi-fo-repeater-item {
+    position: relative;
+    border: 0;
+    border-radius: 0;
+    background: #323232;
+    box-shadow: none;
+}
+
+.service-form-options .fi-fo-repeater-item-header {
+    position: absolute;
+    z-index: 1;
+    inset-inline-end: 0;
+    width: 60px;
+    min-height: 60px;
+    background: transparent;
+    padding: 0.75rem;
+}
+
+.service-form-options .fi-fo-repeater-item-content {
+    padding: 0;
+}
+
+.service-form-options .fi-fo-repeater-item-content .fi-input {
+    padding-inline-end: 4rem;
+}
+
+.service-form-options .fi-fo-repeater-item-header-end-actions .fi-icon {
+    color: #fecc39;
+}
+
+.service-form-options .fi-fo-repeater-add {
+    width: 100%;
+    background: transparent;
+}
+
+.service-form-options .fi-fo-repeater-add .fi-btn {
+    width: 60px;
+    min-width: 60px;
+    min-height: 60px;
+    border-radius: 0;
+    background: #fecc39;
+    padding: 0;
+    color: #343434;
+    font-size: 0;
+}
+
+.service-form-options .fi-fo-repeater-add .fi-btn::after {
+    font-family: sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    content: '+';
+}
+
+.service-form-options .fi-fo-repeater-add .fi-btn .fi-icon {
+    display: none;
+}
+
+.service-form-additional {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    background: #393939;
+    box-shadow: none;
+}
+
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .fi-ac {
+    width: 300px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2.5rem;
+}
+
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .fi-btn {
+    min-height: 60px;
+    justify-content: space-between;
+    border-radius: 0;
+}
+
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .service-form-primary-action,
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .service-form-delete-action {
+    padding-inline-end: 0;
+}
+
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .service-form-primary-action .fi-icon,
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .service-form-delete-action .fi-icon {
+    box-sizing: content-box;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-inline-start: 1rem;
+    padding: 1.2rem;
+    border-inline-start: 1px solid currentColor;
+}
+
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .service-form-delete-action {
+    border-color: transparent;
+    background: #323232;
+    color: #fecc39;
+}
+
+.fi-resource-services form.fi-sc-form > .fi-sc-actions .service-form-delete-action:hover {
+    border-color: #fecc39;
+    background: #323232;
+}
+
+@media (max-width: 767px) {
+    .service-form {
+        gap: 1.5rem;
+    }
+
+    .service-form-currency .fi-fo-radio {
+        grid-template-columns: repeat(3, minmax(60px, 1fr));
+    }
+}
+
+@variant dark {
+    .fi-resource-services .fi-main,
+    .fi-resource-services .fi-page {
+        background: #414141;
+    }
+}
+
 /* Єдина тема Profile panel. Вона навмисно scoped через .fi-panel-profile,
    тому не змінює зовнішній сайт та окрему адміністративну панель. */
 .fi-panel-profile {
