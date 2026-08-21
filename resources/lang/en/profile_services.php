@@ -41,6 +41,7 @@ return [
 
     'actions' => [
         'add_option' => 'Add option',
+        'edit' => 'Edit service',
     ],
 
     'table' => [

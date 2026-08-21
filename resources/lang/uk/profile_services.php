@@ -41,6 +41,7 @@ return [
 
     'actions' => [
         'add_option' => 'Додати опцію',
+        'edit' => 'Редагувати послугу',
     ],
 
     'table' => [

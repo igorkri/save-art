@@ -1238,6 +1238,163 @@ section
     border-radius: 0 !important;
 }
 
+/* Послуги відображаються адаптивною сіткою карток. */
+.fi-panel-profile .fi-resource-services .fi-ta-ctn,
+.fi-panel-profile .fi-ta-ctn:has(.profile-service-card-record) {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-resource-services .fi-ta-content-ctn,
+.fi-panel-profile .fi-resource-services .fi-ta-content-grid {
+    border-radius: 0;
+    background: #414141;
+}
+
+.fi-panel-profile .fi-resource-services .fi-ta-content-grid,
+.fi-panel-profile .fi-ta-content-grid:has(.profile-service-card-record) {
+    gap: 1.125rem;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-service-card-record {
+    min-width: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: #323232 !important;
+    padding: 0.5rem;
+    box-shadow: none;
+    transition: background-color 150ms ease;
+}
+
+.fi-panel-profile .profile-service-card-record:hover {
+    background: #353535 !important;
+}
+
+.fi-panel-profile .profile-service-card-record .fi-ta-record-content-ctn {
+    position: relative;
+    gap: 0;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-service-card-record .fi-ta-record-content,
+.fi-panel-profile .profile-service-card-record .fi-ta-col,
+.fi-panel-profile .profile-service-card-record .fi-ta-col-wrp {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+
+.profile-service-card {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    color: #f5f5f5;
+}
+
+.profile-service-card-image-ctn {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #292929;
+}
+
+.profile-service-card-image,
+.profile-service-card-image-fallback {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-service-card-image {
+    display: block;
+    object-fit: cover;
+    transition: transform 250ms ease;
+}
+
+.profile-service-card-record:hover .profile-service-card-image {
+    transform: scale(1.025);
+}
+
+.profile-service-card-image-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+}
+
+.profile-service-card-image-fallback .fi-icon {
+    width: 3rem;
+    height: 3rem;
+}
+
+.profile-service-card-price {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    max-width: calc(100% - 1rem);
+    overflow: hidden;
+    background: #fecc39;
+    padding: 0.75rem 1rem;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-service-card-body {
+    min-height: 4.25rem;
+    padding: 0.6rem 0.5rem;
+}
+
+.profile-service-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.profile-service-card-edit {
+    display: grid;
+    min-height: 2.5rem;
+    grid-template-columns: minmax(0, 1fr) 2.5rem;
+    align-items: center;
+    background: #fecc39;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.profile-service-card-edit > span {
+    padding-inline: 0.75rem;
+    text-align: center;
+}
+
+.profile-service-card-edit .fi-icon {
+    box-sizing: content-box;
+    width: 1rem;
+    height: 1rem;
+    padding: 0.75rem;
+    border-inline-start: 1px solid #343434;
+}
+
+.profile-service-card-edit:hover {
+    background: #fff;
+}
+
 /* Список Teams відображається двоколонковою сіткою карток. */
 .fi-panel-profile .fi-resource-teams .fi-ta-ctn {
     width: min(100%, 1000px);
