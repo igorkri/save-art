@@ -84,6 +84,39 @@ class ProfileProjectEditActionsTest extends TestCase
             ->assertActionHidden('submitForModeration');
     }
 
+    public function test_saving_pending_moderation_project_returns_it_to_draft(): void
+    {
+        $project = Project::factory()->moderation()->create([
+            'user_id' => $this->artist->id,
+            'status_moderation' => ModerationStatus::Pending,
+            'user_type' => UserType::Personal,
+            'is_legal' => false,
+            'team_id' => null,
+        ]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->set('data.title', 'Виправлена назва')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame(ProjectStatus::Draft, $project->fresh()->status);
+    }
+
+    public function test_fixed_fields_are_not_saved_for_announced_project(): void
+    {
+        $project = Project::factory()->announced()->create([
+            'user_id' => $this->artist->id,
+            'title' => 'Зафіксована назва',
+        ]);
+
+        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
+            ->set('data.title', 'Заборонена зміна')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame('Зафіксована назва', $project->fresh()->title);
+    }
+
     public function test_artist_can_complete_in_progress_project_with_final_result(): void
     {
         $project = Project::factory()->inProgress()->create([
@@ -121,28 +154,6 @@ class ProfileProjectEditActionsTest extends TestCase
 
         Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
             ->assertActionHidden('complete');
-    }
-
-    public function test_artist_can_mark_completed_project_as_sold(): void
-    {
-        $project = Project::factory()->create([
-            'user_id' => $this->artist->id,
-            'status' => ProjectStatus::Completed,
-        ]);
-
-        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
-            ->callAction('markAsSold')
-            ->assertNotified();
-
-        $this->assertSame(ProjectStatus::Sold, $project->fresh()->status);
-    }
-
-    public function test_mark_as_sold_action_is_hidden_for_in_progress_project(): void
-    {
-        $project = Project::factory()->inProgress()->create(['user_id' => $this->artist->id]);
-
-        Livewire::test(EditProject::class, ['record' => $project->getRouteKey()])
-            ->assertActionHidden('markAsSold');
     }
 
     public function test_artist_can_pause_in_progress_project(): void

@@ -120,7 +120,7 @@ class DonationServiceTest extends TestCase
         $this->assertEquals(3, $bonus->quantity_claimed);
     }
 
-    public function test_process_paid_donation_starts_work_when_goal_reached(): void
+    public function test_process_paid_donation_notifies_but_does_not_change_status_when_goal_reached(): void
     {
         $project = Project::factory()->create([
             'status' => ProjectStatus::Announced,
@@ -136,7 +136,7 @@ class DonationServiceTest extends TestCase
         $this->service->processPaidDonation($donation);
 
         $project->refresh();
-        $this->assertEquals(ProjectStatus::InProgress->value, $project->status->value);
+        $this->assertEquals(ProjectStatus::Announced->value, $project->status->value);
         $this->assertDatabaseHas(Notification::class, [
             'user_id' => $project->user_id,
             'type' => 'project_funding_complete',
@@ -180,19 +180,28 @@ class DonationServiceTest extends TestCase
             'budget_collected' => 5000,
             'donors_count' => 2,
         ]);
-        $donation = Donation::factory()->create([
+        $bonus = ProjectBonus::factory()->create([
             'project_id' => $project->id,
+            'quantity_claimed' => 2,
+        ]);
+        // Статистика проєкту вже містить цей історичний донат. Створюємо
+        // його без observer, інакше setup сам додасть суму вдруге.
+        $donation = Donation::withoutEvents(fn () => Donation::factory()->create([
+            'project_id' => $project->id,
+            'project_bonus_id' => $bonus->id,
             'status' => 'paid',
             'amount' => 1000,
             'paid_at' => now(),
-        ]);
+        ]));
 
         $this->service->processRefund($donation);
 
         $donation->refresh();
         $project->refresh();
+        $bonus->refresh();
 
         $this->assertEquals('refunded', $donation->status->value ?? $donation->status);
         $this->assertEquals(4000, $project->budget_collected);
+        $this->assertEquals(1, $bonus->quantity_claimed);
     }
 }

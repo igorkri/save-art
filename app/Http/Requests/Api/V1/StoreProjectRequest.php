@@ -6,6 +6,7 @@ use App\Enums\Currency;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -37,7 +38,7 @@ class StoreProjectRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -46,7 +47,12 @@ class StoreProjectRequest extends FormRequest
 
         return [
             // ========== Обов'язкові поля для всіх типів ==========
-            'status' => ['nullable', 'string', Rule::enum(ProjectStatus::class)],
+            // Подання на модерацію виконується окремим /submit, щоб перехід
+            // завжди проходив через ProjectWorkflowService.
+            'status' => ['nullable', 'string', Rule::in([
+                ProjectStatus::New->value,
+                ProjectStatus::Draft->value,
+            ])],
             'local_id' => ['nullable', 'string', 'max:100'],
 
             // ========== Основні поля проекту ==========
@@ -123,7 +129,6 @@ class StoreProjectRequest extends FormRequest
         // Мапим входящие статусы
         return match ($requestedStatus) {
             'draft' => ProjectStatus::Draft,
-            'moderation' => ProjectStatus::Moderation,
             default => ProjectStatus::New,
         };
     }

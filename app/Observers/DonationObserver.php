@@ -110,12 +110,11 @@ class DonationObserver
             return;
         }
 
-        // Перевіряємо чи досягнуто мету
-        $totalCollected = $project->donations()
-            ->where('status', 'paid')
-            ->sum('amount');
+        // budget_collected — канонічний підсумок збору. Він уже оновлений
+        // syncProjectStats() і також враховує імпортовані/початкові суми.
+        $project->refresh();
 
-        if ($totalCollected < $project->budget_goal) {
+        if ($project->budget_collected < $project->budget_goal) {
             return;
         }
 

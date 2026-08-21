@@ -15,15 +15,13 @@ use Illuminate\Validation\Validator;
  * Request для часткового оновлення опублікованого проєкту (03.4.2.2)
  *
  * Дозволяє редагувати:
- * - Назву (title), короткий опис (short_description), теги (tags)
- * - Додаткову інформацію (additional_info), обкладинку (cover), контент-блоки (content_blocks)
+ * - Додаткову інформацію (additional_info), контент-блоки (content_blocks)
  * - Категорію (art_category/art_subcategory)
  * - Бюджет (budget_goal, budget_items) — для 'announced' лише збільшення budget_goal
  *   (донати вже прийняті на початкову ціль), для 'in_progress'/'paused' без обмежень
  *
- * Для 'completed'/'sold' (canEditAdditionalContentOnly()) дозволено редагувати лише
- * content_blocks, additional_info, cover та tags — назву/категорію/бюджет змінити вже не можна
- * (withValidator() нижче явно відхиляє ці поля для цих статусів).
+ * Для 'completed' дозволено редагувати лише content_blocks та additional_info.
+ * Sold є фінальним станом і не редагується.
  */
 class UpdatePublishedProjectRequest extends FormRequest
 {
@@ -48,10 +46,10 @@ class UpdatePublishedProjectRequest extends FormRequest
             abort(403, 'You do not own this project');
         }
 
-        // Перевірка, чи проект можна редагувати частково. Завершені/продані сюди теж потрапляють,
-        // але лише для контенту (content_blocks/additional_info/cover) — див. withValidator().
+        // Опубліковані статуси редагуються частково, завершений — лише в частині
+        // додаткового контенту. Sold є незмінним фінальним станом.
         if (! $project->isPartiallyEditable() && ! $project->canEditAdditionalContentOnly()) {
-            abort(403, "Project with status '{$project->status->value}' cannot be partially edited. Only projects with status 'announced', 'in_progress', 'paused', 'completed', or 'sold' can be partially edited.");
+            abort(403, "Project with status '{$project->status->value}' cannot be partially edited. Only projects with status 'announced', 'in_progress', 'paused', or 'completed' can be partially edited.");
         }
 
         return true;
@@ -123,17 +121,28 @@ class UpdatePublishedProjectRequest extends FormRequest
                 return;
             }
 
-            // Завершені/продані: контент (content_blocks/additional_info/cover/tags) — назву,
-            // категорію та бюджет для них міняти не можна навіть через цей "частковий" ендпоінт.
-            if ($project->canEditAdditionalContentOnly()) {
-                $forbiddenFields = array_intersect(
-                    array_keys($this->all()),
-                    ['title', 'short_description', 'art_category', 'art_subcategory', 'budget_goal', 'budget_items', 'parameters']
-                );
-                foreach ($forbiddenFields as $field) {
-                    $validator->errors()->add($field, "Поле '{$field}' не можна редагувати для завершеного/проданого проєкту. Доступні лише content_blocks, additional_info, cover та tags.");
-                }
+            $allowedFields = $project->canEditAdditionalContentOnly()
+                ? ['additional_info', 'content_blocks']
+                : ['art_category', 'art_subcategory', 'budget_goal', 'budget_items', 'additional_info', 'content_blocks', 'parameters'];
 
+            $knownEditableFields = [
+                'title', 'short_description', 'cover', 'tags',
+                'art_category', 'art_subcategory', 'budget_goal', 'budget_items',
+                'additional_info', 'content_blocks', 'parameters', 'final_result',
+                'currency', 'estimated_days', 'stages', 'bonuses', 'user_type',
+                'is_legal', 'team_id', 'status',
+            ];
+
+            $forbiddenFields = array_diff(
+                array_intersect(array_keys($this->all()), $knownEditableFields),
+                $allowedFields,
+            );
+
+            foreach ($forbiddenFields as $field) {
+                $validator->errors()->add($field, "Поле '{$field}' не можна редагувати у поточному статусі проєкту.");
+            }
+
+            if ($project->canEditAdditionalContentOnly()) {
                 return;
             }
 

@@ -3,12 +3,12 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Enums\Currency;
-use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Http\Requests\Api\V1\Concerns\NormalizesProjectUkrainianFields;
 use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Rules\ImageOrBase64Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -36,8 +36,7 @@ class UpdateFullProjectRequest extends FormRequest
             return false;
         }
 
-        // Повне оновлення доступне тільки для чернеток та відхилених
-        return in_array($project->status, [ProjectStatus::Draft, ProjectStatus::Rejected]);
+        return $project->canBeFullyEditedByOwner();
     }
 
     /**
@@ -53,7 +52,7 @@ class UpdateFullProjectRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

@@ -377,13 +377,45 @@ class Project extends Model
     }
 
     /**
-     * Завершені/продані проєкти: назву, категорію та бюджет змінювати вже не можна, але
-     * додаткову інформацію (content_blocks, additional_info) та обкладинку — можна, щоб
-     * митець міг, наприклад, додати відео чи посилання з результатом уже після завершення.
+     * Повне редагування власником: новий проєкт, чернетка або заявка, яка ще
+     * стоїть у черзі на модерацію. Будь-яка зміна останньої має повернути її
+     * до чернетки — це роблять точки запису після перевірки цього методу.
+     */
+    public function canBeFullyEditedByOwner(): bool
+    {
+        return $this->isEditable()
+            || ($this->status === ProjectStatus::Moderation
+                && $this->status_moderation === ModerationStatus::Pending);
+    }
+
+    /**
+     * Етапами можна керувати під час повного редагування, а після публікації —
+     * у статусах Announced/InProgress/Paused згідно lifecycle-документа.
+     */
+    public function canManageStagesByOwner(): bool
+    {
+        return $this->canBeFullyEditedByOwner() || $this->isPartiallyEditable();
+    }
+
+    /** Бонуси фіксуються під час публікації й надалі власником не змінюються. */
+    public function canManageBonusesByOwner(): bool
+    {
+        return $this->canBeFullyEditedByOwner();
+    }
+
+    /** Фінальний результат додається в роботі та може уточнюватися після завершення. */
+    public function canEditFinalResultByOwner(): bool
+    {
+        return in_array($this->status, [ProjectStatus::InProgress, ProjectStatus::Completed], true);
+    }
+
+    /**
+     * Завершений проєкт: назву, категорію та бюджет змінювати вже не можна,
+     * дозволена лише додаткова інформація. Sold є повністю фінальним станом.
      */
     public function canEditAdditionalContentOnly(): bool
     {
-        return in_array($this->status, [ProjectStatus::Completed, ProjectStatus::Sold], true);
+        return $this->status === ProjectStatus::Completed;
     }
 
     /**
@@ -395,7 +427,7 @@ class Project extends Model
      */
     public function canBeDeletedByOwner(): bool
     {
-        if (in_array($this->status, [ProjectStatus::Draft, ProjectStatus::Rejected])) {
+        if (in_array($this->status, [ProjectStatus::New, ProjectStatus::Draft, ProjectStatus::Rejected], true)) {
             return true;
         }
 

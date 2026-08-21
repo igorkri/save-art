@@ -12,6 +12,7 @@ use App\Jobs\GenerateStageDocumentPdfThumbnail;
 use App\Models\Parameter;
 use App\Models\ParameterValue;
 use App\Models\Project;
+use App\Models\ProjectStage;
 use App\Models\Team;
 use App\Support\ProjectCategoryParameterValues;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
@@ -47,15 +48,24 @@ use function Filament\Support\generate_icon_html;
 
 class ProjectForm
 {
-    /**
-     * Завершений (і проданий) проєкт лишається доступним для відкриття, але
-     * редагувати в ньому можна лише "Фінальний результат" — усе інше вже
-     * зафіксовано (ProjectPolicy::update() навмисно теж відкриває доступ
-     * лише заради цього кроку).
-     */
-    private static function isLockedExceptFinalResult(?Project $record): bool
+    private static function cannotFullyEdit(?Project $record): bool
     {
-        return in_array($record?->status, [ProjectStatus::Completed, ProjectStatus::Sold], true);
+        return $record?->exists === true && ! $record->canBeFullyEditedByOwner();
+    }
+
+    private static function cannotEditPublishedFields(?Project $record): bool
+    {
+        return $record?->exists === true
+            && ! $record->canBeFullyEditedByOwner()
+            && ! $record->isPartiallyEditable();
+    }
+
+    private static function cannotEditAdditionalContent(?Project $record): bool
+    {
+        return $record?->exists === true
+            && ! $record->canBeFullyEditedByOwner()
+            && ! $record->isPartiallyEditable()
+            && ! $record->canEditAdditionalContentOnly();
     }
 
     public static function configure(Schema $schema): Schema
@@ -144,7 +154,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.author'))
                         ->icon('heroicon-o-user-circle')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-author'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
                         ->schema([
                             Hidden::make('team_id'),
                             Hidden::make('user_type')->default(UserType::Personal->value),
@@ -182,19 +192,20 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.name'))
                         ->icon('heroicon-o-pencil-square')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-name'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             TextInput::make('title')
                                 ->label(__('profile_projects.fields.title'))
                                 ->helperText(__('profile_projects.helpers.title'))
                                 ->required()
                                 ->maxLength(255)
+                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
                                 ->live(onBlur: true),
 
                             SelectTree::make('art_category_id')
                                 ->label(__('profile_projects.fields.art_category'))
                                 ->extraFieldWrapperAttributes(['class' => 'profile-project-art-category-field'])
                                 ->relationship('artCategory', 'name', 'parent_id')
+                                ->disabled(fn (?Project $record): bool => self::cannotEditPublishedFields($record))
                                 ->searchable()
                                 ->live()
                                 ->afterStateUpdated(function (mixed $state, callable $set, CreateRecord|EditRecord $livewire): void {
@@ -222,18 +233,20 @@ class ProjectForm
                                 ->panelLayout('integrated')
                                 ->disk('public')
                                 ->directory('projects/covers')
+                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
                                 ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
                                 ->columnSpanFull(),
 
                             TagsInput::make('tags')
                                 ->label(__('profile_projects.fields.tags'))
+                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
                                 ->helperText(__('profile_projects.helpers.tags')),
                         ]),
 
                     Step::make(__('profile_projects.tabs.description'))
                         ->icon('heroicon-o-document-text')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-description'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
                         ->schema([
                             Textarea::make('short_description')
                                 ->label(__('profile_projects.fields.short_description'))
@@ -248,7 +261,7 @@ class ProjectForm
                         ->icon('heroicon-o-currency-dollar')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-budget'])
                         ->columns(2)
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => self::cannotEditPublishedFields($record))
                         ->schema([
                             Select::make('currency')
                                 ->label(__('profile_projects.fields.currency'))
@@ -258,6 +271,7 @@ class ProjectForm
                                     Currency::EUR->value => '€ EUR',
                                 ])
                                 ->default(Currency::UAH->value)
+                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
                                 ->required(),
 
                             TextInput::make('budget_goal')
@@ -274,7 +288,8 @@ class ProjectForm
                             TextInput::make('estimated_days')
                                 ->label(__('profile_projects.fields.estimated_days'))
                                 ->numeric()
-                                ->minValue(1),
+                                ->minValue(1)
+                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record)),
 
                             Repeater::make('budget_items')
                                 ->label(__('profile_projects.fields.budget_items'))
@@ -307,7 +322,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.content'))
                         ->icon('heroicon-o-document-text')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-content'])
-//                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => self::cannotEditAdditionalContent($record))
                         ->schema([
                             Placeholder::make('content_blocks_intro')
                                 ->hiddenLabel()
@@ -400,7 +415,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.parameters'))
                         ->icon('heroicon-o-clipboard-document-list')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-parameters'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => self::cannotEditPublishedFields($record))
                         ->schema([
                             Section::make(__('profile_projects.sections.parameters.title'))
                                 ->description(__('profile_projects.sections.parameters.description'))
@@ -458,7 +473,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.stages'))
                         ->icon('heroicon-o-list-bullet')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-stages'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => $record?->exists === true && ! $record->canManageStagesByOwner())
                         ->schema([
                             Repeater::make('stages')
                                 ->label(__('profile_projects.fields.stages'))
@@ -475,11 +490,21 @@ class ProjectForm
                                         ->default(StageStatus::Planned->value)
                                         ->required()
                                         ->live()
-                                        // Статус можна лише просувати вперед (Заплановано → В процесі → Завершено),
-                                        // повернення назад заблоковано, щоб не втрачати started_at/completed_at
-                                        // та не "відкочувати" вже завершені етапи.
-                                        ->disableOptionWhen(fn (string $value, ?string $state): bool => filled($state)
-                                            && StageStatus::from($value)->order() < StageStatus::from($state)->order())
+                                        // Для збереженого етапу дозволений лише наступний послідовний статус.
+                                        // Поточний статус порівнюємо з БД, а не зі станом поля, щоб після
+                                        // одного кліка не відкрити можливість перескочити ще на один крок.
+                                        ->disableOptionWhen(function (string $value, ?ProjectStage $record): bool {
+                                            $candidate = StageStatus::from($value);
+
+                                            if (! $record?->exists) {
+                                                return $candidate !== StageStatus::Planned;
+                                            }
+
+                                            $current = $record->status;
+
+                                            return $candidate->order() < $current->order()
+                                                || $candidate->order() > $current->order() + 1;
+                                        })
                                         ->afterStateUpdated(function (?string $state, callable $get, callable $set): void {
                                             if ($state === StageStatus::InProgress->value && blank($get('started_at'))) {
                                                 $set('started_at', now()->toDateString());
@@ -499,18 +524,24 @@ class ProjectForm
                                     TextInput::make('title')
                                         ->label(__('profile_projects.fields.stage_title'))
                                         ->required()
+                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
+                                            && $record->status !== StageStatus::Planned)
                                         ->columnSpanFull(),
 
                                     Textarea::make('description')
                                         ->label(__('profile_projects.fields.stage_description'))
                                         ->rows(2)
                                         ->autosize()
+                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
+                                            && $record->status !== StageStatus::Planned)
                                         ->columnSpanFull(),
 
                                     TextInput::make('days_planned')
                                         ->label(__('profile_projects.fields.stage_days_planned'))
                                         ->numeric()
                                         ->minValue(1)
+                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
+                                            && $record->status !== StageStatus::Planned)
                                         ->columnSpan(fn (callable $get): int => $get('status') === StageStatus::Completed->value ? 2 : 3),
 
                                     TextInput::make('budget_planned')
@@ -518,6 +549,8 @@ class ProjectForm
                                         ->numeric()
                                         ->default(0)
                                         ->required(fn (callable $get): bool => $get('status') === StageStatus::Planned->value)
+                                        ->disabled(fn (?ProjectStage $record): bool => $record?->exists === true
+                                            && $record->status !== StageStatus::Planned)
                                         ->columnSpan(fn (callable $get): int => $get('status') === StageStatus::Completed->value ? 2 : 3),
 
                                     TextInput::make('budget_actual')
@@ -598,7 +631,8 @@ class ProjectForm
                                 ->extraFieldWrapperAttributes(['class' => 'profile-project-stages-repeater'])
                                 ->columnSpanFull()
                                 ->defaultItems(0)
-                                ->reorderable()
+                                ->deletable(fn (?Project $record): bool => $record?->exists !== true || $record->canBeFullyEditedByOwner())
+                                ->reorderable(fn (?Project $record): bool => $record?->exists !== true || $record->canBeFullyEditedByOwner())
                                 ->collapsible()
                                 ->collapsed()
                                 ->itemLabel(function (array $state): string|Htmlable {
@@ -627,7 +661,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.bonuses'))
                         ->icon('heroicon-o-gift')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-bonuses'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
+                        ->disabled(fn (?Project $record): bool => $record?->exists === true && ! $record->canManageBonusesByOwner())
                         ->schema([
                             Placeholder::make('bonuses_intro')
                                 ->hiddenLabel()
@@ -707,7 +741,6 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.publication'))
                         ->icon('heroicon-o-eye')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-publication'])
-                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
                             Placeholder::make('publication_preview')
                                 ->hiddenLabel()
@@ -738,12 +771,7 @@ class ProjectForm
                         // Фінальний результат має сенс лише тоді, коли проєкт реально
                         // виконується або вже завершений — на чернетці/модерації показувати
                         // немає чого.
-                        ->visible(fn (?Project $record): bool => in_array($record?->status, [
-                            ProjectStatus::InProgress,
-                            ProjectStatus::Paused,
-                            ProjectStatus::Completed,
-                            ProjectStatus::Sold,
-                        ], true))
+                        ->visible(fn (?Project $record): bool => $record?->canEditFinalResultByOwner() === true)
                         ->schema([
                             Builder::make('final_result')
                                 ->label(__('profile_projects.fields.final_result'))

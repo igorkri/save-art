@@ -595,7 +595,7 @@ class MyProjectController extends Controller
         // на модерацію, треба явно викликати submit. Модерацію, що вже в обробці
         // (status_moderation = processing), сюди не пускає UpdateProjectRequest::authorize(),
         // тож цей кейс стосується лише pending.
-        if (! array_key_exists('status', $data) && $project->status === ProjectStatus::Moderation) {
+        if ($project->status === ProjectStatus::Moderation) {
             $data['status'] = ProjectStatus::Draft->value;
         }
 
@@ -951,14 +951,14 @@ class MyProjectController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if (! in_array($project->status, [ProjectStatus::Draft, ProjectStatus::Rejected, ProjectStatus::New, ProjectStatus::Moderation])) {
+        if ($project->status !== ProjectStatus::Draft) {
             \Log::info('Спроба відправити на модерацію проєкт з недопустимим статусом', [
                 'project_id' => $project->id,
                 'current_status' => $project->status,
             ]);
 
             return response()->json([
-                'message' => 'На модерацію можна відправити лише чернетку або відхилений проєкт.',
+                'message' => 'На модерацію можна відправити лише чернетку.',
             ], 422);
         }
 
@@ -1233,7 +1233,7 @@ class MyProjectController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if (! $this->workflowService->moveTo($project, ProjectStatus::InProgress)) {
+        if ($project->status !== ProjectStatus::Paused || ! $this->workflowService->resume($project)) {
             return response()->json([
                 'message' => 'Неможливо перевести проєкт у статус "в роботі".',
             ], 422);
@@ -1340,10 +1340,17 @@ class MyProjectController extends Controller
             ], 422);
         }
 
-        $project->update([
-            'status' => ProjectStatus::Completed,
-            'completed_at' => now(),
-        ]);
+        if ($project->stages()->where('status', '!=', StageStatus::Completed->value)->exists()) {
+            return response()->json([
+                'message' => 'Спочатку завершіть усі етапи проєкту.',
+            ], 422);
+        }
+
+        if (! $this->workflowService->complete($project)) {
+            return response()->json([
+                'message' => 'Неможливо завершити проєкт.',
+            ], 422);
+        }
 
         return response()->json([
             'message' => 'Проєкт завершено.',

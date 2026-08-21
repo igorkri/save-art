@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Enums\ProjectStatus;
+use App\Models\ArtCategory;
 use App\Models\Project;
 use App\Models\User;
 
@@ -14,120 +15,106 @@ class UpdatePublishedProjectTest extends ApiTestCase
         $this->user = User::factory()->create();
     }
 
-    public function test_owner_can_update_title_of_published_project(): void
+    public function test_owner_cannot_update_fixed_fields_after_publication(): void
     {
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::Announced,
-            'title' => ['uk' => 'Стара назва', 'en' => 'Old title'],
-        ]);
+        $project = Project::factory()->for($this->user)->announced()->create();
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
-            ]);
-
-        $response->assertOk();
-        $response->assertJsonPath('data.title.uk', 'Нова назва');
-        $response->assertJsonPath('data.title.en', 'New title');
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'title' => 'Нова назва',
+                'short_description' => 'Новий опис',
+                'tags' => ['новий тег'],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['title', 'short_description', 'tags']);
     }
 
-    public function test_owner_can_update_description_of_published_project(): void
+    public function test_owner_can_update_category_and_parameters_after_publication(): void
     {
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::InProgress,
-        ]);
+        $category = ArtCategory::factory()->create();
+        $project = Project::factory()->for($this->user)->inProgress()->create();
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'short_description' => ['uk' => 'Новий опис', 'en' => 'New description'],
-            ]);
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'art_category' => $category->slug,
+            ])
+            ->assertOk();
 
-        $response->assertOk();
-        $response->assertJsonPath('data.short_description.uk', 'Новий опис');
+        $this->assertSame($category->id, $project->fresh()->art_category_id);
     }
 
-    public function test_owner_can_update_tags_of_published_project(): void
+    public function test_announced_budget_can_only_be_increased(): void
     {
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::Paused,
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'tags' => ['живопис', 'арт'],
-            ]);
-
-        $response->assertOk();
-        $response->assertJsonPath('data.tags.0', 'живопис');
-        $response->assertJsonPath('data.tags.1', 'арт');
-    }
-
-    public function test_cannot_update_budget_of_published_project(): void
-    {
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::Announced,
+        $project = Project::factory()->for($this->user)->announced()->create([
             'budget_goal' => 50000,
         ]);
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'budget_goal' => 100000,
-            ]);
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", ['budget_goal' => 40000])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['budget_goal']);
 
-        // Запит успішний, але budget_goal не змінюється (не в дозволених полях)
-        $response->assertOk();
-        $this->assertDatabaseHas('projects', [
-            'id' => $project->id,
-            'budget_goal' => 50000, // залишається старе значення
-        ]);
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", ['budget_goal' => 60000])
+            ->assertOk();
+
+        $this->assertSame(60000.0, (float) $project->fresh()->budget_goal);
     }
 
-    public function test_cannot_update_category_of_published_project(): void
+    public function test_in_progress_project_can_update_additional_information(): void
     {
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::InProgress,
-            'art_category' => 'visual',
-        ]);
+        $project = Project::factory()->for($this->user)->inProgress()->create();
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'art_category' => 'music',
-            ]);
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'additional_info' => ['uk' => 'Оновлена інформація'],
+            ])
+            ->assertOk();
 
-        $response->assertOk();
-        $this->assertDatabaseHas('projects', [
-            'id' => $project->id,
-            'art_category' => 'visual', // залишається старе значення
-        ]);
+        $this->assertSame('Оновлена інформація', $project->fresh()->additional_info['uk']);
     }
 
-    public function test_cannot_update_completed_project(): void
+    public function test_completed_project_can_only_update_additional_content(): void
     {
         $project = Project::factory()->for($this->user)->create([
             'status' => ProjectStatus::Completed,
         ]);
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'title' => ['uk' => 'Нова назва', 'en' => 'New title'],
-            ]);
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'additional_info' => ['uk' => 'Після завершення'],
+            ])
+            ->assertOk();
 
-        $response->assertForbidden();
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", ['tags' => ['заборонено']])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['tags']);
+    }
+
+    public function test_sold_project_cannot_be_edited(): void
+    {
+        $project = Project::factory()->for($this->user)->create([
+            'status' => ProjectStatus::Sold,
+        ]);
+
+        $this->withHeaders($this->authHeaders())
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'additional_info' => ['uk' => 'Спроба'],
+            ])
+            ->assertForbidden();
     }
 
     public function test_other_user_cannot_update_project(): void
     {
         $otherUser = User::factory()->create();
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::Announced,
-        ]);
+        $project = Project::factory()->for($this->user)->announced()->create();
 
-        $response = $this->withHeaders($this->authHeaders($otherUser))
-            ->patchJson("/api/v1/my/projects/{$project->id}", [
-                'title' => ['uk' => 'Хак', 'en' => 'Hack'],
-            ]);
-
-        $response->assertForbidden();
+        $this->withHeaders($this->authHeaders($otherUser))
+            ->patchJson("/api/v1/my/projects/{$project->slug}", [
+                'additional_info' => ['uk' => 'Спроба'],
+            ])
+            ->assertForbidden();
     }
 
     public function test_full_update_still_works_for_drafts(): void
@@ -137,29 +124,19 @@ class UpdatePublishedProjectTest extends ApiTestCase
             'budget_goal' => 50000,
         ]);
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/projects/{$project->id}", [
-                'budget_goal' => 100000,
-            ]);
+        $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", ['budget_goal' => 100000])
+            ->assertOk();
 
-        $response->assertOk();
-        $this->assertDatabaseHas('projects', [
-            'id' => $project->id,
-            'budget_goal' => 100000,
-        ]);
+        $this->assertSame(100000.0, (float) $project->fresh()->budget_goal);
     }
 
-    public function test_full_update_forbidden_for_published(): void
+    public function test_full_update_is_forbidden_for_published_project(): void
     {
-        $project = Project::factory()->for($this->user)->create([
-            'status' => ProjectStatus::Announced,
-        ]);
+        $project = Project::factory()->for($this->user)->announced()->create();
 
-        $response = $this->withHeaders($this->authHeaders())
-            ->putJson("/api/v1/my/projects/{$project->id}", [
-                'budget_goal' => 100000,
-            ]);
-
-        $response->assertForbidden();
+        $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", ['budget_goal' => 100000])
+            ->assertForbidden();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Profile\Resources\Projects\Pages;
 
+use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Filament\Profile\Resources\Projects\Concerns\HandlesContentBlocksBuilder;
 use App\Filament\Profile\Resources\Projects\Concerns\OpensProjectPreview;
@@ -14,6 +15,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Validation\ValidationException;
 
 class EditProject extends EditRecord
 {
@@ -85,6 +87,22 @@ class EditProject extends EditRecord
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $record = $this->getRecord();
+
+        if ($record->status === ProjectStatus::Announced
+            && array_key_exists('budget_goal', $data)
+            && (float) $data['budget_goal'] < (float) $record->budget_goal) {
+            throw ValidationException::withMessages([
+                'data.budget_goal' => 'Для оголошеного проєкту бюджет можна лише збільшувати.',
+            ]);
+        }
+
+        if ($record->status === ProjectStatus::Moderation
+            && $record->status_moderation === ModerationStatus::Pending) {
+            $data['status'] = ProjectStatus::Draft->value;
+            $data['status_moderation'] = ModerationStatus::Pending->value;
+        }
+
         $data['content_blocks'] = $this->contentBlocksFromBuilderFormat($data['content_blocks'] ?? null);
 
         // Крок "Фінальний результат" видимий лише для проєктів у роботі/завершених
@@ -121,9 +139,8 @@ class EditProject extends EditRecord
             $this->pauseAction(),
             $this->resumeAction(),
             $this->completeAction(),
-            $this->markAsSoldAction(),
             DeleteAction::make()
-                ->visible(fn (): bool => $this->getRecord()->status->isEditable()),
+                ->visible(fn (): bool => $this->getRecord()->canBeDeletedByOwner()),
         ];
     }
 
@@ -139,7 +156,7 @@ class EditProject extends EditRecord
             ->requiresConfirmation()
             ->modalHeading(__('profile_projects.actions.submit_for_moderation_heading'))
             ->modalDescription(__('profile_projects.actions.submit_for_moderation_description'))
-            ->visible(fn (): bool => $this->getRecord()->status->isEditable())
+            ->visible(fn (): bool => $this->getRecord()->status === ProjectStatus::Draft)
             ->action(function (): void {
                 $project = $this->getRecord();
 
@@ -201,40 +218,6 @@ class EditProject extends EditRecord
 
                 Notification::make()
                     ->title(__('profile_projects.actions.complete_failed'))
-                    ->danger()
-                    ->send();
-            });
-    }
-
-    /**
-     * Митець вручну позначає завершений проєкт як проданий (Completed → Sold).
-     */
-    private function markAsSoldAction(): Action
-    {
-        return Action::make('markAsSold')
-            ->label(__('profile_projects.actions.mark_as_sold'))
-            ->icon('heroicon-o-currency-dollar')
-            ->color('success')
-            ->requiresConfirmation()
-            ->modalHeading(__('profile_projects.actions.mark_as_sold_heading'))
-            ->modalDescription(__('profile_projects.actions.mark_as_sold_description'))
-            ->visible(fn (): bool => $this->getRecord()->status === ProjectStatus::Completed)
-            ->action(function (): void {
-                $project = $this->getRecord();
-
-                if (app(ProjectWorkflowService::class)->markAsSold($project)) {
-                    Notification::make()
-                        ->title(__('profile_projects.actions.mark_as_sold_success'))
-                        ->success()
-                        ->send();
-
-                    $this->fillForm();
-
-                    return;
-                }
-
-                Notification::make()
-                    ->title(__('profile_projects.actions.mark_as_sold_failed'))
                     ->danger()
                     ->send();
             });

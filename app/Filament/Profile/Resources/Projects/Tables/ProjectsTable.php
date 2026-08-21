@@ -66,9 +66,9 @@ class ProjectsTable
                     ->icon(null)
                     ->hiddenLabel()
                     ->extraAttributes(['class' => 'profile-project-card-edit-action'])
-                    ->visible(fn (Project $record): bool => $record->status->isEditable()
+                    ->visible(fn (Project $record): bool => $record->canBeFullyEditedByOwner()
                         || $record->status->isPartiallyEditable()
-                        || in_array($record->status, [ProjectStatus::Completed, ProjectStatus::Sold], true)),
+                        || $record->status === ProjectStatus::Completed),
             ]);
     }
 }

@@ -186,7 +186,10 @@ class ProjectResource extends JsonResource
 
             'can_edit' => $this->when(
                 $request->user('sanctum'),
-                fn () => $request->user('sanctum')->id === $this->user_id && ($this->isEditable() || $this->isPartiallyEditable()),
+                fn () => $request->user('sanctum')->id === $this->user_id
+                    && ($this->canBeFullyEditedByOwner()
+                        || $this->isPartiallyEditable()
+                        || $this->canEditAdditionalContentOnly()),
                 false
             ),
             'can_donate' => $this->canReceiveDonations(),

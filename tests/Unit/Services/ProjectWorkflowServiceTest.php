@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
+use App\Models\ProjectStage;
 use App\Models\User;
 use App\Services\ProjectWorkflowService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -114,6 +115,7 @@ class ProjectWorkflowServiceTest extends TestCase
         $project = Project::factory()->create([
             'user_id' => $user->id,
             'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Processing,
         ]);
 
         $result = $this->service->approve($project);
@@ -131,6 +133,7 @@ class ProjectWorkflowServiceTest extends TestCase
         $project = Project::factory()->create([
             'user_id' => $user->id,
             'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Processing,
         ]);
 
         $reason = 'Недостатньо інформації про проєкт.';
@@ -211,5 +214,44 @@ class ProjectWorkflowServiceTest extends TestCase
         $project->refresh();
         $this->assertEquals(ProjectStatus::Draft, $project->status);
         $this->assertEquals(ModerationStatus::Pending, $project->status_moderation);
+    }
+
+    public function test_pending_project_cannot_be_approved_before_review_starts(): void
+    {
+        $project = Project::factory()->create([
+            'status' => ProjectStatus::Moderation,
+            'status_moderation' => ModerationStatus::Pending,
+        ]);
+
+        $this->assertFalse($this->service->approve($project));
+        $this->assertSame(ProjectStatus::Moderation, $project->fresh()->status);
+    }
+
+    public function test_project_cannot_be_completed_without_final_result(): void
+    {
+        $project = Project::factory()->inProgress()->create(['final_result' => null]);
+
+        $this->assertFalse($this->service->complete($project));
+    }
+
+    public function test_project_cannot_be_completed_with_unfinished_stage(): void
+    {
+        $project = Project::factory()->inProgress()->create([
+            'final_result' => [['type' => 'link', 'url' => 'https://example.com/result']],
+        ]);
+        ProjectStage::factory()->for($project)->create();
+
+        $this->assertFalse($this->service->complete($project));
+    }
+
+    public function test_project_can_be_completed_with_final_result_and_completed_stages(): void
+    {
+        $project = Project::factory()->inProgress()->create([
+            'final_result' => [['type' => 'link', 'url' => 'https://example.com/result']],
+        ]);
+        ProjectStage::factory()->for($project)->completed()->create();
+
+        $this->assertTrue($this->service->complete($project));
+        $this->assertSame(ProjectStatus::Completed, $project->fresh()->status);
     }
 }

@@ -45,7 +45,9 @@ class ProjectsKanbanTest extends TestCase
 
     public function test_moving_project_to_allowed_status_updates_it(): void
     {
-        $project = Project::factory()->moderation()->create();
+        $project = Project::factory()->moderation()->create([
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
 
         $this->actingAs($this->admin);
 
@@ -84,7 +86,9 @@ class ProjectsKanbanTest extends TestCase
 
     public function test_view_action_can_change_status(): void
     {
-        $project = Project::factory()->moderation()->create();
+        $project = Project::factory()->moderation()->create([
+            'status_moderation' => ModerationStatus::Processing,
+        ]);
 
         $this->actingAs($this->admin);
 

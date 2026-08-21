@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
+use App\Enums\StageStatus;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +17,7 @@ class ProjectWorkflowService
      */
     private array $allowedTransitions = [
         ProjectStatus::New->value => [
-            ProjectStatus::Moderation->value,
+            ProjectStatus::Draft->value,
         ],
         ProjectStatus::Draft->value => [
             ProjectStatus::Moderation->value,
@@ -85,12 +86,6 @@ class ProjectWorkflowService
         }
 
         return DB::transaction(function () use ($project) {
-            // Перегенеровуємо slug рівно один раз — саме при першому виході зі статусу New
-            // (сюди інших шляхів немає: New -> Moderation єдиний дозволений перехід з New).
-            if ($project->status === ProjectStatus::New) {
-                $project->regenerateSlugFromTitle();
-            }
-
             $project->update([
                 'status' => ProjectStatus::Moderation,
                 'status_moderation' => ModerationStatus::Pending,
@@ -126,7 +121,8 @@ class ProjectWorkflowService
      */
     public function approve(Project $project): bool
     {
-        if (! $this->canTransition($project, ProjectStatus::Announced)) {
+        if (! $this->canTransition($project, ProjectStatus::Announced)
+            || $project->status_moderation !== ModerationStatus::Processing) {
             return false;
         }
 
@@ -146,7 +142,8 @@ class ProjectWorkflowService
      */
     public function reject(Project $project, ?string $reason = null): bool
     {
-        if (! $this->canTransition($project, ProjectStatus::Rejected)) {
+        if (! $this->canTransition($project, ProjectStatus::Rejected)
+            || $project->status_moderation !== ModerationStatus::Processing) {
             return false;
         }
 
@@ -251,6 +248,14 @@ class ProjectWorkflowService
     public function complete(Project $project): bool
     {
         if (! $this->canTransition($project, ProjectStatus::Completed)) {
+            return false;
+        }
+
+        if (blank($project->final_result)) {
+            return false;
+        }
+
+        if ($project->stages()->where('status', '!=', StageStatus::Completed->value)->exists()) {
             return false;
         }
 

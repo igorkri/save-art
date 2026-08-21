@@ -45,8 +45,7 @@ class UpdateProjectRequest extends FormRequest
         // редагується (і автоматично повертається у чернетку). Але щойно модератор взяв
         // проєкт у розгляд (status_moderation = processing) — редагування блокується.
         $isBeingReviewed = $project->status === ProjectStatus::Moderation && $project->status_moderation === ModerationStatus::Processing;
-        $canBeFullyEdited = $project->isEditable()
-            || ($project->status === ProjectStatus::Moderation && ! $isBeingReviewed);
+        $canBeFullyEdited = $project->canBeFullyEditedByOwner();
 
         if (! $canBeFullyEdited) {
             // error_code — стабільний ключ для фронтенду, щоб показати локалізований,
@@ -122,7 +121,6 @@ class UpdateProjectRequest extends FormRequest
             'status' => ['sometimes', Rule::in([
                 ProjectStatus::New->value,
                 ProjectStatus::Draft->value,
-                ProjectStatus::Moderation->value,
             ])],
 
             // ========== Основні поля проекту ==========

@@ -436,12 +436,16 @@ class ProjectForm
                             ->label('Статус проєкту')
                             ->options(ProjectStatus::getOptions())
                             ->default(ProjectStatus::Draft->value)
+                            ->disabled()
+                            ->dehydrated(false)
                             ->required(),
 
                         Select::make('status_moderation')
                             ->label('Статус модерації')
                             ->options(ModerationStatus::getOptions())
                             ->default(ModerationStatus::Pending->value)
+                            ->disabled()
+                            ->dehydrated(false)
                             ->required(),
 
                         TextInput::make('code')

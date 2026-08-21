@@ -125,15 +125,8 @@ class ProjectObserver
     {
         $reason = $project->moderation_comment ?? null;
 
-        // Перевіряємо чи це перше відхилення (можна виправити) чи остаточне
-        $rejectionCount = $project->moderation_history_count ?? 1;
-
-        if ($rejectionCount >= 3) {
-            // Остаточне відхилення
-            $this->notificationService->notifyProjectRejected($project, $reason);
-        } else {
-            // Можна виправити
-            $this->notificationService->notifyProjectModerationFailed($project, $reason);
-        }
+        // Rejected є остаточним станом. Для виправлень модератор має окрему дію
+        // "Повернути на доопрацювання", яка переводить проєкт у Draft.
+        $this->notificationService->notifyProjectRejected($project, $reason);
     }
 }

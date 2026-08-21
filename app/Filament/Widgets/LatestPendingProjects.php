@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Models\Project;
+use App\Services\ProjectWorkflowService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -50,21 +51,17 @@ class LatestPendingProjects extends TableWidget
                     ->dateTime('d.m.Y H:i'),
             ])
             ->recordActions([
-                Action::make('approve')
-                    ->label('Схвалити')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
+                Action::make('startReview')
+                    ->label('Взяти в роботу')
+                    ->icon('heroicon-o-play-circle')
+                    ->color('warning')
                     ->requiresConfirmation()
                     ->action(function (Project $record): void {
-                        $record->update([
-                            'status' => ProjectStatus::Announced,
-                            'status_moderation' => \App\Enums\ModerationStatus::Approved,
-                            'announced_at' => now(),
-                        ]);
+                        $started = app(ProjectWorkflowService::class)->startReview($record);
 
                         Notification::make()
-                            ->title('Проєкт схвалено')
-                            ->success()
+                            ->title($started ? 'Проєкт взято в роботу' : 'Не вдалося взяти проєкт у роботу')
+                            ->color($started ? 'success' : 'danger')
                             ->send();
                     }),
 

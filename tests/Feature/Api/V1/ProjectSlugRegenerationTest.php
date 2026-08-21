@@ -22,8 +22,12 @@ class ProjectSlugRegenerationTest extends ApiTestCase
             'title' => ['uk' => 'Артбук "Сни України"', 'en' => 'Art book'],
         ]);
 
+        $draftResponse = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", ['status' => 'draft'])
+            ->assertOk();
+
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$project->slug}/submit");
+            ->postJson('/api/v1/my/projects/'.$draftResponse->json('data.slug').'/submit');
 
         $response->assertOk();
         $newSlug = $response->json('data.slug');
@@ -147,8 +151,12 @@ class ProjectSlugRegenerationTest extends ApiTestCase
             'title' => ['uk' => 'Артбук "Сни України"'],
         ]);
 
+        $draftResponse = $this->withHeaders($this->authHeaders())
+            ->putJson("/api/v1/my/projects/{$project->slug}", ['status' => 'draft'])
+            ->assertOk();
+
         $response = $this->withHeaders($this->authHeaders())
-            ->postJson("/api/v1/my/projects/{$project->slug}/submit");
+            ->postJson('/api/v1/my/projects/'.$draftResponse->json('data.slug').'/submit');
 
         $response->assertOk();
         $this->assertSame('artbuk-sni-ukrayini-1', $response->json('data.slug'));

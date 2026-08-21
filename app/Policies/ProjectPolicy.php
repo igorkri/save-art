@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
@@ -69,10 +68,9 @@ class ProjectPolicy
             return false;
         }
 
-        return $project->isEditable()
+        return $project->canBeFullyEditedByOwner()
             || $project->isPartiallyEditable()
-            || in_array($project->status, [ProjectStatus::Completed, ProjectStatus::Sold], true)
-            || ($project->status === ProjectStatus::Moderation && $project->status_moderation !== ModerationStatus::Processing);
+            || $project->status === ProjectStatus::Completed;
     }
 
     /**
@@ -80,7 +78,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $project->user_id === $user->id && $project->status === ProjectStatus::Draft;
+        return $project->user_id === $user->id && $project->canBeDeletedByOwner();
     }
 
     /**
@@ -105,7 +103,7 @@ class ProjectPolicy
     public function submit(User $user, Project $project): bool
     {
         return $project->user_id === $user->id
-            && in_array($project->status, [ProjectStatus::Draft, ProjectStatus::Rejected]);
+            && $project->status === ProjectStatus::Draft;
     }
 
     /**
@@ -122,7 +120,7 @@ class ProjectPolicy
      */
     public function manageStages(User $user, Project $project): bool
     {
-        return $project->user_id === $user->id;
+        return $project->user_id === $user->id && $project->canManageStagesByOwner();
     }
 
     /**
@@ -130,6 +128,6 @@ class ProjectPolicy
      */
     public function manageBonuses(User $user, Project $project): bool
     {
-        return $project->user_id === $user->id;
+        return $project->user_id === $user->id && $project->canManageBonusesByOwner();
     }
 }

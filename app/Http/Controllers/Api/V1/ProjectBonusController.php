@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CreateBonusRequest;
 use App\Http\Requests\Api\V1\UpdateBonusRequest;
 use App\Http\Resources\Api\V1\ProjectBonusResource;
 use App\Models\Project;
 use App\Models\ProjectBonus;
+use App\Services\ProjectWorkflowService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -90,9 +92,11 @@ class ProjectBonusController extends Controller
      */
     public function store(CreateBonusRequest $request, Project $project): ProjectBonusResource|JsonResponse
     {
-        if (! $project->isEditable()) {
+        if (! $project->canManageBonusesByOwner()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
+
+        $this->returnPendingModerationToDraft($project);
 
         $data = $request->validated();
 
@@ -151,6 +155,12 @@ class ProjectBonusController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
 
+        if (! $project->canManageBonusesByOwner()) {
+            return response()->json(['message' => 'Бонуси проєкту не можна редагувати у поточному статусі'], 422);
+        }
+
+        $this->returnPendingModerationToDraft($project);
+
         $data = $request->validated();
 
         $bonus->update($data);
@@ -199,9 +209,11 @@ class ProjectBonusController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
 
-        if (! $project->isEditable()) {
+        if (! $project->canManageBonusesByOwner()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
+
+        $this->returnPendingModerationToDraft($project);
 
         // Не дозволяємо видаляти бонуси, які вже використані
         if ($bonus->quantity_claimed > 0) {
@@ -213,5 +225,12 @@ class ProjectBonusController extends Controller
         $bonus->delete();
 
         return response()->json(['message' => 'Бонус видалено']);
+    }
+
+    private function returnPendingModerationToDraft(Project $project): void
+    {
+        if ($project->status === ProjectStatus::Moderation) {
+            app(ProjectWorkflowService::class)->returnToDraft($project);
+        }
     }
 }

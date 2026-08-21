@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CreateStageRequest;
@@ -9,6 +10,7 @@ use App\Http\Requests\Api\V1\UpdateStageRequest;
 use App\Http\Resources\Api\V1\ProjectStageResource;
 use App\Models\Project;
 use App\Models\ProjectStage;
+use App\Services\ProjectWorkflowService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -109,9 +111,11 @@ class ProjectStageController extends Controller
     {
         // Оголошений/в роботі/на паузі: додавання нових етапів дозволене (docs/project-lifecycle-flow.md
         // — "Додавання Етапів"), на відміну від повного редагування (isEditable — лише new/draft).
-        if (! $project->isEditable() && ! $project->isPartiallyEditable()) {
+        if (! $project->canManageStagesByOwner()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
+
+        $this->returnPendingModerationToDraft($project);
 
         $data = $request->validated();
 
@@ -183,6 +187,12 @@ class ProjectStageController extends Controller
         if ($stage->project_id !== $project->id) {
             return response()->json(['message' => 'Not found'], 404);
         }
+
+        if (! $project->canManageStagesByOwner()) {
+            return response()->json(['message' => 'Етапи проєкту не можна редагувати у поточному статусі'], 422);
+        }
+
+        $this->returnPendingModerationToDraft($project);
 
         $data = $request->validated();
 
@@ -292,9 +302,11 @@ class ProjectStageController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
 
-        if (! $project->isEditable()) {
+        if (! $project->canBeFullyEditedByOwner()) {
             return response()->json(['message' => 'Проєкт не можна редагувати'], 422);
         }
+
+        $this->returnPendingModerationToDraft($project);
 
         $stage->delete();
 
@@ -347,6 +359,18 @@ class ProjectStageController extends Controller
 
         if ($stage->project_id !== $project->id) {
             return response()->json(['message' => 'Not found'], 404);
+        }
+
+        if (! $project->isPartiallyEditable()) {
+            return response()->json(['message' => 'Почати етап можна лише після публікації проєкту'], 422);
+        }
+
+        if ($stage->status !== StageStatus::Planned) {
+            return response()->json(['message' => 'Почати можна лише запланований етап'], 422);
+        }
+
+        if (! $stage->days_planned || ! $stage->budget_planned) {
+            return response()->json(['message' => 'Вкажіть кількість днів та плановану суму перед початком етапу'], 422);
         }
 
         $stage->update([
@@ -403,6 +427,22 @@ class ProjectStageController extends Controller
 
         if ($stage->project_id !== $project->id) {
             return response()->json(['message' => 'Not found'], 404);
+        }
+
+        if (! $project->isPartiallyEditable()) {
+            return response()->json(['message' => 'Завершити етап можна лише в опублікованому проєкті'], 422);
+        }
+
+        if ($stage->status !== StageStatus::InProgress) {
+            return response()->json(['message' => 'Завершити можна лише етап у роботі'], 422);
+        }
+
+        if (! $stage->budget_actual) {
+            return response()->json(['message' => 'Вкажіть фактичну суму витрат перед завершенням етапу'], 422);
+        }
+
+        if (empty($stage->documents)) {
+            return response()->json(['message' => 'Додайте хоча б один файл-підтвердження перед завершенням етапу'], 422);
         }
 
         $stage->update([
@@ -496,6 +536,12 @@ class ProjectStageController extends Controller
         if ($stage->project_id !== $project->id) {
             return response()->json(['message' => 'Not found'], 404);
         }
+
+        if (! $project->canManageStagesByOwner()) {
+            return response()->json(['message' => 'Документи етапу не можна редагувати у поточному статусі'], 422);
+        }
+
+        $this->returnPendingModerationToDraft($project);
 
         $request->validate([
             'documents' => ['required', 'array', 'max:10'],
@@ -591,6 +637,12 @@ class ProjectStageController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
 
+        if (! $project->canManageStagesByOwner()) {
+            return response()->json(['message' => 'Документи етапу не можна редагувати у поточному статусі'], 422);
+        }
+
+        $this->returnPendingModerationToDraft($project);
+
         $documents = $stage->documents ?? [];
 
         if (! isset($documents[$documentIndex])) {
@@ -610,5 +662,12 @@ class ProjectStageController extends Controller
         ]);
 
         return new ProjectStageResource($stage->fresh());
+    }
+
+    private function returnPendingModerationToDraft(Project $project): void
+    {
+        if ($project->status === ProjectStatus::Moderation) {
+            app(ProjectWorkflowService::class)->returnToDraft($project);
+        }
     }
 }
