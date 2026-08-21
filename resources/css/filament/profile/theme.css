@@ -928,6 +928,201 @@ section
     border-radius: 0 !important;
 }
 
+/* Список Teams відображається двоколонковою сіткою карток. */
+.fi-panel-profile .fi-resource-teams .fi-ta-ctn {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* :has() прив'язує ширину й колонки безпосередньо до Teams-карток, навіть
+   коли resource-клас Filament знаходиться не на батьківському контейнері. */
+.fi-panel-profile .fi-ta-ctn:has(.profile-team-card-record) {
+    width: min(100%, 1000px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .fi-resource-teams .fi-ta-content-ctn,
+.fi-panel-profile .fi-resource-teams .fi-ta-content-grid {
+    border-radius: 0;
+    background: #414141;
+}
+
+.fi-panel-profile .fi-resource-teams .fi-ta-content-grid {
+    gap: 1.125rem;
+    padding: 0;
+}
+
+.fi-panel-profile .fi-ta-content-grid:has(.profile-team-card-record) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.125rem;
+    padding: 0;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record {
+    min-height: 410px;
+    border: 0;
+    border-radius: 0;
+    background: #323232 !important;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record:hover {
+    background: #353535 !important;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record .fi-ta-record-content-ctn {
+    position: relative;
+    gap: 0;
+    padding: 0;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record .fi-ta-record-content {
+    height: 100%;
+    padding: 0;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record .fi-ta-col,
+.fi-panel-profile .fi-resource-teams .profile-team-card-record .fi-ta-col-wrp {
+    height: 100%;
+    width: 100%;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record .fi-ta-actions {
+    position: absolute;
+    z-index: 2;
+    top: 1rem;
+    right: 1rem;
+    min-height: 0;
+    padding: 0;
+}
+
+.fi-panel-profile .fi-resource-teams .profile-team-card-record .fi-ta-actions > .fi-dropdown > .fi-icon-btn {
+    color: #fecc39;
+}
+
+.profile-team-card {
+    min-height: 410px;
+    padding: 1.25rem;
+    color: #f5f5f5;
+}
+
+.profile-team-card-header {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    padding-right: 2.5rem;
+}
+
+.profile-team-card-avatar,
+.profile-team-card-member-avatar {
+    display: block;
+    flex: 0 0 auto;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+
+.profile-team-card-avatar {
+    width: 26px;
+    height: 26px;
+}
+
+.profile-team-card-avatar-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #484848;
+    color: #fecc39;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.profile-team-card-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.profile-team-card-description,
+.profile-team-card-specialization {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: #f5f5f5;
+    white-space: pre-line;
+}
+
+.profile-team-card-description {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+}
+
+.profile-team-card-specialization {
+    margin-top: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-team-card-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    margin-top: 1.25rem;
+}
+
+.profile-team-card-member {
+    display: inline-flex;
+    min-width: 0;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.profile-team-card-member-avatar {
+    width: 20px;
+    height: 20px;
+}
+
+.profile-team-card-member-name {
+    max-width: 190px;
+    overflow: hidden;
+    color: #f5f5f5;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-team-card-members-more {
+    align-self: center;
+    color: #fecc39;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+@media (max-width: 1023px) {
+    .fi-panel-profile .fi-resource-teams .profile-team-card-record,
+    .profile-team-card {
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .fi-ta-content-grid:has(.profile-team-card-record) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
 /* Вирівнюємо значення select у високому полі pagination по вертикалі. */
 .fi-panel-profile .fi-pagination-records-per-page-select .fi-input-wrp {
     align-items: center;

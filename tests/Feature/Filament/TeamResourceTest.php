@@ -113,6 +113,7 @@ class TeamResourceTest extends TestCase
         $foreignTeam->teamMembers()->create(['user_id' => User::factory()->create()->id, 'role' => 'owner', 'sort_order' => 0]);
 
         Livewire::test(ListTeams::class)
+            ->assertSeeHtml('fi-ta-content-grid')
             ->assertCanSeeTableRecords([$ownTeam])
             ->assertCanNotSeeTableRecords([$foreignTeam]);
     }
@@ -145,6 +146,9 @@ class TeamResourceTest extends TestCase
         $team->teamMembers()->create(['user_id' => $this->user->id, 'role' => 'member', 'sort_order' => 1]);
 
         Livewire::test(ListTeams::class)
+            ->assertTableActionHidden('edit', $team)
+            ->assertTableActionHidden('delete', $team)
+            ->assertTableActionVisible('leave', $team)
             ->callTableAction('leave', $team);
 
         $this->assertDatabaseMissing('team_members', [
@@ -163,6 +167,8 @@ class TeamResourceTest extends TestCase
         $team->teamMembers()->create(['user_id' => $this->user->id, 'role' => 'owner', 'sort_order' => 0]);
 
         Livewire::test(ListTeams::class)
+            ->assertTableActionVisible('edit', $team)
+            ->assertTableActionVisible('delete', $team)
             ->assertTableActionHidden('leave', $team);
     }
 }
