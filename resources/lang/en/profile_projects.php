@@ -146,4 +146,18 @@ return [
         'description' => 'Description',
         'created_at' => 'Created',
     ],
+
+    'card' => [
+        'unknown_author' => 'Unknown author',
+        'collection' => 'Fundraising',
+        'collection_active' => 'Active',
+        'collection_paused' => 'Paused',
+        'collection_completed' => 'Completed',
+        'announcement_date' => 'Announcement date',
+        'completion_date' => 'Completion date',
+        'moderation_processing' => 'Project is being moderated',
+        'moderation_pending' => 'Project is waiting for moderation',
+        'rejected' => 'Project rejected',
+        'draft' => 'Project saved as draft',
+    ],
 ];

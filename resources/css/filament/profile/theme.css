@@ -1230,12 +1230,352 @@ section
     background: #2f2f2f;
 }
 
-/* Картки проєктів, обкладинки та статуси мають прямі кути. */
+/* Сітка проєктів у стилі макета кабінету save-art. */
+.fi-panel-profile .fi-resource-projects .fi-ta-ctn,
+.fi-panel-profile .fi-ta-ctn:has(.profile-project-card-record) {
+    width: min(100%, 1450px);
+    margin-inline: auto;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .fi-resource-projects .fi-ta-content-ctn,
+.fi-panel-profile .fi-resource-projects .fi-ta-content-grid {
+    border-radius: 0;
+    background: #414141;
+}
+
+.fi-panel-profile .fi-resource-projects .fi-ta-content-grid,
+.fi-panel-profile .fi-ta-content-grid:has(.profile-project-card-record) {
+    gap: 0.75rem;
+    padding: 0.75rem;
+}
+
+.fi-panel-profile .profile-project-card-record {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: #343434 !important;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-card-record .fi-ta-record-content-ctn,
 .fi-panel-profile .profile-project-card-record .fi-ta-record-content,
-.fi-panel-profile .profile-project-card-record .fi-ta-image,
-.fi-panel-profile .profile-project-card-record .fi-ta-image img,
-.fi-panel-profile .profile-project-card-record .fi-badge {
-    border-radius: 0 !important;
+.fi-panel-profile .profile-project-card-record .fi-ta-col,
+.fi-panel-profile .profile-project-card-record .fi-ta-col-wrp {
+    width: 100%;
+    height: 100%;
+    gap: 0;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-card-record .fi-ta-actions {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    min-height: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+.fi-panel-profile .profile-project-card-record .profile-project-card-edit-action {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: auto;
+}
+
+.profile-project-card {
+    display: flex;
+    min-height: 620px;
+    height: 100%;
+    flex-direction: column;
+    background: #343434;
+    color: #f5f5f5;
+}
+
+.profile-project-card-author {
+    display: flex;
+    min-height: 64px;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid #272727;
+    padding: 0.75rem;
+}
+
+.profile-project-card-author-avatar {
+    display: block;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+
+.profile-project-card-author-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #4b4b4b;
+    color: #fecc39;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+}
+
+.profile-project-card-author-name {
+    min-width: 0;
+    overflow: hidden;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-project-card-cover-ctn {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-bottom: 1px solid #272727;
+    background: #343434;
+}
+
+.profile-project-card-cover,
+.profile-project-card-cover-fallback {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-project-card-cover {
+    display: block;
+    object-fit: cover;
+    transition: transform 250ms ease;
+}
+
+.profile-project-card-record:hover .profile-project-card-cover {
+    transform: scale(1.02);
+}
+
+.profile-project-card-cover-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-project-card-cover-fallback img {
+    width: 48%;
+    max-height: 66%;
+    object-fit: contain;
+}
+
+.profile-project-card-title {
+    display: -webkit-box;
+    min-height: 4.5rem;
+    overflow: hidden;
+    border-bottom: 1px solid #272727;
+    padding: 0.85rem 0.75rem;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.profile-project-card-funding {
+    padding: 0.75rem;
+}
+
+.profile-project-card-funding-values {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.75rem;
+}
+
+.profile-project-card-funding-values > strong {
+    min-width: 0;
+    overflow: hidden;
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.5rem, 2.25vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-project-card-funding-values > span {
+    display: grid;
+    justify-items: end;
+    line-height: 1.15;
+}
+
+.profile-project-card-funding-values small {
+    color: #c7c7c7;
+    font-size: 0.6875rem;
+    font-weight: 400;
+}
+
+.profile-project-card-funding-values b {
+    color: #fecc39;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.75rem;
+}
+
+.profile-project-card-progress {
+    height: 8px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: #242424;
+}
+
+.profile-project-card-progress > span {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: #fecc39;
+}
+
+.profile-project-card-donors {
+    display: flex;
+    min-height: 26px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+    color: #c7c7c7;
+    font-size: 0.75rem;
+}
+
+.profile-project-card-donors ul {
+    display: flex;
+    padding-left: 0.4rem;
+}
+
+.profile-project-card-donors li {
+    width: 22px;
+    height: 22px;
+    overflow: hidden;
+    border: 1px solid #343434;
+    border-radius: 9999px;
+    margin-left: -0.4rem;
+    background: #555;
+}
+
+.profile-project-card-donors li img,
+.profile-project-card-donors li span {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-project-card-donors li img {
+    display: block;
+    object-fit: cover;
+}
+
+.profile-project-card-donors li span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fecc39;
+    font-size: 0.55rem;
+    font-weight: 700;
+}
+
+.profile-project-card-meta,
+.profile-project-card-state-date {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: auto;
+    padding: 0.75rem;
+    color: #c7c7c7;
+    font-size: 0.75rem;
+    line-height: 1.35;
+}
+
+.profile-project-card-meta > div,
+.profile-project-card-state-date {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.profile-project-card-meta > div {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.profile-project-card-meta dd,
+.profile-project-card-state-date dd {
+    min-width: 0;
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-project-card-meta .is-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    color: #fecc39;
+}
+
+.profile-project-card-meta .is-status .fi-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.profile-project-card-state {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    color: #c7c7c7;
+    text-align: center;
+}
+
+.profile-project-card-state .fi-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    color: #fecc39;
+}
+
+.profile-project-card-state p {
+    font-size: 0.75rem;
+}
+
+.profile-project-card.is-processing .profile-project-card-state .fi-icon {
+    animation: project-card-spin 3s linear infinite;
+}
+
+@keyframes project-card-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .fi-ta-content-grid:has(.profile-project-card-record) {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 0.625rem;
+        padding: 0.625rem;
+    }
+
+    .profile-project-card {
+        min-height: 560px;
+    }
 }
 
 /* Послуги відображаються адаптивною сіткою карток. */

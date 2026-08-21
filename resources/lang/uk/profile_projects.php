@@ -146,4 +146,18 @@ return [
         'description' => 'Опис',
         'created_at' => 'Створено',
     ],
+
+    'card' => [
+        'unknown_author' => 'Автор не вказаний',
+        'collection' => 'Збір',
+        'collection_active' => 'Активний',
+        'collection_paused' => 'На паузі',
+        'collection_completed' => 'Завершений',
+        'announcement_date' => 'Дата оголошення',
+        'completion_date' => 'Дата завершення',
+        'moderation_processing' => 'Проєкт проходить модерацію',
+        'moderation_pending' => 'Проєкт у черзі на модерацію',
+        'rejected' => 'Проєкт відхилено',
+        'draft' => 'Проєкт збережено як чернетку',
+    ],
 ];

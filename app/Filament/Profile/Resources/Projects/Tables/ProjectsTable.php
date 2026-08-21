@@ -2,19 +2,14 @@
 
 namespace App\Filament\Profile\Resources\Projects\Tables;
 
-use App\Enums\ModerationStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Support\Number;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProjectsTable
 {
@@ -27,86 +22,38 @@ class ProjectsTable
                 'xl' => 3,
             ])
             ->recordClasses('profile-project-card-record')
+            ->recordUrl(null)
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
+                'user',
+                'team',
+                'artCategory.parent',
+                'donations' => fn ($query) => $query
+                    ->where('status', 'paid')
+                    ->where('is_public', true)
+                    ->with('user')
+                    ->latest()
+                    ->limit(5),
+            ]))
             ->columns([
-                Stack::make([
-                    ImageColumn::make('cover')
-                        ->label(__('profile_projects.table.cover'))
-                        ->disk('public')
-                        ->imageHeight('auto')
-                        ->imageWidth('100%')
-                        ->extraImgAttributes([
-                            'class' => 'w-full h-auto',
-                        ]),
-
-                    Stack::make([
+                View::make('filament.profile.projects.project-card')
+                    ->schema([
                         TextColumn::make('title')
-                            ->label(__('profile_projects.table.title'))
-                            ->limit(50)
                             ->searchable()
                             ->sortable()
-                            ->weight('bold')
-                            ->size('lg'),
-
-                        Split::make([
-                            TextColumn::make('status')
-                                ->label(__('profile_projects.table.status'))
-                                ->badge()
-                                ->formatStateUsing(fn (ProjectStatus $state): string => $state->getLabel())
-                                ->color(fn (ProjectStatus $state): string => $state->getColor())
-                                ->sortable()
-                                ->grow(false),
-
-                            // Модерація дублює статус поза межами самого етапу модерації
-                            // (наприклад, для Announced вона завжди лишається Approved) —
-                            // показуємо бейдж лише поки проєкт реально на модерації.
-                            TextColumn::make('status_moderation')
-                                ->label(__('profile_projects.table.moderation'))
-                                ->badge()
-                                ->formatStateUsing(fn (ModerationStatus $state): string => $state->getLabel())
-                                ->color(fn (ModerationStatus $state): string => match ($state) {
-                                    ModerationStatus::Pending => 'warning',
-                                    ModerationStatus::Processing => 'info',
-                                    ModerationStatus::Approved => 'success',
-                                    ModerationStatus::Rejected => 'danger',
-                                })
-                                ->visible(fn (?Project $record): bool => $record?->status === ProjectStatus::Moderation)
-                                ->grow(false),
-                        ]),
-
-                        Split::make([
-                            TextColumn::make('budget_collected')
-                                ->label(__('profile_projects.table.collected'))
-                                ->money(fn ($record) => $record->currency?->value ?? 'UAH')
-                                ->sortable()
-                                ->weight('semibold')
-                                ->grow(false),
-
-                            TextColumn::make('budget_goal')
-                                ->label(__('profile_projects.table.goal'))
-                                ->formatStateUsing(fn ($record, $state): string => '/ '.Number::currency(
-                                    $state,
-                                    $record->currency?->value ?? 'UAH',
-                                    app()->getLocale(),
-                                ))
-                                ->color('gray')
-                                ->sortable()
-                                ->grow(false),
-                        ]),
-
+                            ->hidden(),
                         TextColumn::make('short_description')
-                            ->label(__('profile_projects.table.description'))
-                            ->limit(180)
-                            ->wrap()
-                            ->color('gray'),
-
-                        TextColumn::make('created_at')
-                            ->label(__('profile_projects.table.created_at'))
-                            ->dateTime('d.m.Y H:i')
+                            ->searchable()
+                            ->hidden(),
+                        TextColumn::make('budget_collected')
                             ->sortable()
-                            ->color('gray')
-                            ->toggleable(isToggledHiddenByDefault: true),
-                    ])->space(1)->extraAttributes(['class' => 'p-2']),
-                ])->extraAttributes(['class' => 'border border-gray-200 dark:border-gray-700 overflow-hidden']),
+                            ->hidden(),
+                        TextColumn::make('budget_goal')
+                            ->sortable()
+                            ->hidden(),
+                        TextColumn::make('created_at')
+                            ->sortable()
+                            ->hidden(),
+                    ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -115,15 +62,13 @@ class ProjectsTable
                     ->options(ProjectStatus::getOptions()),
             ])
             ->recordActions([
-                //                ViewAction::make(),
-                //                EditAction::make()
-                //                    // Completed/Sold теж відкриваються — там лишається доступним
-                //                    // лише крок "Фінальний результат" (ProjectPolicy::update()).
-                //                    ->visible(fn ($record): bool => $record->status->isEditable()
-                //                        || $record->status->isPartiallyEditable()
-                //                        || in_array($record->status, [ProjectStatus::Completed, ProjectStatus::Sold], true)),
-                //                DeleteAction::make()
-                //                    ->visible(fn ($record): bool => $record->status->isEditable()),
+                EditAction::make()
+                    ->icon(null)
+                    ->hiddenLabel()
+                    ->extraAttributes(['class' => 'profile-project-card-edit-action'])
+                    ->visible(fn (Project $record): bool => $record->status->isEditable()
+                        || $record->status->isPartiallyEditable()
+                        || in_array($record->status, [ProjectStatus::Completed, ProjectStatus::Sold], true)),
             ]);
     }
 }
