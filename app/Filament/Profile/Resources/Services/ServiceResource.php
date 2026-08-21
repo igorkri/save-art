@@ -25,6 +25,8 @@ class ServiceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
+    protected static ?int $navigationSort = 20;
+
     public static function getModelLabel(): string
     {
         return __('profile_services.model.singular');

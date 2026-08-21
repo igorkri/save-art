@@ -17,6 +17,8 @@ class NotificationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBell;
 
+    protected static ?int $navigationSort = 50;
+
     public static function getModelLabel(): string
     {
         return __('profile_notifications.model.singular');
@@ -30,14 +32,6 @@ class NotificationResource extends Resource
     public static function getNavigationLabel(): string
     {
         return __('profile_notifications.model.plural');
-    }
-
-    // Сповіщення відображаються через дзвіночок у шапці (NotificationsBell),
-    // тож окремий пункт у бічному меню не потрібен — сторінка лишається
-    // доступною за прямим посиланням із випадаючого списку.
-    public static function shouldRegisterNavigation(): bool
-    {
-        return false;
     }
 
     public static function table(Table $table): Table

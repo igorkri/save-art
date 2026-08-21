@@ -42,7 +42,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Webkul\ProgressStepper\Forms\Components\ProgressStepper;
 
 use function Filament\Support\generate_icon_html;
 
@@ -68,35 +67,11 @@ class ProjectForm
             && ! $record->canEditAdditionalContentOnly();
     }
 
-    public static function configure(Schema $schema): Schema
+    public static function configure(Schema $schema, ?string $ownerStepLabel = null): Schema
     {
         return $schema
             ->columns(6)
             ->components([
-                ProgressStepper::make('status')
-                    ->hiddenLabel()
-                    // Крок "Відхилений" — не звичайний етап флоу (проєкт або йде New →
-                    // ... → Sold, або "звалюється" у Rejected). Показуємо його в стрічці
-                    // лише коли проєкт справді відхилений, інакше він лише плутав би
-                    // користувача, торчачи серед майбутніх кроків.
-                    ->options(fn (?Project $record): array => $record?->status === ProjectStatus::Rejected
-                        ? ProjectStatus::getOptions()
-                        : collect(ProjectStatus::getOptions())->except(ProjectStatus::Rejected->value)->all())
-                    ->icons(collect(ProjectStatus::cases())->mapWithKeys(fn (ProjectStatus $status) => [$status->value => $status->getIcon()])->all())
-                    ->markCompletedUpToCurrent()
-                    ->completedColor('success')
-                    ->currentColor('primary')
-                    ->upcomingColor('gray')
-                    ->errorColor('danger')
-                    ->errorStates(fn (?Project $record): array => $record?->status === ProjectStatus::Rejected
-                        ? [ProjectStatus::Rejected->value]
-                        : [])
-                    ->default(ProjectStatus::New->value)
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->extraAttributes(['class' => 'profile-project-status-stepper'])
-                    ->columnSpanFull(),
-
                 Group::make()
                     ->extraAttributes(['class' => 'profile-project-summary'])
                     ->columnSpanFull()
@@ -151,7 +126,7 @@ class ProjectForm
                     ]),
 
                 Wizard::make(self::orderedWizardSteps([
-                    Step::make(__('profile_projects.tabs.author'))
+                    Step::make($ownerStepLabel ?? __('profile_projects.tabs.author'))
                         ->icon('heroicon-o-user-circle')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-author'])
                         ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))

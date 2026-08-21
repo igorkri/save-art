@@ -36,7 +36,7 @@
                     {
                         "name": "art_category",
                         "in": "query",
-                        "description": "Slug кореневої категорії мистецтва",
+                        "description": "Slug кореневої категорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
                         }
@@ -44,9 +44,47 @@
                     {
                         "name": "art_subcategory",
                         "in": "query",
-                        "description": "Slug підкатегорії мистецтва",
+                        "description": "Slug підкатегорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "author_slug",
+                        "in": "query",
+                        "description": "Slug автора (митця/організації) — обмежує список каталогами лише цього автора",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Пошук по назві каталогу та імені автора",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "likes"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_dir",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
                         }
                     },
                     {
@@ -382,50 +420,6 @@
                 }
             }
         },
-        "/v1/art-ua-info/artists/{slug}/photos": {
-            "get": {
-                "tags": [
-                    "Artists"
-                ],
-                "summary": "Портфоліо митця",
-                "description": "Повертає список фото з портфоліо митця",
-                "operationId": "artUaInfoGetArtistPhotos",
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "path",
-                        "description": "Slug митця",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список фото",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/UserPhoto"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Митця не знайдено"
-                    }
-                }
-            }
-        },
         "/v1/art-ua-info/categories": {
             "get": {
                 "tags": [
@@ -557,20 +551,6 @@
                 "summary": "Список FAQ",
                 "description": "Повертає всі FAQ категорії з питаннями та відповідями.",
                 "operationId": "artUaInfoGetFaq",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en)",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Список FAQ"
@@ -600,18 +580,6 @@
                         "schema": {
                             "type": "string"
                         }
-                    },
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Код мови (uk або en)",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
                     }
                 ],
                 "responses": {
@@ -637,21 +605,6 @@
                 "summary": "Дані головної сторінки",
                 "description": "Отримати дані головної сторінки",
                 "operationId": "artUaInfoGetHomePage",
-                "parameters": [
-                    {
-                        "name": "language",
-                        "in": "query",
-                        "description": "Мова контенту (uk, en)",
-                        "schema": {
-                            "type": "string",
-                            "default": "uk",
-                            "enum": [
-                                "uk",
-                                "en"
-                            ]
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Дані головної сторінки"
@@ -930,6 +883,259 @@
                 ]
             }
         },
+        "/v1/art-ua-info/organizations": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Список організацій",
+                "description": "Повертає список організацій (користувачів з profile_type=organization, які мають опубліковані art-ua-info проєкти) з фільтрами по галузі мистецтва",
+                "operationId": "artUaInfoGetOrganizations",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Пошук по назві організації",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "art_category",
+                        "in": "query",
+                        "description": "Фільтр по категорії",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "art_subcategory",
+                        "in": "query",
+                        "description": "Фільтр по підкатегорії (можна вказати кілька через кому)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "projects_count",
+                                "name"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Кількість на сторінку (макс. 50)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Номер сторінки",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список організацій",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Artist"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginationLinks"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        },
+                                        "filters": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/art-ua-info/organizations/{slug}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Профіль організації",
+                "description": "Повертає публічний профіль організації з її даними та соціальними мережами",
+                "operationId": "artUaInfoGetOrganization",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Унікальний slug організації",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Профіль організації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Artist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Організацію не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/art-ua-info/organizations/{slug}/projects": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Проєкти організації",
+                "description": "Повертає список публічних art-ua-info проєктів конкретної організації",
+                "operationId": "artUaInfoGetOrganizationProjects",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug організації",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Фільтр по статусу проєкту",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "announced",
+                                "in_progress",
+                                "completed",
+                                "sold"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Кількість на сторінку (макс. 50)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список проєктів організації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProjectList"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginationLinks"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Організацію не знайдено"
+                    }
+                }
+            }
+        },
         "/v1/art-ua-info/profile": {
             "get": {
                 "tags": [
@@ -1090,9 +1296,8 @@
                         "schema": {
                             "type": "string",
                             "enum": [
-                                "newest",
-                                "popular",
-                                "ending_soon"
+                                "name",
+                                "date"
                             ]
                         }
                     },
@@ -1367,6 +1572,235 @@
                 }
             }
         },
+        "/v1/art-ua-info/teams": {
+            "get": {
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Список команд",
+                "description": "Повертає список творчих команд",
+                "operationId": "artUaInfoGetTeams",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Пошук по назві команди",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Кількість на сторінку (макс. 50)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Номер сторінки",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список команд",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TeamListItem"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginationLinks"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/art-ua-info/teams/{slug}": {
+            "get": {
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Профіль команди",
+                "description": "Повертає публічний профіль команди",
+                "operationId": "artUaInfoGetTeam",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug команди",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Профіль команди",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TeamListItem"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Команду не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/art-ua-info/teams/{slug}/projects": {
+            "get": {
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Проєкти команди",
+                "description": "Повертає опубліковані art-ua-info проєкти, власником яких є сама команда (team_id)",
+                "operationId": "artUaInfoGetTeamProjects",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug команди",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Кількість на сторінку (макс. 50)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список проєктів команди",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProjectList"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginationLinks"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Команду не знайдено"
+                    }
+                }
+            }
+        },
+        "/v1/art-ua-info/terms": {
+            "get": {
+                "tags": [
+                    "Terms"
+                ],
+                "summary": "Умови використання",
+                "description": "Повертає всі розділи умов використання з блоками контенту.",
+                "operationId": "artUaInfoGetTerms",
+                "responses": {
+                    "200": {
+                        "description": "Умови використання"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
         "/v1/art-ua-info/my/catalogs": {
             "get": {
                 "tags": [
@@ -1424,7 +1858,7 @@
                                     },
                                     "title[en]": {
                                         "type": "string",
-                                        "nullable": true
+                                        "example": "My catalog"
                                     },
                                     "image": {
                                         "description": "Обкладинка (файл) або Base64 data URL",
@@ -1436,8 +1870,14 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "art_category_id": {
-                                        "type": "integer",
+                                    "art_category": {
+                                        "description": "Slug кореневої галузі мистецтва",
+                                        "type": "string",
+                                        "example": "painting"
+                                    },
+                                    "art_subcategory": {
+                                        "description": "Slug підкатегорії",
+                                        "type": "string",
                                         "nullable": true
                                     },
                                     "published_at": {
@@ -1688,14 +2128,10 @@
                             "schema": {
                                 "properties": {
                                     "title": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "type": "string"
                                     },
                                     "description": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/LocalizedString"
-                                            }
-                                        ],
+                                        "type": "string",
                                         "nullable": true
                                     },
                                     "image": {
@@ -1703,22 +2139,31 @@
                                         "type": "string",
                                         "nullable": true
                                     },
-                                    "art_category_id": {
-                                        "type": "integer",
+                                    "art_category": {
+                                        "description": "Slug кореневої галузі мистецтва",
+                                        "type": "string"
+                                    },
+                                    "art_subcategory": {
+                                        "description": "Slug підкатегорії",
+                                        "type": "string",
                                         "nullable": true
                                     },
                                     "price": {
                                         "type": "number",
                                         "nullable": true
                                     },
+                                    "price_from": {
+                                        "type": "boolean",
+                                        "nullable": true
+                                    },
                                     "currency": {
                                         "type": "string",
+                                        "nullable": true,
                                         "enum": [
                                             "UAH",
                                             "USD",
                                             "EUR"
-                                        ],
-                                        "nullable": true
+                                        ]
                                     },
                                     "options": {
                                         "type": "array",
@@ -1776,7 +2221,153 @@
                 ]
             }
         },
+        "/v1/art-ua-info/my/teams/{team}/services": {
+            "get": {
+                "tags": [
+                    "My Services"
+                ],
+                "summary": "Список послуг команди",
+                "description": "Список послуг команди (для учасників, керування послугами команди)",
+                "operationId": "artUaInfoGetMyTeamServices",
+                "parameters": [
+                    {
+                        "name": "team",
+                        "in": "path",
+                        "description": "Slug команди",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список послуг",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Service"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "403": {
+                        "description": "Не учасник команди"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "My Services"
+                ],
+                "summary": "Створити послугу команди",
+                "description": "Створити послугу від імені команди",
+                "operationId": "artUaInfoCreateMyTeamService",
+                "parameters": [
+                    {
+                        "name": "team",
+                        "in": "path",
+                        "description": "Slug команди",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Послугу створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Service"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "403": {
+                        "description": "Не учасник команди"
+                    },
+                    "422": {
+                        "description": "Помилка валідації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
         "/v1/art-ua-info/my/services/{service}": {
+            "get": {
+                "tags": [
+                    "My Services"
+                ],
+                "summary": "Отримати послугу для редагування",
+                "description": "Отримати власну послугу з повними (двомовними) даними для форми редагування",
+                "operationId": "artUaInfoGetMyService",
+                "parameters": [
+                    {
+                        "name": "service",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Послуга"
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
+                    },
+                    "403": {
+                        "description": "Не власник послуги"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "My Services"
@@ -1922,7 +2513,7 @@
                             "schema": {
                                 "properties": {
                                     "name": {
-                                        "$ref": "#/components/schemas/LocalizedString"
+                                        "type": "string"
                                     },
                                     "avatar": {
                                         "description": "Файл або Base64 data URL",
@@ -1934,27 +2525,15 @@
                                         "nullable": true
                                     },
                                     "country": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/LocalizedString"
-                                            }
-                                        ],
+                                        "type": "string",
                                         "nullable": true
                                     },
                                     "city": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/LocalizedString"
-                                            }
-                                        ],
+                                        "type": "string",
                                         "nullable": true
                                     },
                                     "description": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/LocalizedString"
-                                            }
-                                        ],
+                                        "type": "string",
                                         "nullable": true
                                     },
                                     "members": {
@@ -2002,6 +2581,57 @@
                                 }
                             }
                         }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
+        },
+        "/v1/art-ua-info/my/teams/search-members": {
+            "get": {
+                "tags": [
+                    "My Teams"
+                ],
+                "summary": "Пошук користувачів для додавання в команду",
+                "description": "Пошук користувачів для додавання в команду (за ПІБ або email).\n\nПриватний ендпоінт (на відміну від публічного /artists) — тому дозволяє\nшукати за email і не вимагає наявності опублікованих проєктів.",
+                "operationId": "artUaInfoSearchTeamMembers",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "ПІБ або email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Іван"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список користувачів",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TeamMember"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизовано"
                     }
                 },
                 "security": [
@@ -2511,63 +3141,19 @@
                 }
             }
         },
-        "/v1/organizations/{slug}/photos": {
-            "get": {
-                "tags": [
-                    "Organizations"
-                ],
-                "summary": "Портфоліо організації",
-                "description": "Повертає список фото з портфоліо організації",
-                "operationId": "getOrganizationPhotos",
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "path",
-                        "description": "Slug організації",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список фото",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/UserPhoto"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Організацію не знайдено"
-                    }
-                }
-            }
-        },
         "/v1/services": {
             "get": {
                 "tags": [
                     "Services"
                 ],
                 "summary": "Список послуг",
-                "description": "Повертає список послуг з можливістю фільтрації за категорією мистецтва та типом виконавця",
+                "description": "Повертає список послуг з можливістю фільтрації за категорією мистецтва, ціною, валютою, локацією та пошуком",
                 "operationId": "getServices",
                 "parameters": [
                     {
                         "name": "art_category",
                         "in": "query",
-                        "description": "Slug кореневої категорії мистецтва",
+                        "description": "Slug кореневої категорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
                         }
@@ -2575,7 +3161,7 @@
                     {
                         "name": "art_subcategory",
                         "in": "query",
-                        "description": "Slug підкатегорії мистецтва",
+                        "description": "Slug підкатегорії мистецтва (можна кілька через кому)",
                         "schema": {
                             "type": "string"
                         }
@@ -2590,6 +3176,59 @@
                                 "artist",
                                 "team"
                             ]
+                        }
+                    },
+                    {
+                        "name": "performer_slug",
+                        "in": "query",
+                        "description": "Slug виконавця (митця/організації/команди) — обмежує список послугами лише цього виконавця",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "Валюта",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "UAH",
+                                "USD",
+                                "EUR"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "price_min",
+                        "in": "query",
+                        "description": "Мінімальна ціна",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "price_max",
+                        "in": "query",
+                        "description": "Максимальна ціна",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Пошук за місцезнаходженням",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Пошук по назві та опису послуги",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -2633,6 +3272,59 @@
                                         },
                                         "meta": {
                                             "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/services/locations": {
+            "get": {
+                "tags": [
+                    "Services"
+                ],
+                "summary": "Автопідказки міст виконавців послуг",
+                "description": "Повертає до 8 міст (серед тих, де є хоча б одна послуга), що починаються з пошукового рядка",
+                "operationId": "getServiceLocations",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Початок назви міста",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Мова відповіді (uk, en)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "uk",
+                                "en"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список міст",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
                                         }
                                     },
                                     "type": "object"
@@ -2692,6 +3384,77 @@
                     },
                     "404": {
                         "description": "Послугу не знайдено"
+                    }
+                }
+            }
+        },
+        "/v1/services/{slug}/order": {
+            "post": {
+                "tags": [
+                    "Services"
+                ],
+                "summary": "Надіслати запит на замовлення послуги",
+                "description": "Надсилає лист виконавцю (з даними замовника) та лист-підтвердження замовнику. Нічого не зберігається в БД.",
+                "operationId": "orderService",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug послуги",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "options": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Запит надіслано"
+                    },
+                    "404": {
+                        "description": "Послугу не знайдено або не вдалося визначити отримувача"
+                    },
+                    "422": {
+                        "description": "Помилка валідації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3000,9 +3763,9 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
+                                        "example": "Іван Петренко",
                                         "maxLength": 255,
-                                        "minLength": 2,
-                                        "example": "Іван Петренко"
+                                        "minLength": 2
                                     },
                                     "email": {
                                         "type": "string",
@@ -3012,8 +3775,8 @@
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "minLength": 8,
-                                        "example": "SecurePass123"
+                                        "example": "SecurePass123",
+                                        "minLength": 8
                                     },
                                     "password_confirmation": {
                                         "type": "string",
@@ -3486,6 +4249,9 @@
                             },
                             "name": {
                                 "$ref": "#/components/schemas/LocalizedString"
+                            },
+                            "root_name": {
+                                "$ref": "#/components/schemas/LocalizedString"
                             }
                         },
                         "type": "object",
@@ -3494,6 +4260,10 @@
                     "likes_count": {
                         "type": "integer",
                         "example": 10
+                    },
+                    "is_liked": {
+                        "type": "boolean",
+                        "example": false
                     },
                     "is_primary": {
                         "type": "boolean",
@@ -3515,6 +4285,10 @@
                                 "type": "string"
                             },
                             "avatar_url": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "profession": {
                                 "type": "string",
                                 "nullable": true
                             }
@@ -3545,35 +4319,19 @@
                         "nullable": true
                     },
                     "profession": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "bio": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "city": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "country": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "social": {
@@ -3631,18 +4389,18 @@
                     },
                     "category": {
                         "type": "string",
+                        "example": "news",
                         "enum": [
                             "news",
                             "event"
-                        ],
-                        "example": "news"
+                        ]
                     },
                     "category_label": {
                         "type": "string",
                         "example": "Новини"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "date": {
                         "description": "Дата публікації у форматі dd.mm.yyyy",
@@ -3681,18 +4439,18 @@
                     },
                     "category": {
                         "type": "string",
+                        "example": "news",
                         "enum": [
                             "news",
                             "event"
-                        ],
-                        "example": "news"
+                        ]
                     },
                     "category_label": {
                         "type": "string",
                         "example": "Новини"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "date": {
                         "description": "Дата публікації у форматі dd.mm.yyyy",
@@ -3713,7 +4471,10 @@
                         "items": {
                             "properties": {
                                 "paragraphs": {
-                                    "description": "Якщо передано language — масив строк, інакше об'єкт {uk: string[], en: string[]}"
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 },
                                 "image": {
                                     "type": "string",
@@ -3757,10 +4518,11 @@
                         "example": 1
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "description": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string",
+                        "nullable": true
                     },
                     "min_donation": {
                         "type": "number",
@@ -3820,14 +4582,14 @@
                     },
                     "status_moderation": {
                         "type": "string",
+                        "example": "pending",
+                        "nullable": true,
                         "enum": [
                             "pending",
                             "processing",
                             "approved",
                             "rejected"
-                        ],
-                        "example": "pending",
-                        "nullable": true
+                        ]
                     },
                     "sold_externally": {
                         "description": "Проєкт позначено проданим поза платформою (art-ua-info)",
@@ -3952,14 +4714,15 @@
                     },
                     "source": {
                         "type": "string",
+                        "example": "save_art",
                         "enum": [
                             "save_art",
                             "art_ua_info"
-                        ],
-                        "example": "save_art"
+                        ]
                     },
                     "status": {
                         "type": "string",
+                        "example": "announced",
                         "enum": [
                             "draft",
                             "moderation",
@@ -3969,8 +4732,7 @@
                             "completed",
                             "sold",
                             "rejected"
-                        ],
-                        "example": "announced"
+                        ]
                     },
                     "status_label": {
                         "type": "string",
@@ -3978,18 +4740,19 @@
                     },
                     "status_moderation": {
                         "type": "string",
+                        "example": "approved",
                         "enum": [
                             "pending",
                             "approved",
                             "rejected"
-                        ],
-                        "example": "approved"
+                        ]
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "short_description": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string",
+                        "nullable": true
                     },
                     "cover_url": {
                         "type": "string",
@@ -3998,6 +4761,7 @@
                     },
                     "art_category": {
                         "type": "string",
+                        "example": "visual",
                         "enum": [
                             "scenic",
                             "visual",
@@ -4005,8 +4769,7 @@
                             "literature",
                             "music",
                             "other"
-                        ],
-                        "example": "visual"
+                        ]
                     },
                     "art_category_label": {
                         "type": "string",
@@ -4023,16 +4786,20 @@
                         "nullable": true
                     },
                     "tags": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
                     },
                     "currency": {
                         "type": "string",
+                        "example": "UAH",
                         "enum": [
                             "UAH",
                             "USD",
                             "EUR"
-                        ],
-                        "example": "UAH"
+                        ]
                     },
                     "budget_goal": {
                         "type": "number",
@@ -4089,7 +4856,7 @@
                         "items": {
                             "properties": {
                                 "name": {
-                                    "$ref": "#/components/schemas/LocalizedString"
+                                    "type": "string"
                                 },
                                 "amount": {
                                     "type": "number",
@@ -4110,24 +4877,24 @@
                             "properties": {
                                 "type": {
                                     "type": "string",
+                                    "example": "heading",
                                     "enum": [
                                         "heading",
                                         "paragraph",
                                         "image"
-                                    ],
-                                    "example": "heading"
+                                    ]
                                 },
                                 "heading_level": {
                                     "description": "Тільки для type=heading",
                                     "type": "string",
+                                    "example": "h2",
                                     "enum": [
                                         "h2",
                                         "h3",
                                         "h4",
                                         "h5",
                                         "h6"
-                                    ],
-                                    "example": "h2"
+                                    ]
                                 },
                                 "heading_text": {
                                     "description": "Тільки для type=heading (локалізовано)",
@@ -4219,16 +4986,17 @@
                         "example": 5
                     },
                     "parameter": {
-                        "description": "Назва характеристики. Якщо передано language — строка, інакше об'єкт {uk, en}",
+                        "description": "Назва характеристики",
+                        "type": "string",
                         "example": "Жанр"
                     },
                     "type": {
                         "type": "string",
+                        "example": "list",
                         "enum": [
                             "list",
                             "custom"
-                        ],
-                        "example": "list"
+                        ]
                     },
                     "value_id": {
                         "type": "integer",
@@ -4236,7 +5004,8 @@
                         "nullable": true
                     },
                     "value": {
-                        "description": "Значення. Якщо передано language — строка, інакше об'єкт {uk, en} (для custom) або строка (для list)",
+                        "description": "Значення",
+                        "type": "string",
                         "example": "Роман",
                         "nullable": true
                     }
@@ -4253,13 +5022,13 @@
                     "type": {
                         "description": "Тип результату",
                         "type": "string",
+                        "example": "gallery",
                         "enum": [
                             "image",
                             "gallery",
                             "video",
                             "document"
-                        ],
-                        "example": "gallery"
+                        ]
                     },
                     "description": {
                         "oneOf": [
@@ -4351,26 +5120,22 @@
                     },
                     "status": {
                         "type": "string",
+                        "example": "planned",
                         "enum": [
                             "planned",
                             "in_progress",
                             "completed"
-                        ],
-                        "example": "planned"
+                        ]
                     },
                     "status_label": {
                         "type": "string",
                         "example": "Заплановано"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "description": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "days_planned": {
@@ -4426,11 +5191,11 @@
                     "type": {
                         "description": "Тип: photo або document",
                         "type": "string",
+                        "example": "photo",
                         "enum": [
                             "photo",
                             "document"
-                        ],
-                        "example": "photo"
+                        ]
                     },
                     "file": {
                         "description": "Шлях до файлу",
@@ -4448,13 +5213,9 @@
                         "example": "чек_матеріали.jpg"
                     },
                     "description": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
-                        "nullable": true,
-                        "description": "Опис документа (uk, en)"
+                        "description": "Опис документа",
+                        "type": "string",
+                        "nullable": true
                     },
                     "uploaded_at": {
                         "description": "Дата завантаження",
@@ -4476,14 +5237,10 @@
                         "type": "string"
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "description": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "image_url": {
@@ -4496,24 +5253,24 @@
                                 "type": "string"
                             },
                             "name": {
-                                "$ref": "#/components/schemas/LocalizedString"
+                                "type": "string"
                             }
                         },
                         "type": "object",
                         "nullable": true
                     },
                     "location": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "price": {
                         "type": "number",
                         "format": "float",
                         "nullable": true
+                    },
+                    "price_from": {
+                        "type": "boolean",
+                        "example": false
                     },
                     "currency": {
                         "type": "string",
@@ -4555,6 +5312,69 @@
                 },
                 "type": "object"
             },
+            "TeamListItem": {
+                "title": "TeamListItem",
+                "description": "Картка команди у публічному списку /authors (легша за повний TeamResource)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "avatar_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "specialization": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "social_links": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "members_count": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "member_avatars": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TeamMember"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "TeamMember": {
                 "title": "TeamMember",
                 "description": "Учасник команди",
@@ -4588,7 +5408,7 @@
                         "type": "string"
                     },
                     "name": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "avatar_url": {
                         "type": "string",
@@ -4599,26 +5419,28 @@
                         "nullable": true
                     },
                     "country": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "city": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "region": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "zip": {
+                        "type": "string",
                         "nullable": true
                     },
                     "description": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "specialization": {
+                        "type": "string",
+                        "nullable": true
                     },
                     "social_links": {
                         "type": "array",
@@ -4635,24 +5457,6 @@
                     "is_owner": {
                         "description": "Чи є поточний авторизований користувач власником команди",
                         "type": "boolean"
-                    }
-                },
-                "type": "object"
-            },
-            "UserPhoto": {
-                "title": "UserPhoto",
-                "description": "Фото з портфоліо автора (митця чи організації)",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "image_url": {
-                        "type": "string"
-                    },
-                    "likes_count": {
-                        "type": "integer",
-                        "example": 12
                     }
                 },
                 "type": "object"
@@ -4699,12 +5503,24 @@
             "description": "API для управління власними art-ua-info-проєктами (кабінет митця)"
         },
         {
+            "name": "Organizations",
+            "description": "API для роботи з організаціями (публічні профілі)"
+        },
+        {
             "name": "Profile (Art-UA Info)",
             "description": "API для роботи з профілем користувача art-ua-info"
         },
         {
             "name": "ArtUaInfo Projects",
             "description": "API для створення проєктів з візарда art-ua-info (без бюджету/етапів/бонусів)"
+        },
+        {
+            "name": "Teams",
+            "description": "API для роботи з творчими командами"
+        },
+        {
+            "name": "Terms",
+            "description": "API для роботи з умовами використання"
         },
         {
             "name": "My Art Catalogs",
@@ -4723,16 +5539,8 @@
             "description": "API для роботи з новинами"
         },
         {
-            "name": "Organizations",
-            "description": "API для роботи з організаціями (публічні профілі)"
-        },
-        {
             "name": "Services",
             "description": "Послуги митців, організацій та команд"
-        },
-        {
-            "name": "Teams",
-            "description": "API для роботи з творчими командами"
         },
         {
             "name": "Info",

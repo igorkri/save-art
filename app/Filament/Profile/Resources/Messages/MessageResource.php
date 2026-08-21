@@ -20,7 +20,7 @@ class MessageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 40;
 
     public static function getModelLabel(): string
     {

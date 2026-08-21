@@ -5,8 +5,12 @@ namespace Tests\Feature\Filament;
 use App\Enums\ContractStatus;
 use App\Enums\Currency;
 use App\Filament\Profile\Pages\Auth\EditProfile;
+use App\Filament\Profile\Resources\Catalogs\CatalogResource;
+use App\Filament\Profile\Resources\Donations\DonationResource;
 use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Profile\Resources\Services\ServiceResource;
+use App\Filament\Profile\Resources\Teams\TeamResource;
+use App\Filament\Profile\Resources\Works\WorkResource;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\User;
@@ -99,6 +103,19 @@ class ProfileEditTest extends TestCase
     {
         $this->get('/profile/profile')
             ->assertOk()
+            ->assertSee(__('profile_edit.navigation_label'))
+            ->assertSee('href="'.Filament::getProfileUrl().'"', escape: false)
+            ->assertSeeInOrder([
+                __('filament-panels::pages/dashboard.title'),
+                __('profile_edit.navigation_label'),
+                ProjectResource::getNavigationLabel(),
+                DonationResource::getNavigationLabel(),
+                WorkResource::getNavigationLabel(),
+                CatalogResource::getNavigationLabel(),
+                ServiceResource::getNavigationLabel(),
+                TeamResource::getNavigationLabel(),
+            ])
+            ->assertSee('href="'.WorkResource::getUrl(panel: 'profile').'"', escape: false)
             ->assertSee('Мій профіль')
             ->assertSee('Юридичні дані')
             ->assertSee('Персональні дані')

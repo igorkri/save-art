@@ -76,50 +76,6 @@ section
     /*border-radius: 0;*/
 }
 
-/* aureuserp/progress-stepper не проставляє курсор на кнопках степера —
-   без цього не зрозуміло, що клікабельні (не заблоковані) кроки можна
-   обирати. */
-.fi-progress-stepper .ps-step:has(.ps-input:not(:disabled)) .ps-button {
-    cursor: pointer;
-}
-
-.fi-progress-stepper .ps-step:has(.ps-input:disabled) .ps-button {
-    cursor: not-allowed;
-}
-
-/* Іконка статусу в степері дрібна (w-4 h-4 з блейд-шаблону пакета) і
-   притиснута впритул до тексту лейбла — збільшуємо та додаємо відступ. */
-.fi-progress-stepper .ps-button {
-    gap: 0.5rem;
-}
-
-.fi-progress-stepper .ps-button .fi-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-}
-
-/* ps-container переносить кроки (flex-wrap: wrap) щойно вони перестають
-   вміщатись в один рядок — незалежно від ширини екрана (на десктопі теж,
-   якщо вікно вузьке чи кроків багато). Стрілки-роздільники (::after,
-   діагональний виріз) розраховані лише на один суцільний рядок — при
-   переносі вони наїжджають на сусідній рядок і "ламають" вигляд, а
-   останній крок може опинитись сам на новому рядку. Тому завжди робимо
-   горизонтальний скрол в один рядок замість переносу. */
-.ps-container[data-ps-direction='horizontal'] {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-
-.ps-container[data-ps-direction='horizontal']::-webkit-scrollbar {
-    display: none;
-}
-
-.ps-container[data-ps-direction='horizontal'] .ps-step {
-    flex: 0 0 auto;
-}
-
 /* Галерея фінального результату: карток по рядку більше, ніж дефолтні
    2 (мобайл) / 3 (lg) від filepond, — самі мініатюри при цьому не
    ростягуються, лише зменшується ширина картки. */
@@ -1152,16 +1108,7 @@ section
 /* Wizard і stepper використовують жовтий як єдиний active-акцент. */
 .fi-panel-profile .fi-sc-wizard,
 .fi-panel-profile .fi-sc-wizard-header,
-.fi-panel-profile .fi-progress-stepper,
-.fi-panel-profile .ps-container {
-    border-radius: 0;
-    border-color: #4b4b4b;
-    background: #323232;
-    box-shadow: none;
-}
-
-.fi-panel-profile .fi-sc-wizard-header-step.fi-active,
-.fi-panel-profile .ps-step[data-ps-status='current'] {
+.fi-panel-profile .fi-sc-wizard-header-step.fi-active {
     color: #fecc39;
 }
 
@@ -1172,7 +1119,6 @@ section
     margin-inline: auto;
 }
 
-.fi-panel-profile .profile-project-status-stepper,
 .fi-panel-profile .profile-project-form-wizard,
 .fi-panel-profile .profile-project-form-wizard.fi-contained {
     border: 0;
@@ -1181,25 +1127,12 @@ section
     box-shadow: none;
 }
 
-.fi-panel-profile .profile-project-status-stepper {
-    border: 0;
-    background: transparent;
-}
-
-.fi-panel-profile .fi-resource-projects form.fi-sc-form .profile-project-status-stepper,
 .fi-panel-profile .fi-resource-projects form.fi-sc-form .profile-project-summary {
     display: none;
 }
 
-.fi-panel-profile .profile-project-summary .fi-badge,
-.fi-panel-profile .profile-project-status-stepper .ps-button,
-.fi-panel-profile .profile-project-status-stepper .ps-badge {
+.fi-panel-profile .profile-project-summary .fi-badge {
     border-radius: 0;
-}
-
-.fi-panel-profile .profile-project-status-stepper[data-ps-direction='horizontal'] .ps-step:first-child .ps-button,
-.fi-panel-profile .profile-project-status-stepper[data-ps-direction='horizontal'] .ps-step:last-child .ps-button {
-    border-radius: 0 !important;
 }
 
 .fi-panel-profile .profile-project-form-wizard > .fi-sc-wizard-header {

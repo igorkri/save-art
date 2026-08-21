@@ -63,9 +63,9 @@ class NotificationsBellTest extends TestCase
         $this->assertSame(0, Notification::where('user_id', $this->user->id)->whereNull('read_at')->count());
     }
 
-    public function test_notifications_resource_is_hidden_from_sidebar_navigation(): void
+    public function test_notifications_resource_is_visible_in_sidebar_navigation(): void
     {
-        $this->assertFalse(NotificationResource::shouldRegisterNavigation());
+        $this->assertTrue(NotificationResource::shouldRegisterNavigation());
     }
 
     public function test_bell_is_rendered_on_profile_pages(): void

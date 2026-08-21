@@ -140,7 +140,6 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
         Route::get('/', [ArtistController::class, 'index']);
         Route::get('/{slug}', [ArtistController::class, 'show']);
         Route::get('/{slug}/projects', [ArtistController::class, 'projects']);
-        Route::get('/{slug}/photos', [ArtistController::class, 'photos']);
     });
 
     // Організації (публічний профіль, art-ua-info)
@@ -148,7 +147,6 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
         Route::get('/', [OrganizationController::class, 'index']);
         Route::get('/{slug}', [OrganizationController::class, 'show']);
         Route::get('/{slug}/projects', [OrganizationController::class, 'projects']);
-        Route::get('/{slug}/photos', [OrganizationController::class, 'photos']);
     });
 
     // PDF-каталоги робіт авторів (публічний, art-ua-info)

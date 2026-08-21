@@ -21,6 +21,8 @@ class TeamResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
+    protected static ?int $navigationSort = 30;
+
     public static function getModelLabel(): string
     {
         return __('profile_teams.model.singular');

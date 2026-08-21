@@ -88,21 +88,4 @@ class OrganizationsApiTest extends ApiTestCase
 
         $response->assertOk()->assertJsonCount(2, 'data');
     }
-
-    public function test_can_get_organization_photos(): void
-    {
-        $organization = User::factory()->create(['profile_type' => ProfileType::Organization]);
-        $organization->photos()->create([
-            'image' => 'photos/test.jpg',
-            'likes_count' => 5,
-            'sort_order' => 0,
-        ]);
-
-        $response = $this->withHeaders(['X-Api-Key' => $this->apiKey])
-            ->getJson("/api/v1/organizations/{$organization->slug}/photos");
-
-        $response->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(['likes_count' => 5]);
-    }
 }

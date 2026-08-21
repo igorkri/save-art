@@ -2,6 +2,7 @@
 
 return [
     'title' => 'My Profile',
+    'navigation_label' => 'Profile',
     'saved_notification' => 'Profile saved',
     'completion_prompt' => 'Please complete your registration to get full access to all platform features.',
 

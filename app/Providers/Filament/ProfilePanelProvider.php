@@ -12,6 +12,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -68,6 +69,13 @@ class ProfilePanelProvider extends PanelProvider
                 ],
             ])
             ->font('Wix Madefor Display')
+            ->navigationItems([
+                NavigationItem::make(fn (): string => __('profile_edit.navigation_label'))
+                    ->icon('heroicon-o-user-circle')
+                    ->url(fn (): ?string => filament()->getProfileUrl())
+                    ->isActiveWhen(fn (): bool => request()->routeIs('filament.profile.auth.profile'))
+                    ->sort(-1),
+            ])
             ->discoverResources(in: app_path('Filament/Profile/Resources'), for: 'App\Filament\Profile\Resources')
             ->discoverPages(in: app_path('Filament/Profile/Pages'), for: 'App\Filament\Profile\Pages')
             ->pages([
@@ -342,10 +350,6 @@ class ProfilePanelProvider extends PanelProvider
                 fn (): string => $this->pdfThumbnailPreviewScript(),
             )
             ->renderHook(
-                PanelsRenderHook::BODY_END,
-                fn (): string => $this->progressStepperScrollToCurrentScript(),
-            )
-            ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn (): string => $this->googleAuthButton(),
             )
@@ -442,43 +446,6 @@ class ProfilePanelProvider extends PanelProvider
 
                         new MutationObserver(function () {
                             patchPdfPreviews(document);
-                        }).observe(document.body, {childList: true, subtree: true});
-                    });
-                })();
-            </script>
-            HTML;
-    }
-
-    /**
-     * ProgressStepper (aureuserp) на мобільних скролиться в один рядок
-     * (див. .ps-container[data-ps-direction="horizontal"] у theme.css) —
-     * без автоскролу поточний статус може опинитись поза екраном, і його
-     * доводиться шукати вручну. Тому після кожного (пере)рендеру степера
-     * прокручуємо його контейнер так, щоб крок зі статусом "current"
-     * опинився в центрі видимої області.
-     */
-    private function progressStepperScrollToCurrentScript(): string
-    {
-        return <<<'HTML'
-            <script>
-                (function () {
-                    function scrollToCurrentStep(root) {
-                        root.querySelectorAll('.ps-container').forEach(function (container) {
-                            if (container.dataset.psScrolledToCurrent) return;
-
-                            var current = container.querySelector('.ps-step[data-ps-status="current"]');
-                            if (!current) return;
-
-                            container.dataset.psScrolledToCurrent = '1';
-                            current.scrollIntoView({block: 'nearest', inline: 'center'});
-                        });
-                    }
-
-                    document.addEventListener('livewire:init', function () {
-                        scrollToCurrentStep(document);
-
-                        new MutationObserver(function () {
-                            scrollToCurrentStep(document);
                         }).observe(document.body, {childList: true, subtree: true});
                     });
                 })();

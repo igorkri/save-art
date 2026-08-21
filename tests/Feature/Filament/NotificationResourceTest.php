@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Profile\Resources\Notifications\NotificationResource;
 use App\Filament\Profile\Resources\Notifications\Pages\ListNotifications;
 use App\Models\Notification;
 use App\Models\User;
@@ -38,6 +39,15 @@ class NotificationResourceTest extends TestCase
         Livewire::test(ListNotifications::class)
             ->assertCanSeeTableRecords([$ownNotification])
             ->assertCountTableRecords(1);
+    }
+
+    public function test_notifications_are_registered_in_profile_navigation(): void
+    {
+        $this->assertTrue(NotificationResource::shouldRegisterNavigation());
+        $this->assertSame(
+            '/profile/notifications',
+            parse_url(NotificationResource::getUrl(panel: 'profile'), PHP_URL_PATH),
+        );
     }
 
     public function test_artist_can_mark_notification_as_read(): void

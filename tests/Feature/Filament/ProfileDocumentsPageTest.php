@@ -57,8 +57,10 @@ class ProfileDocumentsPageTest extends TestCase
         $this->assertSame(1, ProfileDocument::query()->where('user_id', $this->user->id)->count());
     }
 
-    public function test_documents_page_is_registered_in_profile_panel(): void
+    public function test_documents_page_remains_accessible_without_a_navigation_item(): void
     {
+        $this->assertFalse(Documents::shouldRegisterNavigation());
+
         $this->get('/profile/documents')
             ->assertOk()
             ->assertSee('Документи');

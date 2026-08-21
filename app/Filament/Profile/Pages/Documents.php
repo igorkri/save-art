@@ -25,6 +25,8 @@ class Documents extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     /**
      * @var array<string, mixed>|null
      */

@@ -271,14 +271,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     }
 
     /**
-     * Портфоліо-фото користувача
-     */
-    public function photos(): HasMany
-    {
-        return $this->hasMany(UserPhoto::class)->orderBy('sort_order');
-    }
-
-    /**
      * Команди, учасником яких є користувач
      */
     public function teams(): BelongsToMany

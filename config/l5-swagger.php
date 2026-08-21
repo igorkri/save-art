@@ -81,7 +81,7 @@ return [
                     base_path('app/Http/Resources/Api/V1/NewsListResource.php'),
                     base_path('app/Http/Resources/Api/V1/ArtistResource.php'),
                     base_path('app/Http/Resources/Api/V1/ArtCatalogResource.php'),
-                    base_path('app/Http/Resources/Api/V1/UserPhotoResource.php'),
+                    base_path('app/Http/Resources/Api/V1/TeamListResource.php'),
                     base_path('app/Http/Resources/Api/V1/TeamResource.php'),
                     base_path('app/Http/Resources/Api/V1/TeamMemberResource.php'),
                     base_path('app/Http/Resources/Api/V1/ServiceResource.php'),

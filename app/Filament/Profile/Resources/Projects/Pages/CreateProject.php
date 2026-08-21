@@ -104,7 +104,7 @@ class CreateProject extends CreateRecord
             return parent::getRedirectUrl();
         }
 
-        return ProjectResource::getUrl('edit', [
+        return static::getResource()::getUrl('edit', [
             'record' => $this->record,
             'step' => request()->query('step'),
         ]);

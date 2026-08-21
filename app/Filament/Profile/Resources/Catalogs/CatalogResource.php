@@ -21,6 +21,8 @@ class CatalogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
+    protected static ?int $navigationSort = 10;
+
     public static function getModelLabel(): string
     {
         return __('profile_catalogs.model.singular');

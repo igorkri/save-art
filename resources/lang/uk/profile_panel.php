@@ -2,6 +2,13 @@
 
 return [
     'brand' => 'Кабінет',
+    'navigation' => [
+        'work' => 'Робота',
+        'works' => 'Роботи',
+    ],
+    'works' => [
+        'owner_step' => 'Власник',
+    ],
     'google_auth' => [
         'button' => 'Увійти через Google',
         'no_email' => 'Не вдалося отримати email з облікового запису Google.',

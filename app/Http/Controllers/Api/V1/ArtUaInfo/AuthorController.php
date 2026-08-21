@@ -8,7 +8,6 @@ use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\ArtistResource;
 use App\Http\Resources\Api\V1\ProjectListResource;
-use App\Http\Resources\Api\V1\UserPhotoResource;
 use App\Models\ArtCategory;
 use App\Models\Parameter;
 use App\Models\User;
@@ -267,15 +266,5 @@ abstract class AuthorController extends Controller
         $projects = $query->paginate($perPage);
 
         return ProjectListResource::collection($projects);
-    }
-
-    protected function photosQuery(string $slug): AnonymousResourceCollection
-    {
-        $author = User::query()
-            ->when($this->profileType(), fn ($q, $type) => $q->where('profile_type', $type))
-            ->where('slug', $slug)
-            ->firstOrFail();
-
-        return UserPhotoResource::collection($author->photos()->get());
     }
 }

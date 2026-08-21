@@ -181,41 +181,4 @@ class ArtistController extends AuthorController
     {
         return $this->projectsQuery($slug, $request);
     }
-
-    /**
-     * Отримати портфоліо-фото митця
-     *
-     * @OA\Get(
-     *     path="/v1/artists/{slug}/photos",
-     *     operationId="getArtistPhotos",
-     *     tags={"Artists"},
-     *     summary="Портфоліо митця",
-     *     description="Повертає список фото з портфоліо митця",
-     *
-     *     @OA\Parameter(
-     *         name="slug",
-     *         in="path",
-     *         required=true,
-     *         description="Slug митця",
-     *
-     *         @OA\Schema(type="string")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Список фото",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/UserPhoto"))
-     *         )
-     *     ),
-     *
-     *     @OA\Response(response=404, description="Митця не знайдено")
-     * )
-     */
-    public function photos(string $slug): AnonymousResourceCollection
-    {
-        return $this->photosQuery($slug);
-    }
 }

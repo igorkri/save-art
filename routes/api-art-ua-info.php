@@ -85,14 +85,12 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
         Route::get('/', [ArtistController::class, 'index']);
         Route::get('/{slug}', [ArtistController::class, 'show']);
         Route::get('/{slug}/projects', [ArtistController::class, 'projects']);
-        Route::get('/{slug}/photos', [ArtistController::class, 'photos']);
     });
 
     Route::prefix('organizations')->group(function () {
         Route::get('/', [OrganizationController::class, 'index']);
         Route::get('/{slug}', [OrganizationController::class, 'show']);
         Route::get('/{slug}/projects', [OrganizationController::class, 'projects']);
-        Route::get('/{slug}/photos', [OrganizationController::class, 'photos']);
     });
 
     Route::prefix('teams')->group(function () {

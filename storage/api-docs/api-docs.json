@@ -1612,50 +1612,6 @@
                 }
             }
         },
-        "/v1/artists/{slug}/photos": {
-            "get": {
-                "tags": [
-                    "Artists"
-                ],
-                "summary": "Портфоліо митця",
-                "description": "Повертає список фото з портфоліо митця",
-                "operationId": "getArtistPhotos",
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "path",
-                        "description": "Slug митця",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список фото",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/UserPhoto"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Митця не знайдено"
-                    }
-                }
-            }
-        },
         "/v1/auth/change-password": {
             "put": {
                 "tags": [
@@ -6856,50 +6812,6 @@
                 }
             }
         },
-        "/v1/organizations/{slug}/photos": {
-            "get": {
-                "tags": [
-                    "Organizations"
-                ],
-                "summary": "Портфоліо організації",
-                "description": "Повертає список фото з портфоліо організації",
-                "operationId": "getOrganizationPhotos",
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "path",
-                        "description": "Slug організації",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список фото",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/UserPhoto"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Організацію не знайдено"
-                    }
-                }
-            }
-        },
         "/v1/my/projects/{project}/bonuses": {
             "get": {
                 "tags": [
@@ -10538,6 +10450,56 @@
                     }
                 ]
             }
+        },
+        "/v1/profile/sso-grant": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Видати одноразове посилання для входу в Filament-панель без пароля",
+                "description": "Видати одноразовий SSO-грант для переходу з SPA (Bearer-токен) у\nFilament-панель бекенду (сесійний web-guard) без повторного логіна.",
+                "operationId": "issueProfileSsoGrant",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "redirect_path": {
+                                        "type": "string",
+                                        "example": "/profile/profile",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Одноразове посилання",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "url": {
+                                            "type": "string",
+                                            "example": "https://save-art.ddev.site/profile-sso/abc123..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": [],
+                        "apiKey": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -12383,7 +12345,7 @@
                         "type": "string"
                     },
                     "name": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string"
                     },
                     "avatar_url": {
                         "type": "string",
@@ -12394,49 +12356,27 @@
                         "nullable": true
                     },
                     "country": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "city": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "region": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "zip": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "description": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "type": "string",
+                        "nullable": true
                     },
                     "specialization": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocalizedString"
-                            }
-                        ],
+                        "type": "string",
                         "nullable": true
                     },
                     "social_links": {
@@ -12454,24 +12394,6 @@
                     "is_owner": {
                         "description": "Чи є поточний авторизований користувач власником команди",
                         "type": "boolean"
-                    }
-                },
-                "type": "object"
-            },
-            "UserPhoto": {
-                "title": "UserPhoto",
-                "description": "Фото з портфоліо автора (митця чи організації)",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "image_url": {
-                        "type": "string"
-                    },
-                    "likes_count": {
-                        "type": "integer",
-                        "example": 12
                     }
                 },
                 "type": "object"
@@ -12900,6 +12822,11 @@
                         "type": "string",
                         "example": "artist",
                         "nullable": true
+                    },
+                    "profile_completed": {
+                        "description": "Чи зберігав користувач обов'язкові поля профілю в кабінеті хоча б раз",
+                        "type": "boolean",
+                        "example": false
                     },
                     "description": {
                         "description": "Опис/біографія",

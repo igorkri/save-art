@@ -114,25 +114,4 @@ class OrganizationController extends AuthorController
     {
         return $this->projectsQuery($slug, $request);
     }
-
-    /**
-     * Отримати портфоліо-фото організації
-     *
-     * @OA\Get(
-     *     path="/v1/art-ua-info/organizations/{slug}/photos",
-     *     operationId="artUaInfoGetOrganizationPhotos",
-     *     tags={"Organizations"},
-     *     summary="Портфоліо організації",
-     *     description="Повертає список фото з портфоліо організації",
-     *
-     *     @OA\Parameter(name="slug", in="path", required=true, description="Slug організації", @OA\Schema(type="string")),
-     *
-     *     @OA\Response(response=200, description="Список фото", @OA\JsonContent(@OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/UserPhoto")))),
-     *     @OA\Response(response=404, description="Організацію не знайдено")
-     * )
-     */
-    public function photos(string $slug): AnonymousResourceCollection
-    {
-        return $this->photosQuery($slug);
-    }
 }
