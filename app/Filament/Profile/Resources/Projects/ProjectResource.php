@@ -2,6 +2,7 @@
 
 namespace App\Filament\Profile\Resources\Projects;
 
+use App\Enums\ProjectSource;
 use App\Filament\Profile\Resources\Projects\Pages\CreateProject;
 use App\Filament\Profile\Resources\Projects\Pages\EditProject;
 use App\Filament\Profile\Resources\Projects\Pages\ListProjects;
@@ -72,6 +73,7 @@ class ProjectResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth()->id())
+            ->where('source', ProjectSource::SaveArt->value);
     }
 }

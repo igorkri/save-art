@@ -157,9 +157,9 @@ section
 }
 
 .profile-primary-image-field .filepond--panel-root {
-    border: 1px dashed color-mix(in srgb, currentColor 18%, transparent);
+    border: 1px dashed #454545;
     border-radius: 0 !important;
-    background: color-mix(in srgb, currentColor 5%, transparent);
+    background: #343434;
 }
 
 .profile-primary-image-field .filepond--drop-label {
@@ -1114,6 +1114,12 @@ section
 
 /* Форма Projects повторює пласку геометрію та кольори Teams. */
 .fi-panel-profile .fi-resource-projects .fi-page-header-main-ctn,
+.fi-panel-profile .fi-resource-projects .fi-page-content,
+.fi-panel-profile .fi-resource-projects .fi-page-main {
+    width: min(100%, 1450px);
+    margin-inline: auto;
+}
+
 .fi-panel-profile .fi-resource-projects form.fi-sc-form {
     width: min(100%, 1000px);
     margin-inline: auto;
@@ -1137,8 +1143,9 @@ section
 
 .fi-panel-profile .profile-project-form-wizard > .fi-sc-wizard-header {
     display: grid;
-    grid-auto-columns: minmax(max-content, 1fr);
+    grid-auto-columns: max-content;
     grid-auto-flow: column;
+    justify-content: center;
     overflow-x: auto;
     border: 0;
     background: #343434;
@@ -1166,7 +1173,7 @@ section
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-btn {
     justify-content: center;
     gap: 0;
-    padding: 1.25rem 0.85rem;
+    padding: 1.25rem 0.7rem;
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-icon-ctn {
@@ -1898,6 +1905,178 @@ section
 .fi-panel-profile .profile-project-form-wizard .fi-fo-repeater-add-action:hover,
 .fi-panel-profile .profile-project-form-wizard .fi-fo-builder-add-action:hover {
     background: #ffd75c;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker {
+    width: min(100%, 300px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker .fi-dropdown-trigger {
+    width: 100%;
+    min-width: 0;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker .fi-ac-btn-action {
+    display: grid;
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    grid-template-columns: minmax(0, 1fr) 60px;
+    gap: 0;
+    border: 1px solid #343434;
+    border-radius: 0;
+    background: #f7f4ec !important;
+    padding: 0;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker .fi-ac-btn-action:hover {
+    background: #fecc39 !important;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker .fi-ac-btn-action .fi-btn-label {
+    align-self: stretch;
+    display: grid;
+    min-width: 0;
+    place-items: center;
+    padding: 12px;
+    white-space: nowrap;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker .fi-ac-btn-action .fi-icon {
+    box-sizing: content-box;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-inline-start: 1px solid #343434;
+    padding: 19px;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-add-between-items-ctn {
+    display: flex;
+    justify-content: center;
+    height: auto;
+    margin-block: 0.75rem;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-add-between-items {
+    width: min(100%, 300px);
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-add-between-items .fi-btn {
+    display: flex;
+    width: 100%;
+    min-height: 56px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #343434;
+    border-radius: 0;
+    background: #f7f4ec !important;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    text-align: center;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-add-between-items-ctn {
+    display: none !important;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-add-between-items .fi-btn:hover {
+    background: #fecc39 !important;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-items {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-header {
+    min-height: 52px;
+    border: 0;
+    border-radius: 0;
+    background: #343434;
+    padding: 0 16px;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-header-label {
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-header .fi-icon-btn {
+    border-radius: 0;
+    color: #fecc39;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-header .fi-icon-btn:hover {
+    background: #fecc39;
+    color: #343434;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-content {
+    border: 0;
+    border-radius: 0;
+    background: #343434;
+    padding: 16px;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-content .fi-fo-field-wrp-label {
+    display: block !important;
+    margin-bottom: 0.625rem !important;
+    padding: 0 !important;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-content .fi-input-wrp {
+    min-height: 60px;
+    border: 1px solid #4b4b4b !important;
+    border-radius: 0;
+    background: #2f2f2f !important;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-content .fi-fo-field-wrp {
+    gap: 0.625rem;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-content .fi-fo-field-wrp-content {
+    margin-top: 0.25rem;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .profile-project-final-result-files .filepond--root,
+.fi-panel-profile .profile-project-final-result-builder .profile-project-final-result-files .filepond--drop-label,
+.fi-panel-profile .profile-project-final-result-builder .profile-project-final-result-files .filepond--panel-root {
+    border-radius: 0 !important;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .profile-project-final-result-files .filepond--drop-label,
+.fi-panel-profile .profile-project-final-result-builder .profile-project-final-result-files .filepond--panel-root {
+    background: #343434;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .profile-project-final-result-files .filepond--drop-label {
+    border: 1px dashed #4b4b4b;
+    color: #9a9a9a;
+}
+
+.fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-block-picker .fi-ac-btn-action .fi-icon {
+    stroke-width: 3 !important;
+    transform: scale(1.12);
 }
 
 /* Додаткова інформація — пласкі контент-блоки з вертикальними діями. */
@@ -3094,6 +3273,7 @@ section
 
 /* Сітка проєктів у стилі макета кабінету save-art. */
 .fi-panel-profile .fi-resource-projects .fi-ta-ctn,
+.fi-panel-profile .fi-resource-works .fi-ta-ctn,
 .fi-panel-profile .fi-ta-ctn:has(.profile-project-card-record) {
     width: min(100%, 1450px);
     margin-inline: auto;
@@ -3875,6 +4055,39 @@ section
 .fi-panel-profile .fi-radio-input,
 .fi-panel-profile .fi-toggle-track {
     border-radius: 0;
+}
+
+.fi-panel-profile .profile-project-sold-externally {
+    width: fit-content;
+    margin-inline: auto;
+    border: 1px solid #fecc39;
+    border-radius: 0;
+    background: #343434;
+    padding: 10px 14px;
+}
+
+.fi-panel-profile .profile-project-sold-externally .fi-checkbox-input {
+    width: 20px;
+    height: 20px;
+    accent-color: #fecc39;
+    border: 2px solid #fecc39 !important;
+    background: #343434 !important;
+}
+
+.fi-panel-profile .profile-project-sold-externally .fi-checkbox-input:checked {
+    border-color: #fecc39 !important;
+    background-color: #fecc39 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='none' stroke='%23343434' stroke-linecap='square' stroke-width='3' d='m4 10 4 4 8-8'/%3E%3C/svg%3E") !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+}
+
+.fi-panel-profile .profile-project-sold-externally .fi-checkbox-label {
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
 @media (max-width: 767px) {

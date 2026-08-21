@@ -2,6 +2,7 @@
 
 namespace App\Filament\Profile\Resources\Works;
 
+use App\Enums\ProjectSource;
 use App\Filament\Profile\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Profile\Resources\Projects\Tables\ProjectsTable;
 use App\Filament\Profile\Resources\Works\Pages\CreateWork;
@@ -39,7 +40,18 @@ class WorkResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return ProjectForm::configure($schema, __('profile_panel.works.owner_step'));
+        return ProjectForm::configure(
+            $schema,
+            ownerStepLabel: __('profile_panel.works.owner_step'),
+            splitMediaStep: true,
+            moveFinalResultToMedia: true,
+            requireCover: true,
+            hideBudgetStep: true,
+            hideStagesStep: true,
+            hideBonusesStep: true,
+            includeSoldExternally: true,
+            hideProjectSummary: true,
+        );
     }
 
     public static function table(Table $table): Table
@@ -59,6 +71,7 @@ class WorkResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth()->id())
+            ->where('source', ProjectSource::ArtUaInfo->value);
     }
 }

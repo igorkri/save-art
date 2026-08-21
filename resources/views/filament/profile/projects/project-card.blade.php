@@ -1,5 +1,6 @@
 @php
     use App\Enums\ModerationStatus;
+    use App\Enums\ProjectSource;
     use App\Enums\ProjectStatus;
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Str;
@@ -9,7 +10,8 @@
     $isModeration = $project->status === ProjectStatus::Moderation;
     $isRejected = $project->status === ProjectStatus::Rejected;
     $isDraft = in_array($project->status, [ProjectStatus::New, ProjectStatus::Draft], true);
-    $isStateCard = $isModeration || $isRejected || $isDraft;
+    $isWork = $project->source === ProjectSource::ArtUaInfo->value;
+    $isStateCard = $isDraft || (! $isWork && ($isModeration || $isRejected));
 
     $authorName = $project->team?->name ?: $project->user?->display_name ?: __('profile_projects.card.unknown_author');
     $authorAvatar = $project->team?->avatar
@@ -76,7 +78,17 @@
 
     <h2 class="profile-project-card-title">{{ $project->title }}</h2>
 
-    @if ($isStateCard)
+    @if ($isWork && ! $isDraft)
+        <div class="profile-project-card-state profile-project-card-work-info">
+            <x-filament::icon icon="heroicon-o-paint-brush" />
+            <p>{{ __('profile_projects.card.work') }}</p>
+        </div>
+
+        <dl class="profile-project-card-state-date">
+            <dt>{{ __('profile_projects.card.created_date') }}</dt>
+            <dd>{{ $project->created_at->format('d m Y') }}</dd>
+        </dl>
+    @elseif ($isStateCard)
         <div class="profile-project-card-state">
             <x-filament::icon :icon="$stateIcon" />
             <p>{{ $stateText }}</p>

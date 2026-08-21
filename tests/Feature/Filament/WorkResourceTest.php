@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Enums\ProjectSource;
 use App\Filament\Profile\Resources\Works\Pages\ListWorks;
 use App\Filament\Profile\Resources\Works\WorkResource;
 use App\Models\Project;
@@ -31,12 +32,19 @@ class WorkResourceTest extends TestCase
 
     public function test_works_resource_shows_the_same_projects_for_the_current_artist(): void
     {
-        $ownProject = Project::factory()->create(['user_id' => $this->user->id]);
+        $ownProject = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::ArtUaInfo->value,
+        ]);
+        $saveArtProject = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'source' => ProjectSource::SaveArt->value,
+        ]);
         $otherProject = Project::factory()->create();
 
         Livewire::test(ListWorks::class)
             ->assertCanSeeTableRecords([$ownProject])
-            ->assertCanNotSeeTableRecords([$otherProject]);
+            ->assertCanNotSeeTableRecords([$saveArtProject, $otherProject]);
     }
 
     public function test_works_resource_has_independent_routes_without_duplicate_global_search(): void
@@ -51,6 +59,14 @@ class WorkResourceTest extends TestCase
         $this->get(WorkResource::getUrl('create', panel: 'profile'))
             ->assertOk()
             ->assertSee('Власник')
+            ->assertSee('Робота')
+            ->assertSee(__('profile_projects.actions.save_draft'))
+            ->assertSee(__('profile_projects.actions.publish'))
+            ->assertSee(__('profile_projects.fields.sold_externally'))
+            ->assertDontSee(__('profile_projects.tabs.final_result'))
+            ->assertDontSee(__('profile_projects.tabs.budget'))
+            ->assertDontSee(__('profile_projects.tabs.stages'))
+            ->assertDontSee(__('profile_projects.tabs.bonuses'))
             ->assertDontSee('>Автор<', escape: false);
     }
 }

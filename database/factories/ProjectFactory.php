@@ -4,15 +4,17 @@ namespace Database\Factories;
 
 use App\Enums\Currency;
 use App\Enums\ModerationStatus;
+use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Enums\UserType;
 use App\Models\ArtCategory;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Project>
+ * @extends Factory<Project>
  */
 class ProjectFactory extends Factory
 {
@@ -35,6 +37,7 @@ class ProjectFactory extends Factory
             'slug' => $this->faker->unique()->slug(),
             'status' => ProjectStatus::Draft,
             'status_moderation' => ModerationStatus::Pending,
+            'source' => ProjectSource::SaveArt->value,
             'title' => $this->faker->sentence(4),
             'short_description' => $this->faker->paragraph(),
             'cover' => null,

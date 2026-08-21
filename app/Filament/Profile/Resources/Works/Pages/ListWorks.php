@@ -8,4 +8,9 @@ use App\Filament\Profile\Resources\Works\WorkResource;
 class ListWorks extends ListProjects
 {
     protected static string $resource = WorkResource::class;
+
+    public function getTabs(): array
+    {
+        return [];
+    }
 }

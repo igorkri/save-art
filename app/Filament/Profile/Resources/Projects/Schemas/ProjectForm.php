@@ -19,6 +19,7 @@ use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
@@ -67,8 +68,18 @@ class ProjectForm
             && ! $record->canEditAdditionalContentOnly();
     }
 
-    public static function configure(Schema $schema, ?string $ownerStepLabel = null): Schema
-    {
+    public static function configure(
+        Schema $schema,
+        ?string $ownerStepLabel = null,
+        bool $splitMediaStep = false,
+        bool $moveFinalResultToMedia = false,
+        bool $requireCover = false,
+        bool $hideBudgetStep = false,
+        bool $hideStagesStep = false,
+        bool $hideBonusesStep = false,
+        bool $includeSoldExternally = false,
+        bool $hideProjectSummary = false,
+    ): Schema {
         return $schema
             ->columns(6)
             ->components([
@@ -81,7 +92,7 @@ class ProjectForm
                         'md' => 4,
                         'xl' => 8,
                     ])
-                    ->visible(fn (?Project $record): bool => $record !== null)
+                    ->visible(fn (?Project $record): bool => ! $hideProjectSummary && $record !== null)
                     ->schema([
                         Placeholder::make('status_display')
                             ->label(__('profile_projects.fields.status_display'))
@@ -197,26 +208,15 @@ class ProjectForm
                                     );
                                 })
                                 ->required(),
-
-                            FileUpload::make('cover')
-                                ->label(__('profile_projects.fields.cover'))
-                                ->helperText(__('profile_projects.helpers.cover'))
-                                ->image()
-                                ->imageEditor()
-                                ->imageEditorAspectRatioOptions([null, '4:3'])
-                                ->panelAspectRatio('4:3')
-                                ->panelLayout('integrated')
-                                ->disk('public')
-                                ->directory('projects/covers')
-                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
-                                ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
-                                ->columnSpanFull(),
-
-                            TagsInput::make('tags')
-                                ->label(__('profile_projects.fields.tags'))
-                                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
-                                ->helperText(__('profile_projects.helpers.tags')),
+                            ...($splitMediaStep ? [] : self::mediaFields()),
                         ]),
+
+                    ...($splitMediaStep ? [
+                        Step::make(__('profile_projects.tabs.media'))
+                            ->icon('heroicon-o-photo')
+                            ->extraAttributes(['class' => 'profile-project-step profile-project-step-media'])
+                            ->schema(self::mediaFields($moveFinalResultToMedia, $requireCover)),
+                    ] : []),
 
                     Step::make(__('profile_projects.tabs.description'))
                         ->icon('heroicon-o-document-text')
@@ -235,6 +235,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.budget'))
                         ->icon('heroicon-o-currency-dollar')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-budget'])
+                        ->visible(fn (): bool => ! $hideBudgetStep)
                         ->columns(1)
                         ->disabled(fn (?Project $record): bool => self::cannotEditPublishedFields($record))
                         ->schema([
@@ -322,6 +323,12 @@ class ProjectForm
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-content'])
                         ->disabled(fn (?Project $record): bool => self::cannotEditAdditionalContent($record))
                         ->schema([
+                            ...($includeSoldExternally ? [
+                                Checkbox::make('sold_externally')
+                                    ->label(__('profile_projects.fields.sold_externally'))
+                                    ->extraFieldWrapperAttributes(['class' => 'profile-project-sold-externally']),
+                            ] : []),
+
                             Placeholder::make('content_blocks_intro')
                                 ->hiddenLabel()
                                 ->content(new HtmlString(
@@ -471,6 +478,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.stages'))
                         ->icon('heroicon-o-list-bullet')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-stages'])
+                        ->visible(fn (): bool => ! $hideStagesStep)
                         ->disabled(fn (?Project $record): bool => $record?->exists === true && ! $record->canManageStagesByOwner())
                         ->schema([
                             Placeholder::make('stages_intro')
@@ -698,6 +706,7 @@ class ProjectForm
                     Step::make(__('profile_projects.tabs.bonuses'))
                         ->icon('heroicon-o-gift')
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-bonuses'])
+                        ->visible(fn (): bool => ! $hideBonusesStep)
                         ->disabled(fn (?Project $record): bool => $record?->exists === true && ! $record->canManageBonusesByOwner())
                         ->schema([
                             Placeholder::make('bonuses_intro')
@@ -808,86 +817,10 @@ class ProjectForm
                         // Фінальний результат має сенс лише тоді, коли проєкт реально
                         // виконується або вже завершений — на чернетці/модерації показувати
                         // немає чого.
-                        ->visible(fn (?Project $record): bool => $record?->canEditFinalResultByOwner() === true)
-                        ->schema([
-                            Builder::make('final_result')
-                                ->label(__('profile_projects.fields.final_result'))
-                                ->addActionLabel(__('profile_projects.fields.final_result_add'))
-                                ->blocks([
-                                    Block::make('gallery')
-                                        ->label(__('profile_projects.fields.final_result_type_gallery'))
-                                        ->icon('heroicon-o-photo')
-                                        ->schema([
-                                            FileUpload::make('images')
-                                                ->label(__('profile_projects.fields.final_result_gallery_images'))
-                                                ->image()
-                                                ->multiple()
-                                                ->reorderable()
-                                                ->panelLayout('grid')
-                                                ->downloadable()
-                                                ->openable()
-                                                ->extraAttributes(['class' => 'fi-fo-file-upload-grid-compact'])
-                                                ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-documents profile-project-final-result-files'])
-                                                ->disk('public')
-                                                ->directory('projects/final-result')
-                                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                                ->maxSize(5120)
-                                                ->required()
-                                                ->columnSpanFull(),
-                                        ])
-                                        ->columns(1),
-
-                                    Block::make('youtube')
-                                        ->label(__('profile_projects.fields.final_result_type_youtube'))
-                                        ->icon('heroicon-o-play-circle')
-                                        ->schema([
-                                            TextInput::make('url')
-                                                ->label(__('profile_projects.fields.final_result_youtube_url'))
-                                                ->url()
-                                                ->regex('/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i')
-                                                ->placeholder('https://www.youtube.com/watch?v=...')
-                                                ->required()
-                                                ->maxLength(500)
-                                                ->columnSpanFull(),
-                                        ])
-                                        ->columns(1),
-
-                                    Block::make('vimeo')
-                                        ->label(__('profile_projects.fields.final_result_type_vimeo'))
-                                        ->icon('heroicon-o-film')
-                                        ->schema([
-                                            TextInput::make('url')
-                                                ->label(__('profile_projects.fields.final_result_vimeo_url'))
-                                                ->url()
-                                                ->regex('/^https?:\/\/(www\.)?vimeo\.com\//i')
-                                                ->placeholder('https://vimeo.com/...')
-                                                ->required()
-                                                ->maxLength(500)
-                                                ->columnSpanFull(),
-                                        ])
-                                        ->columns(1),
-
-                                    Block::make('issuu')
-                                        ->label(__('profile_projects.fields.final_result_type_issuu'))
-                                        ->icon('heroicon-o-book-open')
-                                        ->schema([
-                                            TextInput::make('url')
-                                                ->label(__('profile_projects.fields.final_result_issuu_url'))
-                                                ->url()
-                                                ->regex('/^https?:\/\/(www\.)?issuu\.com\//i')
-                                                ->placeholder('https://issuu.com/...')
-                                                ->required()
-                                                ->maxLength(500)
-                                                ->columnSpanFull(),
-                                        ])
-                                        ->columns(1),
-                                ])
-                                ->columnSpanFull()
-                                ->blockNumbers(false)
-                                ->reorderable()
-                                ->collapsed(false),
-                        ]),
-                ]))
+                        ->visible(fn (?Project $record): bool => ! $moveFinalResultToMedia
+                            && $record?->canEditFinalResultByOwner() === true)
+                        ->schema([self::finalResultBuilder()]),
+                ], $splitMediaStep))
                     ->extraAttributes(['class' => 'profile-project-form-wizard'])
                     ->columnSpanFull()
                     ->persistStepInQueryString()
@@ -911,8 +844,24 @@ class ProjectForm
      * @param  array<int, Step>  $steps
      * @return array<int, Step>
      */
-    private static function orderedWizardSteps(array $steps): array
+    private static function orderedWizardSteps(array $steps, bool $hasMediaStep): array
     {
+        if ($hasMediaStep) {
+            return [
+                $steps[0], // Власник
+                $steps[1], // Назва
+                $steps[2], // Медіа
+                $steps[3], // Опис
+                $steps[6], // Характеристики
+                $steps[4], // Бюджет
+                $steps[7], // Етапи реалізації
+                $steps[5], // Додаткова інформація
+                $steps[8], // Бонуси
+                $steps[9], // Публікація
+                $steps[10], // Фінальний результат
+            ];
+        }
+
         return [
             $steps[0], // Автор
             $steps[1], // Назва
@@ -925,6 +874,113 @@ class ProjectForm
             $steps[8], // Публікація
             $steps[9], // Фінальний результат (видимий лише для активних/завершених)
         ];
+    }
+
+    /**
+     * @return array<int, FileUpload|TagsInput>
+     */
+    private static function mediaFields(bool $includeFinalResult = false, bool $requireCover = false): array
+    {
+        return [
+            FileUpload::make('cover')
+                ->label(__('profile_projects.fields.cover'))
+                ->helperText(__('profile_projects.helpers.cover'))
+                ->image()
+                ->imageEditor()
+                ->imageEditorAspectRatioOptions([null, '4:3'])
+                ->panelAspectRatio('4:3')
+                ->panelLayout('integrated')
+                ->disk('public')
+                ->directory('projects/covers')
+                ->required($requireCover)
+                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
+                ->extraFieldWrapperAttributes(['class' => 'profile-primary-image-field'])
+                ->columnSpanFull(),
+
+            ...($includeFinalResult ? [self::finalResultBuilder(__('profile_projects.fields.work'), true)] : []),
+
+            TagsInput::make('tags')
+                ->label(__('profile_projects.fields.tags'))
+                ->disabled(fn (?Project $record): bool => self::cannotFullyEdit($record))
+                ->helperText(__('profile_projects.helpers.tags')),
+        ];
+    }
+
+    private static function finalResultBuilder(?string $label = null, bool $required = false): Builder
+    {
+        return Builder::make('final_result')
+            ->label($label ?? __('profile_projects.fields.final_result'))
+            ->addActionLabel(__('profile_projects.fields.final_result_add'))
+            ->addAction(fn (Action $action): Action => $action
+                ->icon('heroicon-m-plus')
+                ->iconPosition('after'))
+            ->extraFieldWrapperAttributes(['class' => 'profile-project-final-result-builder'])
+            ->blocks([
+                Block::make('gallery')
+                    ->label(__('profile_projects.fields.final_result_type_gallery'))
+                    ->icon('heroicon-o-photo')
+                    ->schema([
+                        FileUpload::make('images')
+                            ->label(__('profile_projects.fields.final_result_gallery_images'))
+                            ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->panelLayout('grid')
+                            ->downloadable()
+                            ->openable()
+                            ->extraAttributes(['class' => 'fi-fo-file-upload-grid-compact'])
+                            ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-documents profile-project-final-result-files'])
+                            ->disk('public')
+                            ->directory('projects/final-result')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxSize(5120)
+                            ->required()
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1),
+
+                Block::make('youtube')
+                    ->label(__('profile_projects.fields.final_result_type_youtube'))
+                    ->icon('heroicon-o-play-circle')
+                    ->schema([self::finalResultUrlField('youtube')])
+                    ->columns(1),
+
+                Block::make('vimeo')
+                    ->label(__('profile_projects.fields.final_result_type_vimeo'))
+                    ->icon('heroicon-o-film')
+                    ->schema([self::finalResultUrlField('vimeo')])
+                    ->columns(1),
+
+                Block::make('issuu')
+                    ->label(__('profile_projects.fields.final_result_type_issuu'))
+                    ->icon('heroicon-o-book-open')
+                    ->schema([self::finalResultUrlField('issuu')])
+                    ->columns(1),
+            ])
+            ->columnSpanFull()
+            ->blockNumbers(false)
+            ->reorderable()
+            ->collapsed(false)
+            ->minItems($required ? 1 : null)
+            ->required($required);
+    }
+
+    private static function finalResultUrlField(string $type): TextInput
+    {
+        $domains = [
+            'youtube' => 'youtube\\.com|youtu\\.be',
+            'vimeo' => 'vimeo\\.com',
+            'issuu' => 'issuu\\.com',
+        ];
+
+        return TextInput::make('url')
+            ->label(__('profile_projects.fields.final_result_'.$type.'_url'))
+            ->url()
+            ->regex('/^https?:\\/\\/(www\\.)?('.$domains[$type].')\\//i')
+            ->placeholder('https://'.$type.'.com/...')
+            ->required()
+            ->maxLength(500)
+            ->columnSpanFull();
     }
 
     /**
