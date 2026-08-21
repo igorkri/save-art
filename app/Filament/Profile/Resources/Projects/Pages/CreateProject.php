@@ -12,6 +12,7 @@ use App\Filament\Profile\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Projects\Concerns\HandlesProjectParameterValuesInForm;
 use App\Models\Project;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Schemas\Components\Component;
 
 class CreateProject extends CreateRecord
 {
@@ -30,6 +31,12 @@ class CreateProject extends CreateRecord
      */
     private const LIVE_VALIDATED_FIELDS = ['data.title', 'data.budget_goal'];
 
+    public function getFormActionsContentComponent(): Component
+    {
+        return parent::getFormActionsContentComponent()
+            ->extraAttributes(['class' => 'profile-project-create-actions']);
+    }
+
     public function updated(string $name): void
     {
         if (! in_array($name, self::LIVE_VALIDATED_FIELDS, true)) {
@@ -46,7 +53,10 @@ class CreateProject extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();
-        $data['user_type'] = UserType::Personal->value;
+        $data['user_type'] = $data['team_id'] ?? null
+            ? UserType::Team->value
+            : (($data['is_legal'] ?? false) ? UserType::Legal->value : UserType::Personal->value);
+        $data['is_legal'] = $data['user_type'] === UserType::Legal->value;
         $data['status'] = ProjectStatus::Draft->value;
         $data['status_moderation'] = ModerationStatus::Pending->value;
         // Усі проєкти, створені у спільній Filament-панелі "profile", вважаються

@@ -1171,6 +1171,14 @@ section
     color: #f5f5f5;
 }
 
+.fi-panel-profile .fi-resource-edit-record-page .profile-project-form-wizard .fi-sc-wizard-header-step-label {
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .fi-resource-edit-record-page .profile-project-form-wizard .fi-sc-wizard-header-step-btn:hover .fi-sc-wizard-header-step-label {
+    color: #fecc39;
+}
+
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step.fi-active .fi-sc-wizard-header-step-btn {
     background: transparent;
     box-shadow: none;
@@ -1194,15 +1202,48 @@ section
 
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer {
     justify-content: center;
+    gap: 0.75rem;
     padding: 0 0 3rem;
 }
 
-.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:first-child {
-    display: none !important;
+.fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:has(.profile-project-wizard-previous) {
+    width: min(100%, 180px);
 }
 
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:has(.profile-project-wizard-next) {
     width: min(100%, 310px);
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-previous {
+    width: 100%;
+    min-height: 64px;
+    border: 1px solid #f7f4ec;
+    border-radius: 0;
+    background: #343434 !important;
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-form-wizard .profile-project-wizard-previous:hover {
+    border-color: #fecc39;
+    background: #3b3b3b !important;
+    color: #fecc39;
+}
+
+/* На створенні кроки проходяться лише кнопками «Далі» / «Назад». */
+.fi-panel-profile .fi-resource-create-record-page .profile-project-form-wizard .fi-sc-wizard-header-step-btn {
+    pointer-events: none;
+}
+
+/* Стандартні дії створення потрібні лише після проходження всіх кроків. */
+.fi-panel-profile .fi-resource-create-record-page .profile-project-create-actions {
+    display: none;
+}
+
+.fi-panel-profile .fi-resource-create-record-page form.fi-sc-form:has(.profile-project-step-publication.fi-active) .profile-project-create-actions {
+    display: flex;
 }
 
 .fi-panel-profile .profile-project-form-wizard .profile-project-wizard-next {
@@ -1289,6 +1330,26 @@ section
     min-height: 60px;
 }
 
+.fi-panel-profile .profile-project-parameter-select .fi-input-wrp {
+    border: 1px solid #4b4b4b;
+    transition: border-color 150ms ease;
+}
+
+.fi-panel-profile .profile-project-parameter-select .fi-input-wrp:focus-within,
+.fi-panel-profile .profile-project-parameter-select .fi-input-wrp:has(.fi-select-input-btn[aria-expanded='true']) {
+    border-color: #fecc39;
+}
+
+.fi-panel-profile .profile-project-parameter-select .fi-select-input-btn {
+    min-height: 58px;
+    padding-inline: 1rem;
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .profile-project-parameter-select .fi-select-input-placeholder {
+    color: #929292;
+}
+
 .fi-panel-profile .profile-project-form-wizard textarea {
     min-height: 150px;
 }
@@ -1302,6 +1363,122 @@ section
 
 .fi-panel-profile .profile-project-form-wizard .profile-primary-image-field {
     width: 100%;
+}
+
+/* Власник проєкту — картки вибору приватної особи або команди. */
+.fi-panel-profile .profile-project-owner-field {
+    text-align: center;
+}
+
+.fi-panel-profile .profile-project-owner-field > .fi-fo-field-label-col,
+.fi-panel-profile .profile-project-owner-field > .fi-fo-field-content-col {
+    width: min(100%, 460px);
+    margin-inline: auto;
+    text-align: start;
+}
+
+.fi-panel-profile .profile-project-owner-field .fi-fo-field-label-ctn {
+    justify-content: flex-start;
+}
+
+.fi-panel-profile .profile-project-owner-field .fi-fo-field-label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.fi-panel-profile .profile-project-owner-field > .fi-fo-field-content-col > .fi-sc-text {
+    color: #f5f5f5;
+    text-align: start;
+}
+
+.fi-panel-profile .profile-project-owner-radio.fi-fo-radio {
+    width: 100%;
+    margin: 0.5rem auto 0;
+    gap: 0.75rem;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label {
+    min-height: 76px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #343434;
+    padding: 1rem 1.1rem;
+    color: #d1d1d1;
+    cursor: pointer;
+    transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:hover {
+    border-color: #fecc39;
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:has(input:checked) {
+    border-color: #fecc39;
+    color: #f5f5f5;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label-text {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: start;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label-text::before {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border-radius: 50%;
+    background: #4b4b4b;
+    background-image: var(--profile-project-owner-avatar-1);
+    background-position: center;
+    background-size: cover;
+    content: '';
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(2) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-2); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(3) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-3); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(4) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-4); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(5) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-5); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(6) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-6); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(7) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-7); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(8) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-8); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(9) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-9); }
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label:nth-child(10) .fi-fo-radio-label-text::before { background-image: var(--profile-project-owner-avatar-10); }
+
+.fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label-text p {
+    overflow: hidden;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-radio-input {
+    order: 2;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    appearance: none;
+    border: 2px solid #777;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-owner-radio .fi-radio-input:checked {
+    border-color: #fecc39;
+    background: #fecc39;
+    box-shadow: inset 0 0 0 5px #343434;
 }
 
 .fi-panel-profile .profile-project-form-wizard .profile-primary-image-field .fi-fo-file-upload,
@@ -1331,6 +1508,307 @@ section
 .fi-panel-profile .profile-project-form-wizard .fi-fo-repeater-add-action:hover,
 .fi-panel-profile .profile-project-form-wizard .fi-fo-builder-add-action:hover {
     background: #ffd75c;
+}
+
+/* Додаткова інформація — пласкі контент-блоки з вертикальними діями. */
+.fi-panel-profile .profile-project-content-intro-field,
+.fi-panel-profile .profile-project-content-builder-field {
+    width: min(100%, 820px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .profile-project-content-intro {
+    display: grid;
+    gap: 0.75rem;
+    color: #f5f5f5;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+
+.fi-panel-profile .profile-project-content-builder {
+    display: grid;
+    gap: 2rem;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-items {
+    display: grid;
+    gap: 2rem;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item {
+    position: relative;
+    min-height: 112px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding-inline-end: 50px;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    inset-inline-end: 0;
+    display: flex;
+    width: 40px;
+    min-height: 106px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header-label,
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header-icon {
+    display: none;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header-start-actions,
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header-end-actions {
+    display: contents;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header li {
+    display: flex;
+    width: 40px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn {
+    display: grid;
+    width: 40px;
+    height: 34px;
+    place-items: center;
+    border: 0;
+    border-radius: 0;
+    background: #fecc39 !important;
+    color: #343434 !important;
+    outline: 0;
+    box-shadow: none !important;
+    filter: none;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn .fi-icon {
+    width: 18px;
+    height: 18px;
+    margin: auto;
+    transform: none;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn:hover {
+    background: #fff !important;
+    color: #343434 !important;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn:disabled,
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn.fi-disabled {
+    background: #fecc39 !important;
+    color: #343434 !important;
+    opacity: 1;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn:disabled .fi-icon,
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn.fi-disabled .fi-icon {
+    opacity: 0.35;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-content {
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-content > .fi-sc {
+    gap: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder .profile-project-content-block-heading .fi-input-wrp {
+    min-height: 60px;
+}
+
+.fi-panel-profile .profile-project-content-builder .profile-project-content-block-paragraph textarea {
+    min-height: 112px;
+}
+
+.fi-panel-profile .profile-project-content-builder .profile-project-content-block-image .filepond--root,
+.fi-panel-profile .profile-project-content-builder .profile-project-content-block-image .filepond--drop-label {
+    border-radius: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker {
+    width: min(100%, 300px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger {
+    width: 100%;
+    min-width: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger > .fi-btn {
+    display: grid;
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    grid-template-columns: minmax(0, 1fr) 60px;
+    gap: 0;
+    border: 1px solid #343434;
+    border-radius: 0;
+    background: #f7f4ec !important;
+    padding: 0;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger > .fi-btn .fi-btn-label {
+    align-self: stretch;
+    display: grid;
+    min-width: 0;
+    place-items: center;
+    padding: 12px;
+    white-space: nowrap;
+}
+
+.fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger > .fi-btn:hover {
+    background: #fecc39 !important;
+}
+
+.fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger > .fi-btn .fi-icon {
+    box-sizing: content-box;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-inline-start: 1px solid #343434;
+    padding: 19px;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items-ctn {
+    pointer-events: auto;
+    visibility: visible;
+    height: 36px;
+    margin-block: -1rem;
+    opacity: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items-ctn:hover,
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items-ctn:focus-within {
+    opacity: 1;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items {
+    width: min(100%, 300px);
+    border-radius: 0;
+    background: transparent;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-fo-builder-block-picker,
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-dropdown-trigger {
+    width: 100%;
+    min-width: 0;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-btn {
+    display: grid;
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    grid-template-columns: minmax(0, 1fr) 60px;
+    gap: 0;
+    border: 1px solid #343434;
+    border-radius: 0;
+    background: #f7f4ec !important;
+    padding: 0;
+    color: #343434;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-btn:hover {
+    background: #fecc39 !important;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-btn-label {
+    align-self: stretch;
+    display: grid;
+    min-width: 0;
+    place-items: center;
+    padding: 12px;
+    white-space: nowrap;
+}
+
+.fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-btn .fi-icon {
+    box-sizing: content-box;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-inline-start: 1px solid #343434;
+    padding: 19px;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .profile-project-content-builder {
+        gap: 1.25rem;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-items {
+        gap: 1.25rem;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-item {
+        min-height: 0;
+        padding-top: 36px;
+        padding-inline-end: 0;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header {
+        top: 0;
+        width: 106px;
+        min-height: 34px;
+        height: 34px;
+        flex-direction: row;
+        gap: 2px;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header li,
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-item-header .fi-icon-btn .fi-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items-ctn {
+        height: 28px;
+        margin-block: -0.75rem;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items,
+    .fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker {
+        width: min(100%, 280px);
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-btn,
+    .fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger > .fi-btn {
+        height: 54px;
+        min-height: 54px;
+        grid-template-columns: minmax(0, 1fr) 54px;
+    }
+
+    .fi-panel-profile .profile-project-content-builder .fi-fo-builder-add-between-items .fi-btn .fi-icon,
+    .fi-panel-profile .profile-project-content-builder > .fi-fo-builder-block-picker > .fi-dropdown-trigger > .fi-btn .fi-icon {
+        padding: 16px;
+    }
 }
 
 /* Статуси етапу — три пласкі перемикачі, як у макеті Stages. */
@@ -1581,6 +2059,69 @@ section
     padding-block: 0;
 }
 
+.fi-panel-profile .profile-project-art-category-field .fi-input-wrp {
+    border: 1px solid transparent;
+    transition: border-color 150ms ease;
+}
+
+.fi-panel-profile .profile-project-art-category-field .fi-input-wrp:focus-within {
+    border-color: #fecc39;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input {
+    padding: 0 3.75rem 0 1rem;
+    cursor: pointer;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__edit {
+    font-size: 0.9375rem;
+    cursor: text;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__edit::placeholder {
+    color: #929292;
+    opacity: 1;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__operators {
+    right: 0.75rem;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__clear,
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__arrow {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    place-items: center;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__clear {
+    position: static;
+    background-image: none;
+    text-indent: 0;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__clear svg {
+    display: block;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__clear svg,
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__arrow svg {
+    width: 1rem;
+    height: 1rem;
+    min-width: 1rem;
+    stroke: #fecc39;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__clear:hover,
+.fi-panel-profile .profile-project-art-category-field .treeselect-input__arrow:hover {
+    opacity: 1;
+}
+
 .fi-panel-profile .profile-project-form-wizard .treeselect-input__edit {
     color: #f5f5f5;
 }
@@ -1592,11 +2133,74 @@ section
     color: #f5f5f5;
 }
 
+.fi-panel-profile .profile-project-art-category-field .treeselect-list {
+    max-height: 320px;
+    margin-top: 0.25rem;
+    padding: 0;
+    border: 1px solid #555;
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 28%);
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item {
+    min-height: 44px;
+    height: auto;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid #454545;
+    border-radius: 0;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__group-container:last-child > .treeselect-list__item:last-child {
+    border-bottom: 0;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item-label {
+    font-size: 0.9375rem;
+    color: inherit;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item-icon svg {
+    stroke: #fecc39;
+}
+
 .fi-panel-profile .profile-project-form-wizard .treeselect-list__item--focused,
 .fi-panel-profile .profile-project-form-wizard .treeselect-list__item--single-selected,
 .fi-panel-profile .profile-project-form-wizard .treeselect-list__item--checked {
     background: #fecc39 !important;
     color: #343434;
+}
+
+/* Lazy-loaded CSS пакета має вищу специфічність у dark mode — явно
+   повертаємо контраст вибраному пункту після відкриття дерева. */
+.fi-panel-profile .profile-project-art-category-field .treeselect-list.treeselect-list--single-select .treeselect-list__item--single-selected,
+.fi-panel-profile .profile-project-art-category-field .treeselect-list .treeselect-list__item--checked {
+    background: #fecc39 !important;
+    color: #343434 !important;
+    opacity: 1 !important;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list.treeselect-list--single-select .treeselect-list__item--single-selected .treeselect-list__item-label,
+.fi-panel-profile .profile-project-art-category-field .treeselect-list .treeselect-list__item--checked .treeselect-list__item-label {
+    color: #343434 !important;
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list.treeselect-list--single-select .treeselect-list__item--single-selected .treeselect-list__item-label::after,
+.fi-panel-profile .profile-project-art-category-field .treeselect-list .treeselect-list__item--checked .treeselect-list__item-label::after {
+    float: inline-end;
+    margin-inline-start: 0.75rem;
+    content: '\2713';
+    font-weight: 700;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item:hover {
+    background: #fecc39 !important;
+    color: #343434;
+}
+
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item:hover .treeselect-list__item-icon svg,
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item--focused .treeselect-list__item-icon svg,
+.fi-panel-profile .profile-project-art-category-field .treeselect-list__item--single-selected .treeselect-list__item-icon svg {
+    stroke: #343434;
 }
 
 @media (max-width: 767px) {
@@ -1610,7 +2214,16 @@ section
     }
 
     .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer {
+        gap: 0.5rem;
         padding: 0 1rem 2rem;
+    }
+
+    .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:has(.profile-project-wizard-previous) {
+        width: calc(42% - 0.25rem);
+    }
+
+    .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-footer > div:has(.profile-project-wizard-next) {
+        width: calc(58% - 0.25rem);
     }
 }
 

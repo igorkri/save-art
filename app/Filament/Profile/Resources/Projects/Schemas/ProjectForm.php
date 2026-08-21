@@ -7,6 +7,7 @@ use App\Enums\ModerationStatus;
 use App\Enums\ParameterType;
 use App\Enums\ProjectStatus;
 use App\Enums\StageStatus;
+use App\Enums\UserType;
 use App\Jobs\GenerateStageDocumentPdfThumbnail;
 use App\Models\Parameter;
 use App\Models\ParameterValue;
@@ -35,6 +36,7 @@ use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -143,16 +145,37 @@ class ProjectForm
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-author'])
                         ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
-                            Select::make('team_id')
+                            Hidden::make('team_id'),
+                            Hidden::make('user_type')->default(UserType::Personal->value),
+                            Hidden::make('is_legal')->default(false),
+
+                            Radio::make('project_owner')
                                 ->label(__('profile_projects.fields.project_owner'))
-                                ->placeholder(auth()->user()?->name ?? __('profile_projects.defaults.personal_owner'))
                                 ->helperText(__('profile_projects.helpers.project_owner'))
-                                ->options(fn () => Team::query()
-                                    ->whereHas('teamMembers', fn ($query) => $query->where('user_id', auth()->id()))
-                                    ->get()
-                                    ->mapWithKeys(fn (Team $team) => [$team->id => $team->getAttribute('name')['uk'] ?? $team->slug])
-                                    ->toArray())
-                                ->native(false),
+                                ->options(fn (): array => self::projectOwnerOptions())
+                                ->default('personal')
+                                ->afterStateHydrated(fn (Radio $component, ?Project $record) => $component->state(
+                                    $record?->team_id
+                                        ? 'team:'.$record->team_id
+                                        : ($record?->is_legal ? 'legal' : 'personal')
+                                ))
+                                ->live()
+                                ->afterStateUpdated(function (mixed $state, callable $set): void {
+                                    $isTeam = str_starts_with((string) $state, 'team:');
+                                    $isLegal = $state === 'legal';
+
+                                    $set('team_id', $isTeam ? (int) Str::after((string) $state, 'team:') : null);
+                                    $set('user_type', $isTeam ? UserType::Team->value : ($isLegal ? UserType::Legal->value : UserType::Personal->value));
+                                    $set('is_legal', $isLegal);
+                                })
+                                ->dehydrated(false)
+                                ->required()
+                                ->columns(1)
+                                ->extraAttributes(fn (): array => [
+                                    'class' => 'profile-project-owner-radio',
+                                    'style' => self::projectOwnerAvatarStyles(),
+                                ])
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-owner-field']),
                         ]),
 
                     Step::make(__('profile_projects.tabs.name'))
@@ -169,6 +192,7 @@ class ProjectForm
 
                             SelectTree::make('art_category_id')
                                 ->label(__('profile_projects.fields.art_category'))
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-art-category-field'])
                                 ->relationship('artCategory', 'name', 'parent_id')
                                 ->searchable()
                                 ->live()
@@ -284,18 +308,40 @@ class ProjectForm
                         ->extraAttributes(['class' => 'profile-project-step profile-project-step-content'])
 //                        ->disabled(fn (?Project $record): bool => self::isLockedExceptFinalResult($record))
                         ->schema([
+                            Placeholder::make('content_blocks_intro')
+                                ->hiddenLabel()
+                                ->content(new HtmlString(
+                                    '<div class="profile-project-content-intro">'
+                                    .'<p>'.e(__('profile_projects.content.intro')).'</p>'
+                                    .'<p>'.e(__('profile_projects.content.optional')).'</p>'
+                                    .'</div>'
+                                ))
+                                ->extraAttributes(['class' => 'profile-project-content-intro-field']),
+
                             Builder::make('content_blocks')
-                                ->label(__('profile_projects.fields.content_blocks'))
+                                ->hiddenLabel()
                                 ->addActionLabel(__('profile_projects.fields.content_block_add'))
+                                ->addAction(fn (Action $action): Action => $action
+                                    ->icon('heroicon-m-plus')
+                                    ->iconPosition('after'))
+                                ->addBetweenActionLabel(__('profile_projects.fields.content_block_add_between'))
+                                ->addBetweenAction(fn (Action $action): Action => $action
+                                    ->icon('heroicon-m-plus')
+                                    ->iconPosition('after'))
+                                ->moveUpAction(fn (Action $action): Action => $action->color('primary'))
+                                ->moveDownAction(fn (Action $action): Action => $action->color('primary'))
+                                ->deleteAction(fn (Action $action): Action => $action->color('primary'))
                                 ->blocks([
                                     Block::make('heading')
                                         ->label(fn (?array $state): string => filled($state['heading_text'] ?? null)
                                             ? $state['heading_text']
                                             : __('profile_projects.fields.content_block_type_heading'))
                                         ->icon('heroicon-o-bookmark')
+                                        ->extraAttributes(['class' => 'profile-project-content-block profile-project-content-block-heading'])
                                         ->schema([
                                             TextInput::make('heading_text')
-                                                ->label(__('profile_projects.fields.content_block_heading_text'))
+                                                ->hiddenLabel()
+                                                ->placeholder(__('profile_projects.fields.content_block_type_heading'))
                                                 ->required()
                                                 ->maxLength(255)
                                                 ->columnSpanFull(),
@@ -307,9 +353,11 @@ class ProjectForm
                                             ? Str::limit($state['paragraph_text'], 50)
                                             : __('profile_projects.fields.content_block_type_paragraph'))
                                         ->icon('heroicon-o-bars-3-bottom-left')
+                                        ->extraAttributes(['class' => 'profile-project-content-block profile-project-content-block-paragraph'])
                                         ->schema([
                                             Textarea::make('paragraph_text')
-                                                ->label(__('profile_projects.fields.content_block_paragraph_text'))
+                                                ->hiddenLabel()
+                                                ->placeholder(__('profile_projects.fields.content_block_type_paragraph'))
                                                 ->required()
                                                 ->rows(5)
                                                 ->columnSpanFull(),
@@ -319,11 +367,14 @@ class ProjectForm
                                     Block::make('image')
                                         ->label(__('profile_projects.fields.content_block_type_image'))
                                         ->icon('heroicon-o-photo')
+                                        ->extraAttributes(['class' => 'profile-project-content-block profile-project-content-block-image'])
                                         ->schema([
                                             FileUpload::make('image')
-                                                ->label(__('profile_projects.fields.content_block_image'))
+                                                ->hiddenLabel()
                                                 ->image()
                                                 ->imageEditor()
+                                                ->panelLayout('integrated')
+                                                ->panelAspectRatio('4:3')
                                                 ->disk('public')
                                                 ->directory('projects/content-blocks')
                                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
@@ -336,8 +387,13 @@ class ProjectForm
                                 ])
                                 ->columnSpanFull()
                                 ->blockNumbers(false)
-                                ->reorderable()
-                                ->collapsed(),
+                                ->blockLabels(false)
+                                ->blockIcons(false)
+                                ->reorderableWithButtons()
+                                ->reorderableWithDragAndDrop(false)
+                                ->collapsible(false)
+                                ->extraAttributes(['class' => 'profile-project-content-builder'])
+                                ->extraFieldWrapperAttributes(['class' => 'profile-project-content-builder-field']),
                         ]),
 
                     Step::make(__('profile_projects.tabs.parameters'))
@@ -384,6 +440,9 @@ class ProjectForm
                                                             ->mapWithKeys(fn (ParameterValue $value) => [$value->id => $value->getLabel('uk')])
                                                             ?? []
                                                     )
+                                                    ->native(false)
+                                                    ->searchable()
+                                                    ->extraFieldWrapperAttributes(['class' => 'profile-project-parameter-select'])
                                                     ->visible(fn (callable $get) => $get('parameter_type') === ParameterType::List->value),
 
                                                 TextInput::make('custom_value')
@@ -658,7 +717,10 @@ class ProjectForm
                                                 ->multiple()
                                                 ->reorderable()
                                                 ->panelLayout('grid')
+                                                ->downloadable()
+                                                ->openable()
                                                 ->extraAttributes(['class' => 'fi-fo-file-upload-grid-compact'])
+                                                ->extraFieldWrapperAttributes(['class' => 'profile-project-stage-documents profile-project-final-result-files'])
                                                 ->disk('public')
                                                 ->directory('projects/final-result')
                                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
@@ -726,7 +788,10 @@ class ProjectForm
                         ->label(__('profile_projects.actions.next'))
                         ->icon('heroicon-m-chevron-right')
                         ->extraAttributes(['class' => 'profile-project-wizard-next']))
-                    ->previousAction(fn (Action $action): Action => $action->hidden())
+                    ->previousAction(fn (Action $action): Action => $action
+                        ->label(__('profile_projects.actions.back'))
+                        ->icon('heroicon-m-chevron-left')
+                        ->extraAttributes(['class' => 'profile-project-wizard-previous']))
                     // При редагуванні існуючого проєкту дозволяємо вільно перемикатись
                     // між кроками клацанням, як у табах — усі дані вже заповнені, тому
                     // послідовна валідація "Далі/Назад" тут тільки заважає. При створенні
@@ -753,5 +818,64 @@ class ProjectForm
             $steps[8], // Публікація
             $steps[9], // Фінальний результат (видимий лише для активних/завершених)
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function projectOwnerOptions(): array
+    {
+        $user = auth()->user()?->loadMissing('profileLegal');
+        $options = [
+            'personal' => $user?->display_name ?? __('profile_projects.defaults.personal_owner'),
+        ];
+
+        if (filled($user?->profileLegal?->name)) {
+            $options['legal'] = $user->profileLegal->name;
+        }
+
+        return $options + self::projectOwnerTeams()
+            ->mapWithKeys(fn (Team $team) => [
+                'team:'.$team->getKey() => $team->getAttribute('name')['uk'] ?? $team->slug,
+            ])
+            ->toArray();
+    }
+
+    private static function projectOwnerAvatarStyles(): string
+    {
+        $user = auth()->user()?->loadMissing('profileLegal');
+        $avatarUrls = [$user?->getFilamentAvatarUrl()];
+
+        if (filled($user?->profileLegal?->name)) {
+            $avatarUrls[] = filled($user->profileLegal->logo)
+                ? Storage::disk('public')->url($user->profileLegal->logo)
+                : asset('img/legal_entity.webp');
+        }
+
+        foreach (self::projectOwnerTeams() as $team) {
+            $avatarUrls[] = filled($team->avatar)
+                ? Storage::disk('public')->url($team->avatar)
+                : asset('img/legal_entity.webp');
+        }
+
+        return collect($avatarUrls)
+            ->map(function (?string $url, int $index): string {
+                $url ??= asset('img/legal_entity.webp');
+                $url = str_replace(["'", '"', "\n", "\r"], ['%27', '%22', '', ''], $url);
+
+                return '--profile-project-owner-avatar-'.($index + 1).": url('{$url}')";
+            })
+            ->implode('; ');
+    }
+
+    /**
+     * @return Collection<int, Team>
+     */
+    private static function projectOwnerTeams(): Collection
+    {
+        return Team::query()
+            ->whereHas('teamMembers', fn ($query) => $query->where('user_id', auth()->id()))
+            ->orderBy('id')
+            ->get();
     }
 }

@@ -40,6 +40,11 @@ return [
         'description' => 'Review the entered data before saving. After creation, the project can be saved as a draft or submitted for moderation.',
     ],
 
+    'content' => [
+        'intro' => 'Tell us more about your project. Add photos of the work process, sketches, and more.',
+        'optional' => 'This section is optional.',
+    ],
+
     'fields' => [
         'art_category' => 'Art category',
         'title' => 'Project title',
@@ -88,6 +93,7 @@ return [
         'content_block_paragraph_text' => 'Paragraph text',
         'content_block_image' => 'Image',
         'content_block_add' => 'Add block',
+        'content_block_add_between' => 'Insert between blocks',
         'final_result' => 'Final result',
         'final_result_type_gallery' => 'Image gallery',
         'final_result_type_youtube' => 'YouTube',
@@ -107,6 +113,7 @@ return [
 
     'actions' => [
         'next' => 'Next',
+        'back' => 'Back',
         'submit_for_moderation' => 'Submit for moderation',
         'submit_for_moderation_heading' => 'Submit the project for moderation?',
         'submit_for_moderation_description' => 'A moderator will review the project. While moderation is in progress, editing will be restricted.',
@@ -138,7 +145,7 @@ return [
     'helpers' => [
         'bonus_quantity' => 'Empty = unlimited',
         'stage_status' => 'Status can only move forward — going back is not allowed',
-        'project_owner' => 'Choose a team or leave this field empty to create the project in your own name.',
+        'project_owner' => 'A project can be created on behalf of a private person, a legal entity, or a team.',
         'title' => 'The project title cannot be changed after publication.',
         'cover' => 'Project cover in 4:3 format.',
         'tags' => 'This field is optional.',
