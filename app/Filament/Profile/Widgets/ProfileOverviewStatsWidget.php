@@ -3,6 +3,11 @@
 namespace App\Filament\Profile\Widgets;
 
 use App\Enums\ProjectSource;
+use App\Filament\Profile\Resources\Donations\DonationResource;
+use App\Filament\Profile\Resources\Projects\ProjectResource;
+use App\Filament\Profile\Resources\Services\ServiceResource;
+use App\Filament\Profile\Resources\Teams\TeamResource;
+use App\Filament\Profile\Resources\Works\WorkResource;
 use App\Models\Donation;
 use App\Models\Message;
 use App\Models\Notification;
@@ -75,18 +80,23 @@ class ProfileOverviewStatsWidget extends StatsOverviewWidget
         return [
             Stat::make(__('profile_dashboard.stats.projects'), $projectsCount)
                 ->icon('heroicon-o-rectangle-stack')
+                ->url(ProjectResource::getUrl(panel: 'profile'))
                 ->color('gray'),
             Stat::make(__('profile_dashboard.stats.works'), $worksCount)
                 ->icon('heroicon-o-paint-brush')
+                ->url(WorkResource::getUrl(panel: 'profile'))
                 ->color('gray'),
             Stat::make(__('profile_dashboard.stats.teams'), $teamsCount)
                 ->icon('heroicon-o-user-group')
+                ->url(TeamResource::getUrl(panel: 'profile'))
                 ->color('gray'),
             Stat::make(__('profile_dashboard.stats.services'), $servicesCount)
                 ->icon('heroicon-o-wrench-screwdriver')
+                ->url(ServiceResource::getUrl(panel: 'profile'))
                 ->color('gray'),
             Stat::make(__('profile_dashboard.stats.collected'), number_format($collectedAmount, 0, ',', ' ').' ₴')
                 ->icon('heroicon-o-banknotes')
+                ->url(DonationResource::getUrl(panel: 'profile'))
                 ->color('success'),
             Stat::make(__('profile_dashboard.stats.unread'), $unreadTotal)
                 ->description(__('profile_dashboard.stats.unread_description', [

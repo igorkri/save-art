@@ -5376,6 +5376,112 @@ section
     color: #fecc39 !important;
 }
 
+/* Інфопанель продовжує геометрію списків профілю: широкий контент,
+   прямокутні темні поверхні та єдиний жовтий акцент. */
+.fi-panel-profile .profile-dashboard-page .fi-page-header-main-ctn,
+.fi-panel-profile .profile-dashboard-page .fi-page-main,
+.fi-panel-profile .profile-dashboard-page .fi-page-content {
+    width: min(100%, 1450px);
+    margin-inline: auto;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-page-content,
+.fi-panel-profile .profile-dashboard-page .fi-wi {
+    gap: 1.125rem;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat {
+    min-height: 150px;
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #343434;
+    padding: 1.25rem;
+    box-shadow: none;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.fi-panel-profile .profile-dashboard-page a.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    border-color: #fecc39;
+    background: #383838;
+}
+
+.fi-panel-profile .profile-dashboard-page a.fi-wi-stats-overview-stat:focus-visible {
+    border-color: #fecc39;
+    outline: 2px solid #fecc39;
+    outline-offset: 2px;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat-label-ctn {
+    gap: 0.625rem;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat-label {
+    color: #c7c7c7;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat-label-ctn > .fi-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #fecc39;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat-value {
+    color: #f7f4ec;
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat-description {
+    color: #a9a9a9;
+    line-height: 1.45;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-chart > .fi-section,
+.fi-panel-profile .profile-dashboard-page .fi-wi-table .fi-ta-ctn {
+    overflow: hidden;
+    border: 1px solid #4b4b4b;
+    border-radius: 0;
+    background: #343434;
+    box-shadow: none;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-chart > .fi-section > .fi-section-header,
+.fi-panel-profile .profile-dashboard-page .fi-wi-table .fi-ta-header-ctn {
+    min-height: 64px;
+    border-bottom: 1px solid #4b4b4b;
+    background: #323232;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-chart > .fi-section > .fi-section-content-ctn,
+.fi-panel-profile .profile-dashboard-page .fi-wi-chart > .fi-section > .fi-section-content-ctn > .fi-section-content {
+    background: #343434;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-chart-frame {
+    min-height: 260px;
+}
+
+.fi-panel-profile .profile-dashboard-page .fi-wi-table .fi-ta-content {
+    overflow-x: auto;
+}
+
+@media (max-width: 767px) {
+    .fi-panel-profile .profile-dashboard-page .fi-wi-stats-overview-stat {
+        min-height: 130px;
+        padding: 1rem;
+    }
+
+    .fi-panel-profile .profile-dashboard-page .fi-wi-chart-frame {
+        min-height: 220px;
+    }
+}
+
 /* Modal, notification, callout та порожні стани. */
 .fi-panel-profile .fi-modal-window,
 .fi-panel-profile .fi-modal-header,

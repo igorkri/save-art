@@ -12,7 +12,8 @@ return [
     ],
     'donations_chart' => [
         'heading' => 'Donations dynamics',
-        'dataset_label' => 'Donations amount (₴)',
+        'dataset_made' => 'My donations (₴)',
+        'dataset_received' => 'Received for my projects (₴)',
     ],
     'recent_projects' => [
         'heading' => 'Recent projects',
