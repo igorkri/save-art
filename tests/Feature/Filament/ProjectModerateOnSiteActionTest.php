@@ -86,6 +86,19 @@ class ProjectModerateOnSiteActionTest extends TestCase
         );
     }
 
+    public function test_impersonate_action_no_longer_exists_on_projects_table(): void
+    {
+        // "Увійти як автор" прибрано: редагування проєктів/робіт переїхало у
+        // Filament-панель /profile, яка ділить домен і guard з /admin, тож
+        // логін під автором там означав би підміну сесії самого адміна.
+        $project = Project::factory()->create();
+
+        $this->actingAs($this->admin);
+
+        Livewire::test(ListProjects::class)
+            ->assertTableActionDoesNotExist('impersonate', record: $project);
+    }
+
     public function test_moderate_on_site_action_hidden_for_non_moderation_project(): void
     {
         $project = Project::factory()->create([

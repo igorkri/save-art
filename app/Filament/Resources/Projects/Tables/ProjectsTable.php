@@ -161,28 +161,17 @@ class ProjectsTable
                     //                    ViewAction::make(),
                     //                    EditAction::make(),
 
-                    Action::make('impersonate')
-                        ->label('Увійти як автор')
-                        ->icon('heroicon-o-arrow-right-on-rectangle')
-                        ->color('gray')
-                        ->visible(fn (): bool => auth()->user()->isAdmin())
-                        ->requiresConfirmation()
-                        ->modalHeading('Увійти на сайт під автором проєкту')
-                        ->modalDescription('Відкриє фронтенд у новій вкладці, авторизованим під автором, одразу на цей проєкт у його кабінеті. Посилання одноразове й діє 2 хвилини.')
-                        ->modalSubmitActionLabel('Увійти')
-                        ->action(function (Project $record, $livewire) {
-                            $grant = ImpersonationToken::issue($record->user, auth()->user(), $record->slug);
-                            $url = rtrim(config('app.frontend_url'), '/').'/impersonate/'.$grant->token;
-
-                            $livewire->js('window.open('.json_encode($url).', "_blank")');
-                        }),
-
                     // Відкриває реальну публічну сторінку проєкту (save-art або art-ua-info,
                     // залежно від source) у новій вкладці, авторизованим під самим модератором
-                    // (SSO-грант, той самий механізм, що й "Увійти як автор", лише user===admin) —
-                    // без цього фронтенд не бачить токена і показує "Проєкт не знайдено" для
-                    // непублічного статусу. Там модератор бачить проєкт так само, як публіка, і
-                    // може схвалити/відхилити плаваючою панеллю модерації прямо на сайті.
+                    // (SSO-грант через ImpersonationToken, user===admin) — без цього фронтенд не
+                    // бачить токена і показує "Проєкт не знайдено" для непублічного статусу. Там
+                    // модератор бачить проєкт так само, як публіка, і може схвалити/відхилити
+                    // плаваючою панеллю модерації прямо на сайті.
+                    //
+                    // "Увійти як автор" тут більше немає: редагування проєктів/робіт повністю
+                    // переїхало у Filament-панель /profile (той самий домен і guard, що й /admin),
+                    // тож логін під автором означав би підміну сесії самого адміна в цьому ж
+                    // браузері — а не безпечний вхід на окремому фронтенд-домені, як було раніше.
                     Action::make('moderateOnSite')
                         ->label('Модерувати на сайті')
                         ->icon('heroicon-o-globe-alt')
