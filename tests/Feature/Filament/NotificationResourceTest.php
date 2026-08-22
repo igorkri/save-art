@@ -126,4 +126,26 @@ class NotificationResourceTest extends TestCase
             ->assertOk()
             ->assertSee('Тестове сповіщення');
     }
+
+    public function test_project_notification_uses_reference_card_layout(): void
+    {
+        Notification::factory()->create([
+            'user_id' => $this->user->id,
+            'data' => [
+                'project_slug' => 'test-project',
+                'project_title' => 'Тестовий проєкт',
+                'amount' => 700,
+                'collected' => 6840,
+                'goal' => 10000,
+                'currency' => 'UAH',
+            ],
+        ]);
+
+        $this->get('/profile/notifications')
+            ->assertOk()
+            ->assertSee('profile-notification-card__project-visual', false)
+            ->assertSee('profile-notification-card__collected-row', false)
+            ->assertSee('/img/masks.webp', false)
+            ->assertSee('6 840');
+    }
 }

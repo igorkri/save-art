@@ -2,18 +2,15 @@
 
 namespace App\Filament\Profile\Resources\Notifications\Tables;
 
+use App\Enums\ContactInfoRequestStatus;
+use App\Models\ContactInfoRequest;
 use App\Models\Notification;
 use App\Services\NotificationService;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 
 class NotificationsTable
@@ -21,64 +18,64 @@ class NotificationsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->contentGrid([
-                'default' => 1,
-                'md' => 2,
-                'xl' => 3,
-            ])
+            ->contentGrid(['default' => 1])
             ->recordClasses('profile-notification-card-record')
             ->defaultSort('created_at', 'desc')
             ->columns([
-                Stack::make([
-                    Split::make([
-                        IconColumn::make('is_read')
-                            ->label('')
-                            ->boolean()
-                            ->trueIcon(Heroicon::OutlinedEnvelopeOpen)
-                            ->falseIcon(Heroicon::OutlinedEnvelope)
-                            ->trueColor('gray')
-                            ->falseColor('warning')
-                            ->grow(false),
-
-                        TextColumn::make('type')
-                            ->label(__('profile_notifications.table.type'))
-                            ->badge()
-                            ->icon(fn (Notification $record) => $record->type->getIcon())
-                            ->color(fn (Notification $record) => $record->type->getColor())
-                            ->formatStateUsing(fn (Notification $record) => $record->type->getLabel()),
-
-                        TextColumn::make('created_at')
-                            ->label(__('profile_notifications.table.created_at'))
-                            ->dateTime('d.m.Y H:i')
-                            ->sortable()
-                            ->color('gray')
-                            ->grow(false),
-                    ]),
-
-                    TextColumn::make('title')
-                        ->label(__('profile_notifications.table.title'))
-                        ->getStateUsing(fn (Notification $record) => $record->title[app()->getLocale()] ?? $record->title['uk'] ?? '')
-                        ->weight(fn (Notification $record) => $record->is_read ? 'semibold' : 'bold')
-                        ->size('lg')
-                        ->wrap(),
-
-                    TextColumn::make('message')
-                        ->label(__('profile_notifications.table.message'))
-                        ->getStateUsing(fn (Notification $record) => $record->message[app()->getLocale()] ?? $record->message['uk'] ?? '')
-                        ->limit(180)
-                        ->wrap()
-                        ->color('gray'),
-                ])
-                    ->space(2)
-                    ->extraAttributes(['class' => 'p-3']),
+                ViewColumn::make('notification')
+                    ->label('')
+                    ->view('filament.profile.notifications.notification-card')
+                    ->extraAttributes(['class' => 'profile-notification-card-column']),
             ])
             ->recordActions([
+                Action::make('grantContact')
+                    ->label('Надати')
+                    ->color('primary')
+                    ->visible(fn (Notification $record): bool => $record->type->value === 'contact_request' && filled($record->data['contact_info_request_id'] ?? null))
+                    ->action(function (Notification $record): void {
+                        $request = ContactInfoRequest::query()
+                            ->whereKey($record->data['contact_info_request_id'] ?? null)
+                            ->where('owner_id', auth()->id())
+                            ->first();
+
+                        if (! $request || $request->status !== ContactInfoRequestStatus::Pending) {
+                            return;
+                        }
+
+                        $request->update([
+                            'status' => ContactInfoRequestStatus::Granted,
+                            'decided_at' => now(),
+                        ]);
+                        app(NotificationService::class)->notifyContactGranted($request);
+                        $record->markAsRead();
+                    }),
+                Action::make('rejectContact')
+                    ->label('Відхилити')
+                    ->color('gray')
+                    ->visible(fn (Notification $record): bool => $record->type->value === 'contact_request' && filled($record->data['contact_info_request_id'] ?? null))
+                    ->action(function (Notification $record): void {
+                        $request = ContactInfoRequest::query()
+                            ->whereKey($record->data['contact_info_request_id'] ?? null)
+                            ->where('owner_id', auth()->id())
+                            ->first();
+
+                        if (! $request || $request->status !== ContactInfoRequestStatus::Pending) {
+                            return;
+                        }
+
+                        $request->update([
+                            'status' => ContactInfoRequestStatus::Rejected,
+                            'decided_at' => now(),
+                        ]);
+                        app(NotificationService::class)->notifyContactRejected($request);
+                        $record->markAsRead();
+                    }),
                 Action::make('viewProject')
                     ->label(__('profile_notifications.actions.view_project'))
                     ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
                     ->color('gray')
                     ->visible(fn (Notification $record) => filled($record->data['project_slug'] ?? null))
-                    ->url(fn (Notification $record) => rtrim(config('app.frontend_url'), '/').'/project/'.$record->data['project_slug'])
+                    ->url(fn (Notification $record) => rtrim(config('app.frontend_url'), '/').'/projects/'.$record->data['project_slug'])
                     ->openUrlInNewTab(),
                 Action::make('markAsRead')
                     ->label(__('profile_notifications.actions.mark_as_read'))
@@ -87,11 +84,6 @@ class NotificationsTable
                     ->visible(fn (Notification $record) => ! $record->is_read)
                     ->action(fn (Notification $record) => $record->markAsRead()),
                 DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ])
             ->headerActions([
                 Action::make('markAllAsRead')
