@@ -11,15 +11,15 @@ class ListProjects extends ListRecords
 {
     protected static string $resource = ProjectResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('kanban')
-                ->label('Канбан')
-                ->icon('heroicon-o-view-columns')
-                ->color('gray')
-                ->url(fn (): string => ProjectResource::getUrl('kanban')),
-            CreateAction::make(),
-        ];
-    }
+//    protected function getHeaderActions(): array
+//    {
+//        return [
+//            Action::make('kanban')
+//                ->label('Канбан')
+//                ->icon('heroicon-o-view-columns')
+//                ->color('gray')
+//                ->url(fn (): string => ProjectResource::getUrl('kanban')),
+//            CreateAction::make(),
+//        ];
+//    }
 }
