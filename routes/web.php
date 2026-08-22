@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Profile\FrontendSsoRedirectController;
 use App\Http\Controllers\Profile\GoogleAuthController;
 use App\Http\Controllers\Profile\SsoLoginController;
 use App\Http\Controllers\ProfileController;
@@ -24,6 +25,12 @@ Route::middleware('web')->prefix('profile/auth/google')->group(function () {
 // з кабінету SPA не вимагав повторного вводу логіна/пароля.
 Route::middleware('web')->get('/profile-sso/{token}', [SsoLoginController::class, 'consume'])
     ->name('profile.sso.consume');
+
+// Зворотний SSO-міст: користувач із сесії Filament переходить у вибраний
+// SPA-фронтенд, де одноразовий грант обмінюється на Sanctum-токен.
+Route::middleware('web')->get('/frontend-sso/{application}', FrontendSsoRedirectController::class)
+    ->whereIn('application', ['save-art', 'art-ua-info'])
+    ->name('profile.frontend-sso');
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),

@@ -25,7 +25,7 @@ class ImpersonateApiTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonPath('user.id', $this->user->id)
-            ->assertJsonPath('redirect_path', '/profile/private')
+            ->assertJsonPath('redirect_path', '/')
             ->assertJsonStructure(['token']);
 
         $this->assertNotNull($grant->fresh()->used_at);
@@ -41,7 +41,7 @@ class ImpersonateApiTest extends ApiTestCase
             ->postJson("/api/v1/auth/impersonate/{$grant->token}/exchange");
 
         $response->assertOk()
-            ->assertJsonPath('redirect_path', "/profile/private/{$project->slug}");
+            ->assertJsonPath('redirect_path', "/project/{$project->slug}");
     }
 
     public function test_project_preview_grant_redirects_to_the_public_project_page(): void

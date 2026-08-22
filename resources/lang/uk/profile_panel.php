@@ -5,6 +5,8 @@ return [
     'navigation' => [
         'work' => 'Робота',
         'works' => 'Роботи',
+        'save_art' => 'Відкрити save-art.in.ua',
+        'art_ua_info' => 'Відкрити art-ua.info',
     ],
     'works' => [
         'owner_step' => 'Власник',

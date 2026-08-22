@@ -17,7 +17,7 @@ class ImpersonateController extends Controller
      *     operationId="exchangeImpersonationToken",
      *     tags={"Auth"},
      *     summary="Обмін гранту на вхід під користувачем на Bearer-токен",
-     *     description="Використовується сторінкою /impersonate/{token} на фронтенді одразу після переходу з адмінки. Грант одноразовий і живе 2 хвилини.",
+     *     description="Використовується сторінкою /impersonate/{token} на фронтенді одразу після переходу з Filament. Грант одноразовий і живе 2 хвилини.",
      *     security={{"apiKey":{}}},
      *
      *     @OA\Parameter(name="token", in="path", required=true, @OA\Schema(type="string")),
@@ -59,9 +59,14 @@ class ImpersonateController extends Controller
 
         $user = $grant->user;
         $isProjectPreview = $grant->target_app === 'save_art_project_preview';
+        $isSelfLogin = $grant->user_id === $grant->created_by;
 
         $apiToken = $user->createToken(
-            $isProjectPreview ? 'project-preview' : 'impersonation-by-'.$grant->created_by,
+            match (true) {
+                $isProjectPreview => 'project-preview',
+                $isSelfLogin => 'frontend-sso-'.$grant->target_app,
+                default => 'impersonation-by-'.$grant->created_by,
+            },
             $isProjectPreview ? ['project:preview'] : ['*'],
             $isProjectPreview ? now()->addMinutes(15) : null,
         )->plainTextToken;

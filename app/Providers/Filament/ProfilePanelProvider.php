@@ -75,6 +75,16 @@ class ProfilePanelProvider extends PanelProvider
                     ->url(fn (): ?string => filament()->getProfileUrl())
                     ->isActiveWhen(fn (): bool => request()->routeIs('filament.profile.auth.profile'))
                     ->sort(-1),
+                NavigationItem::make(fn (): string => __('profile_panel.navigation.save_art'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (): string => route('profile.frontend-sso', ['application' => 'save-art']))
+                    ->openUrlInNewTab()
+                    ->sort(90),
+                NavigationItem::make(fn (): string => __('profile_panel.navigation.art_ua_info'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (): string => route('profile.frontend-sso', ['application' => 'art-ua-info']))
+                    ->openUrlInNewTab()
+                    ->sort(91),
             ])
             ->discoverResources(in: app_path('Filament/Profile/Resources'), for: 'App\Filament\Profile\Resources')
             ->discoverPages(in: app_path('Filament/Profile/Pages'), for: 'App\Filament\Profile\Pages')

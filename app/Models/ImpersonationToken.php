@@ -9,10 +9,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
- * Одноразовий короткоживучий грант, який видає адмінка (Filament) для входу
- * на фронтенд під обраним користувачем ("Увійти як"). Сам токен ніколи не
- * містить реального Sanctum-токена — фронтенд обмінює його на справжній
- * Bearer-токен через POST /v1/auth/impersonate/{token}/exchange.
+ * Одноразовий короткоживучий грант для входу з Filament на фронтенд. Його
+ * видає або адміністратор для входу під обраним користувачем ("Увійти як"),
+ * або сам користувач зі свого кабінету. Токен ніколи не містить реального
+ * Sanctum-токена — фронтенд обмінює його на Bearer-токен через
+ * POST /v1/auth/impersonate/{token}/exchange.
  *
  * @property int $id
  * @property string $token
@@ -107,8 +108,12 @@ class ImpersonationToken extends Model
                 : "/profile/{$this->user->slug}";
         }
 
+        // Особистий кабінет save-art (React SPA) переїхав у Filament-панель
+        // /profile/private там більше не існує (matчить /profile/:slug і
+        // 404-ить). Із проєктом ведемо на його публічну сторінку — вона
+        // і раніше була єдиним робочим місцем перегляду проєкту у фронтенді.
         return $this->project_slug
-            ? "/profile/private/{$this->project_slug}"
-            : '/profile/private';
+            ? "/project/{$this->project_slug}"
+            : '/';
     }
 }

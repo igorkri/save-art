@@ -5,6 +5,8 @@ return [
     'navigation' => [
         'work' => 'Work',
         'works' => 'Works',
+        'save_art' => 'Open save-art.in.ua',
+        'art_ua_info' => 'Open art-ua.info',
     ],
     'works' => [
         'owner_step' => 'Owner',
