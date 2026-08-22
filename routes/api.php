@@ -300,6 +300,7 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
         Route::post('/{project}/start-review', [ModerationController::class, 'startReview']);
         Route::post('/{project}/approve', [ModerationController::class, 'approve']);
         Route::post('/{project}/reject', [ModerationController::class, 'reject']);
+        Route::post('/{project}/return-for-revision', [ModerationController::class, 'returnForRevision']);
         Route::post('/{project}/message', [ModerationController::class, 'message']);
     });
 

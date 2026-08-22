@@ -113,6 +113,50 @@ class ModerationControllerTest extends ApiTestCase
         $this->assertSame('Недостатньо інформації про проєкт', $project->rejection_reason);
     }
 
+    public function test_return_for_revision_requires_comment(): void
+    {
+        $moderator = User::factory()->admin()->create();
+        $project = $this->pendingProject();
+
+        $this->authPost($moderator, "/api/v1/moderation/projects/{$project->slug}/start-review")->assertOk();
+
+        $response = $this->authPost($moderator, "/api/v1/moderation/projects/{$project->slug}/return-for-revision");
+
+        $response->assertStatus(422)->assertJsonValidationErrors('comment');
+    }
+
+    public function test_moderator_can_return_project_for_revision(): void
+    {
+        $moderator = User::factory()->admin()->create();
+        $project = $this->pendingProject();
+
+        $this->authPost($moderator, "/api/v1/moderation/projects/{$project->slug}/start-review")->assertOk();
+
+        $response = $this->authPost($moderator, "/api/v1/moderation/projects/{$project->slug}/return-for-revision", [
+            'comment' => 'Додайте більше деталей про проєкт.',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('status', ProjectStatus::Draft->value);
+
+        $project->refresh();
+        $this->assertSame(ProjectStatus::Draft, $project->status);
+        $this->assertSame(ModerationStatus::Pending, $project->status_moderation);
+        $this->assertSame('Додайте більше деталей про проєкт.', $project->moderation_comment);
+    }
+
+    public function test_regular_user_cannot_return_project_for_revision(): void
+    {
+        $user = User::factory()->create();
+        $project = $this->pendingProject();
+
+        $response = $this->authPost($user, "/api/v1/moderation/projects/{$project->slug}/return-for-revision", [
+            'comment' => 'Test',
+        ]);
+
+        $response->assertForbidden();
+    }
+
     public function test_moderator_can_view_pending_project_on_public_endpoint(): void
     {
         $moderator = User::factory()->admin()->create();

@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Collection;
 class ModerationService
 {
     public function __construct(
-        private ProjectWorkflowService $workflowService
+        private ProjectWorkflowService $workflowService,
+        private NotificationService $notificationService
     ) {}
 
     /**
@@ -76,13 +77,22 @@ class ModerationService
         // Используем workflow service для правильного перехода статуса
         $success = $this->workflowService->returnToDraft($project);
 
-        if ($success && $comment) {
+        if (! $success) {
+            return false;
+        }
+
+        if ($comment) {
             $project->update([
                 'moderation_comment' => $comment,
             ]);
         }
 
-        return $success;
+        // На відміну від reject() (жорсткий 'rejected'), тут проєкт очікує на
+        // виправлення й повторну модерацію — окреме сповіщення з відповідним
+        // тоном ("виправте зауваження та надішліть на повторну модерацію").
+        $this->notificationService->notifyProjectModerationFailed($project, $comment);
+
+        return true;
     }
 
     /**

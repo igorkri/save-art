@@ -78,6 +78,28 @@ class ModerationController extends Controller
     }
 
     /**
+     * Повернути проєкт на доопрацювання: не остаточна відмова (як reject), а
+     * повернення в чернетку — автор виправляє зауваження й надсилає повторно.
+     */
+    public function returnForRevision(Request $request, Project $project): JsonResponse
+    {
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'max:1000'],
+        ]);
+
+        if (! $this->moderationService->returnForRevision($project, $request->user(), $validated['comment'])) {
+            return response()->json([
+                'message' => 'Проєкт не можна повернути на доопрацювання з поточного статусу.',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Проєкт повернуто на доопрацювання.',
+            'status' => $project->refresh()->status->value,
+        ]);
+    }
+
+    /**
      * Написати автору проєкту (той самий канал, що й "Написати автору" у Filament) —
      * доступно незалежно від статусу модерації, щоб можна було уточнити деталі
      * ще до того, як проєкт узятий у розгляд.
