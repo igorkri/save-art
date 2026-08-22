@@ -1818,7 +1818,7 @@
                     "Auth"
                 ],
                 "summary": "Обмін гранту на вхід під користувачем на Bearer-токен",
-                "description": "Використовується сторінкою /impersonate/{token} на фронтенді одразу після переходу з адмінки. Грант одноразовий і живе 2 хвилини.",
+                "description": "Використовується сторінкою /impersonate/{token} на фронтенді одразу після переходу з Filament. Грант одноразовий і живе 2 хвилини.",
                 "operationId": "exchangeImpersonationToken",
                 "parameters": [
                     {
@@ -1842,29 +1842,7 @@
                                             "example": "Авторизація успішна"
                                         },
                                         "user": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Іван Петренко"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "example": "user@example.com"
-                                                },
-                                                "slug": {
-                                                    "type": "string",
-                                                    "example": "ivan-petrenko"
-                                                },
-                                                "role": {
-                                                    "type": "string",
-                                                    "example": "user"
-                                                }
-                                            },
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/User"
                                         },
                                         "token": {
                                             "type": "string",
@@ -10889,7 +10867,8 @@
                         "example": 1
                     },
                     "title": {
-                        "$ref": "#/components/schemas/LocalizedString"
+                        "type": "string",
+                        "example": "Мій каталог"
                     },
                     "image_url": {
                         "type": "string"

@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreTeamRequest;
 use App\Http\Requests\Api\V1\UpdateTeamRequest;
-use App\Http\Resources\Api\V1\TeamMemberResource;
 use App\Http\Resources\Api\V1\TeamResource;
 use App\Models\Team;
-use App\Models\User;
 use App\Services\ImageProcessingService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -54,46 +52,6 @@ class MyTeamController extends Controller
         $teams = $request->user()->teams()->with('members')->get();
 
         return TeamResource::collection($teams);
-    }
-
-    /**
-     * Пошук користувачів для додавання в команду (за ПІБ або email).
-     *
-     * Приватний ендпоінт (на відміну від публічного /artists) — тому дозволяє
-     * шукати за email і не вимагає наявності опублікованих проєктів.
-     *
-     * @OA\Get(
-     *     path="/v1/art-ua-info/my/teams/search-members",
-     *     operationId="artUaInfoSearchTeamMembers",
-     *     tags={"My Teams"},
-     *     summary="Пошук користувачів для додавання в команду",
-     *     security={{"sanctum":{}, "apiKey":{}}},
-     *
-     *     @OA\Parameter(name="search", in="query", required=true, description="ПІБ або email", @OA\Schema(type="string"), example="Іван"),
-     *
-     *     @OA\Response(response=200, description="Список користувачів", @OA\JsonContent(@OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/TeamMember")))),
-     *     @OA\Response(response=401, description="Не авторизовано")
-     * )
-     */
-    public function searchMembers(Request $request): AnonymousResourceCollection
-    {
-        $search = trim((string) $request->query('search'));
-
-        if ($search === '') {
-            return TeamMemberResource::collection([]);
-        }
-
-        $users = User::query()
-            ->where('is_blocked', false)
-            ->where('id', '!=', $request->user()->id)
-            ->where(function ($query) use ($search) {
-                $query->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->limit(20)
-            ->get();
-
-        return TeamMemberResource::collection($users);
     }
 
     /**

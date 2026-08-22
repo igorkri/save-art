@@ -56,25 +56,6 @@ class RouteNamespaceIsolationTest extends ApiTestCase
         $response->assertOk()->assertJsonCount(1, 'data');
     }
 
-    public function test_art_ua_info_my_projects_list_excludes_save_art_projects(): void
-    {
-        Project::factory()->create([
-            'user_id' => $this->user->id,
-            'source' => ProjectSource::ArtUaInfo,
-            'status' => ProjectStatus::Completed,
-        ]);
-        Project::factory()->create([
-            'user_id' => $this->user->id,
-            'source' => ProjectSource::SaveArt,
-            'status' => ProjectStatus::Completed,
-        ]);
-
-        $response = $this->withHeaders($this->authHeaders())
-            ->getJson('/api/v1/art-ua-info/my/projects');
-
-        $response->assertOk()->assertJsonCount(1, 'data');
-    }
-
     public function test_save_art_login_route_still_works(): void
     {
         $response = $this->withHeaders($this->apiHeaders())

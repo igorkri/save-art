@@ -6,10 +6,8 @@ use App\Http\Controllers\Api\V1\ArtUaInfo\CatalogController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\FaqController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\HomePageController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\LikeController;
-use App\Http\Controllers\Api\V1\ArtUaInfo\MyProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\OrganizationController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\ProfileApiController;
-use App\Http\Controllers\Api\V1\ArtUaInfo\ProjectController as ArtUaInfoWizardProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\PublicProjectController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\RegisterController;
 use App\Http\Controllers\Api\V1\ArtUaInfo\SocialAuthController;
@@ -55,7 +53,6 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
     Route::prefix('projects')->group(function () {
         Route::get('/', [PublicProjectController::class, 'index']);
         Route::get('/{slug}', [PublicProjectController::class, 'show']);
-        Route::get('/{slug}/donors', [PublicProjectController::class, 'donors']);
     });
 
     // Аліас "works" — фронтенд art-ua-info рендерить сторінку проєктів на
@@ -63,12 +60,9 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
     Route::prefix('works')->group(function () {
         Route::get('/', [PublicProjectController::class, 'index']);
         Route::get('/{slug}', [PublicProjectController::class, 'show']);
-        Route::get('/{slug}/donors', [PublicProjectController::class, 'donors']);
     });
 
     Route::get('/categories', [CatalogController::class, 'categories']);
-    Route::get('/regions', [CatalogController::class, 'regions']);
-    Route::get('/parameters', [CatalogController::class, 'parameters']);
 
     Route::prefix('catalogs')->group(function () {
         Route::get('/', [ArtCatalogController::class, 'index']);
@@ -115,24 +109,6 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
 Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(function () {
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileApiController::class, 'getProfile']);
-        Route::put('/personal', [ProfileApiController::class, 'updatePersonal']);
-        Route::put('/social', [ProfileApiController::class, 'updateSocial']);
-    });
-
-    Route::prefix('my/projects')->group(function () {
-        Route::get('/', [MyProjectController::class, 'index']);
-        Route::get('/completed', [MyProjectController::class, 'completed']);
-        Route::get('/{project}', [MyProjectController::class, 'show']);
-
-        Route::middleware('not.blocked')->group(function () {
-            Route::delete('/{project}', [MyProjectController::class, 'destroy']);
-        });
-    });
-
-    // Створення та редагування проєкту з візарда art-ua-info (без бюджету/етапів/бонусів)
-    Route::prefix('projects')->middleware('not.blocked')->group(function () {
-        Route::post('/', [ArtUaInfoWizardProjectController::class, 'store']);
-        Route::put('/{project}', [ArtUaInfoWizardProjectController::class, 'update']);
     });
 
     Route::post('/projects/{project}/like', [LikeController::class, 'store']);
@@ -159,7 +135,6 @@ Route::prefix('v1/art-ua-info')->middleware(['api.key', 'auth:sanctum'])->group(
 
     Route::prefix('my/teams')->group(function () {
         Route::get('/', [MyTeamController::class, 'index']);
-        Route::get('/search-members', [MyTeamController::class, 'searchMembers']);
 
         Route::middleware('not.blocked')->group(function () {
             Route::post('/', [MyTeamController::class, 'store']);

@@ -12,10 +12,8 @@ use App\Models\Parameter;
 use App\Models\Project;
 use App\Support\ArtCategoryFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 /**
@@ -246,72 +244,6 @@ class PublicProjectController extends Controller
         }
 
         return new ProjectResource($project);
-    }
-
-    /**
-     * Отримати список меценатів art-ua-info проєкту
-     *
-     * @OA\Get(
-     *     path="/v1/art-ua-info/projects/{slug}/donors",
-     *     operationId="artUaInfoGetProjectDonors",
-     *     tags={"Projects"},
-     *     summary="Список меценатів проекту",
-     *     description="Повертає список користувачів, які зробили донати на проект.",
-     *
-     *     @OA\Parameter(name="slug", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=20, maximum=50)),
-     *     @OA\Parameter(name="language", in="query", @OA\Schema(type="string", enum={"uk", "en"})),
-     *
-     *     @OA\Response(response=200, description="Список меценатів"),
-     *     @OA\Response(response=404, description="Проект не знайдено")
-     * )
-     */
-    public function donors(string $slug, Request $request): JsonResponse
-    {
-        $project = Project::query()
-            ->whereIn('status', ProjectStatus::publicStatuses())
-            ->where('slug', $slug)
-            ->firstOrFail();
-
-        $perPage = min($request->input('per_page', 15), 50);
-
-        $donations = $project->donations()
-            ->with('user.profileSocial')
-            ->whereIn('status', ['pending', 'paid'])
-            ->where('is_public', true)
-            ->orderBy('amount', 'desc')
-            ->paginate($perPage);
-
-        $donors = $donations->getCollection()->map(function ($donation) {
-            $user = $donation->is_anonymous ? null : $donation->user;
-
-            return [
-                'id' => $donation->id,
-                'name' => $donation->getDisplayName(),
-                'amount' => (float) $donation->amount,
-                'currency' => $donation->currency->value,
-                'is_anonymous' => $donation->is_anonymous,
-                'user_slug' => $user?->slug,
-                'avatar_url' => $user?->avatar ? Storage::url($user->avatar) : null,
-                'social' => $user?->profileSocial ? [
-                    'facebook' => $user->profileSocial->facebook,
-                    'twitter' => $user->profileSocial->twitter,
-                    'linkedin' => $user->profileSocial->linkedin,
-                    'pinterest' => $user->profileSocial->pinterest,
-                ] : null,
-                'donated_at' => ($donation->paid_at ?? $donation->created_at)?->toISOString(),
-            ];
-        });
-
-        return response()->json([
-            'data' => $donors,
-            'meta' => [
-                'current_page' => $donations->currentPage(),
-                'last_page' => $donations->lastPage(),
-                'per_page' => $donations->perPage(),
-                'total' => $donations->total(),
-            ],
-        ]);
     }
 
     private function getFilterCategories(?string $language, Request $request): array
