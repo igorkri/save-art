@@ -116,6 +116,10 @@ class ProjectsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
+            // За замовчуванням Filament робить клік по рядку посиланням на сторінку
+            // редагування (edit-сторінка в ресурсі є). Тут усі дії доступні через
+            // ActionGroup праворуч, тож клік по рядку не повинен нікуди переходити.
+            ->recordUrl(null)
             ->filters([
                 SelectFilter::make('status')
                     ->label('Статус')
