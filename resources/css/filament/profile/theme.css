@@ -179,9 +179,13 @@
 }
 
 .profile-notification-card h3 {
+    min-width: 0;
+    flex: 1 1 auto;
     margin: 0;
     color: #fff;
     font-family: 'Unbounded', sans-serif;
+    white-space: normal;
+    overflow-wrap: break-word;
     font-size: 1.05rem;
     line-height: 1.35;
 }
@@ -3152,7 +3156,7 @@ section
 
 .fi-panel-profile .profile-project-stages-repeater > .fi-fo-field-label-col .fi-fo-field-label {
     color: #f5f5f5;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 400;
 }
 
@@ -4560,13 +4564,13 @@ section
     justify-content: center;
     background: #484848;
     color: #fecc39;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
 .profile-team-card-title {
     font-family: 'Unbounded', sans-serif;
-    font-size: 1.125rem;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.35;
     overflow-wrap: anywhere;
@@ -4575,7 +4579,7 @@ section
 .profile-team-card-description,
 .profile-team-card-specialization {
     margin-top: 1rem;
-    font-size: 0.75rem;
+    font-size: 1rem;
     line-height: 1.35;
     color: #f5f5f5;
     white-space: pre-line;
@@ -4620,7 +4624,7 @@ section
     overflow: hidden;
     color: #f5f5f5;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.625rem;
+    font-size: 0.875rem;
     font-weight: 600;
     line-height: 1.2;
     text-overflow: ellipsis;
