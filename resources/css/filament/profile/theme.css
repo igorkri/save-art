@@ -414,19 +414,35 @@
     }
 
     .profile-notification-card__donation-amount {
-        font-size: 1.3rem;
-    }
-
-    .profile-notification-card__collected {
         font-size: 1.5rem;
     }
 
+    .profile-notification-card__collected {
+        font-size: 1.7rem;
+    }
+
     .profile-notification-card__goal {
-        font-size: .75rem;
+        font-size: .95rem;
     }
 
     .profile-notification-card__message {
-        font-size: .68rem;
+        font-size: .9rem;
+    }
+
+    .profile-notification-card h3 {
+        font-size: 1rem;
+    }
+
+    .profile-notification-card__person {
+        font-size: .88rem;
+    }
+
+    .profile-notification-card__details {
+        font-size: .82rem;
+    }
+
+    .profile-notification-card__button {
+        font-size: .8rem;
     }
 }
 
