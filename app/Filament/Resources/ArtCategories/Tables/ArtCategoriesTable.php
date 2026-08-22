@@ -17,12 +17,12 @@ class ArtCategoriesTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Назва')
-                    ->formatStateUsing(fn (ArtCategory $record): string => $record->getLabel('uk'))
+                    ->getStateUsing(fn (ArtCategory $record): string => $record->getLabel('uk'))
                     ->searchable(),
 
-//                TextColumn::make('slug')
-//                    ->label('Slug')
-//                    ->searchable(),
+                //                TextColumn::make('slug')
+                //                    ->label('Slug')
+                //                    ->searchable(),
 
                 TextColumn::make('parent_id')
                     ->label('Батько')

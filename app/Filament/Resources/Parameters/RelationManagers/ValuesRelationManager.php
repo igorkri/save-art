@@ -58,7 +58,7 @@ class ValuesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('value')
                     ->label('Значення')
-                    ->formatStateUsing(fn (ParameterValue $record): string => $record->getLabel('uk'))
+                    ->getStateUsing(fn (ParameterValue $record): string => $record->getLabel('uk'))
                     ->searchable(),
 
                 TextColumn::make('sort_order')
@@ -66,6 +66,7 @@ class ValuesRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->defaultSort('sort_order', 'asc')
+            ->reorderable('sort_order')
             ->filters([
                 //
             ])

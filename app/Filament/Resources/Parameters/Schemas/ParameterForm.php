@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Parameters\Schemas;
 
 use App\Enums\ParameterType;
-use App\Models\ArtCategory;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -29,9 +29,9 @@ class ParameterForm
                             ])
                             ->columnSpanFull(),
 
-                        Select::make('art_category_id')
+                        SelectTree::make('art_category_id')
                             ->label('Категорія мистецтва')
-                            ->options(self::buildCategoryOptions())
+                            ->relationship('artCategory', 'title', 'parent_id')
                             ->searchable()
                             ->required(),
 
@@ -49,29 +49,5 @@ class ParameterForm
                             ->required(),
                     ]),
             ]);
-    }
-
-    /**
-     * Будує список категорій мистецтва з відступами для підкатегорій.
-     *
-     * @return array<int, string>
-     */
-    private static function buildCategoryOptions(): array
-    {
-        $options = [];
-
-        $roots = ArtCategory::whereNull('parent_id')->orderBy('sort_order')->get();
-
-        foreach ($roots as $root) {
-            $options[$root->id] = $root->getLabel('uk');
-
-            $children = ArtCategory::where('parent_id', $root->id)->orderBy('sort_order')->get();
-
-            foreach ($children as $child) {
-                $options[$child->id] = '— '.$child->getLabel('uk');
-            }
-        }
-
-        return $options;
     }
 }

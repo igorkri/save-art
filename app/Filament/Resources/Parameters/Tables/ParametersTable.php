@@ -4,28 +4,37 @@ namespace App\Filament\Resources\Parameters\Tables;
 
 use App\Models\ArtCategory;
 use App\Models\Parameter;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ParametersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->description(
+                fn ($livewire): string => filled($livewire->tableFilters['art_category_id']['value'] ?? null)
+                    ? 'Перетягніть рядки, щоб змінити порядок характеристик у цій категорії.'
+                    : 'Щоб змінити порядок характеристик (перетягуванням), спершу оберіть одну категорію у фільтрі.'
+            )
             ->columns([
-                TextColumn::make('name')
-                    ->label('Назва')
-                    ->formatStateUsing(fn (Parameter $record): string => $record->getLabel('uk'))
-                    ->searchable(),
 
                 TextColumn::make('artCategory.name')
                     ->label('Категорія')
-                    ->formatStateUsing(fn ($state, Parameter $record): string => $record->artCategory?->getLabel('uk') ?? '—')
+                    ->getStateUsing(fn (Parameter $record): string => $record->artCategory?->getLabel('uk') ?? '—')
                     ->sortable(),
+
+                TextColumn::make('name')
+                    ->label('Назва')
+                    ->getStateUsing(fn (Parameter $record): string => $record->getLabel('uk'))
+                    ->searchable(),
 
                 TextColumn::make('type')
                     ->label('Тип')
@@ -40,7 +49,8 @@ class ParametersTable
                 TextColumn::make('sort_order')
                     ->label('Порядок')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Створено')
@@ -49,12 +59,37 @@ class ParametersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('sort_order', 'asc')
+            // Ручне перетягування (drag&drop) змінює sort_order по всій таблиці,
+            // тому має сенс лише коли характеристики відфільтровані до однієї
+            // категорії — інакше порядок різних категорій перемішається.
+            ->reorderable(
+                'sort_order',
+                fn ($livewire): bool => filled($livewire->tableFilters['art_category_id']['value'] ?? null),
+            )
             ->filters([
-                SelectFilter::make('art_category_id')
+                Filter::make('art_category_id')
                     ->label('Категорія')
-                    ->options(fn () => ArtCategory::query()->orderBy('sort_order')->get()->mapWithKeys(
-                        fn (ArtCategory $category) => [$category->id => $category->getLabel('uk')]
-                    )->all()),
+                    ->schema([
+                        SelectTree::make('value')
+                            ->label('Категорія')
+                            ->query(ArtCategory::query(), 'title', 'parent_id')
+                            ->searchable()
+                            ->placeholder('Усі категорії'),
+                    ])
+                    ->query(
+                        fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                            ? $query->where('art_category_id', $data['value'])
+                            : $query
+                    )
+                    ->indicateUsing(function (array $data): array {
+                        if (blank($data['value'] ?? null)) {
+                            return [];
+                        }
+
+                        $label = ArtCategory::find($data['value'])?->getLabel('uk') ?? $data['value'];
+
+                        return [Indicator::make('Категорія: '.$label)];
+                    }),
             ])
             ->recordActions([
                 EditAction::make(),
