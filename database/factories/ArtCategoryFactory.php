@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\ArtCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ArtCategory>
+ * @extends Factory<ArtCategory>
  */
 class ArtCategoryFactory extends Factory
 {
@@ -19,7 +20,7 @@ class ArtCategoryFactory extends Factory
         return [
             'parent_id' => null,
             'slug' => $this->faker->unique()->slug(2),
-            'name' => $this->faker->words(2, true),
+            'name' => ['uk' => $this->faker->words(2, true), 'en' => $this->faker->words(2, true)],
             'sort_order' => $this->faker->numberBetween(0, 10),
         ];
     }

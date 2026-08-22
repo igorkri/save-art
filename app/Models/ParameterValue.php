@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $parameter_id
- * @property string $value
+ * @property array<string, string> $value
  * @property int $sort_order
- * @property-read \App\Models\Parameter $parameter
+ * @property-read Parameter $parameter
  */
 class ParameterValue extends Model
 {
@@ -23,14 +23,22 @@ class ParameterValue extends Model
         'sort_order',
     ];
 
-    public function getLabel(?string $language = 'uk'): string
+    protected function casts(): array
     {
-        return $this->value ?: '';
+        return [
+            'value' => 'array',
+        ];
     }
 
-    public function setValueAttribute(mixed $value): void
+    public function getLabel(?string $language = 'uk'): string
     {
-        $this->attributes['value'] = is_array($value) ? ($value['uk'] ?? '') : $value;
+        $value = $this->value;
+
+        if (! is_array($value)) {
+            return (string) $value;
+        }
+
+        return $value[$language] ?? $value['uk'] ?? '';
     }
 
     public function parameter(): BelongsTo

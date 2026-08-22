@@ -136,7 +136,7 @@ class ArtCatalogController extends Controller
                 $count = (clone $baseQuery)->where('art_category_id', $child->id)->count();
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $child->name,
+                    'name' => $child->getLabel($language ?? 'uk'),
                     'catalogs_count' => $count,
                 ];
             }
@@ -145,7 +145,7 @@ class ArtCatalogController extends Controller
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $root->name,
+                'name' => $root->getLabel($language ?? 'uk'),
                 'catalogs_count' => $rootCount,
                 'subcategories' => $subcategories,
             ];

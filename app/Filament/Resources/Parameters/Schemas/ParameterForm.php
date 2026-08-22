@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ParameterForm
 {
@@ -19,10 +20,13 @@ class ParameterForm
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        TextInput::make('name')
-                            ->label('Назва')
-                            ->required()
-                            ->maxLength(255)
+                        Translate::make()
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->required()
+                                    ->maxLength(255),
+                            ])
                             ->columnSpanFull(),
 
                         Select::make('art_category_id')

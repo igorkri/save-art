@@ -72,7 +72,8 @@ class ProjectParametersApiTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonPath('data.0.name', 'Жанр')
-            ->assertJsonPath('data.0.values.0.value', 'Роман');
+            ->assertJsonPath('data.0.values.0.value.uk', 'Роман')
+            ->assertJsonPath('data.0.values.0.value.en', 'Novel');
     }
 
     public function test_parameters_endpoint_returns_empty_list_for_unknown_category(): void
@@ -147,7 +148,7 @@ class ProjectParametersApiTest extends ApiTestCase
         $parameters = collect($response->json('data.parameters'))->keyBy('parameter_id');
 
         $this->assertSame('Жанр', $parameters[$listParameter->getKey()]['parameter']);
-        $this->assertSame('Роман', $parameters[$listParameter->getKey()]['value']);
+        $this->assertSame(['uk' => 'Роман', 'en' => 'Novel'], $parameters[$listParameter->getKey()]['value']);
         $this->assertSame('Полотно, олія', $parameters[$customParameter->getKey()]['value']);
     }
 

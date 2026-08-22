@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ValuesRelationManager extends RelationManager
 {
@@ -33,10 +34,14 @@ class ValuesRelationManager extends RelationManager
         return $schema
             ->columns(2)
             ->components([
-                TextInput::make('value')
-                    ->label('Значення')
-                    ->required()
-                    ->maxLength(255),
+                Translate::make()
+                    ->schema([
+                        TextInput::make('value')
+                            ->label('Значення')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->columnSpanFull(),
 
                 TextInput::make('sort_order')
                     ->label('Порядок')

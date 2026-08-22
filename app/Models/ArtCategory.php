@@ -22,7 +22,9 @@ class ArtCategory extends Model
 
     protected function casts(): array
     {
-        return [];
+        return [
+            'name' => 'array',
+        ];
     }
 
     /**
@@ -46,7 +48,7 @@ class ArtCategory extends Model
      */
     public function getTitleAttribute(): string
     {
-        return $this->name ?: '';
+        return $this->getLabel();
     }
 
     public function parent(): BelongsTo
@@ -71,12 +73,13 @@ class ArtCategory extends Model
 
     public function getLabel(?string $language = 'uk'): string
     {
-        return $this->name ?: '';
-    }
+        $name = $this->name;
 
-    public function setNameAttribute(mixed $value): void
-    {
-        $this->attributes['name'] = is_array($value) ? ($value['uk'] ?? '') : $value;
+        if (! is_array($name)) {
+            return (string) $name;
+        }
+
+        return $name[$language] ?? $name['uk'] ?? '';
     }
 
     /** Slug категорії для API (корінь — свій slug, нащадок — slug батька) */

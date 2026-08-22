@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ParameterType;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,11 +12,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int $art_category_id
- * @property string $name
+ * @property array<string, string> $name
  * @property ParameterType $type
  * @property int $sort_order
- * @property-read \App\Models\ArtCategory $artCategory
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParameterValue[] $values
+ * @property-read ArtCategory $artCategory
+ * @property-read Collection|ParameterValue[] $values
  */
 class Parameter extends Model
 {
@@ -32,12 +33,19 @@ class Parameter extends Model
     {
         return [
             'type' => ParameterType::class,
+            'name' => 'array',
         ];
     }
 
     public function getLabel(?string $language = 'uk'): string
     {
-        return $this->name ?: '';
+        $name = $this->name;
+
+        if (! is_array($name)) {
+            return (string) $name;
+        }
+
+        return $name[$language] ?? $name['uk'] ?? '';
     }
 
     public function artCategory(): BelongsTo

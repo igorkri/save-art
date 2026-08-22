@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\Region;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\Concerns\LocalizesFields;
 use App\Models\ArtCategory as ArtCategoryModel;
 use App\Models\Parameter;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,8 @@ use Illuminate\Http\JsonResponse;
  */
 class CatalogController extends Controller
 {
+    use LocalizesFields;
+
     /**
      * Отримати список категорій мистецтва
      *
@@ -279,11 +282,11 @@ class CatalogController extends Controller
         return response()->json([
             'data' => $parameters->map(fn (Parameter $parameter) => [
                 'id' => $parameter->id,
-                'name' => $parameter->name,
+                'name' => $this->localizeField($parameter->name, $language),
                 'type' => $parameter->type->value,
                 'values' => $parameter->values->map(fn ($value) => [
                     'id' => $value->id,
-                    'value' => $value->value,
+                    'value' => $this->localizeField($value->value, $language),
                 ])->values()->all(),
             ])->values()->all(),
         ]);

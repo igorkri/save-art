@@ -123,7 +123,7 @@ abstract class AuthorController extends Controller
 
                 $subcategories[] = [
                     'slug' => $child->slug,
-                    'name' => $child->name,
+                    'name' => $child->getLabel($language ?? 'uk'),
                     'authors_count' => $count,
                 ];
             }
@@ -135,7 +135,7 @@ abstract class AuthorController extends Controller
 
             $categories[] = [
                 'slug' => $root->slug,
-                'name' => $root->name,
+                'name' => $root->getLabel($language ?? 'uk'),
                 'authors_count' => $rootCount,
                 'subcategories' => $subcategories,
             ];

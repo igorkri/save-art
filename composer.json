@@ -23,7 +23,8 @@
         "malzariey/filament-daterangepicker-filter": "^5.0",
         "mcamara/laravel-localization": "^2.4",
         "mobiledetect/mobiledetectlib": "^4.8",
-        "openplain/filament-tree-view": "^0.5.0"
+        "openplain/filament-tree-view": "^0.5.0",
+        "solution-forest/filament-translate-field": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",

@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Parameter;
+use App\Models\ParameterValue;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ParameterValue>
+ * @extends Factory<ParameterValue>
  */
 class ParameterValueFactory extends Factory
 {
@@ -19,7 +20,7 @@ class ParameterValueFactory extends Factory
     {
         return [
             'parameter_id' => Parameter::factory(),
-            'value' => $this->faker->word(),
+            'value' => ['uk' => $this->faker->word(), 'en' => $this->faker->word()],
             'sort_order' => $this->faker->numberBetween(0, 10),
         ];
     }

@@ -357,26 +357,39 @@ class ParameterSeeder extends Seeder
         }
 
         foreach ($parameters as $index => $definition) {
-            $parameter = Parameter::query()->updateOrCreate(
-                [
-                    'art_category_id' => $category->id,
-                    'name' => $definition['name']['uk'],
-                ],
-                [
-                    'name' => $definition['name']['uk'],
-                    'type' => $definition['type'],
-                    'sort_order' => $index,
-                ]
-            );
+            $parameter = Parameter::query()
+                ->where('art_category_id', $category->id)
+                ->where('name->uk', $definition['name']['uk'])
+                ->first();
+
+            $parameterAttributes = [
+                'art_category_id' => $category->id,
+                'name' => $definition['name'],
+                'type' => $definition['type'],
+                'sort_order' => $index,
+            ];
+
+            if ($parameter) {
+                $parameter->update($parameterAttributes);
+            } else {
+                $parameter = Parameter::query()->create($parameterAttributes);
+            }
 
             foreach ($definition['values'] as $valueIndex => $value) {
-                $parameter->values()->updateOrCreate(
-                    ['value' => $value['uk']],
-                    [
-                        'value' => $value['uk'],
-                        'sort_order' => $valueIndex,
-                    ]
-                );
+                $parameterValue = $parameter->values()
+                    ->where('value->uk', $value['uk'])
+                    ->first();
+
+                $valueAttributes = [
+                    'value' => $value,
+                    'sort_order' => $valueIndex,
+                ];
+
+                if ($parameterValue) {
+                    $parameterValue->update($valueAttributes);
+                } else {
+                    $parameter->values()->create($valueAttributes);
+                }
             }
         }
     }

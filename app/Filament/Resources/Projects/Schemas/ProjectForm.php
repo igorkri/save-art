@@ -32,6 +32,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ProjectForm
 {
@@ -507,10 +508,13 @@ class ProjectForm
                     ->default(ParameterType::List->value)
                     ->required(),
 
-                TextInput::make('name')
-                    ->label('Назва')
-                    ->required()
-                    ->maxLength(255)
+                Translate::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Назва')
+                            ->required()
+                            ->maxLength(255),
+                    ])
                     ->columnSpanFull(),
 
                 TextInput::make('sort_order')

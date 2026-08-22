@@ -4,10 +4,11 @@ namespace Database\Factories;
 
 use App\Enums\ParameterType;
 use App\Models\ArtCategory;
+use App\Models\Parameter;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Parameter>
+ * @extends Factory<Parameter>
  */
 class ParameterFactory extends Factory
 {
@@ -20,7 +21,7 @@ class ParameterFactory extends Factory
     {
         return [
             'art_category_id' => ArtCategory::factory(),
-            'name' => $this->faker->words(2, true),
+            'name' => ['uk' => $this->faker->words(2, true), 'en' => $this->faker->words(2, true)],
             'type' => ParameterType::List,
             'sort_order' => $this->faker->numberBetween(0, 10),
         ];

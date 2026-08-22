@@ -18,6 +18,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use SolutionForest\FilamentTranslateField\Facades\FilamentTranslateField;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->configureEmailVerification();
+
+        FilamentTranslateField::defaultLocales(['uk', 'en']);
     }
 
     /**

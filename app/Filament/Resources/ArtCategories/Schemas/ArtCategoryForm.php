@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ArtCategoryForm
 {
@@ -32,10 +33,14 @@ class ArtCategoryForm
                             ->unique(ArtCategory::class, 'slug', ignoreRecord: true)
                             ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
-                        TextInput::make('name')
-                            ->label('Назва')
-                            ->required()
-                            ->maxLength(255),
+                        Translate::make()
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->required()
+                                    ->maxLength(255),
+                            ])
+                            ->columnSpanFull(),
 
                         TextInput::make('sort_order')
                             ->label('Порядок')

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7bc8ac010453db01d914c8e4adf02285",
+    "content-hash": "40c0014dd093ff72b8b3830512cba26a",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6548,6 +6548,75 @@
                 }
             ],
             "time": "2022-12-17T21:53:22+00:00"
+        },
+        {
+            "name": "solution-forest/filament-translate-field",
+            "version": "3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/solutionforest/filament-translate-field.git",
+                "reference": "97af68f35f6ae0b0a1ec780e5bd50ceb76991447"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/solutionforest/filament-translate-field/zipball/97af68f35f6ae0b0a1ec780e5bd50ceb76991447",
+                "reference": "97af68f35f6ae0b0a1ec780e5bd50ceb76991447",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.6",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.14",
+                "pestphp/pest": "^3.0|^4.0",
+                "pestphp/pest-plugin-arch": "^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0|^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "FilamentTranslateField": "SolutionForest\\FilamentTranslateField\\Facades\\FilamentTranslateField"
+                    },
+                    "providers": [
+                        "SolutionForest\\FilamentTranslateField\\FilamentTranslateFieldServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SolutionForest\\FilamentTranslateField\\": "src/",
+                    "SolutionForest\\FilamentTranslateField\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carly",
+                    "email": "info@solutionforest.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament Translate Field",
+            "homepage": "https://github.com/solutionforest/filament-translate-field",
+            "keywords": [
+                "filament",
+                "filament-translate-field",
+                "laravel",
+                "laravel-translatable",
+                "solution-forest"
+            ],
+            "support": {
+                "issues": "https://github.com/solutionforest/filament-translate-field/issues",
+                "source": "https://github.com/solutionforest/filament-translate-field"
+            },
+            "time": "2026-04-30T05:06:34+00:00"
         },
         {
             "name": "spatie/invade",
