@@ -2377,7 +2377,10 @@ section
     display: grid;
     grid-auto-columns: max-content;
     grid-auto-flow: column;
-    justify-content: center;
+    /* safe center: центрує кроки, коли вони вміщаються, але без "center" +
+       "overflow-x: auto" не обрізає перший/останній крок, коли не вміщаються —
+       звичайний "center" дає scrollLeft=0 усередині оверфлоу, а не на початку. */
+    justify-content: safe center;
     overflow-x: auto;
     border: 0;
     background: #343434;
