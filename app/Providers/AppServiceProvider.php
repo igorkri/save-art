@@ -64,6 +64,13 @@ class AppServiceProvider extends ServiceProvider
         $this->configureEmailVerification();
 
         FilamentTranslateField::defaultLocales(['uk', 'en']);
+
+        // За замовчуванням підпис вкладки бере ICU locale_get_display_name(),
+        // яка повертає повну назву мовою відображення без капіталізації
+        // ("українська", "англійська") — замінюємо на короткий код локалі.
+        FilamentTranslateField::getLocaleLabelUsing(
+            fn (string $locale): string => strtoupper($locale),
+        );
     }
 
     /**
