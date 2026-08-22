@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Filament;
 
-use App\Filament\Profile\Resources\Messages\Pages\CreateMessage;
 use App\Filament\Profile\Resources\Messages\Pages\ListMessages;
 use App\Models\Message;
 use App\Models\Notification;
+use App\Models\Project;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +30,7 @@ class MessageResourceTest extends TestCase
         Filament::setCurrentPanel(Filament::getPanel('profile'));
     }
 
-    public function test_artist_sees_only_own_messages(): void
+    public function test_artist_sees_only_own_messages_in_general_thread(): void
     {
         $otherUser = User::factory()->artist()->create();
 
@@ -38,82 +38,87 @@ class MessageResourceTest extends TestCase
         Message::factory()->for($otherUser)->create();
 
         Livewire::test(ListMessages::class)
-            ->assertCanSeeTableRecords([$ownMessage])
-            ->assertCountTableRecords(1);
+            ->assertSee($ownMessage->content);
     }
 
-    public function test_artist_can_reply_to_admin_message(): void
+    public function test_artist_can_send_a_message_in_the_active_thread(): void
     {
-        $message = Message::factory()
-            ->for($this->user)
-            ->fromAdmin()
-            ->withSubject('Питання щодо проєкту')
-            ->create();
-
         Livewire::test(ListMessages::class)
-            ->callTableAction('reply', $message, data: [
-                'content' => 'Дякую, все зрозуміло',
-            ]);
+            ->set('messageInput', 'Маю питання щодо виплат')
+            ->call('sendMessage')
+            ->assertHasNoErrors();
 
         $this->assertDatabaseHas('messages', [
             'user_id' => $this->user->id,
+            'project_id' => null,
             'direction' => Message::DIRECTION_USER_TO_ADMIN,
-            'content' => 'Дякую, все зрозуміло',
-            'subject' => 'Re: Питання щодо проєкту',
+            'content' => 'Маю питання щодо виплат',
         ]);
+    }
+
+    public function test_sending_an_empty_message_is_rejected(): void
+    {
+        Livewire::test(ListMessages::class)
+            ->set('messageInput', '')
+            ->call('sendMessage')
+            ->assertHasErrors(['messageInput' => 'required']);
+
+        $this->assertDatabaseCount('messages', 0);
+    }
+
+    public function test_opening_a_thread_marks_admin_messages_as_read(): void
+    {
+        $message = Message::factory()->for($this->user)->fromAdmin()->unread()->create();
+
+        Livewire::test(ListMessages::class);
 
         $this->assertNotNull($message->fresh()->read_at);
     }
 
     public function test_reply_does_not_create_an_extra_notification_for_the_replying_user(): void
     {
-        $message = Message::factory()->for($this->user)->fromAdmin()->create();
+        Message::factory()->for($this->user)->fromAdmin()->create();
 
         // Сповіщення про вхідне повідомлення від адміна вже створене спостерігачем.
         $countBeforeReply = Notification::where('user_id', $this->user->id)->count();
 
         Livewire::test(ListMessages::class)
-            ->callTableAction('reply', $message, data: [
-                'content' => 'Відповідь',
-            ]);
+            ->set('messageInput', 'Відповідь')
+            ->call('sendMessage');
 
         // Власна відповідь користувача (user_to_admin) не повинна створювати йому ж ще одне сповіщення.
         $this->assertSame($countBeforeReply, Notification::where('user_id', $this->user->id)->count());
     }
 
-    public function test_artist_can_mark_admin_message_as_read_without_replying(): void
+    public function test_artist_can_switch_to_a_project_thread_and_send_a_message_there(): void
     {
-        $message = Message::factory()->for($this->user)->fromAdmin()->unread()->create();
+        $project = Project::factory()->for($this->user)->create();
 
         Livewire::test(ListMessages::class)
-            ->callTableAction('markAsRead', $message);
-
-        $this->assertNotNull($message->fresh()->read_at);
-    }
-
-    public function test_artist_can_compose_new_message_to_admin(): void
-    {
-        Livewire::test(CreateMessage::class)
-            ->fillForm([
-                'subject' => 'Питання',
-                'content' => 'Маю питання щодо виплат',
-            ])
-            ->call('create')
-            ->assertHasNoErrors();
+            ->call('selectThread', $project->id)
+            ->assertSet('activeProjectId', $project->id)
+            ->set('messageInput', 'Питання по проєкту')
+            ->call('sendMessage');
 
         $this->assertDatabaseHas('messages', [
             'user_id' => $this->user->id,
+            'project_id' => $project->id,
             'direction' => Message::DIRECTION_USER_TO_ADMIN,
-            'subject' => 'Питання',
-            'content' => 'Маю питання щодо виплат',
+            'content' => 'Питання по проєкту',
         ]);
     }
 
-    public function test_reply_action_is_not_visible_for_own_messages(): void
+    public function test_general_thread_messages_are_not_mixed_with_project_thread(): void
     {
-        $message = Message::factory()->for($this->user)->fromUser()->create();
+        $project = Project::factory()->for($this->user)->create();
 
-        Livewire::test(ListMessages::class)
-            ->assertTableActionHidden('reply', $message);
+        $generalMessage = Message::factory()->for($this->user)->create(['project_id' => null]);
+        $projectMessage = Message::factory()->for($this->user)->create(['project_id' => $project->id]);
+
+        $component = Livewire::test(ListMessages::class)
+            ->assertSee($generalMessage->content);
+
+        $component->call('selectThread', $project->id)
+            ->assertSee($projectMessage->content);
     }
 }

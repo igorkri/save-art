@@ -2,16 +2,11 @@
 
 namespace App\Filament\Profile\Resources\Messages;
 
-use App\Filament\Profile\Resources\Messages\Pages\CreateMessage;
 use App\Filament\Profile\Resources\Messages\Pages\ListMessages;
-use App\Filament\Profile\Resources\Messages\Schemas\MessageForm;
-use App\Filament\Profile\Resources\Messages\Tables\MessagesTable;
 use App\Models\Message;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class MessageResource extends Resource
@@ -49,16 +44,6 @@ class MessageResource extends Resource
         return 'danger';
     }
 
-    public static function form(Schema $schema): Schema
-    {
-        return MessageForm::configure($schema);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return MessagesTable::configure($table);
-    }
-
     public static function canEdit($record): bool
     {
         return false;
@@ -68,7 +53,6 @@ class MessageResource extends Resource
     {
         return [
             'index' => ListMessages::route('/'),
-            'create' => CreateMessage::route('/create'),
         ];
     }
 

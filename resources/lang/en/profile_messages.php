@@ -28,4 +28,14 @@ return [
         'reply_success' => 'Reply sent',
         'mark_as_read' => 'Mark as read',
     ],
+    'chat' => [
+        'general_thread' => 'General',
+        'new_thread_label' => 'New project',
+        'new_thread_placeholder' => 'Pick a project to contact us about',
+        'empty_thread_list' => 'No messages yet',
+        'empty_messages' => 'No messages here yet. Write the first one!',
+        'input_placeholder' => 'Type a message…',
+        'send' => 'Send',
+        'no_project' => 'No project',
+    ],
 ];
