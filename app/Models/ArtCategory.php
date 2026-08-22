@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Openplain\FilamentTreeView\Concerns\HasTreeStructure;
 
 class ArtCategory extends Model
@@ -25,6 +26,37 @@ class ArtCategory extends Model
         return [
             'name' => 'array',
         ];
+    }
+
+    /**
+     * Boot метод для автоматичного генерування slug з назви (uk).
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (ArtCategory $category) {
+            if (empty($category->slug)) {
+                $category->slug = self::generateSlugFromName((string) ($category->name['uk'] ?? ''));
+            }
+        });
+    }
+
+    /**
+     * Генерація унікального slug з назви.
+     */
+    public static function generateSlugFromName(string $name): string
+    {
+        $nameText = $name !== '' ? $name : Str::random(10);
+        $slug = Str::slug($nameText);
+
+        $count = 1;
+        $originalSlug = $slug;
+        while (self::where('slug', $slug)->exists()) {
+            $slug = $originalSlug.'-'.$count++;
+        }
+
+        return $slug;
     }
 
     /**
