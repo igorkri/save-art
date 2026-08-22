@@ -58,6 +58,14 @@ Route::prefix('v1/art-ua-info')->middleware('api.key')->group(function () {
         Route::get('/{slug}/donors', [PublicProjectController::class, 'donors']);
     });
 
+    // Аліас "works" — фронтенд art-ua-info рендерить сторінку проєктів на
+    // /works (URL змінили на прохання клієнта), бек лишається на "projects".
+    Route::prefix('works')->group(function () {
+        Route::get('/', [PublicProjectController::class, 'index']);
+        Route::get('/{slug}', [PublicProjectController::class, 'show']);
+        Route::get('/{slug}/donors', [PublicProjectController::class, 'donors']);
+    });
+
     Route::get('/categories', [CatalogController::class, 'categories']);
     Route::get('/regions', [CatalogController::class, 'regions']);
     Route::get('/parameters', [CatalogController::class, 'parameters']);
