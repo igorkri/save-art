@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Tables;
 
 use App\Enums\ModerationStatus;
+use App\Enums\ProjectSource;
 use App\Enums\ProjectStatus;
 use App\Models\ArtCategory;
 use App\Models\ImpersonationToken;
@@ -37,7 +38,6 @@ class ProjectsTable
                 ImageColumn::make('cover')
                     ->label('Обкладинка')
                     ->disk('public')
-                    ->circular()
                     ->size(50)
                     ->toggleable(isToggledHiddenByDefault: true),
 
@@ -143,8 +143,8 @@ class ProjectsTable
             ])
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
+                    //                    ViewAction::make(),
+                    //                    EditAction::make(),
 
                     Action::make('impersonate')
                         ->label('Увійти як автор')
@@ -158,6 +158,30 @@ class ProjectsTable
                         ->action(function (Project $record, $livewire) {
                             $grant = ImpersonationToken::issue($record->user, auth()->user(), $record->slug);
                             $url = rtrim(config('app.frontend_url'), '/').'/impersonate/'.$grant->token;
+
+                            $livewire->js('window.open('.json_encode($url).', "_blank")');
+                        }),
+
+                    // Відкриває реальну публічну сторінку проєкту (save-art або art-ua-info,
+                    // залежно від source) у новій вкладці, авторизованим під самим модератором
+                    // (SSO-грант, той самий механізм, що й "Увійти як автор", лише user===admin) —
+                    // без цього фронтенд не бачить токена і показує "Проєкт не знайдено" для
+                    // непублічного статусу. Там модератор бачить проєкт так само, як публіка, і
+                    // може схвалити/відхилити плаваючою панеллю модерації прямо на сайті.
+                    Action::make('moderateOnSite')
+                        ->label('Модерувати на сайті')
+                        ->icon('heroicon-o-globe-alt')
+                        ->color('warning')
+                        ->visible(fn (Project $record): bool => $record->status === ProjectStatus::Moderation)
+                        ->action(function (Project $record, $livewire) {
+                            $isArtUaInfo = $record->source === ProjectSource::ArtUaInfo;
+                            $targetApp = $isArtUaInfo ? 'art_ua_info_project' : 'save_art';
+                            $baseUrl = $isArtUaInfo
+                                ? config('services.art_ua_info_frontend_url')
+                                : config('app.frontend_url');
+
+                            $grant = ImpersonationToken::issue(auth()->user(), auth()->user(), $record->slug, $targetApp);
+                            $url = rtrim($baseUrl, '/').'/impersonate/'.$grant->token;
 
                             $livewire->js('window.open('.json_encode($url).', "_blank")');
                         }),

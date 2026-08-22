@@ -12,6 +12,7 @@ use App\Models\Parameter;
 use App\Models\Project;
 use App\Support\ArtCategoryFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -238,8 +239,9 @@ class PublicProjectController extends Controller
             ->firstOrFail();
 
         $isOwner = $request->user('sanctum')?->id === $project->user_id;
+        $canModerate = $request->user('sanctum')?->role->canModerate() ?? false;
 
-        if (! $isOwner && ! in_array($project->status, ProjectStatus::publicStatuses())) {
+        if (! $isOwner && ! $canModerate && ! in_array($project->status, ProjectStatus::publicStatuses())) {
             abort(404);
         }
 
@@ -264,7 +266,7 @@ class PublicProjectController extends Controller
      *     @OA\Response(response=404, description="Проект не знайдено")
      * )
      */
-    public function donors(string $slug, Request $request): \Illuminate\Http\JsonResponse
+    public function donors(string $slug, Request $request): JsonResponse
     {
         $project = Project::query()
             ->whereIn('status', ProjectStatus::publicStatuses())

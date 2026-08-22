@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\LikeController;
 use App\Http\Controllers\Api\V1\MessageController;
+use App\Http\Controllers\Api\V1\ModerationController;
 use App\Http\Controllers\Api\V1\MyArtCatalogController;
 use App\Http\Controllers\Api\V1\MyProjectController;
 use App\Http\Controllers\Api\V1\MyServiceController;
@@ -293,6 +294,14 @@ Route::prefix('v1')->middleware(['api.key', 'auth:sanctum'])->group(function () 
     Route::get('/my/donations', [DonationController::class, 'myDonations']);
     Route::patch('/my/donations/visibility', [DonationController::class, 'updateVisibility']);
     Route::get('/my/donations/{donation}', [DonationController::class, 'show']);
+
+    // Модерація проєктів прямо з публічної сторінки сайту (альтернатива Filament-таблиці)
+    Route::prefix('moderation/projects')->middleware('can.moderate')->group(function () {
+        Route::post('/{project}/start-review', [ModerationController::class, 'startReview']);
+        Route::post('/{project}/approve', [ModerationController::class, 'approve']);
+        Route::post('/{project}/reject', [ModerationController::class, 'reject']);
+        Route::post('/{project}/message', [ModerationController::class, 'message']);
+    });
 
     // Мої сповіщення (03.2.4)
     Route::prefix('my/notifications')->group(function () {

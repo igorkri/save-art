@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureCanModerate;
+use App\Http\Middleware\EnsureUserIsNotBlocked;
+use App\Http\Middleware\LogApiRequest;
+use App\Http\Middleware\VerifyApiKey;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -29,13 +33,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Реєстрація middleware alias для API ключа
         $middleware->alias([
-            'api.key' => \App\Http\Middleware\VerifyApiKey::class,
-            'not.blocked' => \App\Http\Middleware\EnsureUserIsNotBlocked::class,
+            'api.key' => VerifyApiKey::class,
+            'not.blocked' => EnsureUserIsNotBlocked::class,
+            'can.moderate' => EnsureCanModerate::class,
         ]);
 
         // Логування кожного API-запиту (свій файл на день для кожного ендпоінту в storage/logs/)
         $middleware->api(append: [
-            \App\Http\Middleware\LogApiRequest::class,
+            LogApiRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

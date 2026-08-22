@@ -94,6 +94,20 @@ class ImpersonateApiTest extends ApiTestCase
             ->assertJsonPath('redirect_path', "/profile/{$this->user->slug}/edit-project?edit={$project->slug}");
     }
 
+    public function test_exchange_redirects_to_art_ua_info_public_work_page_for_moderation_grant(): void
+    {
+        $moderator = User::factory()->admin()->create();
+        $project = Project::factory()->create();
+        $grant = ImpersonationToken::issue($moderator, $moderator, $project->slug, 'art_ua_info_project');
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson("/api/v1/auth/impersonate/{$grant->token}/exchange");
+
+        $response->assertOk()
+            ->assertJsonPath('redirect_path', "/works/{$project->slug}")
+            ->assertJsonPath('user.id', $moderator->id);
+    }
+
     public function test_grant_cannot_be_used_twice(): void
     {
         $admin = User::factory()->create();

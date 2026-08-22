@@ -102,6 +102,12 @@ class ImpersonationToken extends Model
                 : '/projects';
         }
 
+        // Модератор заходить на art-ua-info під собою (не автором), одразу на публічну
+        // сторінку роботи — щоб скористатись плаваючою панеллю модерації на сайті.
+        if ($this->target_app === 'art_ua_info_project') {
+            return $this->project_slug ? "/works/{$this->project_slug}" : '/';
+        }
+
         if ($this->target_app === 'art_ua_info') {
             // /profile/{slug} без проєкту — теж лише SSO-редирект-заглушка
             // назад у Filament (art-ua-info/.../profile/[slug]/page.tsx),
