@@ -69,7 +69,7 @@ class ImpersonateApiTest extends ApiTestCase
         ]);
     }
 
-    public function test_exchange_redirects_to_art_ua_info_profile_for_that_target_app(): void
+    public function test_exchange_redirects_to_art_ua_info_home_when_grant_has_no_project_slug(): void
     {
         $admin = User::factory()->create();
         $grant = ImpersonationToken::issue($this->user, $admin, null, 'art_ua_info');
@@ -78,7 +78,7 @@ class ImpersonateApiTest extends ApiTestCase
             ->postJson("/api/v1/auth/impersonate/{$grant->token}/exchange");
 
         $response->assertOk()
-            ->assertJsonPath('redirect_path', "/profile/{$this->user->slug}");
+            ->assertJsonPath('redirect_path', '/');
     }
 
     public function test_exchange_redirects_to_art_ua_info_project_edit_when_grant_has_a_project_slug(): void

@@ -103,9 +103,13 @@ class ImpersonationToken extends Model
         }
 
         if ($this->target_app === 'art_ua_info') {
+            // /profile/{slug} без проєкту — теж лише SSO-редирект-заглушка
+            // назад у Filament (art-ua-info/.../profile/[slug]/page.tsx),
+            // тож без конкретного проєкту веде в нескінченний бумеранг.
+            // /profile/{slug}/edit-project — справжня робоча сторінка.
             return $this->project_slug
                 ? "/profile/{$this->user->slug}/edit-project?edit={$this->project_slug}"
-                : "/profile/{$this->user->slug}";
+                : '/';
         }
 
         // Особистий кабінет save-art (React SPA) переїхав у Filament-панель
