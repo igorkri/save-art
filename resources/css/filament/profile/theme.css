@@ -262,7 +262,7 @@
     overflow: hidden;
     color: #fff;
     font-family: 'Unbounded', sans-serif;
-    font-size: .72rem;
+    font-size: 0.95rem;
     font-weight: 600;
     line-height: 1.35;
     -webkit-box-orient: vertical;
@@ -298,7 +298,7 @@
 .profile-notification-card__collected small {
     color: #aaa;
     font-family: inherit;
-    font-size: .38em;
+    font-size: 0.95rem;
     font-weight: 600;
     vertical-align: top;
     margin-left: .2em;
@@ -348,7 +348,7 @@
     gap: .4rem;
     margin: .75rem 0 0;
     color: #d5d5d5;
-    font-size: .85rem;
+    font-size: 0.95rem;
 }
 
 .profile-notification-card__details div,
@@ -372,7 +372,7 @@
     padding: .6rem .9rem;
     background: #fecc39;
     color: #343434;
-    font-size: .85rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
 }
@@ -426,7 +426,7 @@
     }
 
     .profile-notification-card__message {
-        font-size: .9rem;
+        font-size: 0.95rem;
     }
 
     .profile-notification-card h3 {
@@ -434,15 +434,15 @@
     }
 
     .profile-notification-card__person {
-        font-size: .88rem;
+        font-size: 0.95rem;
     }
 
     .profile-notification-card__details {
-        font-size: .82rem;
+        font-size: 0.95rem;
     }
 
     .profile-notification-card__button {
-        font-size: .8rem;
+        font-size: 0.95rem;
     }
 }
 
@@ -682,7 +682,7 @@ section
 
 .team-form .fi-fo-field-wrp-label,
 .team-form .fi-fo-field-wrp-label label {
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 400;
 }
 
@@ -775,7 +775,7 @@ section
 .profile-messages-chat__project-picker label {
     display: block;
     color: #9c9c9c;
-    font-size: .68rem;
+    font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: .09em;
     text-transform: uppercase;
@@ -810,7 +810,7 @@ section
     background: var(--chat-accent);
     color: #292929;
     font-family: 'Unbounded', sans-serif;
-    font-size: .68rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -866,7 +866,7 @@ section
     padding: .85rem 2.4rem .85rem .65rem;
     color: #f7f4ec;
     font: inherit;
-    font-size: .82rem;
+    font-size: 0.95rem;
     cursor: pointer;
 }
 
@@ -965,7 +965,7 @@ section
     overflow: hidden;
     color: #f7f4ec;
     font-family: 'Unbounded', sans-serif;
-    font-size: .72rem;
+    font-size: 0.95rem;
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -974,7 +974,7 @@ section
 .profile-messages-chat__thread-head time {
     flex: 0 0 auto;
     color: #858585;
-    font-size: .67rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__thread-preview {
@@ -984,7 +984,7 @@ section
     gap: .5rem;
     margin-top: .35rem;
     color: #aaa;
-    font-size: .75rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__thread-preview > span {
@@ -1003,7 +1003,7 @@ section
     border-radius: 999px;
     background: var(--chat-accent);
     color: #292929;
-    font-size: .65rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__empty-threads {
@@ -1012,7 +1012,7 @@ section
     gap: .65rem;
     padding: 2.5rem 1rem;
     color: #8e8e8e;
-    font-size: .8rem;
+    font-size: 0.95rem;
     text-align: center;
 }
 
@@ -1056,7 +1056,7 @@ section
 .profile-messages-chat__conversation-header h2 {
     margin-top: .2rem;
     overflow: hidden;
-    font-size: .9rem;
+    font-size: 0.95rem;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -1066,7 +1066,7 @@ section
     align-items: center;
     gap: .45rem;
     color: #aaa;
-    font-size: .72rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__status i {
@@ -1135,7 +1135,7 @@ section
     margin-bottom: .3rem;
     color: #a5a5a5;
     font-family: 'Unbounded', sans-serif;
-    font-size: .62rem;
+    font-size: 0.95rem;
     font-weight: 600;
 }
 
@@ -1150,7 +1150,7 @@ section
     background: #343434;
     padding: .75rem 1rem;
     color: #f5f5f5;
-    font-size: .88rem;
+    font-size: 0.95rem;
     line-height: 1.55;
     overflow-wrap: anywhere;
     white-space: pre-line;
@@ -1169,7 +1169,7 @@ section
 .profile-messages-chat__message-content time {
     margin-top: .35rem;
     color: #777;
-    font-size: .65rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__empty-messages {
@@ -1200,13 +1200,13 @@ section
 }
 
 .profile-messages-chat__empty-messages h3 {
-    font-size: .85rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__empty-messages p {
     max-width: 24rem;
     margin: .55rem 0 0;
-    font-size: .82rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__composer {
@@ -1244,7 +1244,7 @@ section
     padding: 0;
     color: #fff;
     font: inherit;
-    font-size: .88rem;
+    font-size: 0.95rem;
     line-height: 1.5;
 }
 
@@ -1256,7 +1256,7 @@ section
     display: block;
     margin-top: .3rem;
     color: #747474;
-    font-size: .62rem;
+    font-size: 0.95rem;
 }
 
 .profile-messages-chat__send {
@@ -1270,7 +1270,7 @@ section
     padding: .75rem 1.2rem;
     color: #292929;
     font-family: 'Unbounded', sans-serif;
-    font-size: .72rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     transition: background-color .15s ease, color .15s ease;
@@ -1290,7 +1290,7 @@ section
     grid-column: 1 / -1;
     margin: -.35rem 0 0;
     color: #fca5a5;
-    font-size: .7rem;
+    font-size: 0.95rem;
 }
 
 @media (max-width: 767px) {
@@ -1477,7 +1477,7 @@ section
 .team-form .fi-fo-field-wrp-error-message {
     margin-top: 0.35rem;
     color: #ef4444;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     line-height: 1.25rem;
 }
 
@@ -1565,7 +1565,7 @@ section
     background: #fecc39;
     padding: 0.35rem 0.65rem;
     color: #343434;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     box-shadow: none;
 }
 
@@ -1622,7 +1622,7 @@ section
 
 .service-form .fi-fo-field-wrp-label,
 .service-form .fi-fo-field-wrp-label label {
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 400;
 }
 
@@ -1914,9 +1914,15 @@ section
 /* Єдина тема Profile panel. Вона навмисно scoped через .fi-panel-profile,
    тому не змінює зовнішній сайт та окрему адміністративну панель. */
 .fi-panel-profile {
+    --text-xs: 0.95rem;
+    --text-sm: 0.95rem;
     color-scheme: dark;
     background: #414141;
     color: #f5f5f5;
+}
+
+.fi-panel-profile small {
+    font-size: 0.95rem;
 }
 
 .fi-panel-profile .fi-layout,
@@ -2225,7 +2231,7 @@ section
 .fi-panel-profile .fi-resource-catalogs .profile-catalog-form-section .fi-section-header-heading {
     color: #f7f4ec;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -2290,7 +2296,7 @@ section
 
 .fi-panel-profile .profile-catalog-art-category-field .treeselect-input__edit {
     color: #f5f5f5;
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     line-height: 1.25;
 }
 
@@ -2409,7 +2415,7 @@ section
 .fi-panel-profile .profile-project-form-wizard .fi-sc-wizard-header-step-label {
     color: #858585;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.6875rem;
+    font-size: 0.95rem;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -2750,7 +2756,7 @@ section
     background: #414141 !important;
     padding: 0 0 0.55rem;
     color: #f5f5f5;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 400;
     text-align: start;
 }
@@ -2900,12 +2906,12 @@ section
     .fi-panel-profile .profile-project-budget-repeater .profile-project-budget-item-amount input.fi-input {
         min-height: 60px;
         height: 60px;
-        font-size: 0.9375rem;
+        font-size: 0.95rem;
     }
 
     .fi-panel-profile .profile-project-budget-fee {
         margin-top: -0.75rem;
-        font-size: 0.8125rem;
+        font-size: 0.95rem;
         line-height: 1.5;
     }
 
@@ -2914,7 +2920,7 @@ section
     }
 
     .fi-panel-profile .profile-project-budget-intro {
-        font-size: 0.875rem;
+        font-size: 0.95rem;
     }
 
     .fi-panel-profile .profile-project-budget-intro p:first-child {
@@ -3087,7 +3093,7 @@ section
 .fi-panel-profile .profile-project-owner-radio .fi-fo-radio-label-text p {
     overflow: hidden;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -3248,7 +3254,7 @@ section
 .fi-panel-profile .profile-project-final-result-builder .fi-fo-builder-item-header-label {
     color: #f7f4ec;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.6875rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -3323,7 +3329,7 @@ section
     display: grid;
     gap: 0.75rem;
     color: #f5f5f5;
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     line-height: 1.55;
 }
 
@@ -3530,7 +3536,7 @@ section
     padding: 0;
     color: #343434;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.6875rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -3624,7 +3630,7 @@ section
     display: grid;
     gap: 2.25rem;
     color: #f5f5f5;
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     line-height: 1.55;
 }
 
@@ -3691,7 +3697,7 @@ section
 .fi-panel-profile .profile-project-bonus-range-heading {
     margin-bottom: -0.35rem;
     color: #f5f5f5;
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
 }
 
 .fi-panel-profile .profile-project-bonuses-repeater .fi-fo-field-label {
@@ -3749,7 +3755,7 @@ section
 @media (max-width: 767px) {
     .fi-panel-profile .profile-project-bonuses-intro {
         gap: 1.5rem;
-        font-size: 0.875rem;
+        font-size: 0.95rem;
     }
 
     .fi-panel-profile .profile-project-bonuses-repeater .fi-grid {
@@ -3790,7 +3796,7 @@ section
     display: grid;
     gap: 0.75rem;
     color: #f5f5f5;
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     line-height: 1.55;
 }
 
@@ -3814,7 +3820,7 @@ section
 
 .fi-panel-profile .profile-project-stages-repeater > .fi-fo-field-label-col .fi-fo-field-label {
     color: #f5f5f5;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 400;
 }
 
@@ -3840,7 +3846,7 @@ section
 
 .fi-panel-profile .profile-project-stages-repeater .fi-fo-repeater-item-header-label {
     color: #f5f5f5;
-    font-size: 0.8125rem;
+    font-size: 0.95rem;
     line-height: 1.35;
 }
 
@@ -3872,7 +3878,7 @@ section
 .fi-panel-profile .profile-project-stage-title .fi-fo-field-label,
 .fi-panel-profile .profile-project-stage-description .fi-fo-field-label {
     color: #f5f5f5;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 400;
     line-height: 1.25;
 }
@@ -3959,7 +3965,7 @@ section
 
 .fi-panel-profile .profile-project-stage-status .fi-fo-radio-label-text {
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -3972,7 +3978,7 @@ section
     justify-items: end;
     gap: 0.5rem;
     color: #d0d0d0;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     line-height: 1.4;
     text-align: end;
 }
@@ -4049,7 +4055,7 @@ section
     background: #202020;
     padding: 0.3rem 0.4rem;
     color: #fff;
-    font-size: 0.625rem;
+    font-size: 0.95rem;
     text-shadow: none;
     transform: none !important;
     opacity: 1 !important;
@@ -4068,7 +4074,7 @@ section
 .fi-panel-profile .profile-project-stage-documents .filepond--file-info-sub {
     margin-top: 0.1rem;
     color: #e8e8e8;
-    font-size: 0.5625rem;
+    font-size: 0.95rem;
 }
 
 .fi-panel-profile .profile-project-stage-documents .filepond--download-icon,
@@ -4162,7 +4168,7 @@ section
     color: #fecc39;
     content: attr(data-file-extension);
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     line-height: 1;
@@ -4199,7 +4205,7 @@ section
 @media (max-width: 767px) {
     .fi-panel-profile .profile-project-stages-intro {
         gap: 0.65rem;
-        font-size: 0.8125rem;
+        font-size: 0.95rem;
         line-height: 1.5;
     }
 
@@ -4315,7 +4321,7 @@ section
 }
 
 .fi-panel-profile .profile-project-art-category-field .treeselect-input__edit {
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     cursor: text;
 }
 
@@ -4395,7 +4401,7 @@ section
 }
 
 .fi-panel-profile .profile-project-art-category-field .treeselect-list__item-label {
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     color: inherit;
 }
 
@@ -4505,6 +4511,19 @@ section
 }
 
 /* Сітка проєктів у стилі макета кабінету save-art. */
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-services .fi-page-header-main-ctn,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-services .fi-page-main,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-services .fi-page-content,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-catalogs .fi-page-header-main-ctn,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-catalogs .fi-page-main,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-catalogs .fi-page-content,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-teams .fi-page-header-main-ctn,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-teams .fi-page-main,
+.fi-panel-profile .fi-resource-list-records-page.fi-resource-teams .fi-page-content {
+    width: min(100%, 1450px);
+    margin-inline: auto;
+}
+
 .fi-panel-profile .fi-resource-projects .fi-ta-ctn,
 .fi-panel-profile .fi-resource-works .fi-ta-ctn,
 .fi-panel-profile .fi-ta-ctn:has(.profile-project-card-record) {
@@ -4627,7 +4646,7 @@ section
     display: grid;
     place-items: center;
     color: #96929a;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
 }
 
 .profile-catalog-card-title {
@@ -4646,7 +4665,7 @@ section
     margin-top: 1rem;
     padding: 1rem 0.75rem 0.75rem;
     color: #aaa6ad;
-    font-size: 0.72rem;
+    font-size: 0.95rem;
 }
 
 .profile-catalog-card-meta > div {
@@ -4664,7 +4683,7 @@ section
 .profile-catalog-card-primary {
     margin: 0 0.75rem 0.75rem;
     color: #fecc39;
-    font-size: 0.72rem;
+    font-size: 0.95rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -4710,7 +4729,7 @@ section
     min-width: 0;
     overflow: hidden;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -4797,14 +4816,14 @@ section
 
 .profile-project-card-funding-values small {
     color: #c7c7c7;
-    font-size: 0.6875rem;
+    font-size: 0.95rem;
     font-weight: 400;
 }
 
 .profile-project-card-funding-values b {
     color: #fecc39;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
 }
 
 .profile-project-card-progress {
@@ -4832,7 +4851,7 @@ section
     gap: 0.4rem;
     margin-top: 0.55rem;
     color: #c7c7c7;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
 }
 
 .profile-project-card-donors ul {
@@ -4866,7 +4885,7 @@ section
     align-items: center;
     justify-content: center;
     color: #fecc39;
-    font-size: 0.55rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -4877,7 +4896,7 @@ section
     margin-top: auto;
     padding: 0.75rem;
     color: #c7c7c7;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     line-height: 1.35;
 }
 
@@ -4932,7 +4951,7 @@ section
 }
 
 .profile-project-card-state p {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
 }
 
 .profile-project-card.is-processing .profile-project-card-state .fi-icon {
@@ -4960,7 +4979,7 @@ section
 /* Послуги відображаються адаптивною сіткою карток. */
 .fi-panel-profile .fi-resource-services .fi-ta-ctn,
 .fi-panel-profile .fi-ta-ctn:has(.profile-service-card-record) {
-    width: min(100%, 1000px);
+    width: min(100%, 1450px);
     margin-inline: auto;
     border: 0;
     background: transparent;
@@ -5060,7 +5079,7 @@ section
     padding: 0.75rem 1rem;
     color: #343434;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 700;
     line-height: 1.25;
     text-overflow: ellipsis;
@@ -5092,7 +5111,7 @@ section
     background: #fecc39;
     color: #343434;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.625rem;
+    font-size: 0.95rem;
     font-weight: 700;
     text-align: right;
 }
@@ -5116,7 +5135,7 @@ section
 
 /* Список Teams відображається двоколонковою сіткою карток. */
 .fi-panel-profile .fi-resource-teams .fi-ta-ctn {
-    width: min(100%, 1000px);
+    width: min(100%, 1450px);
     margin-inline: auto;
     border: 0;
     background: transparent;
@@ -5126,7 +5145,7 @@ section
 /* :has() прив'язує ширину й колонки безпосередньо до Teams-карток, навіть
    коли resource-клас Filament знаходиться не на батьківському контейнері. */
 .fi-panel-profile .fi-ta-ctn:has(.profile-team-card-record) {
-    width: min(100%, 1000px);
+    width: min(100%, 1450px);
     margin-inline: auto;
 }
 
@@ -5222,7 +5241,7 @@ section
     justify-content: center;
     background: #484848;
     color: #fecc39;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -5282,7 +5301,7 @@ section
     overflow: hidden;
     color: #f5f5f5;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 600;
     line-height: 1.2;
     text-overflow: ellipsis;
@@ -5423,7 +5442,7 @@ section
 .fi-panel-profile .profile-project-sold-externally .fi-checkbox-label {
     color: #f7f4ec;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -5460,7 +5479,7 @@ section
 .fi-panel-profile .profile-catalog-primary-toggle .fi-checkbox-label {
     color: #f7f4ec;
     font-family: 'Unbounded', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
