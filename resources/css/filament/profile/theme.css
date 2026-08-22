@@ -400,17 +400,17 @@
     }
 
     .profile-notification-card.has-project {
-        grid-template-columns: 1rem 5.75rem minmax(0, 1fr);
+        grid-template-columns: 1rem 7.5rem minmax(0, 1fr);
     }
 
     .profile-notification-card__project-image {
-        width: 5.75rem;
-        height: 4.5rem;
+        width: 7.5rem;
+        height: 6rem;
     }
 
     .profile-notification-card__project-placeholder {
-        width: 3rem !important;
-        height: 3rem !important;
+        width: 3.75rem !important;
+        height: 3.75rem !important;
     }
 
     .profile-notification-card__donation-amount {
@@ -438,7 +438,7 @@
     .profile-notification-card.has-project .profile-notification-card__project-visual {
         grid-column: 2;
         grid-row: 2;
-        width: 7rem;
+        width: 12rem;
         margin-top: .75rem;
     }
 
@@ -448,8 +448,13 @@
     }
 
     .profile-notification-card__project-image {
-        width: 7rem;
-        height: 5rem;
+        width: 12rem;
+        height: 9rem;
+    }
+
+    .profile-notification-card__project-placeholder {
+        width: 5rem !important;
+        height: 5rem !important;
     }
 }
 
