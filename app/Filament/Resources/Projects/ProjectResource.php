@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Projects;
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
-//use App\Filament\Resources\Projects\Pages\ProjectsKanban;
+// use App\Filament\Resources\Projects\Pages\ProjectsKanban;
 use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Resources\Projects\Tables\ProjectsTable;
 use App\Models\Project;
@@ -26,11 +26,13 @@ class ProjectResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Проєкти';
 
-    protected static ?string $navigationLabel = 'Проєкти';
+    // Ресурс показує разом і save-art-проєкти, і art-ua-info-роботи (розрізняються
+    // колонкою source у таблиці), тож назва відображає обидва.
+    protected static ?string $navigationLabel = 'Проєкти / Роботи';
 
-    protected static ?string $pluralModelLabel = 'Проєкти';
+    protected static ?string $pluralModelLabel = 'Проєкти / Роботи';
 
-    protected static ?string $modelLabel = 'Проєкт';
+    protected static ?string $modelLabel = 'Проєкт / Робота';
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -57,16 +59,16 @@ class ProjectResource extends Resource
     {
         return [
             'index' => ListProjects::route('/'),
-//            'kanban' => ProjectsKanban::route('/kanban'),
+            //            'kanban' => ProjectsKanban::route('/kanban'),
             'create' => CreateProject::route('/create'),
             'edit' => EditProject::route('/{record}/edit'),
         ];
     }
 
-//    public static function getNavigationUrl(): string
-//    {
-//        return static::getUrl('kanban');
-//    }
+    //    public static function getNavigationUrl(): string
+    //    {
+    //        return static::getUrl('kanban');
+    //    }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {

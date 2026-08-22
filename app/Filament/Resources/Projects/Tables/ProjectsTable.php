@@ -56,6 +56,13 @@ class ProjectsTable
                     })
                     ->sortable(),
 
+                TextColumn::make('source')
+                    ->label('Джерело')
+                    ->badge()
+                    ->formatStateUsing(fn (ProjectSource $state): string => $state->getLabel())
+                    ->color(fn (ProjectSource $state): string => $state->getColor())
+                    ->sortable(),
+
                 TextColumn::make('status')
                     ->label('Статус')
                     ->badge()
@@ -121,6 +128,10 @@ class ProjectsTable
             // ActionGroup праворуч, тож клік по рядку не повинен нікуди переходити.
             ->recordUrl(null)
             ->filters([
+                SelectFilter::make('source')
+                    ->label('Джерело')
+                    ->options(ProjectSource::getOptions()),
+
                 SelectFilter::make('status')
                     ->label('Статус')
                     ->options(ProjectStatus::getOptions()),
