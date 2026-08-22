@@ -438,7 +438,7 @@
     .profile-notification-card.has-project .profile-notification-card__project-visual {
         grid-column: 2;
         grid-row: 2;
-        width: 12rem;
+        width: 100%;
         margin-top: .75rem;
     }
 
@@ -448,8 +448,8 @@
     }
 
     .profile-notification-card__project-image {
-        width: 12rem;
-        height: 9rem;
+        width: 100%;
+        height: 12rem;
     }
 
     .profile-notification-card__project-placeholder {
