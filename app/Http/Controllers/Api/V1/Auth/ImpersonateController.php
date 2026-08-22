@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Models\ImpersonationToken;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
@@ -29,13 +30,7 @@ class ImpersonateController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="message", type="string", example="Авторизація успішна"),
-     *             @OA\Property(property="user", type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Іван Петренко"),
-     *                 @OA\Property(property="email", type="string", example="user@example.com"),
-     *                 @OA\Property(property="slug", type="string", example="ivan-petrenko"),
-     *                 @OA\Property(property="role", type="string", example="user")
-     *             ),
+     *             @OA\Property(property="user", ref="#/components/schemas/User"),
      *             @OA\Property(property="token", type="string", example="1|abc123..."),
      *             @OA\Property(property="redirect_path", type="string", example="/profile/private")
      *         )
@@ -73,13 +68,7 @@ class ImpersonateController extends Controller
 
         return response()->json([
             'message' => 'Авторизація успішна',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'slug' => $user->slug,
-                'role' => $user->role->value,
-            ],
+            'user' => new UserResource($user),
             'token' => $apiToken,
             'is_project_preview' => $isProjectPreview,
             'redirect_path' => $grant->redirectPath(),
