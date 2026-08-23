@@ -58,6 +58,8 @@ class DonationsTable
                     ->boolean()
                     ->trueIcon('heroicon-o-eye-slash')
                     ->falseIcon('heroicon-o-eye')
+                    ->trueColor('danger')
+                    ->falseColor('success')
                     ->toggleable(),
 
                 TextColumn::make('donor_type')
